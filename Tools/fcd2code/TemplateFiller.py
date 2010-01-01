@@ -29,6 +29,8 @@ class TemplateFiller:
         self.m_EndMFFieldLoopRE       = re.compile(r"@@EndMFFieldLoop");
         self.m_AdditionIncludesRE     = re.compile(r"@@AdditionalIncludes");
         self.m_AdditionPrioIncludesRE = re.compile(r"@@AdditionalPriorityIncludes");
+        self.m_BeginProducedMethodLoopRE       = re.compile(r"@@BeginProducedMethodLoop");
+        self.m_EndProducedMethodLoopRE         = re.compile(r"@@EndProducedMethodLoop");
 
     def fill(self, dictList):
         """Fill in a template using the contents of the dictionaries in
@@ -68,6 +70,13 @@ class TemplateFiller:
                 inLoop = True;
                 continue;
             
+            # handle @@BeginProducedMethodLoop
+            matchBeginProducedMethodLoop = self.m_BeginProducedMethodLoopRE.search(line);
+            if (not skipCurrent) and (matchBeginProducedMethodLoop != None):
+                #self.m_log.debug("fill: line %d -> BeginProducedMethodLoop", lineNum);
+                inLoop = True;
+                continue;
+
             # handle loops - do not bother with conditionals they are handled in
             # _processLoop
             if (not skipCurrent) and (inLoop == True):
@@ -94,6 +103,15 @@ class TemplateFiller:
                 if matchEndMFFieldLoop != None:
                     #self.m_log.debug("fill: line %d -> EndMFFieldLoop", lineNum);
                     self._processLoop("MFields", loopLines, context);
+                    inLoop    = False;
+                    loopLines = [];
+                    continue;
+
+                # handle @@EndProducedMethodLoop
+                matchEndProducedMethodLoop = self.m_EndProducedMethodLoopRE.search(line);
+                if matchEndProducedMethodLoop != None:
+                    #self.m_log.debug("fill: line %d -> EndProducedMethodLoop", lineNum);
+                    self._processLoop("ProducedMethods", loopLines, context);
                     inLoop    = False;
                     loopLines = [];
                     continue;
@@ -167,11 +185,71 @@ class TemplateFiller:
         for include in includeList:
             self.m_outLines.append("#include <" + include + ">\n");
     
+    def _processProducedMethodsLoop(self, loopType, loopLines, context):
+        """for loopType == "ProducedMethods"  repeat lines in loopLines for all ProducedMethods
+        """
+        if loopType == "ProducedMethods":
+            producedMethods = self._lookup(loopType, context);
+        else:
+            self.m_log.error("_processLoop: unknown loopType \"%s\"." % loopType);
+            return;
+        
+        localDict = dict([("producedMethod", None)]);
+        loopContext = [localDict];
+        for c in context:
+            loopContext.append(c);
+        
+        for producedMethod in producedMethods:
+            localDict["producedMethod"] = producedMethod;
+            
+            skipStack   = ListStack();
+            skipCurrent = False;
+            
+            for line in loopLines:
+                # handle @@if
+                matchIf = self.m_ifRE.search(line);
+                if matchIf != None:
+                    skipStack.push(copy.copy(skipCurrent));
+                    
+                    if skipStack.top() == False:
+                        if self._lookup(matchIf.group(2), loopContext) == True:
+                            skipCurrent = False;
+                        else:
+                            skipCurrent = True;
+                        
+                        if matchIf.group(1) == "!":
+                            skipCurrent = not skipCurrent;
+                    continue;
+                
+                # handle @@else
+                matchElse = self.m_elseRE.search(line);
+                if matchElse != None:
+                    if skipStack.top() == False:
+                        skipCurrent = not skipCurrent;
+                    continue;
+                    
+                # handle @@endif
+                matchEndif = self.m_endifRE.search(line);
+                if matchEndif != None:
+                    skipCurrent = skipStack.top();
+                    skipStack.pop();
+                    continue;
+                
+                if skipCurrent == True:
+                    continue;
+                
+                # a line with regular text - substitute variables and add to output
+                self.m_outLines.append(self._substituteVariables(line, loopContext));
+
     def _processLoop(self, loopType, loopLines, context):
         """For loopType == "Fields"  repeat lines in loopLines for all fields
            for loopType == "SFields" repeat lines in loopLines for all sfields
            for loopType == "MFields" repeat lines in loopLines for all mfields
         """
+        if loopType == "ProducedMethods":
+            self._processProducedMethodsLoop(loopType, loopLines, context)
+            return;
+
         if loopType == "Fields" or loopType == "SFields" or loopType == "MFields":
             fields = self._lookup(loopType, context);
         else:

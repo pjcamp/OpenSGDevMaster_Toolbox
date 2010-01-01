@@ -68,6 +68,21 @@ OSG::UInt32 @!Classname!@Base::getClassTypeId(void)
 {
     return _type.getId();
 }
+@@if hasProducedMethods 
+//! access the producer type of the class
+inline
+const EventProducerType &@!Classname!@Base::getProducerClassType(void)
+{
+    return _producerType;
+}
+
+//! access the producer type id of the class
+inline
+UInt32 @!Classname!@Base::getProducerClassTypeId(void)
+{
+    return _producerType.getId();
+}
+@@endif 
 
 inline
 OSG::UInt16 @!Classname!@Base::getClassGroupId(void)
@@ -218,6 +233,76 @@ const Char8 *@!Classname!@Base::getClassname(void)
 {
     return "@!Classname!@";
 }
+
+@@if isRootProducer 
+inline
+EventConnection @!Classname!@Base::attachActivity(ActivityRefPtr TheActivity, UInt32 ProducedEventId)
+{
+    return _Producer.attachActivity(TheActivity, ProducedEventId);
+}
+
+inline
+bool @!Classname!@Base::isActivityAttached(ActivityRefPtr TheActivity, UInt32 ProducedEventId) const
+{
+    return _Producer.isActivityAttached(TheActivity, ProducedEventId);
+}
+
+inline
+UInt32 @!Classname!@Base::getNumActivitiesAttached(UInt32 ProducedEventId) const
+{
+    return _Producer.getNumActivitiesAttached(ProducedEventId);
+}
+
+inline
+ActivityRefPtr @!Classname!@Base::getAttachedActivity(UInt32 ProducedEventId, UInt32 ActivityIndex) const
+{
+    return _Producer.getAttachedActivity(ProducedEventId,ActivityIndex);
+}
+
+inline
+void @!Classname!@Base::detachActivity(ActivityRefPtr TheActivity, UInt32 ProducedEventId)
+{
+    _Producer.detachActivity(TheActivity, ProducedEventId);
+}
+
+inline
+UInt32 @!Classname!@Base::getNumProducedEvents(void) const
+{
+    return _Producer.getNumProducedEvents();
+}
+
+inline
+const MethodDescription *@!Classname!@Base::getProducedEventDescription(const std::string &ProducedEventName) const
+{
+    return _Producer.getProducedEventDescription(ProducedEventName);
+}
+
+inline
+const MethodDescription *@!Classname!@Base::getProducedEventDescription(UInt32 ProducedEventId) const
+{
+    return _Producer.getProducedEventDescription(ProducedEventId);
+}
+
+inline
+UInt32 @!Classname!@Base::getProducedEventId(const std::string &ProducedEventName) const
+{
+    return _Producer.getProducedEventId(ProducedEventName);
+}
+
+inline
+SFEventProducerPtr *@!Classname!@Base::editSFEventProducer(void)
+{
+    return &_sfEventProducer;
+}
+
+//! Get the value of the @!Classname!@::_sfEventProducer field.
+inline
+EventProducerPtr &@!Classname!@Base::editEventProducer(void)
+{
+    return _sfEventProducer.getValue();
+}
+@@endif 
+
 OSG_GEN_CONTAINERPTR(@!Classname!@);
 
 OSG_END_NAMESPACE
