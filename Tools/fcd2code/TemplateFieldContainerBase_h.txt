@@ -87,6 +87,17 @@
 #include "@!MixinHeader!@"
 @@endif
 
+@@if hasProducedMethods 
+//Event Producer Headers
+#include "OSGEventProducer.h"
+#include "OSGEventProducerType.h"
+#include "OSGMethodDescription.h"
+    @@if isRootProducer
+#include "OSGEventProducerPtrType.h"
+    @@endif
+
+@@endif
+
 OSG_BEGIN_NAMESPACE
 
 class @!Classname!@;
@@ -135,7 +146,7 @@ class @!Classname!@Base : public @!Parent!@
     static const OSG::BitVector DecorateeFieldMask =
         (TypeTraits<BitVector>::One << DecorateeFieldId);
 @@else // isDecorator
-    @@if hasFields
+    @@if hasFieldsOrIsRootProducer
     enum
     {
         @@BeginFieldLoop
@@ -147,7 +158,12 @@ class @!Classname!@Base : public @!Parent!@
             @@else // field.isFirstField
         @!field.Name!@FieldId = @!field.prevField.Name!@FieldId + 1,
                 @@if field.isLastField
+                    @@if isRootProducer
+        EventProducerFieldId = @!field.Name!@FieldId + 1,
+        NextFieldId = EventProducerFieldId + 1
+                    @@else // isRootProducer
         NextFieldId = @!field.Name!@FieldId + 1
+                    @@endif // isRootProducer
                 @@endif // field.isLastField
             @@endif // field.isFirstField
         @@EndFieldLoop
@@ -157,14 +173,45 @@ class @!Classname!@Base : public @!Parent!@
     static const OSG::BitVector @!field.Name!@FieldMask =
         (TypeTraits<BitVector>::One << @!field.Name!@FieldId);
         @@EndFieldLoop
+        @@if isRootProducer
+    static const OSG::BitVector EventProducerFieldMask =
+        (TypeTraits<BitVector>::One << EventProducerFieldId);
+        @@endif // isRootProducer
     static const OSG::BitVector NextFieldMask =
         (TypeTraits<BitVector>::One << NextFieldId);
         
         @@BeginFieldLoop
     typedef @!field.FieldTypeNS!@@!field.CARD!@@!field.FieldTypeCaps:15!@ @!field.CARD!@@!field.Name!@Type;
         @@EndFieldLoop
-    @@endif // hasFields
+        @@if isRootProducer
+    typedef SFEventProducerPtr          SFEventProducerType;
+        @@endif // isRootProducer
+    @@endif // hasFieldsOrIsRootProducer
 @@endif // isDecorator
+@@if hasProducedMethods 
+
+    enum
+    {
+    @@BeginProducedMethodLoop
+        @@if producedMethod.isFirstProducedMethod
+            @@if isRootProducer
+        @!producedMethod.Name!@ProducedMethodId = 1,
+            @@else // isRootProducer
+        @!producedMethod.Name!@ProducedMethodId = Inherited::NextProducedMethodId,
+            @@endif // isRootProducer
+            @@if producedMethod.isLastProducedMethod
+        NextProducedMethodId = @!producedMethod.Name!@ProducedMethodId + 1
+            @@endif // producedMethod.isLastProducedMethod
+        @@else // producedMethod.isFirstProducedMethod
+        @!producedMethod.Name!@ProducedMethodId = @!producedMethod.prevProducedMethod.Name!@ProducedMethodId + 1,
+            @@if producedMethod.isLastProducedMethod
+        NextProducedMethodId = @!producedMethod.Name!@ProducedMethodId + 1
+            @@endif // producedMethod.isLastProducedMethod
+        @@endif // producedMethod.isFirstProducedMethod
+    @@EndProducedMethodLoop
+    };
+@@endif // hasProducedMethods
+
 
     /*---------------------------------------------------------------------*/
     /*! \name                    Class Get                                 */
@@ -173,6 +220,10 @@ class @!Classname!@Base : public @!Parent!@
     static FieldContainerType &getClassType   (void);
     static UInt32              getClassTypeId (void);
     static UInt16              getClassGroupId(void);
+@@if hasProducedMethods
+    static const  EventProducerType  &getProducerClassType  (void);
+    static        UInt32              getProducerClassTypeId(void);
+@@endif
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -327,6 +378,35 @@ class @!Classname!@Base : public @!Parent!@
 
 
     /*! \}                                                                 */
+@@if hasProducedMethods 
+    /*---------------------------------------------------------------------*/
+    /*! \name                Method Produced Get                           */
+    /*! \{                                                                 */
+
+    virtual const EventProducerType &getProducerType(void) const; 
+
+    @@if isRootProducer 
+    EventConnection          attachActivity             (ActivityRefPtr TheActivity,
+                                                         UInt32 ProducedEventId);
+    bool                     isActivityAttached         (ActivityRefPtr TheActivity,
+                                                         UInt32 ProducedEventId) const;
+    UInt32                   getNumActivitiesAttached   (UInt32 ProducedEventId) const;
+    ActivityRefPtr           getAttachedActivity        (UInt32 ProducedEventId,
+                                                         UInt32 ActivityIndex) const;
+    void                     detachActivity             (ActivityRefPtr TheActivity,
+                                                         UInt32 ProducedEventId);
+    UInt32                   getNumProducedEvents       (void) const;
+    const MethodDescription *getProducedEventDescription(const std::string &ProducedEventName) const;
+    const MethodDescription *getProducedEventDescription(UInt32 ProducedEventId) const;
+    UInt32                   getProducedEventId         (const std::string &ProducedEventName) const;
+
+    SFEventProducerPtr *editSFEventProducer(void);
+    EventProducerPtr   &editEventProducer  (void);
+    @@endif 
+
+    /*! \}                                                                 */
+"@@endif 
+
 @@if !isAbstract
     /*---------------------------------------------------------------------*/
     /*! \name                   Construction                               */
@@ -359,6 +439,14 @@ class @!Classname!@Base : public @!Parent!@
     /*=========================  PROTECTED  ===============================*/
 
   protected:
+@@if isRootProducer 
+    /*---------------------------------------------------------------------*/
+    /*! \name                    Event Producer                            */
+    /*! \{                                                                 */
+    EventProducer _Producer;
+
+    /*! \}                                                                 */
+@@endif 
 
     static TypeObject _type;
 
@@ -377,6 +465,9 @@ class @!Classname!@Base : public @!Parent!@
     @!field.FieldTypeNS!@@!field.CARD!@@!field.FieldTypeCaps:15!@ _@!field.VarName!@;
         @@EndFieldLoop@@
     @@endif // isDecorator
+@@if isRootProducer 
+    SFEventProducerPtr _sfEventProducer;
+@@endif 
 
     /*! \}                                                                 */
 @@endif // hasFields
@@ -604,6 +695,11 @@ class @!Classname!@Base : public @!Parent!@
 
   private:
     /*---------------------------------------------------------------------*/
+@@if hasProducedMethods 
+    static MethodDescription   *_methodDesc[];
+    static EventProducerType _producerType;
+
+@@endif 
 
     // prohibit default functions (move to 'public' if you need one)
     void operator =(const @!Classname!@Base &source);
