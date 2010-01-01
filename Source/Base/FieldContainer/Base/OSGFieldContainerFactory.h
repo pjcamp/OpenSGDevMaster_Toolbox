@@ -171,7 +171,7 @@ class OSG_BASE_DLLMAPPING FieldContainerFactoryBase :
     ContainerPtr      getMappedContainer (UInt32 uiContainerId) const;
 
     Int32             findContainer      (ContainerPtr ptr    ) const;
-    
+    const ContainerStore    &getFieldContainerStore(void             ) const;   
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name                      Get                                     */
