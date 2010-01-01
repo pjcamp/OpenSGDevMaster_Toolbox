@@ -207,10 +207,10 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
     Inherited::classDescInserter(oType);
 
 @@endif
-    @@if hasFields
+    @@if hasFieldsOrIsRootProducer
     FieldDescriptionBase *pDesc = NULL;
 
-    @@endif // hasFields
+    @@endif // hasFieldsOrIsRootProducer
     @@if isDecorator
     pDesc = new SFUnrec@!Parent!@Ptr::Description(
         SFUnrec@!Parent!@Ptr::getClassType(),
@@ -223,6 +223,19 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&@!Classname!@::getHandleDecoratee ));
 
     oType.addInitialDesc(pDesc);
+        @@if isRootProducer
+    pDesc = new EventProducer::Description(
+        SFEventProducerPtr::getClassType(),
+        "EventProducer",
+        "Event Producer",
+        EventProducerFieldId,EventProducerFieldMask,
+        true,
+        (Field::SFDefaultFlags | Field::FStdAccess),
+        static_cast     <FieldEditMethodSig>(&@!Classname!@::invalidEditField),
+        static_cast     <FieldGetMethodSig >(&@!Classname!@::invalidGetField));
+
+    oType.addInitialDesc(pDesc);
+        @@endif // isRootProducer
     @@else // isDecorator
         @@BeginFieldLoop@@
 
@@ -242,7 +255,21 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
     @@endif //!field.noAccess
 
     oType.addInitialDesc(pDesc);
+
         @@EndFieldLoop@@
+        @@if isRootProducer
+    pDesc = new EventProducer::Description(
+        SFEventProducerPtr::getClassType(),
+        "EventProducer",
+        "Event Producer",
+        EventProducerFieldId,EventProducerFieldMask,
+        true,
+        (Field::SFDefaultFlags | Field::FStdAccess),
+        static_cast     <FieldEditMethodSig>(&@!Classname!@::invalidEditField),
+        static_cast     <FieldGetMethodSig >(&@!Classname!@::invalidGetField));
+
+    oType.addInitialDesc(pDesc);
+        @@endif // isRootProducer
     @@endif // isDecorator
 }
 
@@ -266,6 +293,32 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
     @!SafeDescription!@
     );
 
+@@if hasProducedMethods
+//! @!Classname!@ Produced Methods
+
+MethodDescription *@!Classname!@Base::_methodDesc[] =
+{
+@@BeginProducedMethodLoop@@
+    new MethodDescription("@!producedMethod.Name!@" 
+                     @!producedMethod.Name!@MethodId, 
+                     SFEventRefPtr::getClassType(),
+                     FunctorAccessMethod())@!producedMethod.Separator!@
+@@EndProducedMethodLoop@@
+};
+
+EventProducerType @!Classname!@Base::_producerType(
+    "@!Classname!@ProducerType"
+@@if isRootProducer 
+    "EventProducerType"
+@@else 
+    "@!parentProducer!@ProducerType"
+@@endif 
+    NULL,
+    InitEventProducerFunctor(),
+    _methodDesc,
+    sizeof(_methodDesc));
+@@endif 
+
 /*------------------------------ get -----------------------------------*/
 
 FieldContainerType &@!Classname!@Base::getType(void)
@@ -278,6 +331,13 @@ const FieldContainerType &@!Classname!@Base::getType(void) const
     return _type;
 }
 
+@@if hasProducedMethods 
+const EventProducerType &@!Classname!@Base::getProducerType(void) const
+{
+    return _producerType;
+}
+
+@@endif 
 UInt32 @!Classname!@Base::getContainerSize(void) const
 {
     return sizeof(@!Classname!@);
@@ -582,6 +642,12 @@ UInt32 @!Classname!@Base::getBinSize(ConstFieldMaskArg whichField)
         returnValue += _@!field.VarName!@.getBinSize();
     }
     @@EndFieldLoop@@
+@@if isRootProducer 
+    if(FieldBits::NoField != (EventProducerFieldMask & whichField))
+    {
+        returnValue += _sfEventProducer.getBinSize();
+    }
+@@endif
 @@endif // isDecorator
 
     return returnValue;
@@ -604,6 +670,12 @@ void @!Classname!@Base::copyToBin(BinaryDataHandler &pMem,
         _@!field.VarName!@.copyToBin(pMem);
     }
     @@EndFieldLoop@@
+@@if isRootProducer 
+    if(FieldBits::NoField != (EventProducerFieldMask & whichField))
+    {
+        _sfEventProducer.copyToBin(pMem);
+    }
+@@endif
 @@endif // isDecorator
 }
 
@@ -630,6 +702,12 @@ void @!Classname!@Base::copyFromBin(BinaryDataHandler &pMem,
         _@!field.VarName!@.copyFromBin(pMem);
     }
     @@EndFieldLoop@@
+@@if isRootProducer 
+    if(FieldBits::NoField != (EventProducerFieldMask & whichField))
+    {
+        _sfEventProducer.copyFromBin(pMem);
+    }
+@@endif
 @@endif // isDecorator
 }
 
@@ -771,32 +849,53 @@ FieldContainerTransitPtr @!Classname!@Base::shallowCopy(void) const
 /*------------------------- constructors ----------------------------------*/
 
 @!Classname!@Base::@!Classname!@Base(void) :
-@@if !hasFields
+@@if isRootProducer 
+    _Producer(&getProducerType()),
+@@endif
+@@if !hasFieldsOrIsRootProducer
     Inherited()
-@@else // !hasFields
+@@else // !hasFieldsOrIsRootProducer
     Inherited(),
-    @@if isDecorator
+    @@if hasFields
+        @@if isDecorator
     _sfDecoratee()
-    @@else // isDecorator
-        @@BeginFieldLoop@@
-            @@if field.isChildField
+        @@else // isDecorator
+            @@BeginFieldLoop@@
+                @@if field.isChildField
     _@!field.VarName:25!@(this,
                           @!field.Name!@FieldId,
                           @!field.TypeRaw!@::@!field.linkParentField!@FieldId)@!field.Separator!@
-            @@else
+                @@else
     _@!field.VarName:25!@(@!field.TypedDefault!@)@!field.Separator!@
-            @@endif
-        @@EndFieldLoop@@
-    @@endif // isDecorator
-@@endif // !hasFields
+                @@endif
+            @@EndFieldLoop@@
+        @@endif // isDecorator
+    @@endif // hasFields
+    @@if isRootProducer 
+        @@if hasFields
+    ,_sfEventProducer(&_Producer)
+        @@else // hasFields
+    _sfEventProducer(&_Producer)
+        @@endif // hasFields
+    @@endif
+@@endif // !hasFieldsOrIsRootProducer
 {
+@@if hasProducedMethods 
+@@if !isRootProducer 
+    _Producer.setType(&_producerType);
+@@endif
+@@endif
 }
 
 @!Classname!@Base::@!Classname!@Base(const @!Classname!@Base &source) :
-@@if !hasFields
+@@if isRootProducer 
+    _Producer(&source.getProducerType()),
+@@endif
+@@if !hasFieldsOrIsRootProducer
     Inherited(source)
-@@else // !hasFields
+@@else // !hasFieldsOrIsRootProducer
     Inherited(source),
+    @@if hasFields
     @@if isDecorator
     _sfDecoratee(source._sfDecoratee)
     @@else // isDecorator
@@ -818,7 +917,15 @@ FieldContainerTransitPtr @!Classname!@Base::shallowCopy(void) const
             @@endif // field.isPtrField
         @@EndFieldLoop@@
     @@endif // isDecorator
-@@endif // !hasFields
+    @@endif // hasFields
+    @@if isRootProducer 
+        @@if hasFields
+    ,_sfEventProducer(&_Producer)
+        @@else // hasFields
+    _sfEventProducer(&_Producer)
+        @@endif // hasFields
+    @@endif
+@@endif // !hasFieldsOrIsRootProducer
 {
 }
 

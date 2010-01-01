@@ -11,6 +11,7 @@ class FieldContainer(FCDElement):
         super(FieldContainer, self).__init__();
         self.m_log    = logging.getLogger("FieldContainer");
         self.m_fields = [];
+        self.m_producedMethods = [];
         self.m_usedTypeInclude  = {};
         self.m_usedFieldInclude = {};
         self.initFCDDict();
@@ -20,6 +21,7 @@ class FieldContainer(FCDElement):
         """
         self.setFCD("name",                       "",       True);
         self.setFCD("parent",                     "",       True);
+        self.setFCD("parentProducer",             "",       True);
         self.setFCD("mixinparent",                "",       True);
         self.setFCD("mixinheader",                "",       True);
         self.setFCD("library",                    "",       True);
@@ -54,6 +56,11 @@ class FieldContainer(FCDElement):
         self.m_fields.append(field);
         return idx;
     
+    def addProducedMethod(self, prodMethod):
+        idx = len(self.m_producedMethods);
+        prodMethod.setFieldContainer(self);
+        self.m_producedMethods.append(prodMethod);
+        return idx;
     #
     # Common tests
     
@@ -62,6 +69,15 @@ class FieldContainer(FCDElement):
     
     def isDecoratable(self):
         return self["isDecoratable"];
+
+    def isRootProducer(self):
+        return self.hasProducedMethods() and (not self.hasParentProducer());
+
+    def hasParentProducer(self):
+        return len(self["parentProducer"]) != 0;
+    
+    def hasProducedMethods(self):
+        return len(self.m_producedMethods) > 0;
 
     def hasAuthors(self):
         return len(self["authors"]) != 0;
@@ -84,7 +100,7 @@ class FieldContainer(FCDElement):
             self["hasFields"] = True;
         else:
             self["hasFields"] = False;
-        
+
             
         if self.getFCD("library") != "":
             self["isInLibrary"] = True;
@@ -114,6 +130,14 @@ class FieldContainer(FCDElement):
             self["Classname"] = "<UNDEF>";
             self["CLASSNAME"] = "<UNDEF>";
         
+
+        if self.getFCD("parentProducer") != "":
+            self["parentProducer"] = self.getFCD("parentProducer");
+            self["hasParentProducer"] = True;
+        else:
+            self["parentProducer"] = "";
+            self["hasParentProducer"] = False;
+
         if self.getFCD("authors") != "":
             self["hasAuthors"] = True;
             self["authors"] = self.getFCD("authors");
@@ -265,6 +289,43 @@ class FieldContainer(FCDElement):
 
                 if not field.isPtrField():
                     self["hasValueMField"] = True;
+
+        self["ProducedMethods"]  = [];
+
+        for i, producedMethod in enumerate(self.m_producedMethods):
+            producedMethod.finalize();
+
+            self["hasProducedMethods"] = True
+
+            if i == 0:
+                producedMethod["prevProducedMethod"]    = None;
+                producedMethod["isFirstProducedMethod"] = True;
+            else:
+                producedMethod["prevProducedMethod"]    = self.m_producedMethods[i - 1];
+                producedMethod["isFirstProducedMethod"] = False;
+            
+            if i == len(self.m_producedMethods) - 1:
+                producedMethod["Separator"]   = "";
+                producedMethod["nextProducedMethod"]   = None;
+                producedMethod["isLastProducedMethod"] = True;
+            else:
+                producedMethod["Separator"]   = ",";
+                producedMethod["nextProducedMethod"]   = self.m_producedMethods[i + 1];
+                producedMethod["isLastProducedMethod"] = False;
+
+            self["ProducedMethods"].append(producedMethod);
+
+        if self.isRootProducer():
+            self["isRootProducer"] = True
+        else:
+            self["isRootProducer"] = False
+
+        if len(self.m_fields) > 0 or self.isRootProducer():
+            self["hasFieldsOrIsRootProducer"] = True;
+        else:
+            self["hasFieldsOrIsRootProducer"] = False;
+        
+
 
         if self.getFCD("isNodeCore") == "true" or self.getFCD("isNodeCore") == "True":
             self["isNodeCore"] = True;
