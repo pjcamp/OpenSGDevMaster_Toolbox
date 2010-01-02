@@ -195,17 +195,17 @@ class @!Classname!@Base : public @!Parent!@
     @@BeginProducedMethodLoop
         @@if producedMethod.isFirstProducedMethod
             @@if isRootProducer
-        @!producedMethod.Name!@ProducedMethodId = 1,
+        @!producedMethod.Name!@MethodId = 1,
             @@else // isRootProducer
-        @!producedMethod.Name!@ProducedMethodId = Inherited::NextProducedMethodId,
+        @!producedMethod.Name!@MethodId = Inherited::NextProducedMethodId,
             @@endif // isRootProducer
             @@if producedMethod.isLastProducedMethod
-        NextProducedMethodId = @!producedMethod.Name!@ProducedMethodId + 1
+        NextProducedMethodId = @!producedMethod.Name!@MethodId + 1
             @@endif // producedMethod.isLastProducedMethod
         @@else // producedMethod.isFirstProducedMethod
-        @!producedMethod.Name!@ProducedMethodId = @!producedMethod.prevProducedMethod.Name!@ProducedMethodId + 1,
+        @!producedMethod.Name!@MethodId = @!producedMethod.prevProducedMethod.Name!@MethodId + 1,
             @@if producedMethod.isLastProducedMethod
-        NextProducedMethodId = @!producedMethod.Name!@ProducedMethodId + 1
+        NextProducedMethodId = @!producedMethod.Name!@MethodId + 1
             @@endif // producedMethod.isLastProducedMethod
         @@endif // producedMethod.isFirstProducedMethod
     @@EndProducedMethodLoop

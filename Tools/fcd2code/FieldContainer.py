@@ -292,6 +292,8 @@ class FieldContainer(FCDElement):
 
         self["ProducedMethods"]  = [];
 
+        self["hasProducedMethods"] = False
+
         for i, producedMethod in enumerate(self.m_producedMethods):
             producedMethod.finalize();
 
