@@ -53,4 +53,24 @@ const FieldType &PointerMFieldBase::getClassType(void)
     return _fieldType;
 }
 
+UInt32 PointerMFieldBase::getSize(void) const
+{
+    return _ptrStore.size();
+}
+
+UInt32 PointerMFieldBase::getCardinality(void) const
+{
+    return _fieldType.getCardinality();
+}
+
+UInt32 PointerMFieldBase::getClass(void) const
+{
+    return _fieldType.getClass();
+}
+
+const FieldType& PointerMFieldBase::getType(void) const
+{
+    return _fieldType;
+}
+
 OSG_END_NAMESPACE

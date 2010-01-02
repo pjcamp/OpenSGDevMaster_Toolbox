@@ -117,6 +117,10 @@ class OSG_BASE_DLLMAPPING PointerSFieldBase : public Field
     bool operator ==(const Self &source) const;
 
     /*! \}                                                                 */
+    virtual UInt32 getSize(void) const;
+    virtual UInt32 getCardinality(void) const;
+    virtual UInt32 getClass(void) const;
+    virtual const FieldType& getType(void) const;
     /*=========================  PROTECTED  ===============================*/
 
   protected:

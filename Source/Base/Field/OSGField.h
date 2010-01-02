@@ -54,6 +54,8 @@ OSG_BEGIN_NAMESPACE
     \ingroup GrpLibOSGBase 
  */
 
+class FieldType;
+
 class OSG_BASE_DLLMAPPING Field
 {
     /*==========================  PUBLIC  =================================*/
@@ -91,6 +93,10 @@ class OSG_BASE_DLLMAPPING Field
     /*---------------------------------------------------------------------*/
     /*! \name                      Get                                     */
     /*! \{                                                                 */
+    virtual UInt32 getSize(void) const = 0;
+    virtual UInt32 getCardinality(void) const = 0;
+    virtual UInt32 getClass(void) const = 0;
+    virtual const FieldType& getType(void) const = 0;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

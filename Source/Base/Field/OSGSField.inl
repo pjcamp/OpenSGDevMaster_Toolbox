@@ -88,6 +88,30 @@ typename SField<ValueT, iNamespace>::const_reference
     return _fieldValue;
 }
 
+template <class ValueT, Int32 iNamespace> inline
+UInt32 SField<ValueT, iNamespace>::getSize(void) const
+{
+    return 1;
+}
+
+template <class ValueT, Int32 iNamespace> inline
+UInt32 SField<ValueT, iNamespace>::getCardinality(void) const
+{
+    return _fieldType.getCardinality();
+}
+
+template <class ValueT, Int32 iNamespace> inline
+UInt32 SField<ValueT, iNamespace>::getClass(void) const
+{
+    return _fieldType.getClass();
+}
+
+template <class ValueT, Int32 iNamespace> inline
+const FieldType& SField<ValueT, iNamespace>::getType(void) const
+{
+    return _fieldType;
+}
+
 /*-------------------------------------------------------------------------*/
 /*                                Set                                      */
 

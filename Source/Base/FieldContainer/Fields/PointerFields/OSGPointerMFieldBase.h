@@ -177,6 +177,10 @@ class OSG_BASE_DLLMAPPING PointerMFieldBase : public Field
 #endif
 
     /*! \}                                                                 */
+    virtual UInt32 getSize(void) const;
+    virtual UInt32 getCardinality(void) const;
+    virtual UInt32 getClass(void) const;
+    virtual const FieldType& getType(void) const;
     /*=========================  PROTECTED  ===============================*/
 
   protected:

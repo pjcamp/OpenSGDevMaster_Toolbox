@@ -153,6 +153,10 @@ class MField : public Field
 
           StorageType &getValues(void);
     const StorageType &getValues(void) const;
+    virtual UInt32 getSize(void) const;
+    virtual UInt32 getCardinality(void) const;
+    virtual UInt32 getClass(void) const;
+    virtual const FieldType& getType(void) const;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
