@@ -81,6 +81,10 @@
 #include "OSG@!Classname!@.h"
 
 #include <boost/bind.hpp>
+@@if hasProducedMethods
+
+#include "OSGEvent.h"
+@@endif // hasProducedMethods
 
 #ifdef WIN32 // turn off 'this' : used in base member initializer list warning
 #pragma warning(disable:4355)
@@ -258,7 +262,7 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
 
         @@EndFieldLoop@@
         @@if isRootProducer
-    pDesc = new EventProducer::Description(
+    pDesc = new SFEventProducerPtr::Description(
         SFEventProducerPtr::getClassType(),
         "EventProducer",
         "Event Producer",
@@ -299,19 +303,20 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
 MethodDescription *@!Classname!@Base::_methodDesc[] =
 {
 @@BeginProducedMethodLoop@@
-    new MethodDescription("@!producedMethod.Name!@" 
+    new MethodDescription("@!producedMethod.Name!@", 
+                    "@!producedMethod.Description!@",
                      @!producedMethod.Name!@MethodId, 
-                     SFEventRefPtr::getClassType(),
+                     SFUnrecEventPtr::getClassType(),
                      FunctorAccessMethod())@!producedMethod.Separator!@
 @@EndProducedMethodLoop@@
 };
 
 EventProducerType @!Classname!@Base::_producerType(
-    "@!Classname!@ProducerType"
+    "@!Classname!@ProducerType",
 @@if isRootProducer 
-    "EventProducerType"
+    "EventProducerType",
 @@else 
-    "@!parentProducer!@ProducerType"
+    "@!parentProducer!@ProducerType",
 @@endif 
     NULL,
     InitEventProducerFunctor(),
