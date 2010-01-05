@@ -45,6 +45,10 @@
 #if defined(__APPLE__) || defined(OSG_DO_DOC)
 
 #include "OSGCarbonWindowBase.h"
+#include <AGL/agl.h>
+#include "OSGThreadManager.h"
+
+#include <map>
 
 OSG_BEGIN_NAMESPACE
 
@@ -58,7 +62,7 @@ OSG_BEGIN_NAMESPACE
 class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
 {
   protected:
-
+    
     /*==========================  PUBLIC  =================================*/
 
   public:
@@ -66,6 +70,7 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
     typedef CarbonWindowBase Inherited;
     typedef CarbonWindow     Self;
 
+    typedef std::map<UInt32, CarbonWindowUnrecPtr> CarbonWindowToProducerMap;    
     /*---------------------------------------------------------------------*/
     /*! \name                      Sync                                    */
     /*! \{                                                                 */
@@ -91,6 +96,97 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
     virtual void terminate(void                                 );
 
     /*! \}                                                                 */
+	virtual void setShowCursor(bool show);
+	virtual bool getShowCursor() const;
+    virtual void setAttachMouseToCursor(bool attach);
+    virtual bool getAttachMouseToCursor(void) const;
+	virtual Vec2f getDesktopSize() const;
+	virtual std::vector<Path, std::allocator<Path> > openFileDialog(const std::string&, const std::vector<Window::FileDialogFilter, std::allocator<Window::FileDialogFilter> >&, const Path&, bool);
+	virtual Path saveFileDialog(const std::string&, const std::vector<Window::FileDialogFilter, std::allocator<Window::FileDialogFilter> >&, const std::string&, const Path&, bool);
+	virtual KeyEvent::KeyState getKeyState(KeyEvent::Key) const;
+	
+	//Store state of modifier keys
+	UInt32 _modifierKeyState;
+	
+    virtual void openWindow(const Pnt2f& ScreenPosition,
+                       const Vec2f& Size,
+                       const std::string& WindowName);
+    
+    virtual void closeWindow(void);
+    
+    virtual void mainLoop(void);
+	
+	virtual WindowUnrecPtr initWindow(void);
+	
+    //Set the Window Position
+    virtual void setPosition(Pnt2f Pos);
+    //Set the Window Position
+    virtual Pnt2f getPosition(void) const;
+
+    //Set the Window size
+    virtual void setSize(Vec2us Size);
+
+    //Get the Window size
+    virtual Vec2f getSize(void) const;
+
+    //Focused
+    //Set the Window Focus
+    virtual void setFocused(bool Focused);
+
+    //Get the Window Focus
+    virtual bool getFocused(void) const;
+
+    //Visible / Iconify / Normal
+    //Set the Window Visible
+    virtual void setVisible(bool Visible);
+
+    //Get the Window Visible
+    virtual bool getVisible(void) const;
+
+    //Set the Window Iconify
+    virtual void setIconify(bool Iconify);
+
+    //Get the Window Iconify
+    virtual bool getIconify(void) const;
+
+    //Fullscreen
+    virtual void setFullscreen(bool Fullscreen);
+
+    //Get the Window Fullscreen
+    virtual bool getFullscreen(void) const;
+
+    //Set the text on the Title bar of the window
+    virtual void setTitle(const std::string& TitleText);
+
+    //Get the text of the Title bar of the window
+    virtual std::string getTitle(void);
+
+    //Set the window to allow or not allow Resizing
+    virtual void setRisizable(bool IsResizable);
+
+    //Get whether or not the window allows resizing
+    virtual bool getRisizable(void);
+
+    //Set the window to draw or not draw it's border
+    virtual void setDrawBorder(bool DrawBorder);
+
+    //Get wether or not the window is drawing a border
+    virtual bool getDrawBorder(void);
+	
+
+    virtual void draw(void);
+    virtual void update(void);
+
+    virtual bool attachWindow(void);
+
+	virtual UInt32 getKeyModifiers(void) const;
+    
+	virtual Pnt2f getMousePosition(void) const;
+	
+
+	virtual std::string getClipboard(void) const;
+
+	virtual void putClipboard(const std::string Value);
     /*=========================  PROTECTED  ===============================*/
 
   protected:
@@ -122,6 +218,15 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
     /*---------------------------------------------------------------------*/
     /*! \name      Window system implementation functions                  */
     /*! \{                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                MT Construction                               */
+    /*! \{                                                                 */
+
+           void onCreate       (const CarbonWindow *source = NULL);
+
+           void onDestroy      (      UInt32  uiContainerId);
+
+    /*! \}                                                                 */
 
     virtual void doActivate  (void);
     virtual void doDeactivate(void);
@@ -129,6 +234,31 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
     virtual bool hasContext  (void);
 
     /*! \}                                                                 */
+	virtual void setCursor(void);
+	OSStatus handleMouseEvent(EventHandlerCallRef nextHandler, EventRef event, void *userData);
+	OSStatus handleWindowEvent(EventHandlerCallRef nextHandler, EventRef event, void *userData);
+	OSStatus handleAppEvent(EventHandlerCallRef nextHandler, EventRef event, void *userData);
+	OSStatus handleKeyEvent(EventHandlerCallRef nextHandler, EventRef event, void *userData);
+    void disposeWindow(void);
+	
+	static KeyEvent::Key determineKey(::UInt32 key);
+	static UInt32 determineKeyModifiers(::UInt32 keyModifiers);
+
+    static CGKeyCode getKeyCode(KeyEvent::Key TheKey);
+
+	static CarbonWindowToProducerMap _CarbonWindowToProducerMap;
+	
+	
+    static pascal OSStatus eventHandler(EventHandlerCallRef nextHandler, EventRef event, void *userData);
+    
+	OSStatus internalEventHandler(EventHandlerCallRef nextHandler, EventRef event, void *userData);
+	
+	UInt32 _WindowId;
+	EventHandlerUPP _EventHandlerUPP;
+    WindowRef _WindowRef;
+	AGLContext _Context;
+	static UInt32 getUndefinedWindowId(void);
+
     /*==========================  PRIVATE  ================================*/
 
   private:
@@ -138,6 +268,8 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
 
     // prohibit default functions (move to 'public' if you need one)
     void operator =(const CarbonWindow &source);
+
+    bool _AttachMouseToCursor;
 };
 
 typedef CarbonWindow *CarbonWindowP;
