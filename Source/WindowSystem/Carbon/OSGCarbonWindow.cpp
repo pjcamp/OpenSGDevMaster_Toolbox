@@ -1056,11 +1056,11 @@ WindowUnrecPtr CarbonWindow::initWindow(void)
     //GLint attribs[] = { AGL_RGBA, AGL_DOUBLEBUFFER, AGL_DEPTH_SIZE, 16, AGL_STENCIL_SIZE, 8,  AGL_NONE };
     AGLPixelFormat pixelFormat = aglChoosePixelFormat(0, 0, attribs);
     if (pixelFormat == 0)
-        std::cerr << "Cannot choose pixel format" << std::endl;
+        SFATAL << "Cannot choose pixel format" << std::endl;
     _Context = aglCreateContext(pixelFormat, 0);
     aglDestroyPixelFormat(pixelFormat);
     if (_Context == 0)
-        std::cerr << "Cannot create context" << std::endl;
+        SFATAL << "Cannot create context" << std::endl;
     aglSetWindowRef(_Context,_WindowRef);
     
     //Attach Window
@@ -1247,7 +1247,7 @@ OSStatus CarbonWindow::handleMouseEvent(EventHandlerCallRef nextHandler, EventRe
             break;
 
         default:
-            std::cerr << "handleMouseEvent event not handled" << std::endl;
+            SWARNING << "handleMouseEvent event not handled" << std::endl;
             break;
 
     }
