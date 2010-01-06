@@ -205,6 +205,8 @@ const Char8 *WIN32WindowBase::getClassname(void)
 {
     return "WIN32Window";
 }
+
+
 OSG_GEN_CONTAINERPTR(WIN32Window);
 
 OSG_END_NAMESPACE

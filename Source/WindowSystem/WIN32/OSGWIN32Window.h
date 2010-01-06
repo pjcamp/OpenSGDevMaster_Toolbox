@@ -92,10 +92,124 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
     virtual bool swap      (void);
 
     /*! \}                                                                 */
+
+    static LRESULT CALLBACK staticWndProc(HWND hwnd, UINT uMsg,
+            WPARAM wParam, LPARAM lParam);
+
+    virtual bool attachWindow(void);
+    virtual WindowPtr initWindow(void);
+    virtual void mainLoop(void);
+
+    //Set the Window Position
+    virtual void setPosition(Pnt2f Pos);
+
+    //Set the Window Position
+    virtual Pnt2f getPosition(void) const;
+
+    //Set the Window size
+    virtual void setSize(Vec2us Size);
+
+    //Get the Window size
+    virtual Vec2f getSize(void) const;
+
+    //Focused
+    //Set the Window Focus
+    virtual void setFocused(bool Focused);
+
+    //Get the Window Focus
+    virtual bool getFocused(void) const;
+
+    //Visible / Iconify / Normal
+    //Set the Window Visible
+    virtual void setVisible(bool Visible);
+
+    //Get the Window Visible
+    virtual bool getVisible(void) const;
+
+    //Set the Window Iconify
+    virtual void setIconify(bool Iconify);
+
+    //Get the Window Iconify
+    virtual bool getIconify(void) const;
+
+    //Fullscreen
+    virtual void setFullscreen(bool Fullscreen);
+
+    //Set the text on the Title bar of the window
+    virtual void setTitle(const std::string& TitleText);
+
+    //Get the text of the Title bar of the window
+    virtual std::string getTitle(void);
+
+    //Set the window to allow or not allow Resizing
+    virtual void setRisizable(bool IsResizable);
+
+    //Get whether or not the window allows resizing
+    virtual bool getRisizable(void);
+
+    //Set the window to draw or not draw it's border
+    virtual void setDrawBorder(bool DrawBorder);
+
+    //Get wether or not the window is drawing a border
+    virtual bool getDrawBorder(void);
+
+    //Get the Window Fullscreen
+    virtual bool getFullscreen(void) const;
+
+    virtual void setShowCursor(bool showCursor);
+
+    virtual bool getShowCursor(void) const;
+
+    virtual void setAttachMouseToCursor(bool attach);
+
+    virtual bool getAttachMouseToCursor(void) const;
+
+
+    virtual void setCursorPos(Vec2f Pos);
+
+    virtual UInt32 getKeyModifiers(void) const;
+    virtual KeyEvent::KeyState getKeyState(KeyEvent::Key TheKey) const;
+    virtual Pnt2f getMousePosition(void) const;
+
+    virtual std::string getClipboard(void) const;
+
+    virtual void putClipboard(const std::string Value);
+
+    virtual void openWindow(const Pnt2f& ScreenPosition,
+            const Vec2f& Size,
+            const std::string& WindowName);
+
+    virtual void closeWindow(void);
+
+    virtual void draw(void);
+    virtual void update(void);
+
+    virtual Vec2f getDesktopSize(void) const;
+
+    virtual std::vector<Path> openFileDialog(const std::string& WindowTitle,
+            const std::vector<FileDialogFilter>& Filters,
+            const Path& InitialDir,
+            bool AllowMultiSelect);
+
+    virtual Path saveFileDialog(const std::string& DialogTitle,
+            const std::vector<FileDialogFilter>& Filters,
+            const std::string& InitialFile,
+            const Path& InitialDirectory,
+            bool PromptForOverwrite
+            );
     /*=========================  PROTECTED  ===============================*/
 
   protected:
 
+    typedef std::map<HWND, Win32WindowEventProducerPtr> WIN32HWNDToProducerMap;
+    typedef Win32WindowEventProducerBase Inherited;
+    
+    static WIN32HWNDToProducerMap _WIN32HWNDToProducerMap;
+    
+    LRESULT WndProc(HWND hwnd, UINT uMsg,
+                           WPARAM wParam, LPARAM lParam);
+
+    static KeyEvent::Key determineKey(WPARAM key);
     // Variables should all be in WIN32WindowBase.
 
     /*---------------------------------------------------------------------*/
@@ -121,6 +235,15 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
+    /*! \name                MT Construction                               */
+    /*! \{                                                                 */
+
+           void onCreate       (const WIN32Window *source = NULL);
+
+           void onDestroy      (      UInt32  uiContainerId);
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
     /*! \name      Window system implementation functions                  */
     /*! \{                                                                 */
 
@@ -129,6 +252,21 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
     virtual bool doSwap      (void);
 
     /*! \}                                                                 */
+    
+	virtual void setCursor(void);
+    
+    bool _MouseOverWindow;
+
+    static const UINT WIN32_DRAW_MESSAGE = WM_USER + 1;
+    static const UINT WIN32_UPDATE_MESSAGE = WM_USER + 2;
+
+    Pnt2f _PreviousWindowPosition;
+    Vec2f _PreviousWindowSize;
+    bool _IsFullscreen;
+
+    bool _IsMouseCursorAssociated;
+    bool _HandleNextMouseMove;
+    Pnt2f _PreviousCursorPos;
     /*==========================  PRIVATE  ================================*/
 
   private:
