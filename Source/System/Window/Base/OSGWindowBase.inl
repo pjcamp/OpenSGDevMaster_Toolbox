@@ -64,19 +64,6 @@ OSG::UInt32 WindowBase::getClassTypeId(void)
 {
     return _type.getId();
 }
-//! access the producer type of the class
-inline
-const EventProducerType &WindowBase::getProducerClassType(void)
-{
-    return _producerType;
-}
-
-//! access the producer type id of the class
-inline
-UInt32 WindowBase::getProducerClassTypeId(void)
-{
-    return _producerType.getId();
-}
 
 inline
 OSG::UInt16 WindowBase::getClassGroupId(void)
@@ -352,147 +339,6 @@ void WindowBase::setRendererInfo(const std::string &value)
 
     _sfRendererInfo.setValue(value);
 }
-//! Get the value of the Window::_sfEnabled field.
-
-inline
-bool &WindowBase::editEnabled(void)
-{
-    editSField(EnabledFieldMask);
-
-    return _sfEnabled.getValue();
-}
-
-//! Get the value of the Window::_sfEnabled field.
-inline
-      bool  WindowBase::getEnabled(void) const
-{
-    return _sfEnabled.getValue();
-}
-
-//! Set the value of the Window::_sfEnabled field.
-inline
-void WindowBase::setEnabled(const bool value)
-{
-    editSField(EnabledFieldMask);
-
-    _sfEnabled.setValue(value);
-}
-//! Get the value of the Window::_sfUseCallbackForDraw field.
-
-inline
-bool &WindowBase::editUseCallbackForDraw(void)
-{
-    editSField(UseCallbackForDrawFieldMask);
-
-    return _sfUseCallbackForDraw.getValue();
-}
-
-//! Get the value of the Window::_sfUseCallbackForDraw field.
-inline
-      bool  WindowBase::getUseCallbackForDraw(void) const
-{
-    return _sfUseCallbackForDraw.getValue();
-}
-
-//! Set the value of the Window::_sfUseCallbackForDraw field.
-inline
-void WindowBase::setUseCallbackForDraw(const bool value)
-{
-    editSField(UseCallbackForDrawFieldMask);
-
-    _sfUseCallbackForDraw.setValue(value);
-}
-//! Get the value of the Window::_sfUseCallbackForReshape field.
-
-inline
-bool &WindowBase::editUseCallbackForReshape(void)
-{
-    editSField(UseCallbackForReshapeFieldMask);
-
-    return _sfUseCallbackForReshape.getValue();
-}
-
-//! Get the value of the Window::_sfUseCallbackForReshape field.
-inline
-      bool  WindowBase::getUseCallbackForReshape(void) const
-{
-    return _sfUseCallbackForReshape.getValue();
-}
-
-//! Set the value of the Window::_sfUseCallbackForReshape field.
-inline
-void WindowBase::setUseCallbackForReshape(const bool value)
-{
-    editSField(UseCallbackForReshapeFieldMask);
-
-    _sfUseCallbackForReshape.setValue(value);
-}
-//! Get the value of the Window::_sfLastUpdateTime field.
-
-inline
-Time &WindowBase::editLastUpdateTime(void)
-{
-    editSField(LastUpdateTimeFieldMask);
-
-    return _sfLastUpdateTime.getValue();
-}
-
-//! Get the value of the Window::_sfLastUpdateTime field.
-inline
-const Time &WindowBase::getLastUpdateTime(void) const
-{
-    return _sfLastUpdateTime.getValue();
-}
-
-//! Set the value of the Window::_sfLastUpdateTime field.
-inline
-void WindowBase::setLastUpdateTime(const Time &value)
-{
-    editSField(LastUpdateTimeFieldMask);
-
-    _sfLastUpdateTime.setValue(value);
-}
-
-//! Get the value of the Window::_sfIcon field.
-inline
-Image * WindowBase::getIcon(void) const
-{
-    return _sfIcon.getValue();
-}
-
-//! Set the value of the Window::_sfIcon field.
-inline
-void WindowBase::setIcon(Image * const value)
-{
-    editSField(IconFieldMask);
-
-    _sfIcon.setValue(value);
-}
-//! Get the value of the Window::_sfLockCursor field.
-
-inline
-bool &WindowBase::editLockCursor(void)
-{
-    editSField(LockCursorFieldMask);
-
-    return _sfLockCursor.getValue();
-}
-
-//! Get the value of the Window::_sfLockCursor field.
-inline
-      bool  WindowBase::getLockCursor(void) const
-{
-    return _sfLockCursor.getValue();
-}
-
-//! Set the value of the Window::_sfLockCursor field.
-inline
-void WindowBase::setLockCursor(const bool value)
-{
-    editSField(LockCursorFieldMask);
-
-    _sfLockCursor.setValue(value);
-}
 
 //! Get the value of the \a index element the Window::_mfPort field.
 inline
@@ -607,24 +453,6 @@ void WindowBase::execSync (      WindowBase *pFrom,
                                 syncMode,
                                 uiSyncInfo,
                                 oOffsets);
-
-    if(FieldBits::NoField != (EnabledFieldMask & whichField))
-        _sfEnabled.syncWith(pFrom->_sfEnabled);
-
-    if(FieldBits::NoField != (UseCallbackForDrawFieldMask & whichField))
-        _sfUseCallbackForDraw.syncWith(pFrom->_sfUseCallbackForDraw);
-
-    if(FieldBits::NoField != (UseCallbackForReshapeFieldMask & whichField))
-        _sfUseCallbackForReshape.syncWith(pFrom->_sfUseCallbackForReshape);
-
-    if(FieldBits::NoField != (LastUpdateTimeFieldMask & whichField))
-        _sfLastUpdateTime.syncWith(pFrom->_sfLastUpdateTime);
-
-    if(FieldBits::NoField != (IconFieldMask & whichField))
-        _sfIcon.syncWith(pFrom->_sfIcon);
-
-    if(FieldBits::NoField != (LockCursorFieldMask & whichField))
-        _sfLockCursor.syncWith(pFrom->_sfLockCursor);
 }
 #endif
 
@@ -634,74 +462,6 @@ const Char8 *WindowBase::getClassname(void)
 {
     return "Window";
 }
-
-inline
-EventConnection WindowBase::attachActivity(ActivityRefPtr TheActivity, UInt32 ProducedEventId)
-{
-    return _Producer.attachActivity(TheActivity, ProducedEventId);
-}
-
-inline
-bool WindowBase::isActivityAttached(ActivityRefPtr TheActivity, UInt32 ProducedEventId) const
-{
-    return _Producer.isActivityAttached(TheActivity, ProducedEventId);
-}
-
-inline
-UInt32 WindowBase::getNumActivitiesAttached(UInt32 ProducedEventId) const
-{
-    return _Producer.getNumActivitiesAttached(ProducedEventId);
-}
-
-inline
-ActivityRefPtr WindowBase::getAttachedActivity(UInt32 ProducedEventId, UInt32 ActivityIndex) const
-{
-    return _Producer.getAttachedActivity(ProducedEventId,ActivityIndex);
-}
-
-inline
-void WindowBase::detachActivity(ActivityRefPtr TheActivity, UInt32 ProducedEventId)
-{
-    _Producer.detachActivity(TheActivity, ProducedEventId);
-}
-
-inline
-UInt32 WindowBase::getNumProducedEvents(void) const
-{
-    return _Producer.getNumProducedEvents();
-}
-
-inline
-const MethodDescription *WindowBase::getProducedEventDescription(const std::string &ProducedEventName) const
-{
-    return _Producer.getProducedEventDescription(ProducedEventName);
-}
-
-inline
-const MethodDescription *WindowBase::getProducedEventDescription(UInt32 ProducedEventId) const
-{
-    return _Producer.getProducedEventDescription(ProducedEventId);
-}
-
-inline
-UInt32 WindowBase::getProducedEventId(const std::string &ProducedEventName) const
-{
-    return _Producer.getProducedEventId(ProducedEventName);
-}
-
-inline
-SFEventProducerPtr *WindowBase::editSFEventProducer(void)
-{
-    return &_sfEventProducer;
-}
-
-//! Get the value of the Window::_sfEventProducer field.
-inline
-EventProducerPtr &WindowBase::editEventProducer(void)
-{
-    return _sfEventProducer.getValue();
-}
-
 OSG_GEN_CONTAINERPTR(Window);
 
 OSG_END_NAMESPACE

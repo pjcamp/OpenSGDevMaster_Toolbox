@@ -101,8 +101,8 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
     virtual void setAttachMouseToCursor(bool attach);
     virtual bool getAttachMouseToCursor(void) const;
 	virtual Vec2f getDesktopSize() const;
-	virtual std::vector<Path, std::allocator<Path> > openFileDialog(const std::string&, const std::vector<Window::FileDialogFilter, std::allocator<Window::FileDialogFilter> >&, const Path&, bool);
-	virtual Path saveFileDialog(const std::string&, const std::vector<Window::FileDialogFilter, std::allocator<Window::FileDialogFilter> >&, const std::string&, const Path&, bool);
+	virtual std::vector<Path, std::allocator<Path> > openFileDialog(const std::string&, const std::vector<WindowEventProducer::FileDialogFilter, std::allocator<WindowEventProducer::FileDialogFilter> >&, const Path&, bool);
+	virtual Path saveFileDialog(const std::string&, const std::vector<WindowEventProducer::FileDialogFilter, std::allocator<WindowEventProducer::FileDialogFilter> >&, const std::string&, const Path&, bool);
 	virtual KeyEvent::KeyState getKeyState(KeyEvent::Key) const;
 	
 	//Store state of modifier keys

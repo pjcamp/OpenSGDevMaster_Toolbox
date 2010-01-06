@@ -63,11 +63,12 @@
 
 //#include "OSGBaseTypes.h"
 
-#include "OSGWindow.h" // Parent
+#include "OSGWindowEventProducer.h" // Parent
 
 #include "OSGCarbonWindowDataFields.h"  // Context type
 
 #include "OSGCarbonWindowFields.h"
+
 
 OSG_BEGIN_NAMESPACE
 
@@ -75,12 +76,12 @@ class CarbonWindow;
 
 //! \brief CarbonWindow Base Class.
 
-class OSG_WINDOWCARBON_DLLMAPPING CarbonWindowBase : public Window
+class OSG_WINDOWCARBON_DLLMAPPING CarbonWindowBase : public WindowEventProducer
 {
   public:
 
-    typedef Window Inherited;
-    typedef Window ParentContainer;
+    typedef WindowEventProducer Inherited;
+    typedef WindowEventProducer ParentContainer;
 
     typedef Inherited::TypeObject TypeObject;
     typedef TypeObject::InitPhase InitPhase;
@@ -103,6 +104,7 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindowBase : public Window
         (TypeTraits<BitVector>::One << NextFieldId);
         
     typedef SFAGLContext      SFContextType;
+
 
     /*---------------------------------------------------------------------*/
     /*! \name                    Class Get                                 */
@@ -160,6 +162,7 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindowBase : public Window
 
 
     /*! \}                                                                 */
+
     /*---------------------------------------------------------------------*/
     /*! \name                   Construction                               */
     /*! \{                                                                 */

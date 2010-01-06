@@ -70,16 +70,8 @@
 #include "OSGRenderOptionsFields.h"     // RenderOptions type
 #include "OSGBaseFields.h"              // RendererInfo type
 #include "OSGDrawTask.h"                // DrawTasks type
-#include "OSGImageFields.h"             // Icon type
 
 #include "OSGWindowFields.h"
-
-//Event Producer Headers
-#include "OSGEventProducer.h"
-#include "OSGEventProducerType.h"
-#include "OSGMethodDescription.h"
-#include "OSGEventProducerPtrType.h"
-
 
 OSG_BEGIN_NAMESPACE
 
@@ -120,14 +112,7 @@ class OSG_SYSTEM_DLLMAPPING WindowBase : public HardwareContext
         DrawModeFieldId = RenderOptionsFieldId + 1,
         RendererInfoFieldId = DrawModeFieldId + 1,
         DrawTasksFieldId = RendererInfoFieldId + 1,
-        EnabledFieldId = DrawTasksFieldId + 1,
-        UseCallbackForDrawFieldId = EnabledFieldId + 1,
-        UseCallbackForReshapeFieldId = UseCallbackForDrawFieldId + 1,
-        LastUpdateTimeFieldId = UseCallbackForReshapeFieldId + 1,
-        IconFieldId = LastUpdateTimeFieldId + 1,
-        LockCursorFieldId = IconFieldId + 1,
-        EventProducerFieldId = LockCursorFieldId + 1,
-        NextFieldId = EventProducerFieldId + 1
+        NextFieldId = DrawTasksFieldId + 1
     };
 
     static const OSG::BitVector WidthFieldMask =
@@ -160,20 +145,6 @@ class OSG_SYSTEM_DLLMAPPING WindowBase : public HardwareContext
         (TypeTraits<BitVector>::One << RendererInfoFieldId);
     static const OSG::BitVector DrawTasksFieldMask =
         (TypeTraits<BitVector>::One << DrawTasksFieldId);
-    static const OSG::BitVector EnabledFieldMask =
-        (TypeTraits<BitVector>::One << EnabledFieldId);
-    static const OSG::BitVector UseCallbackForDrawFieldMask =
-        (TypeTraits<BitVector>::One << UseCallbackForDrawFieldId);
-    static const OSG::BitVector UseCallbackForReshapeFieldMask =
-        (TypeTraits<BitVector>::One << UseCallbackForReshapeFieldId);
-    static const OSG::BitVector LastUpdateTimeFieldMask =
-        (TypeTraits<BitVector>::One << LastUpdateTimeFieldId);
-    static const OSG::BitVector IconFieldMask =
-        (TypeTraits<BitVector>::One << IconFieldId);
-    static const OSG::BitVector LockCursorFieldMask =
-        (TypeTraits<BitVector>::One << LockCursorFieldId);
-    static const OSG::BitVector EventProducerFieldMask =
-        (TypeTraits<BitVector>::One << EventProducerFieldId);
     static const OSG::BitVector NextFieldMask =
         (TypeTraits<BitVector>::One << NextFieldId);
         
@@ -192,40 +163,6 @@ class OSG_SYSTEM_DLLMAPPING WindowBase : public HardwareContext
     typedef SFUInt32          SFDrawModeType;
     typedef SFString          SFRendererInfoType;
     typedef MFDrawTask        MFDrawTasksType;
-    typedef SFBool            SFEnabledType;
-    typedef SFBool            SFUseCallbackForDrawType;
-    typedef SFBool            SFUseCallbackForReshapeType;
-    typedef SFTime            SFLastUpdateTimeType;
-    typedef SFUnrecImagePtr   SFIconType;
-    typedef SFBool            SFLockCursorType;
-    typedef SFEventProducerPtr          SFEventProducerType;
-
-    enum
-    {
-        WindowOpenedMethodId = 1,
-        WindowClosingMethodId = WindowOpenedMethodId + 1,
-        WindowClosedMethodId = WindowClosingMethodId + 1,
-        WindowIconifiedMethodId = WindowClosedMethodId + 1,
-        WindowDeiconifiedMethodId = WindowIconifiedMethodId + 1,
-        WindowActivatedMethodId = WindowDeiconifiedMethodId + 1,
-        WindowDeactivatedMethodId = WindowActivatedMethodId + 1,
-        WindowEnteredMethodId = WindowDeactivatedMethodId + 1,
-        WindowExitedMethodId = WindowEnteredMethodId + 1,
-        MouseClickedMethodId = WindowExitedMethodId + 1,
-        MouseEnteredMethodId = MouseClickedMethodId + 1,
-        MouseExitedMethodId = MouseEnteredMethodId + 1,
-        MousePressedMethodId = MouseExitedMethodId + 1,
-        MouseReleasedMethodId = MousePressedMethodId + 1,
-        MouseMovedMethodId = MouseReleasedMethodId + 1,
-        MouseDraggedMethodId = MouseMovedMethodId + 1,
-        MouseWheelMovedMethodId = MouseDraggedMethodId + 1,
-        KeyPressedMethodId = MouseWheelMovedMethodId + 1,
-        KeyReleasedMethodId = KeyPressedMethodId + 1,
-        KeyTypedMethodId = KeyReleasedMethodId + 1,
-        UpdateMethodId = KeyTypedMethodId + 1,
-        NextProducedMethodId = UpdateMethodId + 1
-    };
-
 
     /*---------------------------------------------------------------------*/
     /*! \name                    Class Get                                 */
@@ -234,8 +171,6 @@ class OSG_SYSTEM_DLLMAPPING WindowBase : public HardwareContext
     static FieldContainerType &getClassType   (void);
     static UInt32              getClassTypeId (void);
     static UInt16              getClassGroupId(void);
-    static const  EventProducerType  &getProducerClassType  (void);
-    static        UInt32              getProducerClassTypeId(void);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -283,23 +218,6 @@ class OSG_SYSTEM_DLLMAPPING WindowBase : public HardwareContext
                   SFString            *editSFRendererInfo   (void);
             const SFString            *getSFRendererInfo    (void) const;
 
-                  SFBool              *editSFEnabled        (void);
-            const SFBool              *getSFEnabled         (void) const;
-
-                  SFBool              *editSFUseCallbackForDraw(void);
-            const SFBool              *getSFUseCallbackForDraw (void) const;
-
-                  SFBool              *editSFUseCallbackForReshape(void);
-            const SFBool              *getSFUseCallbackForReshape (void) const;
-
-                  SFTime              *editSFLastUpdateTime (void);
-            const SFTime              *getSFLastUpdateTime  (void) const;
-            const SFUnrecImagePtr     *getSFIcon           (void) const;
-                  SFUnrecImagePtr     *editSFIcon           (void);
-
-                  SFBool              *editSFLockCursor     (void);
-            const SFBool              *getSFLockCursor      (void) const;
-
 
                   UInt16              &editWidth          (void);
                   UInt16               getWidth           (void) const;
@@ -332,23 +250,6 @@ class OSG_SYSTEM_DLLMAPPING WindowBase : public HardwareContext
                   std::string         &editRendererInfo   (void);
             const std::string         &getRendererInfo    (void) const;
 
-                  bool                &editEnabled        (void);
-                  bool                 getEnabled         (void) const;
-
-                  bool                &editUseCallbackForDraw(void);
-                  bool                 getUseCallbackForDraw (void) const;
-
-                  bool                &editUseCallbackForReshape(void);
-                  bool                 getUseCallbackForReshape (void) const;
-
-                  Time                &editLastUpdateTime (void);
-            const Time                &getLastUpdateTime  (void) const;
-
-                  Image * getIcon           (void) const;
-
-                  bool                &editLockCursor     (void);
-                  bool                 getLockCursor      (void) const;
-
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name                    Field Set                                 */
@@ -364,12 +265,6 @@ class OSG_SYSTEM_DLLMAPPING WindowBase : public HardwareContext
             void setRenderOptions  (RenderOptions * const value);
             void setDrawMode       (const UInt32 value);
             void setRendererInfo   (const std::string &value);
-            void setEnabled        (const bool value);
-            void setUseCallbackForDraw(const bool value);
-            void setUseCallbackForReshape(const bool value);
-            void setLastUpdateTime (const Time &value);
-            void setIcon           (Image * const value);
-            void setLockCursor     (const bool value);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -406,40 +301,9 @@ class OSG_SYSTEM_DLLMAPPING WindowBase : public HardwareContext
 
 
     /*! \}                                                                 */
-    /*---------------------------------------------------------------------*/
-    /*! \name                Method Produced Get                           */
-    /*! \{                                                                 */
-
-    virtual const EventProducerType &getProducerType(void) const; 
-
-    EventConnection          attachActivity             (ActivityRefPtr TheActivity,
-                                                         UInt32 ProducedEventId);
-    bool                     isActivityAttached         (ActivityRefPtr TheActivity,
-                                                         UInt32 ProducedEventId) const;
-    UInt32                   getNumActivitiesAttached   (UInt32 ProducedEventId) const;
-    ActivityRefPtr           getAttachedActivity        (UInt32 ProducedEventId,
-                                                         UInt32 ActivityIndex) const;
-    void                     detachActivity             (ActivityRefPtr TheActivity,
-                                                         UInt32 ProducedEventId);
-    UInt32                   getNumProducedEvents       (void) const;
-    const MethodDescription *getProducedEventDescription(const std::string &ProducedEventName) const;
-    const MethodDescription *getProducedEventDescription(UInt32 ProducedEventId) const;
-    UInt32                   getProducedEventId         (const std::string &ProducedEventName) const;
-
-    SFEventProducerPtr *editSFEventProducer(void);
-    EventProducerPtr   &editEventProducer  (void);
-
-    /*! \}                                                                 */
-
     /*=========================  PROTECTED  ===============================*/
 
   protected:
-    /*---------------------------------------------------------------------*/
-    /*! \name                    Event Producer                            */
-    /*! \{                                                                 */
-    EventProducer _Producer;
-
-    /*! \}                                                                 */
 
     static TypeObject _type;
 
@@ -465,13 +329,6 @@ class OSG_SYSTEM_DLLMAPPING WindowBase : public HardwareContext
     SFUInt32          _sfDrawMode;
     SFString          _sfRendererInfo;
     MFDrawTask        _mfDrawTasks;
-    SFBool            _sfEnabled;
-    SFBool            _sfUseCallbackForDraw;
-    SFBool            _sfUseCallbackForReshape;
-    SFTime            _sfLastUpdateTime;
-    SFUnrecImagePtr   _sfIcon;
-    SFBool            _sfLockCursor;
-    SFEventProducerPtr _sfEventProducer;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -538,18 +395,6 @@ class OSG_SYSTEM_DLLMAPPING WindowBase : public HardwareContext
     EditFieldHandlePtr editHandleRendererInfo   (void);
     GetFieldHandlePtr  getHandleDrawTasks       (void) const;
     EditFieldHandlePtr editHandleDrawTasks      (void);
-    GetFieldHandlePtr  getHandleEnabled         (void) const;
-    EditFieldHandlePtr editHandleEnabled        (void);
-    GetFieldHandlePtr  getHandleUseCallbackForDraw (void) const;
-    EditFieldHandlePtr editHandleUseCallbackForDraw(void);
-    GetFieldHandlePtr  getHandleUseCallbackForReshape (void) const;
-    EditFieldHandlePtr editHandleUseCallbackForReshape(void);
-    GetFieldHandlePtr  getHandleLastUpdateTime  (void) const;
-    EditFieldHandlePtr editHandleLastUpdateTime (void);
-    GetFieldHandlePtr  getHandleIcon            (void) const;
-    EditFieldHandlePtr editHandleIcon           (void);
-    GetFieldHandlePtr  getHandleLockCursor      (void) const;
-    EditFieldHandlePtr editHandleLockCursor     (void);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -636,9 +481,6 @@ class OSG_SYSTEM_DLLMAPPING WindowBase : public HardwareContext
 
   private:
     /*---------------------------------------------------------------------*/
-    static MethodDescription   *_methodDesc[];
-    static EventProducerType _producerType;
-
 
     // prohibit default functions (move to 'public' if you need one)
     void operator =(const WindowBase &source);

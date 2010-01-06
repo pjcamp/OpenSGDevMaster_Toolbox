@@ -61,14 +61,11 @@
 #include "OSGViewport.h"                // Port Class
 #include "OSGRenderOptions.h"           // RenderOptions Class
 #include "OSGDrawTask.h"                // DrawTasks Class
-#include "OSGImage.h"                   // Icon Class
 
 #include "OSGWindowBase.h"
 #include "OSGWindow.h"
 
 #include <boost/bind.hpp>
-
-#include "OSGEvent.h"
 
 #ifdef WIN32 // turn off 'this' : used in base member initializer list warning
 #pragma warning(disable:4355)
@@ -160,30 +157,6 @@ OSG_BEGIN_NAMESPACE
     
 */
 
-/*! \var bool            WindowBase::_sfEnabled
-    
-*/
-
-/*! \var bool            WindowBase::_sfUseCallbackForDraw
-    
-*/
-
-/*! \var bool            WindowBase::_sfUseCallbackForReshape
-    
-*/
-
-/*! \var Time            WindowBase::_sfLastUpdateTime
-    
-*/
-
-/*! \var Image *         WindowBase::_sfIcon
-    
-*/
-
-/*! \var bool            WindowBase::_sfLockCursor
-    
-*/
-
 
 /***************************************************************************\
  *                      FieldType/FieldTrait Instantiation                 *
@@ -224,7 +197,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-
     pDesc = new SFUInt16::Description(
         SFUInt16::getClassType(),
         "height",
@@ -236,7 +208,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&Window::getHandleHeight));
 
     oType.addInitialDesc(pDesc);
-
 
     pDesc = new MFUnrecChildViewportPtr::Description(
         MFUnrecChildViewportPtr::getClassType(),
@@ -250,7 +221,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-
     pDesc = new SFBool::Description(
         SFBool::getClassType(),
         "resizePending",
@@ -262,7 +232,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&Window::getHandleResizePending));
 
     oType.addInitialDesc(pDesc);
-
 
     pDesc = new SFUInt32::Description(
         SFUInt32::getClassType(),
@@ -277,7 +246,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-
     pDesc = new MFUInt32::Description(
         MFUInt32::getClassType(),
         "glObjectLastRefresh",
@@ -290,7 +258,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-
     pDesc = new MFUInt32::Description(
         MFUInt32::getClassType(),
         "glObjectLastReinitialize",
@@ -302,7 +269,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&Window::getHandleGlObjectLastReinitialize));
 
     oType.addInitialDesc(pDesc);
-
 
     pDesc = new SFInt32::Description(
         SFInt32::getClassType(),
@@ -317,7 +283,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-
     pDesc = new SFInt32::Description(
         SFInt32::getClassType(),
         "requestMajor",
@@ -329,7 +294,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&Window::getHandleRequestMajor));
 
     oType.addInitialDesc(pDesc);
-
 
     pDesc = new SFInt32::Description(
         SFInt32::getClassType(),
@@ -343,7 +307,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-
     pDesc = new SFInt32::Description(
         SFInt32::getClassType(),
         "contextFlags",
@@ -355,7 +318,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&Window::getHandleContextFlags));
 
     oType.addInitialDesc(pDesc);
-
 
     pDesc = new SFUnrecRenderOptionsPtr::Description(
         SFUnrecRenderOptionsPtr::getClassType(),
@@ -369,7 +331,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-
     pDesc = new SFUInt32::Description(
         SFUInt32::getClassType(),
         "drawMode",
@@ -381,7 +342,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&Window::getHandleDrawMode));
 
     oType.addInitialDesc(pDesc);
-
 
     pDesc = new SFString::Description(
         SFString::getClassType(),
@@ -395,7 +355,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-
     pDesc = new MFDrawTask::Description(
         MFDrawTask::getClassType(),
         "drawTasks",
@@ -405,96 +364,6 @@ void WindowBase::classDescInserter(TypeObject &oType)
         (Field::FClusterLocal),
         static_cast<FieldEditMethodSig>(&Window::editHandleDrawTasks),
         static_cast<FieldGetMethodSig >(&Window::getHandleDrawTasks));
-
-    oType.addInitialDesc(pDesc);
-
-
-    pDesc = new SFBool::Description(
-        SFBool::getClassType(),
-        "Enabled",
-        "",
-        EnabledFieldId, EnabledFieldMask,
-        false,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Window::editHandleEnabled),
-        static_cast<FieldGetMethodSig >(&Window::getHandleEnabled));
-
-    oType.addInitialDesc(pDesc);
-
-
-    pDesc = new SFBool::Description(
-        SFBool::getClassType(),
-        "UseCallbackForDraw",
-        "",
-        UseCallbackForDrawFieldId, UseCallbackForDrawFieldMask,
-        false,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Window::editHandleUseCallbackForDraw),
-        static_cast<FieldGetMethodSig >(&Window::getHandleUseCallbackForDraw));
-
-    oType.addInitialDesc(pDesc);
-
-
-    pDesc = new SFBool::Description(
-        SFBool::getClassType(),
-        "UseCallbackForReshape",
-        "",
-        UseCallbackForReshapeFieldId, UseCallbackForReshapeFieldMask,
-        false,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Window::editHandleUseCallbackForReshape),
-        static_cast<FieldGetMethodSig >(&Window::getHandleUseCallbackForReshape));
-
-    oType.addInitialDesc(pDesc);
-
-
-    pDesc = new SFTime::Description(
-        SFTime::getClassType(),
-        "LastUpdateTime",
-        "",
-        LastUpdateTimeFieldId, LastUpdateTimeFieldMask,
-        false,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Window::editHandleLastUpdateTime),
-        static_cast<FieldGetMethodSig >(&Window::getHandleLastUpdateTime));
-
-    oType.addInitialDesc(pDesc);
-
-
-    pDesc = new SFUnrecImagePtr::Description(
-        SFUnrecImagePtr::getClassType(),
-        "Icon",
-        "",
-        IconFieldId, IconFieldMask,
-        false,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Window::editHandleIcon),
-        static_cast<FieldGetMethodSig >(&Window::getHandleIcon));
-
-    oType.addInitialDesc(pDesc);
-
-
-    pDesc = new SFBool::Description(
-        SFBool::getClassType(),
-        "LockCursor",
-        "",
-        LockCursorFieldId, LockCursorFieldMask,
-        false,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Window::editHandleLockCursor),
-        static_cast<FieldGetMethodSig >(&Window::getHandleLockCursor));
-
-    oType.addInitialDesc(pDesc);
-
-    pDesc = new SFEventProducerPtr::Description(
-        SFEventProducerPtr::getClassType(),
-        "EventProducer",
-        "Event Producer",
-        EventProducerFieldId,EventProducerFieldMask,
-        true,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast     <FieldEditMethodSig>(&Window::invalidEditField),
-        static_cast     <FieldGetMethodSig >(&Window::invalidGetField));
 
     oType.addInitialDesc(pDesc);
 }
@@ -691,164 +560,6 @@ WindowBase::TypeObject WindowBase::_type(
     "       >\n"
     "    </Field>\n"
     "    \n"
-    "\t<Field\n"
-    "\t\tname=\"Enabled\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"UseCallbackForDraw\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t\tdefaultValue=\"false\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"UseCallbackForReshape\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t\tdefaultValue=\"false\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"LastUpdateTime\"\n"
-    "\t\ttype=\"Time\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t\tdefaultValue=\"-1.0\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"Icon\"\n"
-    "\t\ttype=\"ImagePtr\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t\tdefaultValue=\"NULL\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"LockCursor\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t\tdefaultValue=\"false\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"WindowOpened\"\n"
-    "\t\ttype=\"WindowEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"WindowClosing\"\n"
-    "\t\ttype=\"WindowEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"WindowClosed\"\n"
-    "\t\ttype=\"WindowEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"WindowIconified\"\n"
-    "\t\ttype=\"WindowEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"WindowDeiconified\"\n"
-    "\t\ttype=\"WindowEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"WindowActivated\"\n"
-    "\t\ttype=\"WindowEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"WindowDeactivated\"\n"
-    "\t\ttype=\"WindowEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"WindowEntered\"\n"
-    "\t\ttype=\"WindowEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"WindowExited\"\n"
-    "\t\ttype=\"WindowEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"MouseClicked\"\n"
-    "\t\ttype=\"MouseEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"MouseEntered\"\n"
-    "\t\ttype=\"MouseEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"MouseExited\"\n"
-    "\t\ttype=\"MouseEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"MousePressed\"\n"
-    "\t\ttype=\"MouseEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"MouseReleased\"\n"
-    "\t\ttype=\"MouseEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"MouseMoved\"\n"
-    "\t\ttype=\"MouseEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"MouseDragged\"\n"
-    "\t\ttype=\"MouseEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"MouseWheelMoved\"\n"
-    "\t\ttype=\"MouseWheelEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"KeyPressed\"\n"
-    "\t\ttype=\"KeyEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"KeyReleased\"\n"
-    "\t\ttype=\"KeyEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"KeyTyped\"\n"
-    "\t\ttype=\"KeyEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
-    "\t<ProducedMethod\n"
-    "\t\tname=\"Update\"\n"
-    "\t\ttype=\"UpdateEventPtr\"\n"
-    "\t>\n"
-    "\t</ProducedMethod>\n"
     "</FieldContainer>\n",
     "\\ingroup GrpSystemWindow\n"
     "\n"
@@ -863,125 +574,6 @@ WindowBase::TypeObject WindowBase::_type(
     "\\endext\n"
     );
 
-//! Window Produced Methods
-
-MethodDescription *WindowBase::_methodDesc[] =
-{
-    new MethodDescription("WindowOpened", 
-                    "",
-                     WindowOpenedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("WindowClosing", 
-                    "",
-                     WindowClosingMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("WindowClosed", 
-                    "",
-                     WindowClosedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("WindowIconified", 
-                    "",
-                     WindowIconifiedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("WindowDeiconified", 
-                    "",
-                     WindowDeiconifiedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("WindowActivated", 
-                    "",
-                     WindowActivatedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("WindowDeactivated", 
-                    "",
-                     WindowDeactivatedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("WindowEntered", 
-                    "",
-                     WindowEnteredMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("WindowExited", 
-                    "",
-                     WindowExitedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("MouseClicked", 
-                    "",
-                     MouseClickedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("MouseEntered", 
-                    "",
-                     MouseEnteredMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("MouseExited", 
-                    "",
-                     MouseExitedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("MousePressed", 
-                    "",
-                     MousePressedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("MouseReleased", 
-                    "",
-                     MouseReleasedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("MouseMoved", 
-                    "",
-                     MouseMovedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("MouseDragged", 
-                    "",
-                     MouseDraggedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("MouseWheelMoved", 
-                    "",
-                     MouseWheelMovedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("KeyPressed", 
-                    "",
-                     KeyPressedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("KeyReleased", 
-                    "",
-                     KeyReleasedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("KeyTyped", 
-                    "",
-                     KeyTypedMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod()),
-    new MethodDescription("Update", 
-                    "",
-                     UpdateMethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod())
-};
-
-EventProducerType WindowBase::_producerType(
-    "WindowProducerType",
-    "EventProducerType",
-    NULL,
-    InitEventProducerFunctor(),
-    _methodDesc,
-    sizeof(_methodDesc));
-
 /*------------------------------ get -----------------------------------*/
 
 FieldContainerType &WindowBase::getType(void)
@@ -992,11 +584,6 @@ FieldContainerType &WindowBase::getType(void)
 const FieldContainerType &WindowBase::getType(void) const
 {
     return _type;
-}
-
-const EventProducerType &WindowBase::getProducerType(void) const
-{
-    return _producerType;
 }
 
 UInt32 WindowBase::getContainerSize(void) const
@@ -1188,84 +775,6 @@ const MFDrawTask *WindowBase::getMFDrawTasks(void) const
     return &_mfDrawTasks;
 }
 
-SFBool *WindowBase::editSFEnabled(void)
-{
-    editSField(EnabledFieldMask);
-
-    return &_sfEnabled;
-}
-
-const SFBool *WindowBase::getSFEnabled(void) const
-{
-    return &_sfEnabled;
-}
-
-
-SFBool *WindowBase::editSFUseCallbackForDraw(void)
-{
-    editSField(UseCallbackForDrawFieldMask);
-
-    return &_sfUseCallbackForDraw;
-}
-
-const SFBool *WindowBase::getSFUseCallbackForDraw(void) const
-{
-    return &_sfUseCallbackForDraw;
-}
-
-
-SFBool *WindowBase::editSFUseCallbackForReshape(void)
-{
-    editSField(UseCallbackForReshapeFieldMask);
-
-    return &_sfUseCallbackForReshape;
-}
-
-const SFBool *WindowBase::getSFUseCallbackForReshape(void) const
-{
-    return &_sfUseCallbackForReshape;
-}
-
-
-SFTime *WindowBase::editSFLastUpdateTime(void)
-{
-    editSField(LastUpdateTimeFieldMask);
-
-    return &_sfLastUpdateTime;
-}
-
-const SFTime *WindowBase::getSFLastUpdateTime(void) const
-{
-    return &_sfLastUpdateTime;
-}
-
-
-//! Get the Window::_sfIcon field.
-const SFUnrecImagePtr *WindowBase::getSFIcon(void) const
-{
-    return &_sfIcon;
-}
-
-SFUnrecImagePtr     *WindowBase::editSFIcon           (void)
-{
-    editSField(IconFieldMask);
-
-    return &_sfIcon;
-}
-
-SFBool *WindowBase::editSFLockCursor(void)
-{
-    editSField(LockCursorFieldMask);
-
-    return &_sfLockCursor;
-}
-
-const SFBool *WindowBase::getSFLockCursor(void) const
-{
-    return &_sfLockCursor;
-}
-
-
 
 
 void WindowBase::addPort(Viewport * const value)
@@ -1438,34 +947,6 @@ UInt32 WindowBase::getBinSize(ConstFieldMaskArg whichField)
     {
         returnValue += _mfDrawTasks.getBinSize();
     }
-    if(FieldBits::NoField != (EnabledFieldMask & whichField))
-    {
-        returnValue += _sfEnabled.getBinSize();
-    }
-    if(FieldBits::NoField != (UseCallbackForDrawFieldMask & whichField))
-    {
-        returnValue += _sfUseCallbackForDraw.getBinSize();
-    }
-    if(FieldBits::NoField != (UseCallbackForReshapeFieldMask & whichField))
-    {
-        returnValue += _sfUseCallbackForReshape.getBinSize();
-    }
-    if(FieldBits::NoField != (LastUpdateTimeFieldMask & whichField))
-    {
-        returnValue += _sfLastUpdateTime.getBinSize();
-    }
-    if(FieldBits::NoField != (IconFieldMask & whichField))
-    {
-        returnValue += _sfIcon.getBinSize();
-    }
-    if(FieldBits::NoField != (LockCursorFieldMask & whichField))
-    {
-        returnValue += _sfLockCursor.getBinSize();
-    }
-    if(FieldBits::NoField != (EventProducerFieldMask & whichField))
-    {
-        returnValue += _sfEventProducer.getBinSize();
-    }
 
     return returnValue;
 }
@@ -1535,34 +1016,6 @@ void WindowBase::copyToBin(BinaryDataHandler &pMem,
     {
         _mfDrawTasks.copyToBin(pMem);
     }
-    if(FieldBits::NoField != (EnabledFieldMask & whichField))
-    {
-        _sfEnabled.copyToBin(pMem);
-    }
-    if(FieldBits::NoField != (UseCallbackForDrawFieldMask & whichField))
-    {
-        _sfUseCallbackForDraw.copyToBin(pMem);
-    }
-    if(FieldBits::NoField != (UseCallbackForReshapeFieldMask & whichField))
-    {
-        _sfUseCallbackForReshape.copyToBin(pMem);
-    }
-    if(FieldBits::NoField != (LastUpdateTimeFieldMask & whichField))
-    {
-        _sfLastUpdateTime.copyToBin(pMem);
-    }
-    if(FieldBits::NoField != (IconFieldMask & whichField))
-    {
-        _sfIcon.copyToBin(pMem);
-    }
-    if(FieldBits::NoField != (LockCursorFieldMask & whichField))
-    {
-        _sfLockCursor.copyToBin(pMem);
-    }
-    if(FieldBits::NoField != (EventProducerFieldMask & whichField))
-    {
-        _sfEventProducer.copyToBin(pMem);
-    }
 }
 
 void WindowBase::copyFromBin(BinaryDataHandler &pMem,
@@ -1630,34 +1083,6 @@ void WindowBase::copyFromBin(BinaryDataHandler &pMem,
     {
         _mfDrawTasks.copyFromBin(pMem);
     }
-    if(FieldBits::NoField != (EnabledFieldMask & whichField))
-    {
-        _sfEnabled.copyFromBin(pMem);
-    }
-    if(FieldBits::NoField != (UseCallbackForDrawFieldMask & whichField))
-    {
-        _sfUseCallbackForDraw.copyFromBin(pMem);
-    }
-    if(FieldBits::NoField != (UseCallbackForReshapeFieldMask & whichField))
-    {
-        _sfUseCallbackForReshape.copyFromBin(pMem);
-    }
-    if(FieldBits::NoField != (LastUpdateTimeFieldMask & whichField))
-    {
-        _sfLastUpdateTime.copyFromBin(pMem);
-    }
-    if(FieldBits::NoField != (IconFieldMask & whichField))
-    {
-        _sfIcon.copyFromBin(pMem);
-    }
-    if(FieldBits::NoField != (LockCursorFieldMask & whichField))
-    {
-        _sfLockCursor.copyFromBin(pMem);
-    }
-    if(FieldBits::NoField != (EventProducerFieldMask & whichField))
-    {
-        _sfEventProducer.copyFromBin(pMem);
-    }
 }
 
 
@@ -1666,7 +1091,6 @@ void WindowBase::copyFromBin(BinaryDataHandler &pMem,
 /*------------------------- constructors ----------------------------------*/
 
 WindowBase::WindowBase(void) :
-    _Producer(&getProducerType()),
     Inherited(),
     _sfWidth                  (),
     _sfHeight                 (),
@@ -1684,19 +1108,11 @@ WindowBase::WindowBase(void) :
     _sfRenderOptions          (NULL),
     _sfDrawMode               (UInt32((Window::SequentialPartitionDraw | Window::StdDrawer | Window::KeepContextActive))),
     _sfRendererInfo           (std::string("unknown")),
-    _mfDrawTasks              (),
-    _sfEnabled                (),
-    _sfUseCallbackForDraw     (bool(false)),
-    _sfUseCallbackForReshape  (bool(false)),
-    _sfLastUpdateTime         (Time(-1.0)),
-    _sfIcon                   (NULL),
-    _sfLockCursor             (bool(false))
-    ,_sfEventProducer(&_Producer)
+    _mfDrawTasks              ()
 {
 }
 
 WindowBase::WindowBase(const WindowBase &source) :
-    _Producer(&source.getProducerType()),
     Inherited(source),
     _sfWidth                  (source._sfWidth                  ),
     _sfHeight                 (source._sfHeight                 ),
@@ -1714,14 +1130,7 @@ WindowBase::WindowBase(const WindowBase &source) :
     _sfRenderOptions          (NULL),
     _sfDrawMode               (source._sfDrawMode               ),
     _sfRendererInfo           (source._sfRendererInfo           ),
-    _mfDrawTasks              (),
-    _sfEnabled                (source._sfEnabled                ),
-    _sfUseCallbackForDraw     (source._sfUseCallbackForDraw     ),
-    _sfUseCallbackForReshape  (source._sfUseCallbackForReshape  ),
-    _sfLastUpdateTime         (source._sfLastUpdateTime         ),
-    _sfIcon                   (NULL),
-    _sfLockCursor             (source._sfLockCursor             )
-    ,_sfEventProducer(&_Producer)
+    _mfDrawTasks              ()
 {
 }
 
@@ -1803,8 +1212,6 @@ void WindowBase::onCreate(const Window *source)
 
             ++DrawTasksIt;
         }
-
-        pThis->setIcon(source->getIcon());
     }
 }
 
@@ -2207,159 +1614,6 @@ EditFieldHandlePtr WindowBase::editHandleDrawTasks      (void)
     return returnValue;
 }
 
-GetFieldHandlePtr WindowBase::getHandleEnabled         (void) const
-{
-    SFBool::GetHandlePtr returnValue(
-        new  SFBool::GetHandle(
-             &_sfEnabled,
-             this->getType().getFieldDesc(EnabledFieldId),
-             const_cast<WindowBase *>(this)));
-
-    return returnValue;
-}
-
-EditFieldHandlePtr WindowBase::editHandleEnabled        (void)
-{
-    SFBool::EditHandlePtr returnValue(
-        new  SFBool::EditHandle(
-             &_sfEnabled,
-             this->getType().getFieldDesc(EnabledFieldId),
-             this));
-
-
-    editSField(EnabledFieldMask);
-
-    return returnValue;
-}
-
-GetFieldHandlePtr WindowBase::getHandleUseCallbackForDraw (void) const
-{
-    SFBool::GetHandlePtr returnValue(
-        new  SFBool::GetHandle(
-             &_sfUseCallbackForDraw,
-             this->getType().getFieldDesc(UseCallbackForDrawFieldId),
-             const_cast<WindowBase *>(this)));
-
-    return returnValue;
-}
-
-EditFieldHandlePtr WindowBase::editHandleUseCallbackForDraw(void)
-{
-    SFBool::EditHandlePtr returnValue(
-        new  SFBool::EditHandle(
-             &_sfUseCallbackForDraw,
-             this->getType().getFieldDesc(UseCallbackForDrawFieldId),
-             this));
-
-
-    editSField(UseCallbackForDrawFieldMask);
-
-    return returnValue;
-}
-
-GetFieldHandlePtr WindowBase::getHandleUseCallbackForReshape (void) const
-{
-    SFBool::GetHandlePtr returnValue(
-        new  SFBool::GetHandle(
-             &_sfUseCallbackForReshape,
-             this->getType().getFieldDesc(UseCallbackForReshapeFieldId),
-             const_cast<WindowBase *>(this)));
-
-    return returnValue;
-}
-
-EditFieldHandlePtr WindowBase::editHandleUseCallbackForReshape(void)
-{
-    SFBool::EditHandlePtr returnValue(
-        new  SFBool::EditHandle(
-             &_sfUseCallbackForReshape,
-             this->getType().getFieldDesc(UseCallbackForReshapeFieldId),
-             this));
-
-
-    editSField(UseCallbackForReshapeFieldMask);
-
-    return returnValue;
-}
-
-GetFieldHandlePtr WindowBase::getHandleLastUpdateTime  (void) const
-{
-    SFTime::GetHandlePtr returnValue(
-        new  SFTime::GetHandle(
-             &_sfLastUpdateTime,
-             this->getType().getFieldDesc(LastUpdateTimeFieldId),
-             const_cast<WindowBase *>(this)));
-
-    return returnValue;
-}
-
-EditFieldHandlePtr WindowBase::editHandleLastUpdateTime (void)
-{
-    SFTime::EditHandlePtr returnValue(
-        new  SFTime::EditHandle(
-             &_sfLastUpdateTime,
-             this->getType().getFieldDesc(LastUpdateTimeFieldId),
-             this));
-
-
-    editSField(LastUpdateTimeFieldMask);
-
-    return returnValue;
-}
-
-GetFieldHandlePtr WindowBase::getHandleIcon            (void) const
-{
-    SFUnrecImagePtr::GetHandlePtr returnValue(
-        new  SFUnrecImagePtr::GetHandle(
-             &_sfIcon,
-             this->getType().getFieldDesc(IconFieldId),
-             const_cast<WindowBase *>(this)));
-
-    return returnValue;
-}
-
-EditFieldHandlePtr WindowBase::editHandleIcon           (void)
-{
-    SFUnrecImagePtr::EditHandlePtr returnValue(
-        new  SFUnrecImagePtr::EditHandle(
-             &_sfIcon,
-             this->getType().getFieldDesc(IconFieldId),
-             this));
-
-    returnValue->setSetMethod(
-        boost::bind(&Window::setIcon,
-                    static_cast<Window *>(this), _1));
-
-    editSField(IconFieldMask);
-
-    return returnValue;
-}
-
-GetFieldHandlePtr WindowBase::getHandleLockCursor      (void) const
-{
-    SFBool::GetHandlePtr returnValue(
-        new  SFBool::GetHandle(
-             &_sfLockCursor,
-             this->getType().getFieldDesc(LockCursorFieldId),
-             const_cast<WindowBase *>(this)));
-
-    return returnValue;
-}
-
-EditFieldHandlePtr WindowBase::editHandleLockCursor     (void)
-{
-    SFBool::EditHandlePtr returnValue(
-        new  SFBool::EditHandle(
-             &_sfLockCursor,
-             this->getType().getFieldDesc(LockCursorFieldId),
-             this));
-
-
-    editSField(LockCursorFieldMask);
-
-    return returnValue;
-}
-
 
 #ifdef OSG_MT_CPTR_ASPECT
 void WindowBase::execSyncV(      FieldContainer    &oFrom,
@@ -2389,8 +1643,6 @@ void WindowBase::resolveLinks(void)
     static_cast<Window *>(this)->setRenderOptions(NULL);
 
     static_cast<Window *>(this)->clearDrawTasks();
-
-    static_cast<Window *>(this)->setIcon(NULL);
 
 #ifdef OSG_MT_CPTR_ASPECT
     AspectOffsetStore oOffsets;

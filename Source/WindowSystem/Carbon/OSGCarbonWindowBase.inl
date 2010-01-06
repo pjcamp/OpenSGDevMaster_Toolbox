@@ -121,6 +121,8 @@ const Char8 *CarbonWindowBase::getClassname(void)
 {
     return "CarbonWindow";
 }
+
+
 OSG_GEN_CONTAINERPTR(CarbonWindow);
 
 OSG_END_NAMESPACE
