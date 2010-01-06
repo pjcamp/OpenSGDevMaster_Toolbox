@@ -104,7 +104,7 @@ OSG_BEGIN_NAMESPACE
 \***************************************************************************/
 
 #if !defined(OSG_DO_DOC) || defined(OSG_DOC_DEV)
-DataType FieldTraits<XWindow *>::_type("XWindowPtr", "WindowPtr");
+DataType FieldTraits<XWindow *>::_type("XWindowPtr", "WindowEventProducerPtr");
 #endif
 
 OSG_FIELDTRAITS_GETTYPE(XWindow *)
@@ -138,6 +138,7 @@ void XWindowBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
+
     pDesc = new SFX11Window::Description(
         SFX11Window::getClassType(),
         "window",
@@ -149,6 +150,7 @@ void XWindowBase::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&XWindow::getHandleWindow));
 
     oType.addInitialDesc(pDesc);
+
 
     pDesc = new SFGLXContext::Description(
         SFGLXContext::getClassType(),
@@ -162,6 +164,7 @@ void XWindowBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
+
     pDesc = new SFInt32::Description(
         SFInt32::getClassType(),
         "fbConfigId",
@@ -173,6 +176,7 @@ void XWindowBase::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&XWindow::getHandleFbConfigId));
 
     oType.addInitialDesc(pDesc);
+
 }
 
 
@@ -191,7 +195,7 @@ XWindowBase::TypeObject XWindowBase::_type(
     "\n"
     "<FieldContainer\n"
     "   name=\"XWindow\"\n"
-    "   parent=\"Window\"\n"
+    "   parent=\"WindowEventProducer\"\n"
     "   library=\"WindowX\"\n"
     "   pointerfieldtypes=\"both\"\n"
     "   structure=\"concrete\"\n"
@@ -246,6 +250,7 @@ XWindowBase::TypeObject XWindowBase::_type(
     "</FieldContainer>\n",
     "The class for X-based windows. See \\ref PageWindowX for a description.\n"
     );
+
 
 /*------------------------------ get -----------------------------------*/
 

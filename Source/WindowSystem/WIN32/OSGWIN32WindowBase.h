@@ -63,12 +63,13 @@
 
 //#include "OSGBaseTypes.h"
 
-#include "OSGWindow.h" // Parent
+#include "OSGWindowEventProducer.h" // Parent
 
 #include "OSGWIN32WindowDataFields.h"   // Hwnd type
 #include "OSGSysFields.h"               // Dummy0 type
 
 #include "OSGWIN32WindowFields.h"
+
 
 OSG_BEGIN_NAMESPACE
 
@@ -76,12 +77,12 @@ class WIN32Window;
 
 //! \brief WIN32Window Base Class.
 
-class OSG_WINDOWWIN32_DLLMAPPING WIN32WindowBase : public Window
+class OSG_WINDOWWIN32_DLLMAPPING WIN32WindowBase : public WindowEventProducer
 {
   public:
 
-    typedef Window Inherited;
-    typedef Window ParentContainer;
+    typedef WindowEventProducer Inherited;
+    typedef WindowEventProducer ParentContainer;
 
     typedef Inherited::TypeObject TypeObject;
     typedef TypeObject::InitPhase InitPhase;
@@ -116,6 +117,7 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32WindowBase : public Window
     typedef SFHDC             SFHdcType;
     typedef SFHGLRC           SFHglrcType;
     typedef SFInt32           SFDummy0Type;
+
 
     /*---------------------------------------------------------------------*/
     /*! \name                    Class Get                                 */
@@ -194,6 +196,7 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32WindowBase : public Window
 
 
     /*! \}                                                                 */
+
     /*---------------------------------------------------------------------*/
     /*! \name                   Construction                               */
     /*! \{                                                                 */

@@ -106,7 +106,7 @@ OSG_BEGIN_NAMESPACE
 \***************************************************************************/
 
 #if !defined(OSG_DO_DOC) || defined(OSG_DOC_DEV)
-DataType FieldTraits<WIN32Window *>::_type("WIN32WindowPtr", "WindowPtr");
+DataType FieldTraits<WIN32Window *>::_type("WIN32WindowPtr", "WindowEventProducerPtr");
 #endif
 
 OSG_FIELDTRAITS_GETTYPE(WIN32Window *)
@@ -140,6 +140,7 @@ void WIN32WindowBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
+
     pDesc = new SFHDC::Description(
         SFHDC::getClassType(),
         "hdc",
@@ -152,6 +153,7 @@ void WIN32WindowBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
+
     pDesc = new SFHGLRC::Description(
         SFHGLRC::getClassType(),
         "hglrc",
@@ -163,6 +165,7 @@ void WIN32WindowBase::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&WIN32Window::getHandleHglrc));
 
     oType.addInitialDesc(pDesc);
+
 
     pDesc = new SFInt32::Description(
         SFInt32::getClassType(),
@@ -177,6 +180,7 @@ void WIN32WindowBase::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&WIN32Window::getHandleDummy0));
 
     oType.addInitialDesc(pDesc);
+
 }
 
 
@@ -195,7 +199,7 @@ WIN32WindowBase::TypeObject WIN32WindowBase::_type(
     "\n"
     "<FieldContainer\n"
     "   name=\"WIN32Window\"\n"
-    "   parent=\"Window\"\n"
+    "   parent=\"WindowEventProducer\"\n"
     "   library=\"WindowWIN32\"\n"
     "   pointerfieldtypes=\"both\"\n"
     "   structure=\"concrete\"\n"
@@ -254,6 +258,7 @@ WIN32WindowBase::TypeObject WIN32WindowBase::_type(
     "</FieldContainer>\n",
     "The class for WIN32 windows.\n"
     );
+
 
 /*------------------------------ get -----------------------------------*/
 

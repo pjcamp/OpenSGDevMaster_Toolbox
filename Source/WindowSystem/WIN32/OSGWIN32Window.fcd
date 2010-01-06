@@ -2,7 +2,7 @@
 
 <FieldContainer
    name="WIN32Window"
-   parent="Window"
+   parent="WindowEventProducer"
    library="WindowWIN32"
    pointerfieldtypes="both"
    structure="concrete"

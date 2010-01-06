@@ -63,12 +63,13 @@
 
 //#include "OSGBaseTypes.h"
 
-#include "OSGWindow.h" // Parent
+#include "OSGWindowEventProducer.h" // Parent
 
 #include "OSGXWindowDataFields.h"       // Display type
 #include "OSGSysFields.h"               // FbConfigId type
 
 #include "OSGXWindowFields.h"
+
 
 OSG_BEGIN_NAMESPACE
 
@@ -76,12 +77,12 @@ class XWindow;
 
 //! \brief XWindow Base Class.
 
-class OSG_WINDOWX_DLLMAPPING XWindowBase : public Window
+class OSG_WINDOWX_DLLMAPPING XWindowBase : public WindowEventProducer
 {
   public:
 
-    typedef Window Inherited;
-    typedef Window ParentContainer;
+    typedef WindowEventProducer Inherited;
+    typedef WindowEventProducer ParentContainer;
 
     typedef Inherited::TypeObject TypeObject;
     typedef TypeObject::InitPhase InitPhase;
@@ -116,6 +117,7 @@ class OSG_WINDOWX_DLLMAPPING XWindowBase : public Window
     typedef SFX11Window       SFWindowType;
     typedef SFGLXContext      SFContextType;
     typedef SFInt32           SFFbConfigIdType;
+
 
     /*---------------------------------------------------------------------*/
     /*! \name                    Class Get                                 */
@@ -194,6 +196,7 @@ class OSG_WINDOWX_DLLMAPPING XWindowBase : public Window
 
 
     /*! \}                                                                 */
+
     /*---------------------------------------------------------------------*/
     /*! \name                   Construction                               */
     /*! \{                                                                 */

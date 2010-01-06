@@ -2,7 +2,7 @@
 
 <FieldContainer
    name="XWindow"
-   parent="Window"
+   parent="WindowEventProducer"
    library="WindowX"
    pointerfieldtypes="both"
    structure="concrete"
