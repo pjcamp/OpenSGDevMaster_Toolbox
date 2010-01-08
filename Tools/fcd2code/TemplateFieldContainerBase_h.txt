@@ -153,7 +153,12 @@ class @!Classname!@Base : public @!Parent!@
             @@if field.isFirstField
         @!field.Name!@FieldId = Inherited::NextFieldId,
                 @@if field.isLastField
+                    @@if isRootProducer
+        EventProducerFieldId = @!field.Name!@FieldId + 1,
+        NextFieldId = EventProducerFieldId + 1
+                    @@else // isRootProducer
         NextFieldId = @!field.Name!@FieldId + 1
+                    @@endif // isRootProducer
                 @@endif // field.isLastField
             @@else // field.isFirstField
         @!field.Name!@FieldId = @!field.prevField.Name!@FieldId + 1,
