@@ -44,8 +44,10 @@
 
 #include "OSGBaseTypes.h"
 #include "OSGFieldForwards.h"
+#include "OSGIOStream.h"
 
 #include <string>
+#include <iostream>
 
 OSG_BEGIN_NAMESPACE
 
@@ -98,6 +100,10 @@ class OSG_BASE_DLLMAPPING Field
     virtual UInt32 getClass(void) const = 0;
     virtual const FieldType& getType(void) const = 0;
 
+    virtual void pushValueToString  (std::string  &str, UInt32 index = 0) const = 0;
+    virtual void pushValueFromStream(std::istream &str) = 0;
+    virtual void pushValueToStream  (OutStream    &str, UInt32 index = 0) const = 0;
+    virtual void pushSizeToStream    (OutStream    &str) const = 0;
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name                   String IO                                  */

@@ -73,4 +73,38 @@ const FieldType& PointerMFieldBase::getType(void) const
     return _fieldType;
 }
 
+void PointerMFieldBase::pushValueToString  (std::string  &str, UInt32 index) const
+{
+    typedef boost::mpl::if_<boost::mpl::bool_< 
+        static_cast<bool>(MFieldTraits    ::Convertible &
+                          FieldTraitsBase ::ToStringConvertible)>, 
+        MFieldTraits, 
+        StringConversionError<value_type,
+                              0> >::type Converter;
+
+    Converter::putToString(_ptrStore[index], str);
+}
+
+void PointerMFieldBase::pushValueFromStream(std::istream &str)
+{
+    assert(false && "PointerMFieldBase::pushValueFromStream() NYI");
+}
+
+void PointerMFieldBase::pushValueToStream  (OutStream    &str, UInt32 index) const
+{
+    typedef boost::mpl::if_<boost::mpl::bool_< 
+        static_cast<bool>(MFieldTraits    ::Convertible &
+                          FieldTraitsBase ::ToStreamConvertible)>, 
+        MFieldTraits, 
+        StreamConversionError<value_type,
+                              0> >::type Converter;
+
+    Converter::putToStream(_ptrStore[index], str);
+}
+
+void PointerMFieldBase::pushSizeToStream    (OutStream    &str) const
+{
+    str << _ptrStore.size();
+}
+
 OSG_END_NAMESPACE

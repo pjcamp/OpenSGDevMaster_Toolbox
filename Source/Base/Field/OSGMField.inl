@@ -243,6 +243,39 @@ void MField<ValueT, iNamespace, AllocT>::pushSizeToStream(OutStream &str) const
     str << _values.size();
 }
 
+
+template <class ValueT, Int32 iNamespace, class AllocT> inline
+void MField<ValueT, iNamespace, AllocT>::pushValueToString  (std::string  &str, UInt32 index) const
+{
+    typedef typename boost::mpl::if_<boost::mpl::bool_< 
+        static_cast<bool>(MFieldTraits    ::Convertible &
+                          FieldTraitsBase ::ToStringConvertible)>, 
+        MFieldTraits, 
+        StringConversionError<ValueT,
+                              iNamespace> >::type Converter;
+
+    Converter::putToString(_values[index], str);
+}
+
+template <class ValueT, Int32 iNamespace, class AllocT> inline
+void MField<ValueT, iNamespace, AllocT>::pushValueFromStream(std::istream &str)
+{
+    pushValuesFromStream(str);
+}
+
+template <class ValueT, Int32 iNamespace, class AllocT> inline
+void MField<ValueT, iNamespace, AllocT>::pushValueToStream  (OutStream    &str, UInt32 index) const
+{
+    typedef typename boost::mpl::if_<boost::mpl::bool_< 
+        static_cast<bool>(MFieldTraits    ::Convertible &
+                          FieldTraitsBase ::ToStreamConvertible)>, 
+        MFieldTraits, 
+        StreamConversionError<ValueT,
+                              iNamespace> >::type Converter;
+
+    Converter::putToStream(_values[index], str);
+}
+
 /*-------------------------------------------------------------------------*/
 /*                         Binary Interface                                */
 

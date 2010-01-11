@@ -143,12 +143,11 @@ class SField : public Field
     /*---------------------------------------------------------------------*/
     /*! \name                      Push                                    */
     /*! \{                                                                 */
-
-    void pushValueToString  (std::string  &str) const;
-    void pushValueFromStream(std::istream &str);
-    void pushValueToStream  (OutStream    &str) const;
-    void pushSizeToStream   (OutStream    &str) const;
     
+    virtual void pushValueToString  (std::string  &str, UInt32 index = 0) const;
+    virtual void pushValueFromStream(std::istream &str);
+    virtual void pushValueToStream  (OutStream    &str, UInt32 index = 0) const;
+    virtual void pushSizeToStream    (OutStream    &str) const;
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name                   Binary Interface                           */

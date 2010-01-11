@@ -141,19 +141,6 @@ void SField<ValueT, iNamespace>::setValueFromCString(const Char8 *str)
 }
 
 template <class ValueT, Int32 iNamespace> inline
-void SField<ValueT, iNamespace>::pushValueToString  (std::string  &str) const
-{
-    typedef typename boost::mpl::if_<boost::mpl::bool_< 
-        static_cast<bool>(SFieldTraits   ::Convertible &
-                          FieldTraitsBase::ToStringConvertible)>, 
-        SFieldTraits, 
-        StringConversionError<ValueT,
-                              iNamespace> >::type Converter;
-    
-    Converter::putToString(_fieldValue, str);
-}
-
-template <class ValueT, Int32 iNamespace> inline
 void SField<ValueT, iNamespace>::pushValueFromStream(std::istream &str)
 {
     typedef typename boost::mpl::if_<boost::mpl::bool_< 
@@ -167,7 +154,26 @@ void SField<ValueT, iNamespace>::pushValueFromStream(std::istream &str)
 }
 
 template <class ValueT, Int32 iNamespace> inline
-void SField<ValueT, iNamespace>::pushValueToStream  (OutStream &str) const
+void SField<ValueT, iNamespace>::pushSizeToStream  (OutStream &str) const
+{
+    str << 1;
+}
+
+template <class ValueT, Int32 iNamespace> inline
+void SField<ValueT, iNamespace>::pushValueToString  (std::string  &str, UInt32 index) const
+{
+    typedef typename boost::mpl::if_<boost::mpl::bool_< 
+        static_cast<bool>(SFieldTraits   ::Convertible &
+                          FieldTraitsBase::ToStringConvertible)>, 
+        SFieldTraits, 
+        StringConversionError<ValueT,
+                              iNamespace> >::type Converter;
+    
+    Converter::putToString(_fieldValue, str);
+}
+
+template <class ValueT, Int32 iNamespace> inline
+void SField<ValueT, iNamespace>::pushValueToStream  (OutStream    &str, UInt32 index) const
 {
     typedef typename boost::mpl::if_<boost::mpl::bool_< 
         static_cast<bool>(SFieldTraits   ::Convertible &
@@ -177,12 +183,6 @@ void SField<ValueT, iNamespace>::pushValueToStream  (OutStream &str) const
                               iNamespace> >::type Converter;
     
     Converter::putToStream(_fieldValue, str);
-}
-
-template <class ValueT, Int32 iNamespace> inline
-void SField<ValueT, iNamespace>::pushSizeToStream  (OutStream &str) const
-{
-    str << 1;
 }
 
 /*-------------------------------------------------------------------------*/

@@ -181,6 +181,11 @@ class OSG_BASE_DLLMAPPING PointerMFieldBase : public Field
     virtual UInt32 getCardinality(void) const;
     virtual UInt32 getClass(void) const;
     virtual const FieldType& getType(void) const;
+
+    virtual void pushValueToString  (std::string  &str, UInt32 index = 0) const;
+    virtual void pushValueFromStream(std::istream &str);
+    virtual void pushValueToStream  (OutStream    &str, UInt32 index = 0) const;
+    virtual void pushSizeToStream    (OutStream    &str) const;
     /*=========================  PROTECTED  ===============================*/
 
   protected:

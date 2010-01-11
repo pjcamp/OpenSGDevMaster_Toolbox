@@ -177,8 +177,11 @@ class MField : public Field
     void pushValuesToString  (std::string  &str) const;
     void pushValuesFromStream(std::istream &str);
     void pushValuesToStream  (OutStream    &str) const;
-    void pushSizeToStream    (OutStream    &str) const;
     
+    virtual void pushValueToString  (std::string  &str, UInt32 index = 0) const;
+    virtual void pushValueFromStream(std::istream &str);
+    virtual void pushValueToStream  (OutStream    &str, UInt32 index = 0) const;
+    virtual void pushSizeToStream    (OutStream    &str) const;
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name                   Binary Interface                           */
