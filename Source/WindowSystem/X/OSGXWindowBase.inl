@@ -205,8 +205,6 @@ const Char8 *XWindowBase::getClassname(void)
 {
     return "XWindow";
 }
-
-
 OSG_GEN_CONTAINERPTR(XWindow);
 
 OSG_END_NAMESPACE
