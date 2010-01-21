@@ -97,7 +97,6 @@
     @@endif
 
 @@endif
-
 OSG_BEGIN_NAMESPACE
 
 class @!Classname!@;
@@ -216,7 +215,6 @@ class @!Classname!@Base : public @!Parent!@
     @@EndProducedMethodLoop
     };
 @@endif // hasProducedMethods
-
 
     /*---------------------------------------------------------------------*/
     /*! \name                    Class Get                                 */
@@ -410,8 +408,7 @@ class @!Classname!@Base : public @!Parent!@
     @@endif 
 
     /*! \}                                                                 */
-"@@endif 
-
+@@endif 
 @@if !isAbstract
     /*---------------------------------------------------------------------*/
     /*! \name                   Construction                               */
