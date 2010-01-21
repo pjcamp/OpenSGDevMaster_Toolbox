@@ -45,6 +45,10 @@
 #include "OSGXWindowBase.h"
 #include "OSGThreadManager.h"
 
+union _XEvent;
+typedef _XEvent XEvent;
+typedef unsigned long  KeySym;
+
 OSG_BEGIN_NAMESPACE
 
 /*! \brief X Window class. See \ref PageWindowX for a description. 
@@ -89,7 +93,7 @@ class OSG_WINDOWX_DLLMAPPING XWindow : public XWindowBase
                       const BitVector  bvFlags  = 0) const;
 
     /*! \}                                                                 */
-	virtual WindowPtr initWindow(void);
+	virtual WindowUnrecPtr initWindow(void);
 
     virtual bool attachWindow(void);
 
@@ -108,6 +112,12 @@ class OSG_WINDOWX_DLLMAPPING XWindow : public XWindowBase
 
     //Set the Window size
     virtual void setSize(Vec2us Size);
+
+    void setSize        (UInt16 width,
+                         UInt16 height) 
+    {
+        Window::setSize(width, height);
+    }
 
     //Get the Window size
     virtual Vec2f getSize(void) const;
@@ -182,15 +192,15 @@ class OSG_WINDOWX_DLLMAPPING XWindow : public XWindowBase
     
     virtual Vec2f getDesktopSize(void) const;
 
-	virtual std::vector<Path> openFileDialog(const std::string& WindowTitle,
+	virtual std::vector<BoostPath> openFileDialog(const std::string& WindowTitle,
 		const std::vector<FileDialogFilter>& Filters,
-		const Path& InitialDir,
+		const BoostPath& InitialDir,
 		bool AllowMultiSelect);
 
-    virtual Path saveFileDialog(const std::string& DialogTitle,
+    virtual BoostPath saveFileDialog(const std::string& DialogTitle,
                     const std::vector<FileDialogFilter>& Filters,
                     const std::string& InitialFile,
-                    const Path& InitialDirectory,
+                    const BoostPath& InitialDirectory,
                     bool PromptForOverwrite
                     );
     /*=========================  PROTECTED  ===============================*/
@@ -223,7 +233,9 @@ class OSG_WINDOWX_DLLMAPPING XWindow : public XWindowBase
     /*! \name                      Init                                    */
     /*! \{                                                                 */
 
+#if 0
     virtual void onDestroy(UInt32 uiContainerId);
+#endif
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

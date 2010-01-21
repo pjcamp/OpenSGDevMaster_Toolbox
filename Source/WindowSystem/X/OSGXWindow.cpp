@@ -58,6 +58,7 @@
 
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
+#include <X11/Xlib.h>
 
 OSG_USING_NAMESPACE
 
@@ -86,9 +87,9 @@ void XWindow::mainLoop(void)
     while (event.type != DestroyNotify ) 
     //while (_WIN32HWNDToProducerMap.size() != 0) 
     {
-        while ( XPending(XWindow::Ptr::dcast(getWindow())->getDisplay()) )
+        while ( XPending(this->getDisplay()) )
         {
-            XNextEvent(XWindow::Ptr::dcast(getWindow())->getDisplay(), &event);
+            XNextEvent(this->getDisplay(), &event);
             handleEvent(event);
         }  
         
@@ -388,7 +389,7 @@ KeyEvent::Key XWindow::determineKey(const KeySym& XKeySym)
  *                           Instance methods                              *
 \***************************************************************************/
 
-WindowPtr XWindow::initWindow(void)
+WindowUnrecPtr XWindow::initWindow(void)
 {
 	WindowPtr MyWindow = Inherited::initWindow();
 	
@@ -465,16 +466,16 @@ WindowPtr XWindow::initWindow(void)
                           
     XFree(vi);
 
-    beginEditCP(XWindow::Ptr::dcast(getWindow()), XWindow::DisplayFieldMask | XWindow::WindowFieldMask);
-        XWindow::Ptr::dcast(getWindow())->setDisplay ( dpy );
-        XWindow::Ptr::dcast(getWindow())->setWindow ( hwin );
-    endEditCP(XWindow::Ptr::dcast(getWindow()), XWindow::DisplayFieldMask | XWindow::WindowFieldMask);
+    beginEditCP(this, XWindow::DisplayFieldMask | XWindow::WindowFieldMask);
+        this->setDisplay ( dpy );
+        this->setWindow ( hwin );
+    endEditCP(this, XWindow::DisplayFieldMask | XWindow::WindowFieldMask);
     
     return MyWindow;
 }
 void XWindow::setPosition(Pnt2f Pos)
 {
-    XMoveWindow(XWindow::Ptr::dcast(getWindow())->getDisplay(),XWindow::Ptr::dcast(getWindow())->getWindow(),Pos.x(), Pos.y());
+    XMoveWindow(this->getDisplay(),this->getWindow(),Pos.x(), Pos.y());
 }
 
 Pnt2f XWindow::getPosition(void) const
@@ -483,7 +484,7 @@ Pnt2f XWindow::getPosition(void) const
     int x,y;
     unsigned int Width,Height,Depth,BorderWidth;
     
-    XGetGeometry(XWindow::Ptr::dcast(getWindow())->getDisplay(),XWindow::Ptr::dcast(getWindow())->getWindow(),RootWindow,
+    XGetGeometry(this->getDisplay(),this->getWindow(),RootWindow,
             &x,&y,
             &Width,&Height,
             &BorderWidth,
@@ -494,7 +495,7 @@ Pnt2f XWindow::getPosition(void) const
 
 void XWindow::setSize(Vec2us Size)
 {
-    XResizeWindow(XWindow::Ptr::dcast(getWindow())->getDisplay(),XWindow::Ptr::dcast(getWindow())->getWindow(),Size.x(), Size.y());
+    XResizeWindow(this->getDisplay(),this->getWindow(),Size.x(), Size.y());
 }
 
 Vec2f XWindow::getSize(void) const
@@ -503,7 +504,7 @@ Vec2f XWindow::getSize(void) const
     int x,y;
     unsigned int Width,Height,Depth,BorderWidth;
     
-    XGetGeometry(XWindow::Ptr::dcast(getWindow())->getDisplay(),XWindow::Ptr::dcast(getWindow())->getWindow(),RootWindow,
+    XGetGeometry(this->getDisplay(),this->getWindow(),RootWindow,
             &x,&y,
             &Width,&Height,
             &BorderWidth,
@@ -516,11 +517,11 @@ void XWindow::setFocused(bool Focused)
 {
    if(Focused)
    {
-       XSetInputFocus(XWindow::Ptr::dcast(getWindow())->getDisplay(),XWindow::Ptr::dcast(getWindow())->getWindow(),RevertToParent, getSystemTime());
+       XSetInputFocus(this->getDisplay(),this->getWindow(),RevertToParent, getSystemTime());
    }
    else
    {
-       XSetInputFocus(XWindow::Ptr::dcast(getWindow())->getDisplay(),None,RevertToParent, getSystemTime());
+       XSetInputFocus(this->getDisplay(),None,RevertToParent, getSystemTime());
    }
 }
 
@@ -528,9 +529,9 @@ bool XWindow::getFocused(void) const
 {
     ::Window *FocusWindow;
     int revert_to;
-    XGetInputFocus(XWindow::Ptr::dcast(getWindow())->getDisplay(), FocusWindow, &revert_to);
+    XGetInputFocus(this->getDisplay(), FocusWindow, &revert_to);
     
-   return FocusWindow == &XWindow::Ptr::dcast(getWindow())->getWindow();
+   return FocusWindow == &this->getWindow();
 }
 
 void XWindow::setVisible(bool Visible)
@@ -548,11 +549,11 @@ void XWindow::setIconify(bool Iconify)
 {
     if(Iconify)
     {
-        XIconifyWindow(XWindow::Ptr::dcast(getWindow())->getDisplay(),XWindow::Ptr::dcast(getWindow())->getWindow(),0);
+        XIconifyWindow(this->getDisplay(),this->getWindow(),0);
     }
     else
     {
-        XMapWindow(XWindow::Ptr::dcast(getWindow())->getDisplay(), XWindow::Ptr::dcast(getWindow())->getWindow());
+        XMapWindow(this->getDisplay(), this->getWindow());
     }
 }
 
@@ -597,7 +598,7 @@ void XWindow::putClipboard(const std::string Value)
 
 void XWindow::closeWindow(void)
 {
-    XDestroyWindow(XWindow::Ptr::dcast(getWindow())->getDisplay(),XWindow::Ptr::dcast(getWindow())->getWindow());
+    XDestroyWindow(this->getDisplay(),this->getWindow());
 }
 
 void XWindow::draw(void)
@@ -684,27 +685,27 @@ void XWindow::openWindow(const Pnt2f& ScreenPosition,
     int argc(1);
     char **argv = new char*[1];
     (*argv)= "Bla";
-     XSetStandardProperties(XWindow::Ptr::dcast(getWindow())->getDisplay(), XWindow::Ptr::dcast(getWindow())->getWindow(), WindowName.c_str(), WindowName.c_str(), None, argv, argc, NULL);
+     XSetStandardProperties(this->getDisplay(), this->getWindow(), WindowName.c_str(), WindowName.c_str(), None, argv, argc, NULL);
     attachWindow();
     
 
-    getWindow()->init();
+    this->init();
     
-    XMapWindow(XWindow::Ptr::dcast(getWindow())->getDisplay(),
-            XWindow::Ptr::dcast(getWindow())->getWindow());
+    XMapWindow(this->getDisplay(),
+               this->getWindow());
     XEvent event;
-    XIfEvent(XWindow::Ptr::dcast(getWindow())->getDisplay(), &event, wait_for_map_notify, (char *)(XWindow::Ptr::dcast(getWindow())->getWindow()));
+    XIfEvent(this->getDisplay(), &event, wait_for_map_notify, (char *)(this->getWindow()));
     produceWindowOpened();
     
-    getWindow()->activate();
+    this->activate();
     
     setPosition(ScreenPosition);
-	 setSize(Size);
+    setSize(Vec2us(Size[0], Size[1]));
     
     //Set things up to capture the delete window event
-    Atom wm_delete_window=XInternAtom(XWindow::Ptr::dcast(getWindow())->getDisplay(), "WM_DELETE_WINDOW", False);
-    XSetWMProtocols(XWindow::Ptr::dcast(getWindow())->getDisplay(), XWindow::Ptr::dcast(getWindow())->getWindow(), &wm_delete_window, 1);
-    Atom wm_protocols=XInternAtom(XWindow::Ptr::dcast(getWindow())->getDisplay(), "WM_PROTOCOLS", False); 
+    Atom wm_delete_window=XInternAtom(this->getDisplay(), "WM_DELETE_WINDOW", False);
+    XSetWMProtocols(this->getDisplay(), this->getWindow(), &wm_delete_window, 1);
+    Atom wm_protocols=XInternAtom(this->getDisplay(), "WM_PROTOCOLS", False); 
 }
 
 bool XWindow::attachWindow(void)
@@ -843,11 +844,11 @@ void XWindow::handleEvent(XEvent& Event)
               break;
             }
          case ConfigureNotify:
-            if ( ! getWindow()->isResizePending() )
+            if ( ! this->isResizePending() )
             {
-               getWindow()->resize( Event.xconfigure.width,
+               this->resize( Event.xconfigure.width,
                             Event.xconfigure.height );
-               internalReshape(Vec2s(Event.xconfigure.width, Event.xconfigure.height));
+               internalReshape(Vec2f(Event.xconfigure.width, Event.xconfigure.height));
                internalDraw();
             }
             break;
@@ -879,12 +880,12 @@ void XWindow::handleEvent(XEvent& Event)
             break;
         case ClientMessage:
         {
-            Atom wm_delete_window=XInternAtom(XWindow::Ptr::dcast(getWindow())->getDisplay(), "WM_DELETE_WINDOW", False);
-            Atom wm_protocols=XInternAtom(XWindow::Ptr::dcast(getWindow())->getDisplay(), "WM_PROTOCOLS", False);
+            Atom wm_delete_window=XInternAtom(this->getDisplay(), "WM_DELETE_WINDOW", False);
+            Atom wm_protocols=XInternAtom(this->getDisplay(), "WM_PROTOCOLS", False);
             if (Event.xclient.message_type == wm_protocols &&
                 Event.xclient.data.l[0] == (long)wm_delete_window)
             {
-                XDestroyWindow(XWindow::Ptr::dcast(getWindow())->getDisplay(),XWindow::Ptr::dcast(getWindow())->getWindow());
+                XDestroyWindow(this->getDisplay(),this->getWindow());
             }
             break;
         }
@@ -898,28 +899,28 @@ void XWindow::handleEvent(XEvent& Event)
 Vec2f XWindow::getDesktopSize(void) const
 {
     //TODO: Implement
-    return Vec2f(XDisplayWidth(XWindow::Ptr::dcast(getWindow())->getDisplay(), 0), XDisplayHeight(XWindow::Ptr::dcast(getWindow())->getDisplay(), 0));
+    return Vec2f(XDisplayWidth(this->getDisplay(), 0), XDisplayHeight(this->getDisplay(), 0));
 }
 
-std::vector<Path> XWindow::openFileDialog(const std::string& WindowTitle,
+std::vector<BoostPath> XWindow::openFileDialog(const std::string& WindowTitle,
 		const std::vector<FileDialogFilter>& Filters,
-		const Path& InitialDir,
+		const BoostPath& InitialDir,
 		bool AllowMultiSelect)
 {
     //TODO: Implement
-    std::vector<Path> Result;
+    std::vector<BoostPath> Result;
     return Result;
 }
 
-Path XWindow::saveFileDialog(const std::string& DialogTitle,
+BoostPath XWindow::saveFileDialog(const std::string& DialogTitle,
                 const std::vector<FileDialogFilter>& Filters,
                 const std::string& InitialFile,
-                const Path& InitialDirectory,
+                const BoostPath& InitialDirectory,
                 bool PromptForOverwrite
                 )
 {
     //TODO: Implement
-    Path Result;
+    BoostPath Result;
     return Result;
 }
 
@@ -992,8 +993,8 @@ void XWindow::setCursor(void)
 		cursor_shape = XC_arrow;
 		break;
 	}
-    XDefineCursor(XWindow::Ptr::dcast(getWindow())->getDisplay(),XWindow::Ptr::dcast(getWindow())->getWindow(),
-            XCreateFontCursor(XWindow::Ptr::dcast(getWindow())->getDisplay(),cursor_shape));
+    XDefineCursor(this->getDisplay(),this->getWindow(),
+            XCreateFontCursor(this->getDisplay(),cursor_shape));
 }
 //! initialize the static features of the class, e.g. action callbacks
 void XWindow::initMethod(InitPhase ePhase)
@@ -1256,10 +1257,12 @@ bool XWindow::hasContext(void)
     return (this->getContext() != NULL);
 }
 
+#if 0
 void XWindow::onDestroy(UInt32 uiContainerId)
 {
     Inherited::onDestroy(uiContainerId);
 }
+#endif
 
 
 #include "OSGSField.ins"
