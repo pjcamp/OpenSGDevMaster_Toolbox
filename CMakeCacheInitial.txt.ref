@@ -51,7 +51,15 @@ SET(GV_ALL_MODULES TRUE)
 IF(GV_ALL_MODULES)
   SET(OSG_CORE_EXAMPLE_EXTENSIONS /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Examples CACHE PATH "")
 
-  SET(OSG_EXTRA_EXTERNAL_MODULES OSGTBAnimation;OSGTBFileIO;OSGTBState CACHE STRING "")
+  SET(FMOD_INCLUDE_DIR /home/vossg/Projects/OpenSG/Support/Unpack/fmodapi42807linux64/api/inc CACHE PATH "")
+  SET(FMOD_LIBRARY_DEBUG /home/vossg/Projects/OpenSG/Support/Unpack/fmodapi42807linux64/api/lib/libfmodex64.so CACHE FILEPATH "")
+  SET(FMOD_LIBRARY_RELEASE /home/vossg/Projects/OpenSG/Support/Unpack/fmodapi42807linux64/api/lib/libfmodex64.so CACHE FILEPATH "")
+
+  SET(ODE_INCLUDE_DIR /home/vossg/Projects/OpenSG/Support/Builds/ode-0.11.1.install/include CACHE PATH "")
+  SET(ODE_LIBRARY_DEBUG /home/vossg/Projects/OpenSG/Support/Builds/ode-0.11.1.install/lib/libode.a CACHE FILEPATH "")
+  SET(ODE_LIBRARY_RELEASE /home/vossg/Projects/OpenSG/Support/Builds/ode-0.11.1.install/lib/libode.a CACHE FILEPATH "")
+
+  SET(OSG_EXTRA_EXTERNAL_MODULES OSGTBAnimation;OSGTBFileIO;OSGTBState;OSGContribParticleSystem;OSGContribSound;OSGContribPhysics CACHE STRING "")
 
 
   SET(OSG_OSGTBAnimation_SOURCE_DIR /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Source/System/Dynamics CACHE PATH "")
@@ -60,10 +68,18 @@ IF(GV_ALL_MODULES)
 
   SET(OSG_OSGTBState_SOURCE_DIR /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Source/System/State CACHE PATH "")
 
+  SET(OSG_OSGContribSound_SOURCE_DIR /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Source/Contrib/Sound/src CACHE PATH "")
+  SET(OSG_OSGContribPhysics_SOURCE_DIR /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Source/Contrib/Physics/src CACHE PATH "")
+  SET(OSG_OSGContribParticleSystem_SOURCE_DIR /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Source/Contrib/ParticleSystem/src CACHE PATH "")
+
 
   SET(OSGBUILD_OSGTBAnimation ON CACHE BOOL "")
   SET(OSGBUILD_OSGTBFileIO ON CACHE BOOL "")
   SET(OSGBUILD_OSGTBState ON CACHE BOOL "")
+
+  SET(OSGBUILD_OSGContribSound ON CACHE BOOL "")
+  SET(OSGBUILD_OSGContribPhysics ON CACHE BOOL "")
+  SET(OSGBUILD_OSGContribParticleSystem ON CACHE BOOL "")
 
 
   SET(OSGBUILD_EXAMPLES_ANIMATION ON CACHE BOOL "")
