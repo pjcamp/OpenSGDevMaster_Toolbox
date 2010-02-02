@@ -332,12 +332,12 @@ static OSStatus PathToFSSpec(const char *path, FSSpec &spec) {
     return(noErr);
 }
 
-std::vector<Path> CarbonWindow::openFileDialog(const std::string& WindowTitle,
+std::vector<BoostPath> CarbonWindow::openFileDialog(const std::string& WindowTitle,
 		const std::vector<FileDialogFilter>& Filters,
-		const Path& InitialDir,
+		const BoostPath& InitialDir,
 		bool AllowMultiSelect)
 {
-	std::vector<Path, std::allocator<Path> > FilesToOpen;
+	std::vector<BoostPath, std::allocator<BoostPath> > FilesToOpen;
     OSStatus status;
     NavDialogRef OpenFileDialog;
 
@@ -489,7 +489,7 @@ std::vector<Path> CarbonWindow::openFileDialog(const std::string& WindowTitle,
             UInt8 FilePath[2048];
             if( FSRefMakePath (&parentDirectory, FilePath, sizeof(FilePath)) == noErr)
             {
-                FilesToOpen.push_back(Path(reinterpret_cast<Char8*>(FilePath)));
+                FilesToOpen.push_back(BoostPath(reinterpret_cast<Char8*>(FilePath)));
             }
         }
     }
@@ -498,14 +498,14 @@ std::vector<Path> CarbonWindow::openFileDialog(const std::string& WindowTitle,
     return FilesToOpen;
 }
 
-Path CarbonWindow::saveFileDialog(const std::string& DialogTitle,
+BoostPath CarbonWindow::saveFileDialog(const std::string& DialogTitle,
                 const std::vector<FileDialogFilter>& Filters,
                 const std::string& InitialFile,
-                const Path& InitialDirectory,
+                const BoostPath& InitialDirectory,
                 bool PromptForOverwrite
                 )
 {
-	Path FileToSave;
+	BoostPath FileToSave;
     OSStatus status;
     NavDialogRef SaveFileDialog;
 
@@ -667,7 +667,7 @@ Path CarbonWindow::saveFileDialog(const std::string& DialogTitle,
             UInt8 FilePath[2048];
             if( FSRefMakePath (&parentDirectory, FilePath, sizeof(FilePath)) == noErr)
             {
-                FileToSave = Path(reinterpret_cast<Char8*>(FilePath));
+                FileToSave = BoostPath(reinterpret_cast<Char8*>(FilePath));
             }
         }
     }
@@ -677,7 +677,7 @@ Path CarbonWindow::saveFileDialog(const std::string& DialogTitle,
     CFStringRef SaveFileCFString = NavDialogGetSaveFileName(SaveFileDialog);
 	char FileName[1024];
 	CFStringGetCString(SaveFileCFString, FileName, sizeof(FileName), 0);
-    FileToSave                   = FileToSave / Path(FileName);
+    FileToSave                   = FileToSave / BoostPath(FileName);
 
     return FileToSave;
 }
@@ -1114,7 +1114,7 @@ OSStatus CarbonWindow::handleMouseEvent(EventHandlerCallRef nextHandler, EventRe
     ::HIPoint location;
     err = GetEventParameter(event, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(location), 0, &location);
     if (err != noErr)
-        //std::vector<Path, std::allocator<Path> >;
+        //std::vector<BoostPath, std::allocator<BoostPath> >;
         return err;
     location.y -= 22.0f;
 
