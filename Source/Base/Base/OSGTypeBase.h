@@ -110,6 +110,7 @@ class OSG_BASE_DLLMAPPING TypeBase
     //-----------------------------------------------------------------------
 
     friend class TypeFactoryBase;
+    friend class EventProducerFactoryBase;
 
     //-----------------------------------------------------------------------
     //   friend functions
