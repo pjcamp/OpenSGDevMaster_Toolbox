@@ -171,6 +171,10 @@ class @!Classname!@Base : public @!Parent!@
                 @@endif // field.isLastField
             @@endif // field.isFirstField
         @@EndFieldLoop
+        @@if !hasFields
+        EventProducerFieldId = Inherited::NextFieldId,
+        NextFieldId = EventProducerFieldId + 1
+        @@endif // hasFields
     };
 
         @@BeginFieldLoop
@@ -455,7 +459,7 @@ class @!Classname!@Base : public @!Parent!@
     static       void   classDescInserter(TypeObject &oType);
     static const Char8 *getClassname     (void             );
 
-@@if hasFields
+@@if hasFieldsOrIsRootProducer
     /*---------------------------------------------------------------------*/
     /*! \name                      Fields                                  */
     /*! \{                                                                 */
