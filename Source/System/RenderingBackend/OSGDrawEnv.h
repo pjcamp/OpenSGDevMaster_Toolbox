@@ -234,6 +234,8 @@ class OSG_SYSTEM_DLLMAPPING DrawEnv
     template<class ValuePtr>
     ValuePtr getData(Int32 iSlotId) const;
 
+    RAction *getAction(void            ) const;
+
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name                   Constructors                               */
@@ -347,7 +349,6 @@ class OSG_SYSTEM_DLLMAPPING DrawEnv
     /*! \{                                                                 */
 
     void     setAction(RAction *pAction);
-    RAction *getAction(void            ) const;
 
     template<class Action, class Result> 
     static Result doGetData(Action *pA, UInt32 iSlotId);
