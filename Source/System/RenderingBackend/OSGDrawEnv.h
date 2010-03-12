@@ -361,6 +361,7 @@ class OSG_SYSTEM_DLLMAPPING DrawEnv
   private:
 
     friend class RenderPartition;
+    friend class Viewport;
     
     /*! \brief prohibit default function (move to 'public' if needed) */
     DrawEnv(const DrawEnv &source);
