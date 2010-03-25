@@ -844,13 +844,10 @@ void XWindow::handleEvent(XEvent& Event)
               break;
             }
          case ConfigureNotify:
-            if ( ! this->isResizePending() )
-            {
                this->resize( Event.xconfigure.width,
                             Event.xconfigure.height );
+
                internalReshape(Vec2f(Event.xconfigure.width, Event.xconfigure.height));
-               internalDraw();
-            }
             break;
             
          case DestroyNotify:
