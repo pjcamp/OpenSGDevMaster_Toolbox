@@ -4,7 +4,7 @@ MESSAGE(STATUS "LOAD INITIAL CACHE")
 
 SET(CMAKE_VERBOSE_MAKEFILE TRUE CACHE BOOL "xxx" FORCE)
 
-SET(OSG_SUPPORT_ROOT "/home/vossg/Projects/OpenSG/ToolBox/OpenSGDevMaster_Toolbox.Support.install" CACHE PATH "")
+SET(OSG_SUPPORT_ROOT "/home/gerrit/Projects/OpenSG/ToolBox/OpenSGDevMaster_Toolbox.Support.install" CACHE PATH "")
 
 SET(OSG_USE_OSGSUPPORT_LIBS ON CACHE BOOL "")
 
@@ -12,16 +12,16 @@ SET(OSG_USE_STATIC_SUPPORT_LIBS OFF CACHE BOOL "")
 
 SET(CMAKE_BUILD_TYPE Debug CACHE STRING "xxx" FORCE)
 
-SET(CMAKE_INSTALL_PREFIX /home/vossg/Projects/OpenSG/ToolBox/OpenSGDevMaster_Toolbox.install CACHE PATH "" FORCE)
+SET(CMAKE_INSTALL_PREFIX /home/gerrit/Projects/OpenSG/ToolBox/OpenSGDevMaster_Toolbox.install CACHE PATH "" FORCE)
 
 
-SET(COLLADA_DAE_INCLUDE_DIR /home/vossg/Projects/Collada/collada-dom/dom/include CACHE PATH "")
+SET(COLLADA_DAE_INCLUDE_DIR /home/gerrit/Projects/Collada/collada-dom/dom/include CACHE PATH "")
 
-SET(COLLADA_DOM_INCLUDE_DIR /home/vossg/Projects/Collada/collada-dom/dom/include/1.4 CACHE PATH "")
+SET(COLLADA_DOM_INCLUDE_DIR /home/gerrit/Projects/Collada/collada-dom/dom/include/1.4 CACHE PATH "")
 
-SET(COLLADA_LIBRARY_DEBUG /home/vossg/Projects/Collada/collada-dom/dom/build/linux-1.4-d/libcollada14dom-d.so CACHE FILEPATH "")
+SET(COLLADA_LIBRARY_DEBUG /home/gerrit/Projects/Collada/collada-dom/dom/build/linux-1.4-d/libcollada14dom-d.so CACHE FILEPATH "")
 
-SET(COLLADA_LIBRARY_RELEASE /home/vossg/Projects/Collada/collada-dom/dom/build/linux-1.4/libcollada14dom.so CACHE FILEPATH "")
+SET(COLLADA_LIBRARY_RELEASE /home/gerrit/Projects/Collada/collada-dom/dom/build/linux-1.4/libcollada14dom.so CACHE FILEPATH "")
 
 
 SET(OSGBUILD_EXAMPLES_SIMPLE ON CACHE BOOL "")
@@ -40,7 +40,7 @@ SET(CUDA_NVCC_FLAGS "--compiler-options;-fno-strict-aliasing;--compiler-options;
 
 SET(CUDA_VERBOSE_BUILD ON CACHE BOOL "")
 
-SET(OSG_CORE_EXTENSIONS /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Source CACHE PATH "")
+SET(OSG_CORE_EXTENSIONS /home/gerrit/Projects/OpenSG/ToolBox/Toolbox/Source CACHE PATH "")
 
 SET(OSGCOMPAT_ENABLE TRUE CACHE BOOL "")
 SET(OSGCOMPAT_ENABLE_DEPRECATED TRUE CACHE BOOL "")
@@ -49,28 +49,28 @@ SET(OSGCOMPAT_ENABLE_DEPRECATED_PROPS TRUE CACHE BOOL "")
 SET(GV_ALL_MODULES TRUE)
 
 IF(GV_ALL_MODULES)
-  SET(OSG_CORE_EXAMPLE_EXTENSIONS /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Examples CACHE PATH "")
+  SET(OSG_CORE_EXAMPLE_EXTENSIONS /home/gerrit/Projects/OpenSG/ToolBox/Toolbox/Examples CACHE PATH "")
 
-  SET(FMOD_INCLUDE_DIR /home/vossg/Projects/OpenSG/Support/Unpack/fmodapi42807linux64/api/inc CACHE PATH "")
-  SET(FMOD_LIBRARY_DEBUG /home/vossg/Projects/OpenSG/Support/Unpack/fmodapi42807linux64/api/lib/libfmodex64.so CACHE FILEPATH "")
-  SET(FMOD_LIBRARY_RELEASE /home/vossg/Projects/OpenSG/Support/Unpack/fmodapi42807linux64/api/lib/libfmodex64.so CACHE FILEPATH "")
+  SET(FMOD_INCLUDE_DIR /home/gerrit/Projects/OpenSG/Support/Unpack/fmodapi42807linux64/api/inc CACHE PATH "")
+  SET(FMOD_LIBRARY_DEBUG /home/gerrit/Projects/OpenSG/Support/Unpack/fmodapi42807linux64/api/lib/libfmodex64.so CACHE FILEPATH "")
+  SET(FMOD_LIBRARY_RELEASE /home/gerrit/Projects/OpenSG/Support/Unpack/fmodapi42807linux64/api/lib/libfmodex64.so CACHE FILEPATH "")
 
-  SET(ODE_INCLUDE_DIR /home/vossg/Projects/OpenSG/Support/Builds/ode-0.11.1.install/include CACHE PATH "")
-  SET(ODE_LIBRARY_DEBUG /home/vossg/Projects/OpenSG/Support/Builds/ode-0.11.1.install/lib/libode.a CACHE FILEPATH "")
-  SET(ODE_LIBRARY_RELEASE /home/vossg/Projects/OpenSG/Support/Builds/ode-0.11.1.install/lib/libode.a CACHE FILEPATH "")
+  SET(ODE_INCLUDE_DIR /home/gerrit/Projects/OpenSG/Support/Builds/ode-0.11.1.install/include CACHE PATH "")
+  SET(ODE_LIBRARY_DEBUG /home/gerrit/Projects/OpenSG/Support/Builds/ode-0.11.1.install/lib/libode.a CACHE FILEPATH "")
+  SET(ODE_LIBRARY_RELEASE /home/gerrit/Projects/OpenSG/Support/Builds/ode-0.11.1.install/lib/libode.a CACHE FILEPATH "")
 
   SET(OSG_EXTRA_EXTERNAL_MODULES OSGTBAnimation;OSGTBFileIO;OSGTBState;OSGContribParticleSystem;OSGContribSound;OSGContribPhysics CACHE STRING "")
 
 
-  SET(OSG_OSGTBAnimation_SOURCE_DIR /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Source/System/Dynamics CACHE PATH "")
+  SET(OSG_OSGTBAnimation_SOURCE_DIR /home/gerrit/Projects/OpenSG/ToolBox/Toolbox/Source/System/Dynamics CACHE PATH "")
 
-  SET(OSG_OSGTBFileIO_SOURCE_DIR /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Source/System/FileIO CACHE PATH "")
+  SET(OSG_OSGTBFileIO_SOURCE_DIR /home/gerrit/Projects/OpenSG/ToolBox/Toolbox/Source/System/FileIO CACHE PATH "")
 
-  SET(OSG_OSGTBState_SOURCE_DIR /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Source/System/State CACHE PATH "")
+  SET(OSG_OSGTBState_SOURCE_DIR /home/gerrit/Projects/OpenSG/ToolBox/Toolbox/Source/System/State CACHE PATH "")
 
-  SET(OSG_OSGContribSound_SOURCE_DIR /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Source/Contrib/Sound/src CACHE PATH "")
-  SET(OSG_OSGContribPhysics_SOURCE_DIR /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Source/Contrib/Physics/src CACHE PATH "")
-  SET(OSG_OSGContribParticleSystem_SOURCE_DIR /home/vossg/Projects/OpenSG/ToolBox/Toolbox/Source/Contrib/ParticleSystem/src CACHE PATH "")
+  SET(OSG_OSGContribSound_SOURCE_DIR /home/gerrit/Projects/OpenSG/ToolBox/Toolbox/Source/Contrib/Sound/src CACHE PATH "")
+  SET(OSG_OSGContribPhysics_SOURCE_DIR /home/gerrit/Projects/OpenSG/ToolBox/Toolbox/Source/Contrib/Physics/src CACHE PATH "")
+  SET(OSG_OSGContribParticleSystem_SOURCE_DIR /home/gerrit/Projects/OpenSG/ToolBox/Toolbox/Source/Contrib/ParticleSystem/src CACHE PATH "")
 
 
   SET(OSGBUILD_OSGTBAnimation ON CACHE BOOL "")
@@ -86,9 +86,9 @@ IF(GV_ALL_MODULES)
   SET(OSGBUILD_EXAMPLES_NATIVE ON CACHE BOOL "")
 
 
-  SET(CG_TOOLKIT_INCLUDE_DIR /home/vossg/Projects/NVidia/Cg/usr/include CACHE PATH "")
-  SET(CG_TOOLKIT_LIBRARY_DEBUG /home/vossg/Projects/NVidia/Cg/usr/lib64/libCg.so CACHE FILEPATH "")
-  SET(CG_TOOLKIT_LIBRARY_RELEASE /home/vossg/Projects/NVidia/Cg/usr/lib64/libCg.so CACHE FILEPATH "")
+  SET(CG_TOOLKIT_INCLUDE_DIR /home/gerrit/Projects/NVidia/Cg/usr/include CACHE PATH "")
+  SET(CG_TOOLKIT_LIBRARY_DEBUG /home/gerrit/Projects/NVidia/Cg/usr/lib64/libCg.so CACHE FILEPATH "")
+  SET(CG_TOOLKIT_LIBRARY_RELEASE /home/gerrit/Projects/NVidia/Cg/usr/lib64/libCg.so CACHE FILEPATH "")
 
 ENDIF(GV_ALL_MODULES)
 
