@@ -285,6 +285,8 @@ class OSG_SYSTEM_DLLMAPPING CameraBase : public AttachmentContainer
 
     // prohibit default functions (move to 'public' if you need one)
     void operator =(const CameraBase &source);
+
+    friend class CameraDecoratorBase;
 };
 
 typedef CameraBase *CameraBaseP;

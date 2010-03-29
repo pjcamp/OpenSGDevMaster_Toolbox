@@ -709,6 +709,12 @@ class @!Classname!@Base : public @!Parent!@
 
     // prohibit default functions (move to 'public' if you need one)
     void operator =(const @!Classname!@Base &source);
+@@if isDecoratable
+ @@if !isDecorator
+
+    friend class @!Classname!@DecoratorBase;
+ @@endif
+@@endif
 };
 
 typedef @!Classname!@Base *@!Classname!@BaseP;
