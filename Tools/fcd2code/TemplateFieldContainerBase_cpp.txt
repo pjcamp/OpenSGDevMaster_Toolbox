@@ -228,9 +228,9 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
         @@if isRootProducer
-    pDesc = new EventProducer::Description(
+    pDesc = new SFEventProducerPtr::Description(
         SFEventProducerPtr::getClassType(),
-        "EventProducer",
+        "@!Classname!@EventProducer",
         "Event Producer",
         EventProducerFieldId,EventProducerFieldMask,
         true,
@@ -1447,7 +1447,7 @@ void @!Classname!@Base::set@!field.Name!@(@!field.Type!@ const value)
             @@else // field.isPtrField
 
 //! Get the value of the @!Classname!@::_@!field.VarName!@ field.
-@!field.Type!@ &@!Classname!@Base::edit@!field.Name!@(void)
+@!field.FullType!@ &@!Classname!@Base::edit@!field.Name!@(void)
 {
     if(_sfDecoratee.getValue() != NULL)
     {
@@ -1460,7 +1460,7 @@ void @!Classname!@Base::set@!field.Name!@(@!field.Type!@ const value)
 }
 
 //! Get the value of the @!Classname!@::_@!field.VarName!@ field.
-@!field.RetConst!@ @!field.Type!@ @!field.RetRef!@@!Classname!@Base::get@!field.Name!@(void) const
+@!field.RetConst!@ @!field.FullType!@ @!field.RetRef!@@!Classname!@Base::get@!field.Name!@(void) const
 {
     if(_sfDecoratee.getValue() != NULL)
     {
@@ -1474,7 +1474,7 @@ void @!Classname!@Base::set@!field.Name!@(@!field.Type!@ const value)
 
 
 //! Set the value of the @!Classname!@::_@!field.VarName!@ field.
-void @!Classname!@Base::set@!field.Name!@(const @!field.Type!@ @!field.ArgRef!@value)
+void @!Classname!@Base::set@!field.Name!@(const @!field.FullType!@ @!field.ArgRef!@value)
 {
     if(_sfDecoratee.getValue() != NULL)
     {
