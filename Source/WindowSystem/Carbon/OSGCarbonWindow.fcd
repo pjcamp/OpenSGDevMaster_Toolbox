@@ -2,7 +2,7 @@
 
 <FieldContainer
    name="CarbonWindow"
-   parent="Window"
+   parent="WindowEventProducer"
    library="WindowCarbon"
    pointerfieldtypes="both"
    structure="concrete"
