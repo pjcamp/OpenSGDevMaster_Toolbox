@@ -58,6 +58,8 @@ ColladaOptions::parseOptions(const OptionSet &optSet)
         optSet, "invertTransparency", _invertTransparency);
     IOFileTypeBase::getOptionAs<bool>(
         optSet, "createNameAttachments", _createNameAttachments);
+    IOFileTypeBase::getOptionAs<bool>(
+        optSet, "flattenNodeXForms", _flattenNodeXForms);
 }
 
 /*! Return \c true if transparency values should be inverted, \c false
@@ -99,10 +101,28 @@ ColladaOptions::setCreateNameAttachments(bool value)
     _createNameAttachments = value;
 }
 
+
+/*! Set if Node transforms should be flattened into a single xform.
+    Option name: "flattenNodeXForms".
+ */
+bool ColladaOptions::getFlattenNodeXForms    (void      ) const
+{
+    return _flattenNodeXForms;
+}
+
+/*! Return \c true if Node transforms should be flattened into a single xform, \c false otherwise.
+    Option name: "flattenNodeXForms".
+ */
+void ColladaOptions::setFlattenNodeXForms    (bool value)
+{
+    _flattenNodeXForms = value;
+}
+
 ColladaOptions::ColladaOptions(void)
     : Inherited             ()
     , _invertTransparency   (false)
     , _createNameAttachments(true)
+    , _flattenNodeXForms    (true)
 {
 }
 
