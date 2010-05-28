@@ -454,12 +454,35 @@ ColladaNode::appendXForm(Node *xformN)
         _topN = xformN;
     }
     
-    if(_bottomN != NULL)
+    if(getGlobal()->getOptions()->getFlattenNodeXForms())
     {
-        _bottomN->addChild(xformN);
-    }
+        if(_bottomN != NULL)
+        {
+            if(_bottomN->getCore()->getType() == Transform::getClassType())
+            {
+                Transform* _bottomTrans = dynamic_cast<Transform*>(_bottomN->getCore());
 
-    _bottomN = xformN;
+                _bottomTrans->editMatrix().mult(dynamic_cast<Transform*>(xformN->getCore())->getMatrix());
+            }
+            else
+            {
+                _bottomN->addChild(xformN);
+            }
+        }
+        else
+        {
+            _bottomN = xformN;
+        }
+    }
+    else
+    {
+        if(_bottomN != NULL)
+        {
+            _bottomN->addChild(xformN);
+        }
+
+        _bottomN = xformN;
+    }
 }
 
 /*! Add a child node to the OpenSG tree representing
