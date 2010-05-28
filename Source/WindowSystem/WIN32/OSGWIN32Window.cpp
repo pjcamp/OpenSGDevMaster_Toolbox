@@ -48,6 +48,8 @@
 #include "OSGWIN32Window.h"
 
 #include "Windowsx.h"
+#include <boost/algorithm/string.hpp>
+
 
 OSG_BEGIN_NAMESPACE
 
@@ -999,7 +1001,10 @@ BoostPath WIN32Window::saveFileDialog(const std::string& DialogTitle,
                 bool PromptForOverwrite
                 )
 {
-    char FilterString[400];
+    BoostPath Result;
+
+    const UInt32 MAX_FILTER_STING_SIZE = 900;
+    char FilterString[MAX_FILTER_STING_SIZE];
     UInt32 FilterSize(0);
     for(std::vector<FileDialogFilter>::const_iterator Itor(Filters.begin()) ; Itor != Filters.end(); ++Itor)
     {
@@ -1010,17 +1015,38 @@ BoostPath WIN32Window::saveFileDialog(const std::string& DialogTitle,
         }
         FilterString[FilterSize] = '\0';
         ++FilterSize;
-        FilterString[FilterSize] = '*';
-        ++FilterSize;
-        FilterString[FilterSize] = '.';
-        ++FilterSize;
-        for(UInt32 i(0) ; i<Itor->getFilter().size(); ++i)
+
+        //Split the Filters
+        typedef std::vector< std::string > split_vector_type;
+        
+        split_vector_type SplitVec;
+        boost::split( SplitVec, Itor->getFilter(), boost::is_any_of(";,") );
+
+        for(UInt32 j(0) ; j<SplitVec.size() ; ++j)
         {
-            FilterString[FilterSize] = Itor->getFilter()[i];
+            if(j != 0)
+            {
+                FilterString[FilterSize] = ';';
+                ++FilterSize;
+            }
+            FilterString[FilterSize] = '*';
             ++FilterSize;
+            FilterString[FilterSize] = '.';
+            ++FilterSize;
+            for(UInt32 i(0) ; i<SplitVec[j].size(); ++i)
+            {
+                FilterString[FilterSize] = SplitVec[j][i];
+                ++FilterSize;
+            }
         }
         FilterString[FilterSize] = '\0';
         ++FilterSize;
+
+        if(FilterSize > MAX_FILTER_STING_SIZE)
+        {
+            SWARNING << "Filter String too long.  Max length is " << MAX_FILTER_STING_SIZE << std::endl;
+            return Result;
+        }
     }
     FilterString[FilterSize] = '\0';
     ++FilterSize;
@@ -1028,11 +1054,11 @@ BoostPath WIN32Window::saveFileDialog(const std::string& DialogTitle,
 	LPSTR WindowTitleLPC = _strdup(DialogTitle.c_str());
 	LPSTR InitialDirLPC = _strdup(InitialDirectory.string().c_str());
 
-    BoostPath Result;
     OPENFILENAME ofn;       // common dialog box structure
-	char szFile[260];       // buffer for file name
+    const UInt32 MAX_FILE_STING_SIZE = 300;
+	char szFile[MAX_FILE_STING_SIZE];       // buffer for file name
     UInt32 i(0);
-    for( ; i<osgMin<UInt32>(InitialFile.size(),260); ++i)
+    for( ; i<osgMin<UInt32>(InitialFile.size(),MAX_FILE_STING_SIZE); ++i)
     {
         szFile[i] = InitialFile[i];
     }
@@ -1049,7 +1075,8 @@ BoostPath WIN32Window::saveFileDialog(const std::string& DialogTitle,
     ofn.Flags = OFN_SHOWHELP | OFN_OVERWRITEPROMPT; 
 
 
-    char currentdir[200];
+    const UInt32 MAX_CURDIR_STING_SIZE = 300;
+    char currentdir[MAX_CURDIR_STING_SIZE];
     GetCurrentDirectory(sizeof(currentdir),currentdir);
     if(GetSaveFileName(&ofn)==TRUE)
     {
@@ -1068,7 +1095,10 @@ std::vector<BoostPath> WIN32Window::openFileDialog(const std::string& WindowTitl
 		const BoostPath& InitialDir,
 		bool AllowMultiSelect)
 {
-    char FilterString[400];
+	std::vector<BoostPath> Result;
+
+    const UInt32 MAX_FILTER_STING_SIZE = 900;
+    char FilterString[MAX_FILTER_STING_SIZE];
     UInt32 FilterSize(0);
     for(std::vector<FileDialogFilter>::const_iterator Itor(Filters.begin()) ; Itor != Filters.end(); ++Itor)
     {
@@ -1079,17 +1109,38 @@ std::vector<BoostPath> WIN32Window::openFileDialog(const std::string& WindowTitl
         }
         FilterString[FilterSize] = '\0';
         ++FilterSize;
-        FilterString[FilterSize] = '*';
-        ++FilterSize;
-        FilterString[FilterSize] = '.';
-        ++FilterSize;
-        for(UInt32 i(0) ; i<Itor->getFilter().size(); ++i)
+
+        //Split the Filters
+        typedef std::vector< std::string > split_vector_type;
+        
+        split_vector_type SplitVec;
+        boost::split( SplitVec, Itor->getFilter(), boost::is_any_of(";,") );
+
+        for(UInt32 j(0) ; j<SplitVec.size() ; ++j)
         {
-            FilterString[FilterSize] = Itor->getFilter()[i];
+            if(j != 0)
+            {
+                FilterString[FilterSize] = ';';
+                ++FilterSize;
+            }
+            FilterString[FilterSize] = '*';
             ++FilterSize;
+            FilterString[FilterSize] = '.';
+            ++FilterSize;
+            for(UInt32 i(0) ; i<SplitVec[j].size(); ++i)
+            {
+                FilterString[FilterSize] = SplitVec[j][i];
+                ++FilterSize;
+            }
         }
         FilterString[FilterSize] = '\0';
         ++FilterSize;
+
+        if(FilterSize > MAX_FILTER_STING_SIZE)
+        {
+            SWARNING << "Filter String too long.  Max length is " << MAX_FILTER_STING_SIZE << std::endl;
+            return Result;
+        }
     }
     FilterString[FilterSize] = '\0';
     ++FilterSize;
@@ -1097,10 +1148,10 @@ std::vector<BoostPath> WIN32Window::openFileDialog(const std::string& WindowTitl
 	LPSTR WindowTitleLPC = _strdup(WindowTitle.c_str());
 	LPSTR InitialDirLPC = _strdup(InitialDir.string().c_str());
 
-	std::vector<BoostPath> Result;
 
 	OPENFILENAME ofn;       // common dialog box structure
-	char szFile[260];       // buffer for file name
+    const UInt32 MAX_FILE_STING_SIZE = 300;
+	char szFile[MAX_FILE_STING_SIZE];       // buffer for file name
 
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(ofn));
@@ -1119,7 +1170,8 @@ std::vector<BoostPath> WIN32Window::openFileDialog(const std::string& WindowTitl
 
 	// Display the Open dialog box. 
     
-    char currentdir[200];
+    const UInt32 MAX_CURDIR_STING_SIZE = 300;
+    char currentdir[MAX_CURDIR_STING_SIZE];
     GetCurrentDirectory(sizeof(currentdir),currentdir);
 
     // GetOpenFileName stuffs
