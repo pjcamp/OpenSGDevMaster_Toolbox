@@ -450,6 +450,9 @@ class @!Classname!@Base : public @!Parent!@
     /*! \name                    Event Producer                            */
     /*! \{                                                                 */
     EventProducer _Producer;
+    
+    GetFieldHandlePtr  getHandleEventProducer        (void) const;
+    EditFieldHandlePtr editHandleEventProducer       (void);
 
     /*! \}                                                                 */
 @@endif 
