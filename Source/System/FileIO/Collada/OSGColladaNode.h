@@ -104,6 +104,8 @@ class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
     Node *getBottomNode(void) const;
 
     /*! \}                                                                 */
+    
+    void  setVisualScene(ColladaVisualScene     *visualScene);
     /*=========================  PROTECTED  ===============================*/
   protected:
     /*---------------------------------------------------------------------*/
@@ -129,6 +131,7 @@ class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
     void handleInstanceNode      (domInstance_node       *instNode      );
     void handleInstanceGeometry  (domInstance_geometry   *instGeo       );
     void handleInstanceController(domInstance_controller *instController);
+    void handleInstanceLight     (domInstance_light      *instLight);
 
     void appendXForm(Node *xformN);
     void appendChild(Node *childN);       
@@ -138,6 +141,8 @@ class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
 
     NodeUnrecPtr _topN;
     NodeUnrecPtr _bottomN;
+
+    ColladaVisualScene* _visualScene;
 };
 
 OSG_GEN_MEMOBJPTR(ColladaNode);

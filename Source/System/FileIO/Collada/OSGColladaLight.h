@@ -6,7 +6,7 @@
  *                                                                           *
  *                            www.opensg.org                                 *
  *                                                                           *
- *   contact: dirk@opensg.org, gerrit.voss@vossg.org, jbehr@zgdv.de          *
+ *   contact: David Kabala djkabala@gmail.com                                *
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*\
@@ -36,8 +36,8 @@
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 
-#ifndef _OSGCOLLADAEFFECT_H_
-#define _OSGCOLLADAEFFECT_H_
+#ifndef _OSGCOLLADALIGHT_H_
+#define _OSGCOLLADALIGHT_H_
 
 #include "OSGConfig.h"
 
@@ -45,39 +45,21 @@
 
 #include "OSGColladaInstantiableElement.h"
 #include "OSGColladaElementFactoryHelper.h"
-#include "OSGColladaSampler2D.h"
-#include "OSGColladaSurface.h"
-#include "OSGMaterial.h"
+#include "OSGLight.h"
 
-#include <dom/domImage.h>
-#include <dom/domFx_sampler2D_common.h>
-#include <dom/domFx_surface_common.h>
-#include <dom/domCommon_color_or_texture_type.h>
-#include <dom/domCommon_float_or_param_type.h>
 #include <dom/domCommon_transparent_type.h>
 
 // forward decl
-class domProfile_COMMON;
-class domProfile_GLSL;
-class domProfile_CG;
-class domEffect;
-class domInstance_effect;
+class domLight;
 
 
 OSG_BEGIN_NAMESPACE
 
 // forward decl
-class ColladaInstanceEffect;
-class ChunkMaterial;
-class MaterialChunk;
-class BlendChunk;
-OSG_GEN_CONTAINERPTR(BlendChunk);
-
-class DepthChunk;
-OSG_GEN_CONTAINERPTR(DepthChunk);
+class ColladaInstanceLight;
 
 
-class OSG_FILEIO_DLLMAPPING ColladaEffect : public ColladaInstantiableElement
+class OSG_FILEIO_DLLMAPPING ColladaLight : public ColladaInstantiableElement
 {
     /*==========================  PUBLIC  =================================*/
   public:
@@ -86,9 +68,9 @@ class OSG_FILEIO_DLLMAPPING ColladaEffect : public ColladaInstantiableElement
     /*! \{                                                                 */
 
     typedef ColladaInstantiableElement Inherited;
-    typedef ColladaEffect              Self;
+    typedef ColladaLight              Self;
 
-    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaEffect);
+    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaLight);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -104,7 +86,7 @@ class OSG_FILEIO_DLLMAPPING ColladaEffect : public ColladaInstantiableElement
     /*! \{                                                                 */
 
     virtual void      read          (void                            );
-    virtual Material *createInstance(ColladaInstanceElement *instElem);
+    virtual Light    *createInstance(ColladaInstanceElement *instElem);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -121,119 +103,65 @@ class OSG_FILEIO_DLLMAPPING ColladaEffect : public ColladaInstantiableElement
     /*! \name Types                                                        */
     /*! \{                                                                 */
 
-    // <sampler2D> DOM and loader objects
-    struct ParamSampler2D
-    {
-        ColladaSampler2DRefPtr    colSampler2D;
-        domFx_sampler2D_commonRef sampler2D;
-    };
-
-    // <surface> DOM and loader objects
-    struct ParamSurface
-    {
-        ColladaSurfaceRefPtr    colSurface;
-        domFx_surface_commonRef surface;
-    };
-
-    typedef std::map<std::string, ParamSampler2D> ParamSampler2DMap;
-    typedef ParamSampler2DMap::iterator           ParamSampler2DMapIt;
-    typedef ParamSampler2DMap::const_iterator     ParamSampler2DMapConstIt;
-    
-    typedef std::map<std::string, ParamSurface  > ParamSurfaceMap;
-    typedef ParamSurfaceMap::iterator             ParamSurfaceMapIt;
-    typedef ParamSurfaceMap::const_iterator       ParamSurfaceMapConstIt;
-
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name Constructors/Destructor                                      */
     /*! \{                                                                 */
 
-             ColladaEffect(daeElement *elem, ColladaGlobal *global);
-    virtual ~ColladaEffect(void                                   );
+             ColladaLight(daeElement *elem, ColladaGlobal *global);
+    virtual ~ColladaLight(void                                   );
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name Profile Handlers                                             */
     /*! \{                                                                 */
 
-    virtual void      readProfileCommon(domProfile_COMMON *prof);
-    virtual void      readProfileGLSL  (domProfile_GLSL   *prof);
-    virtual void      readProfileCG    (domProfile_CG     *prof);
+    /*virtual void      readProfileCommon(domProfile_COMMON *prof);
 
     virtual MaterialTransitPtr createInstanceProfileCommon(
-        domProfile_COMMON  *prof,       domEffect *effect,
-        domInstance_effect *instEffect                    );
-    virtual MaterialTransitPtr createInstanceProfileGLSL(
-        domProfile_GLSL    *prof,       domEffect *effect,
-        domInstance_effect *instEffect                    );
-    virtual MaterialTransitPtr createInstanceProfileCG(
-        domProfile_CG      *prof,       domEffect *effect,
-        domInstance_effect *instEffect                    );
+        domProfile_COMMON  *prof,       domLight *light,
+        domInstance_light *instLight                    );*/
 
     /*! \}                                                                 */
+    void readTechniqueAmbient(domLight::domTechnique_common::domAmbient *tec);
+
+    void readTechniqueDirectional(domLight::domTechnique_common::domDirectional *tec);
+
+    void readTechniquePoint(domLight::domTechnique_common::domPoint *tec);
+
+    void readTechniqueSpot(domLight::domTechnique_common::domSpot *tec);
+
+    LightTransitPtr createTechniqueAmbient(
+        domLight::domTechnique_common::domAmbient *tec,
+        domLight *light,
+        domInstance_light *instLight                      );
+
+    LightTransitPtr createTechniqueDirectional(
+        domLight::domTechnique_common::domDirectional *tec,
+        domLight *light,
+        domInstance_light *instLight                      );
+
+    LightTransitPtr createTechniquePoint(
+        domLight::domTechnique_common::domPoint *tec,
+        domLight *light,
+        domInstance_light *instLight                      );
+
+    LightTransitPtr createTechniqueSpot(
+        domLight::domTechnique_common::domSpot *tec,
+        domLight *light,
+        domInstance_light *instLight                      );
+
     /*---------------------------------------------------------------------*/
 
-    void handleProfileCommonEmission(
-        domCommon_color_or_texture_type *emission,
-        MaterialChunk                   *matChunk     );
-    void handleProfileCommonAmbient(
-        domCommon_color_or_texture_type *ambient,
-        ColladaInstanceEffect           *colInstEffect,
-        ChunkMaterial                   *mat,
-        MaterialChunk                   *matChunk,
-        BlendChunkUnrecPtr              &blendChunk,
-        DepthChunkUnrecPtr              &depthChunk,
-        UInt32                          &texCount     );
-    void handleProfileCommonDiffuse(
-        domCommon_color_or_texture_type *diffuse,
-        ColladaInstanceEffect           *colInstEffect,
-        ChunkMaterial                   *mat,
-        MaterialChunk                   *matChunk,
-        BlendChunkUnrecPtr              &blendChunk,
-        DepthChunkUnrecPtr              &depthChunk,
-        UInt32                          &texCount     );
-    void handleProfileCommonSpecular(
-        domCommon_color_or_texture_type *specular,
-        MaterialChunk                   *matChunk     );
-
-    void readImageArray(const domImage_Array &images);
-    void fillColorParamTex  (
-        domCommon_color_or_texture_type                *colTex,
-        domCommon_color_or_texture_type::domColorRef   &colOut,
-        domCommon_color_or_texture_type::domParamRef   &paramOut,
-        domCommon_color_or_texture_type::domTextureRef &texOut     );
-    void fillColorParamTex  (
-        domCommon_transparent_type                     *colTex,
-        domCommon_color_or_texture_type::domColorRef   &colOut,
-        domCommon_color_or_texture_type::domParamRef   &paramOut,
-        domCommon_color_or_texture_type::domTextureRef &texOut     );
-    void fillFloatParam     (
-        domCommon_float_or_param_type                  *floatParam,
-        domCommon_float_or_param_type::domFloatRef     &floatOut,
-        domCommon_float_or_param_type::domParamRef     &paramOut   );
-
-    void addTexture(const std::string     &texId,
-                    const std::string     &tcSemantic,
-                    ColladaInstanceEffect *colInstEffect,
-                    ColladaSampler2D      *colSampler2D,
-                    ChunkMaterial         *mat,
-                    GLenum                 envMode,
-                    UInt32                &texCount       );
-
-    Real32 luminance(const Color4f &col);
-
     static ColladaElementRegistrationHelper _regHelper;
-
-    ParamSampler2DMap _sampler2DParams;
-    ParamSurfaceMap   _surfaceParams;
 };
 
-OSG_GEN_MEMOBJPTR(ColladaEffect);
+OSG_GEN_MEMOBJPTR(ColladaLight);
 
 OSG_END_NAMESPACE
 
-// #include "OSGColladaEffect.inl"
+// #include "OSGColladaLight.inl"
 
 #endif // OSG_WITH_COLLADA
 
-#endif // _OSGCOLLADAEFFECT_H_
+#endif // _OSGCOLLADALIGHT_H_

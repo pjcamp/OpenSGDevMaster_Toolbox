@@ -78,6 +78,8 @@ class OSG_FILEIO_DLLMAPPING ColladaVisualScene
 
     virtual void  read          (void                            );
     virtual Node *createInstance(ColladaInstanceElement *instElem);
+    
+    void pushNodeToRoot(Node* NewRoot);
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
@@ -94,6 +96,7 @@ class OSG_FILEIO_DLLMAPPING ColladaVisualScene
     /*---------------------------------------------------------------------*/
 
     static ColladaElementRegistrationHelper _regHelper;
+    NodeUnrecPtr         _RootN;
 };
 
 OSG_GEN_MEMOBJPTR(ColladaVisualScene);
