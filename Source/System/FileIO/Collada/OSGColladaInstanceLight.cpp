@@ -40,122 +40,122 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
-#include "OSGColladaInstanceEffect.h"
+#include "OSGColladaInstanceLight.h"
 
 #ifdef OSG_WITH_COLLADA
 
 #include "OSGColladaLog.h"
 
-#include <dom/domInstance_effect.h>
+#include <dom/domInstance_light.h>
 
 OSG_BEGIN_NAMESPACE
 
-ColladaElementRegistrationHelper ColladaInstanceEffect::_regHelper(
-    &ColladaInstanceEffect::create, "instance_effect");
+ColladaElementRegistrationHelper ColladaInstanceLight::_regHelper(
+    &ColladaInstanceLight::create, "instance_light");
 
 ColladaElementTransitPtr
-ColladaInstanceEffect::create(daeElement *elem, ColladaGlobal *global)
+ColladaInstanceLight::create(daeElement *elem, ColladaGlobal *global)
 {
-    return ColladaElementTransitPtr(new ColladaInstanceEffect(elem, global));
+    return ColladaElementTransitPtr(new ColladaInstanceLight(elem, global));
 }
 
 void
-ColladaInstanceEffect::read(void)
+ColladaInstanceLight::read(void)
 {
-    OSG_COLLADA_LOG(("ColladaInstanceEffect::read\n"));
+    OSG_COLLADA_LOG(("ColladaInstanceLight::read\n"));
 
-    ColladaEffectRefPtr colEffect = getTargetElem();
+    ColladaLightRefPtr colLight = getTargetElem();
 
-    if(colEffect == NULL)
+    if(colLight == NULL)
     {
-        colEffect = dynamic_pointer_cast<ColladaEffect>(
+        colLight = dynamic_pointer_cast<ColladaLight>(
             ColladaElementFactory::the()->create(
                 getTargetDOMElem(), getGlobal()));
 
-        colEffect->read();
+        colLight->read();
     }
 
-    domInstance_effectRef instEffect = getDOMElementAs<domInstance_effect>();
+    domInstance_lightRef instLight = getDOMElementAs<domInstance_light>();
 
-    const domInstance_effect::domTechnique_hint_Array &techHints =
-        instEffect->getTechnique_hint_array();
+    //const domInstance_light::domTechnique_hint_Array &techHints =
+    //    instLight->getTechnique_hint_array();
 
-    if(techHints.getCount() > 0)
-    {
-        SWARNING << "ColladaInstanceEffect::read: Ignoring ["
-                 << techHints.getCount() << "] <technique_hint> elements."
-                 << std::endl;
-    }
+    //if(techHints.getCount() > 0)
+    //{
+    //    SWARNING << "ColladaInstanceLight::read: Ignoring ["
+    //             << techHints.getCount() << "] <technique_hint> elements."
+    //             << std::endl;
+    //}
 
-    const domInstance_effect::domSetparam_Array &setParams =
-        instEffect->getSetparam_array();
+    //const domInstance_light::domSetparam_Array &setParams =
+    //    instLight->getSetparam_array();
 
-    if(setParams.getCount() > 0)
-    {
-        SWARNING << "ColladaInstanceEffect::read: Ignoring ["
-                 << setParams.getCount() << "] <setparam> elements."
-                 << std::endl;
-    }
+    //if(setParams.getCount() > 0)
+    //{
+    //    SWARNING << "ColladaInstanceLight::read: Ignoring ["
+    //             << setParams.getCount() << "] <setparam> elements."
+    //             << std::endl;
+    //}
 }
 
-Material *
-ColladaInstanceEffect::process(ColladaElement *parent)
+Light *
+ColladaInstanceLight::process(ColladaElement *parent)
 {
-    OSG_COLLADA_LOG(("ColaldaInstanceEffect::process\n"));
+    OSG_COLLADA_LOG(("ColaldaInstanceLight::process\n"));
 
-    ColladaEffectRefPtr colEffect = getTargetElem();
+    ColladaLightRefPtr colLight = getTargetElem();
 
-    return colEffect->createInstance(this);
+    return colLight->createInstance(this);
 }
 
-ColladaEffect *
-ColladaInstanceEffect::getTargetElem(void) const
+ColladaLight *
+ColladaInstanceLight::getTargetElem(void) const
 {
-    ColladaEffect *retVal     = NULL;
-    domEffectRef   targetElem = getTargetDOMElem();
+    ColladaLight *retVal     = NULL;
+    domLightRef   targetElem = getTargetDOMElem();
 
     if(targetElem != NULL)
     {
-        retVal = getUserDataAs<ColladaEffect>(targetElem);
+        retVal = getUserDataAs<ColladaLight>(targetElem);
     }
 
     return retVal;
 }
 
-domEffect *
-ColladaInstanceEffect::getTargetDOMElem(void) const
+domLight *
+ColladaInstanceLight::getTargetDOMElem(void) const
 {
-    domEffectRef          retVal     = NULL;
-    domInstance_effectRef instEffect = getDOMElementAs<domInstance_effect>();
+    domLightRef          retVal     = NULL;
+    domInstance_lightRef instLight = getDOMElementAs<domInstance_light>();
 
-    if(instEffect->getUrl().getElement() != NULL)
+    if(instLight->getUrl().getElement() != NULL)
     {
-        retVal = daeSafeCast<domEffect>(instEffect->getUrl().getElement());
+        retVal = daeSafeCast<domLight>(instLight->getUrl().getElement());
     }
     else
     {
         SWARNING << "ColladaInstanceEffet::getTargetDOMElem: "
-                 << "can not resolve URL [" << instEffect->getUrl().str()
+                 << "can not resolve URL [" << instLight->getUrl().str()
                  << "]." << std::endl;
     }
 
     return retVal;
 }
 
-const ColladaInstanceEffect::TCSymbolToSlotMap &
-ColladaInstanceEffect::getTCMap(void) const
+const ColladaInstanceLight::TCSymbolToSlotMap &
+ColladaInstanceLight::getTCMap(void) const
 {
     return _tcMap;
 }
 
-ColladaInstanceEffect::TCSymbolToSlotMap &
-ColladaInstanceEffect::editTCMap(void)
+ColladaInstanceLight::TCSymbolToSlotMap &
+ColladaInstanceLight::editTCMap(void)
 {
     return _tcMap;
 }
 
 bool
-ColladaInstanceEffect::findTC(
+ColladaInstanceLight::findTC(
     const std::string &tcSymbol, UInt32 &texSlot) const
 {
     bool                     retVal = false;
@@ -170,14 +170,14 @@ ColladaInstanceEffect::findTC(
     return retVal;
 }
 
-ColladaInstanceEffect::ColladaInstanceEffect(
+ColladaInstanceLight::ColladaInstanceLight(
     daeElement *elem, ColladaGlobal *global)
 
     : Inherited(elem, global)
 {
 }
 
-ColladaInstanceEffect::~ColladaInstanceEffect(void)
+ColladaInstanceLight::~ColladaInstanceLight(void)
 {
 }
 

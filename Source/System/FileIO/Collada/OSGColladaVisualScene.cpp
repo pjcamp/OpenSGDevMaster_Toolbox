@@ -80,7 +80,6 @@ ColladaVisualScene::createInstance(ColladaInstanceElement *colInstElem)
 
     domVisual_sceneRef   visScene = getDOMElementAs<domVisual_scene>();
     const domNode_Array &nodes    = visScene->getNode_array         ();
-    NodeUnrecPtr         rootN;
 
     for(UInt32 i = 0; i < nodes.getCount(); ++i)
     {
@@ -91,15 +90,16 @@ ColladaVisualScene::createInstance(ColladaInstanceElement *colInstElem)
             colNode = dynamic_pointer_cast<ColladaNode>(
                 ColladaElementFactory::the()->create(nodes[i], getGlobal()));
 
+            colNode->setVisualScene(this);
             colNode->read();
         }
 
         if(nodes.getCount() > 1)
         {
-            if(rootN == NULL)
+            if(_RootN == NULL)
             {
                 GroupUnrecPtr group = Group::create();
-                rootN = makeNodeFor(group);
+                _RootN = makeNodeFor(group);
             }
 
             Node *childN = colNode->getTopNode();
@@ -110,7 +110,7 @@ ColladaVisualScene::createInstance(ColladaInstanceElement *colInstElem)
                          << "] already has a parent." << std::endl;
             }
 
-            rootN->addChild(childN);
+            _RootN->addChild(childN);
         }
         else
         {
@@ -122,13 +122,23 @@ ColladaVisualScene::createInstance(ColladaInstanceElement *colInstElem)
                          << "] already has a parent." << std::endl;
             }
 
-            rootN = childN;
+            _RootN = childN;
         }
     }
 
-    editInstStore().push_back(rootN);
+    editInstStore().push_back(_RootN);
 
-    return rootN;
+    return _RootN;
+}
+
+void ColladaVisualScene::pushNodeToRoot(Node* NewRoot)
+{
+    if(_RootN != NULL)
+    {
+        NewRoot->addChild(_RootN);
+    }
+
+    _RootN = NewRoot;
 }
 
 ColladaVisualScene::ColladaVisualScene(daeElement *elem, ColladaGlobal *global)

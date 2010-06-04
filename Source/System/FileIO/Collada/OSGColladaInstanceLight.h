@@ -36,23 +36,23 @@
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 
-#ifndef _OSGCOLLADAINSTANCEEFFECT_H_
-#define _OSGCOLLADAINSTANCEEFFECT_H_
+#ifndef _OSGCOLLADAINSTANCELIGHT_H_
+#define _OSGCOLLADAINSTANCELIGHT_H_
 
 #include "OSGConfig.h"
 
 #ifdef OSG_WITH_COLLADA
 
 #include "OSGColladaInstanceElement.h"
-#include "OSGColladaEffect.h"
+#include "OSGColladaLight.h"
 #include "OSGColladaElementFactoryHelper.h"
-#include "OSGMaterial.h"
+#include "OSGLight.h"
 
-#include <dom/domEffect.h>
+#include <dom/domLight.h>
 
 OSG_BEGIN_NAMESPACE
 
-class OSG_FILEIO_DLLMAPPING ColladaInstanceEffect
+class OSG_FILEIO_DLLMAPPING ColladaInstanceLight
     : public ColladaInstanceElement
 {
     /*==========================  PUBLIC  =================================*/
@@ -62,9 +62,9 @@ class OSG_FILEIO_DLLMAPPING ColladaInstanceEffect
     /*! \{                                                                 */
 
     typedef ColladaInstanceElement  Inherited;
-    typedef ColladaInstanceEffect   Self;
+    typedef ColladaInstanceLight   Self;
 
-    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaInstanceEffect);
+    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaInstanceLight);
 
     // map <texture texcoord="Symbol"> to material texture slot
     typedef std::map<std::string, UInt32>     TCSymbolToSlotMap;
@@ -85,15 +85,15 @@ class OSG_FILEIO_DLLMAPPING ColladaInstanceEffect
     /*! \{                                                                 */
 
     virtual void      read   (void                  );
-    virtual Material *process(ColladaElement *parent);
+    virtual Light *process(ColladaElement *parent);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name Access                                                       */
     /*! \{                                                                 */
 
-    virtual ColladaEffect *getTargetElem   (void) const;
-    virtual domEffect     *getTargetDOMElem(void) const;
+    virtual ColladaLight *getTargetElem   (void) const;
+    virtual domLight     *getTargetDOMElem(void) const;
 
     const TCSymbolToSlotMap &getTCMap (void) const;
     TCSymbolToSlotMap       &editTCMap(void);
@@ -108,8 +108,8 @@ class OSG_FILEIO_DLLMAPPING ColladaInstanceEffect
     /*! \name Constructors/Destructor                                      */
     /*! \{                                                                 */
     
-             ColladaInstanceEffect(daeElement *elem, ColladaGlobal *global);
-    virtual ~ColladaInstanceEffect(void                                   );
+             ColladaInstanceLight(daeElement *elem, ColladaGlobal *global);
+    virtual ~ColladaInstanceLight(void                                   );
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -119,12 +119,12 @@ class OSG_FILEIO_DLLMAPPING ColladaInstanceEffect
     TCSymbolToSlotMap _tcMap;
 };
 
-OSG_GEN_MEMOBJPTR(ColladaInstanceEffect);
+OSG_GEN_MEMOBJPTR(ColladaInstanceLight);
 
 OSG_END_NAMESPACE
 
-// #include "OSGColladaInstanceEffect.inl"
+// #include "OSGColladaInstanceLight.inl"
 
 #endif // OSG_WITH_COLLADA
 
-#endif // _OSGCOLLADAINSTANCEEFFECT_H_
+#endif // _OSGCOLLADAINSTANCELIGHT_H_
