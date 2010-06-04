@@ -263,6 +263,66 @@ ColladaSource::fillProperty(const SemanticSetPair &semSetPair)
             }
         }
     }
+	else if(semSetPair.first == "TANGENT")
+    {
+        if(_elemSize != 3)
+        {
+            SWARNING << "ColladaSource::fillProperty: Unexpected _elemSize ["
+                     << _elemSize << "]." << std::endl;
+            return;
+        }
+
+        prop = GeoVec3fProperty::create();
+        
+        Vec3f  currVec;
+        UInt32 currIdx = 0;
+
+        for(UInt32 i = _offset; i < _count * _stride; ++i)
+        {
+            if(_strideMap[currIdx] != -1)
+            {
+                currVec[_strideMap[currIdx]] = data[i];
+            }
+            
+            ++currIdx;
+
+            if(currIdx == _stride)
+            {
+                prop->push_back(currVec);
+                currIdx = 0;
+            }
+        }
+    }
+	    else if(semSetPair.first == "BINORMAL")
+    {
+        if(_elemSize != 3)
+        {
+            SWARNING << "ColladaSource::fillProperty: Unexpected _elemSize ["
+                     << _elemSize << "]." << std::endl;
+            return;
+        }
+
+        prop = GeoVec3fProperty::create();
+        
+        Vec3f  currVec;
+        UInt32 currIdx = 0;
+
+        for(UInt32 i = _offset; i < _count * _stride; ++i)
+        {
+            if(_strideMap[currIdx] != -1)
+            {
+                currVec[_strideMap[currIdx]] = data[i];
+            }
+            
+            ++currIdx;
+
+            if(currIdx == _stride)
+            {
+                prop->push_back(currVec);
+                currIdx = 0;
+            }
+        }
+    }
     else
     {
         SWARNING << "ColladaSource::fillProperty: Unknown semantic ["

@@ -331,6 +331,10 @@ FieldContainer *SharePtrGraphOp::shareFC(FieldContainer *fc)
         if(fDesc->isInternal() == true)
             continue;
 
+		// skip non-pointer fields
+		if(!fDesc->getFieldType().isPtrField())
+			continue;
+
         FieldContainerPtrSFieldBase::EditHandlePtr sfPtrHandle =
             boost::dynamic_pointer_cast<
                 FieldContainerPtrSFieldBase::EditHandle>(fc->editField(i));

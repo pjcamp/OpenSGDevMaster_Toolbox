@@ -260,6 +260,7 @@ class OSG_CONTRIBCGFX_DLLMAPPING CgFXMaterial : public CgFXMaterialBase
     friend class CgFXMaterialBase;
     friend class CgFXPassChunk;
     friend class CgFXTechnique;
+	friend class ColladaEffect;
 
     // prohibit default functions (move to 'public' if you need one)
     void operator =(const CgFXMaterial &source);
