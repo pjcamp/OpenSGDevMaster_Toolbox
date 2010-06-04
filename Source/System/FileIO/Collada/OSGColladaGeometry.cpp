@@ -805,7 +805,16 @@ ColladaGeometry::mapSemantic(
                      << "out of range set [" << set << "]"
                      << std::endl;
         }
-    }
+    } // in the event that Tangent or Binormal data is exported, we will put them into
+	  // TEXCOORD6 and TEXCOORD7 respectively
+	else if(semantic == "TANGENT")
+	{
+		propIdx = Geometry::TexCoords6Index;
+	}
+	else if(semantic == "BINORMAL")
+	{
+		propIdx = Geometry::TexCoords7Index;
+	}
     else
     {
         SWARNING << "ColladaGeometry::mapSemantic: Unknown semantic ["

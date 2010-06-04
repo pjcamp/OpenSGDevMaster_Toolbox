@@ -103,6 +103,9 @@ class NamedNodeFinder
 // Initialize GLUT & OpenSG and set up the scene
 int main(int argc, char **argv)
 {
+	// load necessary libs for reading files
+	OSG::preloadSharedObject("OSGFileIO");
+    OSG::preloadSharedObject("OSGImageFileIO");
     // OSG init
     OSG::osgInit(argc,argv);
 

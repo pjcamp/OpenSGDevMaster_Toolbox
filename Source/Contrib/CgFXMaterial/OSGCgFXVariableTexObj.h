@@ -126,7 +126,7 @@ class OSG_CONTRIBCGFX_DLLMAPPING CgFXVariableTexObj :
     friend class FieldContainer;
     friend class CgFXVariableTexObjBase;
     friend class CgFXMaterial;
-
+	friend class ColladaEffect;
     // prohibit default functions (move to 'public' if you need one)
     void operator =(const CgFXVariableTexObj &source);
 };
