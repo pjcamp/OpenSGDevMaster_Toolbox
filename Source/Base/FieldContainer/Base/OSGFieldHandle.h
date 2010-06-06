@@ -111,6 +111,7 @@ class OSG_BASE_DLLMAPPING FieldHandle
     /*---------------------------------------------------------------------*/
 
     virtual void   pushValueToStream(OutStream &str) const = 0;
+    virtual void   pushIndexedValueToStream(OutStream &str, UInt32 index) const;
     virtual void   pushSizeToStream (OutStream &str) const = 0;
 
     virtual UInt32 size             (void          ) const = 0;
@@ -236,7 +237,11 @@ class OSG_BASE_DLLMAPPING EditFieldHandle : public FieldHandle
 
     /*---------------------------------------------------------------------*/
 
-    virtual void pushValueFromCString(const Char8             *str   ) = 0;
+    virtual void pushValueFromCString       (const Char8             *str   ) = 0;
+    virtual void pushIndexedValueFromCString(const Char8             *str   , UInt32 index);
+
+    virtual void removeIndex                (UInt32 index                                 );
+    virtual void insertIndexedValueFromCString(const Char8             *str   , UInt32 index);
 
     virtual void copyValues          (      GetFieldHandlePtr  source) const= 0;
     virtual void shareValues         (      GetFieldHandlePtr  source) const= 0;
@@ -460,6 +465,7 @@ class EditSFieldHandle : public EditFieldHandle
     /*---------------------------------------------------------------------*/
 
     virtual void pushValueFromCString(const Char8             *str   );
+    virtual void pushIndexedValueFromCString(const Char8             *str   , UInt32 index);
 
     virtual void copyValues          (      GetFieldHandlePtr  source) const;
     virtual void shareValues         (      GetFieldHandlePtr  source) const;
@@ -527,6 +533,7 @@ class EditMFieldHandle : public EditFieldHandle
     /*---------------------------------------------------------------------*/
 
     virtual void   pushValueToStream(OutStream &str) const;
+    virtual void   pushIndexedValueToStream(OutStream &str, UInt32 index) const;
     virtual void   pushSizeToStream (OutStream &str) const;
     virtual UInt32 size             (void          ) const;
 
@@ -537,6 +544,10 @@ class EditMFieldHandle : public EditFieldHandle
     /*---------------------------------------------------------------------*/
 
     virtual void pushValueFromCString(const Char8             *str   );
+    virtual void pushIndexedValueFromCString(const Char8             *str   , UInt32 index);
+
+    virtual void removeIndex                  (UInt32 index                                 );
+    virtual void insertIndexedValueFromCString(const Char8             *str   , UInt32 index);
 
     virtual void copyValues          (      GetFieldHandlePtr  source) const;
     virtual void shareValues         (      GetFieldHandlePtr  source) const;
@@ -662,6 +673,7 @@ class GetMFieldHandle : public GetFieldHandle
     /*---------------------------------------------------------------------*/
 
     virtual void   pushValueToStream(OutStream &str) const;
+    virtual void   pushIndexedValueToStream(OutStream &str, UInt32 index) const;
     virtual void   pushSizeToStream (OutStream &str) const;
     virtual UInt32 size             (void          ) const;
 

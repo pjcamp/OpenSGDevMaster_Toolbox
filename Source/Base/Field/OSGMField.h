@@ -54,6 +54,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <algorithm>
+#include <sstream>
 
 OSG_BEGIN_NAMESPACE
 
@@ -175,6 +176,8 @@ class MField : public Field
     void pushValuesToString  (std::string  &str) const;
     void pushValuesFromStream(std::istream &str);
     void pushValuesToStream  (OutStream    &str) const;
+    void pushIndexedValueFromCString(const Char8 *str, UInt32 index);
+    void pushIndexedValueToStream  (OutStream    &str, UInt32 index) const;
     void pushSizeToStream    (OutStream    &str) const;
     
     /*! \}                                                                 */
