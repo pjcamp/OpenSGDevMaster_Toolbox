@@ -48,6 +48,8 @@
 #include "OSGColladaGlobal.h"
 #include "OSGColladaInstanceNode.h"
 #include "OSGColladaInstanceGeometry.h"
+#include "OSGColladaInstanceLight.h"
+#include "OSGColladaVisualScene.h"
 #include "OSGTransform.h"
 #include "OSGNameAttachment.h"
 
@@ -70,6 +72,12 @@ ColladaElementTransitPtr
 ColladaNode::create(daeElement *elem, ColladaGlobal *global)
 {
     return ColladaElementTransitPtr(new ColladaNode(elem, global));
+}
+
+void
+ColladaNode::setVisualScene(ColladaVisualScene     *visualScene)
+{
+    _visualScene = visualScene;
 }
 
 void
@@ -127,6 +135,13 @@ ColladaNode::read(void)
     for(UInt32 i = 0; i < instNodes.getCount(); ++i)
     {
         handleInstanceNode(instNodes[i]);
+    }
+
+    // handle <instance_light> child elements
+    const domInstance_light_Array &instLights = node->getInstance_light_array();
+    for(UInt32 i = 0; i < instLights.getCount(); ++i)
+    {
+        handleInstanceLight(instLights[i]);
     }
 
     // handle <instance_geometry> child elements
@@ -437,6 +452,44 @@ ColladaNode::handleInstanceGeometry(domInstance_geometry *instGeo)
 }
 
 void
+ColladaNode::handleInstanceLight(domInstance_light *instLight)
+{
+    ColladaInstanceLightRefPtr colInstLight =
+        getUserDataAs<ColladaInstanceLight>(instLight);
+
+    if(colInstLight == NULL)
+    {
+        colInstLight = dynamic_pointer_cast<ColladaInstanceLight>(
+            ColladaElementFactory::the()->create(instLight, getGlobal()));
+
+        colInstLight->read();
+    }
+
+    //Append the lights beacon node
+    GroupUnrecPtr lightBeacon = Group::create();
+    NodeRecPtr lightBeaconN = Node::create();
+    lightBeaconN->setCore(lightBeacon);
+    /*std::string BeaconNodeName(instLight->getName());
+    BeaconNodeName += "_beacon";
+    setName(lightBeaconN, BeaconNodeName);*/
+
+    //TODO: set beacon name
+    appendChild(lightBeaconN);
+    
+    //push the Light onto the root
+    LightUnrecPtr light = colInstLight->process(this);
+    light->setBeacon(lightBeaconN);
+
+    NodeRecPtr lightN = Node::create();
+    lightN->setCore(light);
+    //setName(lightN,instLight->getName());
+    //TODO: set light noame
+
+    _visualScene->pushNodeToRoot(lightN);
+
+}
+
+void
 ColladaNode::handleInstanceController(domInstance_controller *instController)
 {
     SWARNING << "ColladaNode::handleInstanceController: NIY"
@@ -454,12 +507,35 @@ ColladaNode::appendXForm(Node *xformN)
         _topN = xformN;
     }
     
-    if(_bottomN != NULL)
+    if(getGlobal()->getOptions()->getFlattenNodeXForms())
     {
-        _bottomN->addChild(xformN);
-    }
+        if(_bottomN != NULL)
+        {
+            if(_bottomN->getCore()->getType() == Transform::getClassType())
+            {
+                Transform* _bottomTrans = dynamic_cast<Transform*>(_bottomN->getCore());
 
-    _bottomN = xformN;
+                _bottomTrans->editMatrix().mult(dynamic_cast<Transform*>(xformN->getCore())->getMatrix());
+            }
+            else
+            {
+                _bottomN->addChild(xformN);
+            }
+        }
+        else
+        {
+            _bottomN = xformN;
+        }
+    }
+    else
+    {
+        if(_bottomN != NULL)
+        {
+            _bottomN->addChild(xformN);
+        }
+
+        _bottomN = xformN;
+    }
 }
 
 /*! Add a child node to the OpenSG tree representing

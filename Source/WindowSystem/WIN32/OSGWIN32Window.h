@@ -2,7 +2,7 @@
  *                                OpenSG                                     *
  *                                                                           *
  *                                                                           *
- *             Copyright (C) 2000-2002 by the OpenSG Forum                   *
+ *               Copyright (C) 2000-2006 by the OpenSG Forum                 *
  *                                                                           *
  *                            www.opensg.org                                 *
  *                                                                           *
@@ -42,36 +42,39 @@
 #pragma once
 #endif
 
-#ifdef WIN32
-
 #include "OSGWIN32WindowBase.h"
 
 OSG_BEGIN_NAMESPACE
 
-/*! \brief Win32 Window class. See \ref PageWindowWin32 for a description. */
+/*! \brief WIN32Window class. See \ref
+           PageWindowWIN32WIN32Window for a description.
+*/
 
 class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
 {
+  protected:
+
     /*==========================  PUBLIC  =================================*/
 
   public:
 
-    typedef WIN32WindowBase                           Inherited;
+    typedef WIN32WindowBase Inherited;
+    typedef WIN32Window     Self;
 
     /*---------------------------------------------------------------------*/
     /*! \name                      Sync                                    */
     /*! \{                                                                 */
 
-    virtual void changed(ConstFieldMaskArg whichField, 
+    virtual void changed(ConstFieldMaskArg whichField,
                          UInt32            origin,
-                         BitVector         detail);
+                         BitVector         details    );
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name                     Output                                   */
     /*! \{                                                                 */
 
-    virtual void dump(      UInt32     uiIndent = 0, 
+    virtual void dump(      UInt32     uiIndent = 0,
                       const BitVector  bvFlags  = 0) const;
 
     /*! \}                                                                 */
@@ -94,10 +97,10 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
     /*! \}                                                                 */
 
     static LRESULT CALLBACK staticWndProc(HWND hwnd, UINT uMsg,
-            WPARAM wParam, LPARAM lParam);
+                                          WPARAM wParam, LPARAM lParam);
 
     virtual bool attachWindow(void);
-    virtual WindowPtr initWindow(void);
+    virtual WindowUnrecPtr initWindow(void);
     virtual void mainLoop(void);
 
     //Set the Window Position
@@ -176,8 +179,8 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
     virtual void putClipboard(const std::string Value);
 
     virtual void openWindow(const Pnt2f& ScreenPosition,
-            const Vec2f& Size,
-            const std::string& WindowName);
+                            const Vec2f& Size,
+                            const std::string& WindowName);
 
     virtual void closeWindow(void);
 
@@ -186,30 +189,24 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
 
     virtual Vec2f getDesktopSize(void) const;
 
-    virtual std::vector<Path> openFileDialog(const std::string& WindowTitle,
-            const std::vector<FileDialogFilter>& Filters,
-            const Path& InitialDir,
-            bool AllowMultiSelect);
+    virtual std::vector<BoostPath> openFileDialog(const std::string& WindowTitle,
+                                             const std::vector<FileDialogFilter>& Filters,
+                                             const BoostPath& InitialDir,
+                                             bool AllowMultiSelect);
 
-    virtual Path saveFileDialog(const std::string& DialogTitle,
-            const std::vector<FileDialogFilter>& Filters,
-            const std::string& InitialFile,
-            const Path& InitialDirectory,
-            bool PromptForOverwrite
-            );
+    virtual BoostPath saveFileDialog(const std::string& DialogTitle,
+                                const std::vector<FileDialogFilter>& Filters,
+                                const std::string& InitialFile,
+                                const BoostPath& InitialDirectory,
+                                bool PromptForOverwrite
+                               );
     /*=========================  PROTECTED  ===============================*/
 
   protected:
 
-    typedef std::map<HWND, Win32WindowEventProducerPtr> WIN32HWNDToProducerMap;
-    typedef Win32WindowEventProducerBase Inherited;
+    typedef std::map<HWND, WIN32WindowUnrecPtr> WIN32HWNDToProducerMap;
     
-    static WIN32HWNDToProducerMap _WIN32HWNDToProducerMap;
-    
-    LRESULT WndProc(HWND hwnd, UINT uMsg,
-                           WPARAM wParam, LPARAM lParam);
 
-    static KeyEvent::Key determineKey(WPARAM key);
     // Variables should all be in WIN32WindowBase.
 
     /*---------------------------------------------------------------------*/
@@ -224,16 +221,22 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
     /*! \name                   Destructors                                */
     /*! \{                                                                 */
 
-    virtual ~WIN32Window(void); 
+    virtual ~WIN32Window(void);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
-    /*! \name                       Init                                   */
+    /*! \name                      Init                                    */
     /*! \{                                                                 */
 
     static void initMethod(InitPhase ePhase);
 
     /*! \}                                                                 */
+    static WIN32HWNDToProducerMap _WIN32HWNDToProducerMap;
+    
+    LRESULT WndProc(HWND hwnd, UINT uMsg,
+                           WPARAM wParam, LPARAM lParam);
+
+    static KeyEvent::Key determineKey(WPARAM key);
     /*---------------------------------------------------------------------*/
     /*! \name                MT Construction                               */
     /*! \{                                                                 */
@@ -278,11 +281,11 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
     void operator =(const WIN32Window &source);
 };
 
+typedef WIN32Window *WIN32WindowP;
+
 OSG_END_NAMESPACE
 
-#include "OSGWIN32Window.inl"
 #include "OSGWIN32WindowBase.inl"
-
-#endif /* WIN32 */
+#include "OSGWIN32Window.inl"
 
 #endif /* _OSGWIN32WINDOW_H_ */

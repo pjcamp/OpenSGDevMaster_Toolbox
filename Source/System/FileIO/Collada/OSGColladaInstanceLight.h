@@ -36,37 +36,24 @@
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 
-#ifndef _OSGCOLLADANODE_H_
-#define _OSGCOLLADANODE_H_
+#ifndef _OSGCOLLADAINSTANCELIGHT_H_
+#define _OSGCOLLADAINSTANCELIGHT_H_
 
 #include "OSGConfig.h"
 
 #ifdef OSG_WITH_COLLADA
 
-#include "OSGColladaInstantiableElement.h"
+#include "OSGColladaInstanceElement.h"
+#include "OSGColladaLight.h"
 #include "OSGColladaElementFactoryHelper.h"
-#include "OSGNode.h"
+#include "OSGLight.h"
 
-// forward decl
-class domLookat;
-class domMatrix;
-class domRotate;
-class domScale;
-class domSkew;
-class domTranslate;
-class domNode;
-class domInstance_node;
-class domInstance_geometry;
-class domInstance_controller;
-
+#include <dom/domLight.h>
 
 OSG_BEGIN_NAMESPACE
 
-// forward decl
-class ColladaVisualScene;
-
-
-class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
+class OSG_FILEIO_DLLMAPPING ColladaInstanceLight
+    : public ColladaInstanceElement
 {
     /*==========================  PUBLIC  =================================*/
   public:
@@ -74,83 +61,70 @@ class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
     /*! \name Types                                                        */
     /*! \{                                                                 */
 
-    typedef ColladaInstantiableElement Inherited;
-    typedef ColladaNode                Self;
+    typedef ColladaInstanceElement  Inherited;
+    typedef ColladaInstanceLight   Self;
 
-    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaNode);
+    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaInstanceLight);
+
+    // map <texture texcoord="Symbol"> to material texture slot
+    typedef std::map<std::string, UInt32>     TCSymbolToSlotMap;
+    typedef TCSymbolToSlotMap::iterator       TCSymbolToSlotMapIt;
+    typedef TCSymbolToSlotMap::const_iterator TCSymbolToSlotMapConstIt;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
-    /*! \name Create                                                       */
+    /*! \name Craete                                                       */
     /*! \{                                                                 */
 
     static ColladaElementTransitPtr
-        create(daeElement *elem, ColladaGlobal *global);
+        create(daeElement *elem, ColladaGlobal *global); 
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name Reading                                                      */
     /*! \{                                                                 */
 
-    virtual void  read          (void                               );
-    virtual Node *createInstance(ColladaInstanceElement *colInstElem);
+    virtual void      read   (void                  );
+    virtual Light *process(ColladaElement *parent);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name Access                                                       */
     /*! \{                                                                 */
 
-    Node *getTopNode   (void) const;
-    Node *getBottomNode(void) const;
+    virtual ColladaLight *getTargetElem   (void) const;
+    virtual domLight     *getTargetDOMElem(void) const;
+
+    const TCSymbolToSlotMap &getTCMap (void) const;
+    TCSymbolToSlotMap       &editTCMap(void);
+
+    bool                     findTC   (const std::string &tcSymbol,
+                                             UInt32      &texSlot  ) const;
 
     /*! \}                                                                 */
-    
-    void  setVisualScene(ColladaVisualScene     *visualScene);
     /*=========================  PROTECTED  ===============================*/
   protected:
     /*---------------------------------------------------------------------*/
     /*! \name Constructors/Destructor                                      */
     /*! \{                                                                 */
     
-             ColladaNode(daeElement    *elem,
-                         ColladaGlobal *global);
-    virtual ~ColladaNode(void                 );
+             ColladaInstanceLight(daeElement *elem, ColladaGlobal *global);
+    virtual ~ColladaInstanceLight(void                                   );
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
 
-
-    void handleLookAt   (domLookat    *lookat   );
-    void handleMatrix   (domMatrix    *matrix   );
-    void handleRotate   (domRotate    *rotate   );
-    void handleScale    (domScale     *scale    );
-    void handleSkew     (domSkew      *skew     );
-    void handleTranslate(domTranslate *translate);
-
-    void handleNode              (domNode                *node          );
-    void handleInstanceNode      (domInstance_node       *instNode      );
-    void handleInstanceGeometry  (domInstance_geometry   *instGeo       );
-    void handleInstanceController(domInstance_controller *instController);
-    void handleInstanceLight     (domInstance_light      *instLight);
-
-    void appendXForm(Node *xformN);
-    void appendChild(Node *childN);       
-
-
     static ColladaElementRegistrationHelper _regHelper;
 
-    NodeUnrecPtr _topN;
-    NodeUnrecPtr _bottomN;
-
-    ColladaVisualScene* _visualScene;
+    TCSymbolToSlotMap _tcMap;
 };
 
-OSG_GEN_MEMOBJPTR(ColladaNode);
+OSG_GEN_MEMOBJPTR(ColladaInstanceLight);
 
 OSG_END_NAMESPACE
 
-// #include "OSGColladaNode.inl"
+// #include "OSGColladaInstanceLight.inl"
 
 #endif // OSG_WITH_COLLADA
 
-#endif // _OSGCOLLADANODE_H_
+#endif // _OSGCOLLADAINSTANCELIGHT_H_

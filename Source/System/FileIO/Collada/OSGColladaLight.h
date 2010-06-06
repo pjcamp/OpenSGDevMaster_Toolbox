@@ -6,7 +6,7 @@
  *                                                                           *
  *                            www.opensg.org                                 *
  *                                                                           *
- *   contact: dirk@opensg.org, gerrit.voss@vossg.org, jbehr@zgdv.de          *
+ *   contact: David Kabala djkabala@gmail.com                                *
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*\
@@ -36,8 +36,8 @@
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 
-#ifndef _OSGCOLLADANODE_H_
-#define _OSGCOLLADANODE_H_
+#ifndef _OSGCOLLADALIGHT_H_
+#define _OSGCOLLADALIGHT_H_
 
 #include "OSGConfig.h"
 
@@ -45,28 +45,21 @@
 
 #include "OSGColladaInstantiableElement.h"
 #include "OSGColladaElementFactoryHelper.h"
-#include "OSGNode.h"
+#include "OSGLight.h"
+
+#include <dom/domCommon_transparent_type.h>
 
 // forward decl
-class domLookat;
-class domMatrix;
-class domRotate;
-class domScale;
-class domSkew;
-class domTranslate;
-class domNode;
-class domInstance_node;
-class domInstance_geometry;
-class domInstance_controller;
+class domLight;
 
 
 OSG_BEGIN_NAMESPACE
 
 // forward decl
-class ColladaVisualScene;
+class ColladaInstanceLight;
 
 
-class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
+class OSG_FILEIO_DLLMAPPING ColladaLight : public ColladaInstantiableElement
 {
     /*==========================  PUBLIC  =================================*/
   public:
@@ -75,9 +68,9 @@ class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
     /*! \{                                                                 */
 
     typedef ColladaInstantiableElement Inherited;
-    typedef ColladaNode                Self;
+    typedef ColladaLight              Self;
 
-    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaNode);
+    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaLight);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -92,65 +85,83 @@ class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
     /*! \name Reading                                                      */
     /*! \{                                                                 */
 
-    virtual void  read          (void                               );
-    virtual Node *createInstance(ColladaInstanceElement *colInstElem);
+    virtual void      read          (void                            );
+    virtual Light    *createInstance(ColladaInstanceElement *instElem);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name Access                                                       */
     /*! \{                                                                 */
 
-    Node *getTopNode   (void) const;
-    Node *getBottomNode(void) const;
+    daeElement     *findDOMParam(const std::string &name) const;
+    ColladaElement *findParam   (const std::string &name) const;
 
     /*! \}                                                                 */
-    
-    void  setVisualScene(ColladaVisualScene     *visualScene);
     /*=========================  PROTECTED  ===============================*/
-  protected:
+ protected:
+    /*---------------------------------------------------------------------*/
+    /*! \name Types                                                        */
+    /*! \{                                                                 */
+
+    /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name Constructors/Destructor                                      */
     /*! \{                                                                 */
-    
-             ColladaNode(daeElement    *elem,
-                         ColladaGlobal *global);
-    virtual ~ColladaNode(void                 );
+
+             ColladaLight(daeElement *elem, ColladaGlobal *global);
+    virtual ~ColladaLight(void                                   );
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
+    /*! \name Profile Handlers                                             */
+    /*! \{                                                                 */
 
+    /*virtual void      readProfileCommon(domProfile_COMMON *prof);
 
-    void handleLookAt   (domLookat    *lookat   );
-    void handleMatrix   (domMatrix    *matrix   );
-    void handleRotate   (domRotate    *rotate   );
-    void handleScale    (domScale     *scale    );
-    void handleSkew     (domSkew      *skew     );
-    void handleTranslate(domTranslate *translate);
+    virtual MaterialTransitPtr createInstanceProfileCommon(
+        domProfile_COMMON  *prof,       domLight *light,
+        domInstance_light *instLight                    );*/
 
-    void handleNode              (domNode                *node          );
-    void handleInstanceNode      (domInstance_node       *instNode      );
-    void handleInstanceGeometry  (domInstance_geometry   *instGeo       );
-    void handleInstanceController(domInstance_controller *instController);
-    void handleInstanceLight     (domInstance_light      *instLight);
+    /*! \}                                                                 */
+    void readTechniqueAmbient(domLight::domTechnique_common::domAmbient *tec);
 
-    void appendXForm(Node *xformN);
-    void appendChild(Node *childN);       
+    void readTechniqueDirectional(domLight::domTechnique_common::domDirectional *tec);
 
+    void readTechniquePoint(domLight::domTechnique_common::domPoint *tec);
+
+    void readTechniqueSpot(domLight::domTechnique_common::domSpot *tec);
+
+    LightTransitPtr createTechniqueAmbient(
+        domLight::domTechnique_common::domAmbient *tec,
+        domLight *light,
+        domInstance_light *instLight                      );
+
+    LightTransitPtr createTechniqueDirectional(
+        domLight::domTechnique_common::domDirectional *tec,
+        domLight *light,
+        domInstance_light *instLight                      );
+
+    LightTransitPtr createTechniquePoint(
+        domLight::domTechnique_common::domPoint *tec,
+        domLight *light,
+        domInstance_light *instLight                      );
+
+    LightTransitPtr createTechniqueSpot(
+        domLight::domTechnique_common::domSpot *tec,
+        domLight *light,
+        domInstance_light *instLight                      );
+
+    /*---------------------------------------------------------------------*/
 
     static ColladaElementRegistrationHelper _regHelper;
-
-    NodeUnrecPtr _topN;
-    NodeUnrecPtr _bottomN;
-
-    ColladaVisualScene* _visualScene;
 };
 
-OSG_GEN_MEMOBJPTR(ColladaNode);
+OSG_GEN_MEMOBJPTR(ColladaLight);
 
 OSG_END_NAMESPACE
 
-// #include "OSGColladaNode.inl"
+// #include "OSGColladaLight.inl"
 
 #endif // OSG_WITH_COLLADA
 
-#endif // _OSGCOLLADANODE_H_
+#endif // _OSGCOLLADALIGHT_H_

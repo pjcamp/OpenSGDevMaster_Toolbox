@@ -40,93 +40,144 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
-#include "OSGColladaOptions.h"
+#include "OSGColladaInstanceLight.h"
 
 #ifdef OSG_WITH_COLLADA
 
 #include "OSGColladaLog.h"
-#include "OSGIOFileTypeBase.h"
+
+#include <dom/domInstance_light.h>
 
 OSG_BEGIN_NAMESPACE
 
-void
-ColladaOptions::parseOptions(const OptionSet &optSet)
-{
-    OSG_COLLADA_LOG(("ColladaOptions::parseOptions\n"));
+ColladaElementRegistrationHelper ColladaInstanceLight::_regHelper(
+    &ColladaInstanceLight::create, "instance_light");
 
-    IOFileTypeBase::getOptionAs<bool>(
-        optSet, "invertTransparency", _invertTransparency);
-    IOFileTypeBase::getOptionAs<bool>(
-        optSet, "createNameAttachments", _createNameAttachments);
-    IOFileTypeBase::getOptionAs<bool>(
-        optSet, "flattenNodeXForms", _flattenNodeXForms);
+ColladaElementTransitPtr
+ColladaInstanceLight::create(daeElement *elem, ColladaGlobal *global)
+{
+    return ColladaElementTransitPtr(new ColladaInstanceLight(elem, global));
 }
 
-/*! Return \c true if transparency values should be inverted, \c false
-    otherwise. Option name: "invertTransparency".
-    Some tools store transparency values inverted, use this to ensure correct
-    display.
- */
+void
+ColladaInstanceLight::read(void)
+{
+    OSG_COLLADA_LOG(("ColladaInstanceLight::read\n"));
+
+    ColladaLightRefPtr colLight = getTargetElem();
+
+    if(colLight == NULL)
+    {
+        colLight = dynamic_pointer_cast<ColladaLight>(
+            ColladaElementFactory::the()->create(
+                getTargetDOMElem(), getGlobal()));
+
+        colLight->read();
+    }
+
+    domInstance_lightRef instLight = getDOMElementAs<domInstance_light>();
+
+    //const domInstance_light::domTechnique_hint_Array &techHints =
+    //    instLight->getTechnique_hint_array();
+
+    //if(techHints.getCount() > 0)
+    //{
+    //    SWARNING << "ColladaInstanceLight::read: Ignoring ["
+    //             << techHints.getCount() << "] <technique_hint> elements."
+    //             << std::endl;
+    //}
+
+    //const domInstance_light::domSetparam_Array &setParams =
+    //    instLight->getSetparam_array();
+
+    //if(setParams.getCount() > 0)
+    //{
+    //    SWARNING << "ColladaInstanceLight::read: Ignoring ["
+    //             << setParams.getCount() << "] <setparam> elements."
+    //             << std::endl;
+    //}
+}
+
+Light *
+ColladaInstanceLight::process(ColladaElement *parent)
+{
+    OSG_COLLADA_LOG(("ColaldaInstanceLight::process\n"));
+
+    ColladaLightRefPtr colLight = getTargetElem();
+
+    return colLight->createInstance(this);
+}
+
+ColladaLight *
+ColladaInstanceLight::getTargetElem(void) const
+{
+    ColladaLight *retVal     = NULL;
+    domLightRef   targetElem = getTargetDOMElem();
+
+    if(targetElem != NULL)
+    {
+        retVal = getUserDataAs<ColladaLight>(targetElem);
+    }
+
+    return retVal;
+}
+
+domLight *
+ColladaInstanceLight::getTargetDOMElem(void) const
+{
+    domLightRef          retVal     = NULL;
+    domInstance_lightRef instLight = getDOMElementAs<domInstance_light>();
+
+    if(instLight->getUrl().getElement() != NULL)
+    {
+        retVal = daeSafeCast<domLight>(instLight->getUrl().getElement());
+    }
+    else
+    {
+        SWARNING << "ColladaInstanceEffet::getTargetDOMElem: "
+                 << "can not resolve URL [" << instLight->getUrl().str()
+                 << "]." << std::endl;
+    }
+
+    return retVal;
+}
+
+const ColladaInstanceLight::TCSymbolToSlotMap &
+ColladaInstanceLight::getTCMap(void) const
+{
+    return _tcMap;
+}
+
+ColladaInstanceLight::TCSymbolToSlotMap &
+ColladaInstanceLight::editTCMap(void)
+{
+    return _tcMap;
+}
+
 bool
-ColladaOptions::getInvertTransparency(void) const
+ColladaInstanceLight::findTC(
+    const std::string &tcSymbol, UInt32 &texSlot) const
 {
-    return _invertTransparency;
+    bool                     retVal = false;
+    TCSymbolToSlotMapConstIt tcIt   = _tcMap.find(tcSymbol);
+
+    if(tcIt != _tcMap.end())
+    {
+        texSlot = tcIt->second;
+        retVal  = true;
+    }
+
+    return retVal;
 }
 
-/*! Set transparency value inversion. Option name: "invertTransparency".
-    Some tools store transparency values inverted, use this to ensure correct
-    display.
- */
-void
-ColladaOptions::setInvertTransparency(bool value)
-{
-    _invertTransparency = value;
-}
+ColladaInstanceLight::ColladaInstanceLight(
+    daeElement *elem, ColladaGlobal *global)
 
-/*! Return \c true if NameAttachments should be created, \c false otherwise.
-    Option name: "createNameAttachments".
- */
-bool
-ColladaOptions::getCreateNameAttachments(void) const
-{
-    return _createNameAttachments;
-}
-
-/*! Set if NameAttachments should be created.
-    Option name: "createNameAttachments".
- */
-void
-ColladaOptions::setCreateNameAttachments(bool value)
-{
-    _createNameAttachments = value;
-}
-
-
-/*! Set if Node transforms should be flattened into a single xform.
-    Option name: "flattenNodeXForms".
- */
-bool ColladaOptions::getFlattenNodeXForms    (void      ) const
-{
-    return _flattenNodeXForms;
-}
-
-/*! Return \c true if Node transforms should be flattened into a single xform, \c false otherwise.
-    Option name: "flattenNodeXForms".
- */
-void ColladaOptions::setFlattenNodeXForms    (bool value)
-{
-    _flattenNodeXForms = value;
-}
-
-ColladaOptions::ColladaOptions(void)
-    : Inherited             ()
-    , _invertTransparency   (false)
-    , _createNameAttachments(true)
-    , _flattenNodeXForms    (true)
+    : Inherited(elem, global)
 {
 }
 
-ColladaOptions::~ColladaOptions(void)
+ColladaInstanceLight::~ColladaInstanceLight(void)
 {
 }
 

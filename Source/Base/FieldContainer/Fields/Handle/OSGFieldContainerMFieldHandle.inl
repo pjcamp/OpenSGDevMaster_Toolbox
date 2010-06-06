@@ -87,6 +87,16 @@ void GetMFieldHandle<FieldContainerPtrMFieldBase>::pushValueToStream(
     OSG_ASSERT(false);
 }
 
+
+inline
+void GetMFieldHandle<FieldContainerPtrMFieldBase>::pushIndexedValueToStream(
+    OutStream &str, UInt32 index) const
+{
+    FWARNING(("illegal pushIndexedValueToStream called for %s\n", 
+              this->getName().c_str()));
+    OSG_ASSERT(false);
+}
+
 inline
 void GetMFieldHandle<FieldContainerPtrMFieldBase>::pushSizeToStream(
     OutStream &str) const
@@ -202,10 +212,28 @@ void EditMFieldHandle<FieldContainerPtrMFieldBase>::pushSizeToStream(
 }
 
 inline
+void EditMFieldHandle<FieldContainerPtrMFieldBase>::pushIndexedValueToStream(
+    OutStream &str, UInt32 index) const
+{
+    FWARNING(("illegal pushIndexedValueToStream called for %s\n", 
+              this->getName().c_str()));
+    OSG_ASSERT(false);
+}
+
+inline
 void EditMFieldHandle<FieldContainerPtrMFieldBase>::pushValueFromCString(
     const Char8 *str)
 {
     FWARNING(("illegal pushValueFromCString called for %s\n", 
+              this->getName().c_str()));
+    OSG_ASSERT(false);
+}
+
+inline
+void EditMFieldHandle<FieldContainerPtrMFieldBase>::pushIndexedValueFromCString(
+    const Char8 *str, UInt32 index)
+{
+    FWARNING(("illegal pushIndexedValueFromCString called for %s\n", 
               this->getName().c_str()));
     OSG_ASSERT(false);
 }
