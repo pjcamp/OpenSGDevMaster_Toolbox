@@ -94,6 +94,7 @@ class OSG_BASE_DLLMAPPING GetMFieldHandle<FieldContainerPtrMFieldBase> :
     /*! \{                                                                 */
 
     virtual void pushValueToStream(OutStream &str) const;
+    virtual void pushIndexedValueToStream(OutStream &str, UInt32 index) const;
     virtual void pushSizeToStream (OutStream &str) const;
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -202,9 +203,11 @@ class OSG_BASE_DLLMAPPING EditMFieldHandle<FieldContainerPtrMFieldBase> :
     /*! \{                                                                 */
 
     virtual void   pushValueToStream   (      OutStream &str) const;
+    virtual void   pushIndexedValueToStream(OutStream &str, UInt32 index) const;
     virtual void   pushSizeToStream    (      OutStream &str) const;
     
     virtual void   pushValueFromCString(const Char8     *str);
+    virtual void   pushIndexedValueFromCString(const Char8             *str   , UInt32 index);
         
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
