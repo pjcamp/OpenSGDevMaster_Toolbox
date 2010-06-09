@@ -187,14 +187,14 @@ ColladaNode::createInstance(ColladaInstanceElement *colInstElem)
 
     NodeUnrecPtr retVal = NULL;
 
-    if(getInstStore().empty() == true)
-    {
-        retVal = _topN;
-    }
-    else
-    {
+   // if(getInstStore().empty() == true)
+   // {
+   //     retVal = _topN;
+   // }
+   // else
+   // {
         retVal = cloneTree(_topN);
-    }
+   // }
 
     editInstStore().push_back(retVal);
 
@@ -399,6 +399,7 @@ ColladaNode::handleNode(domNode *node)
         colNode = dynamic_pointer_cast<ColladaNode>(
             ColladaElementFactory::the()->create(node, getGlobal()));
 
+        colNode->setVisualScene(_visualScene);
         colNode->read();
     }
 
