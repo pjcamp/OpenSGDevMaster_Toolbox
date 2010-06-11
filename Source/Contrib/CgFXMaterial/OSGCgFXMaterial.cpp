@@ -100,7 +100,8 @@ void CgFXMaterial::resolveLinks(void)
 CgFXMaterial::CgFXMaterial(void) :
      Inherited (    ),
     _pCGcontext(NULL),
-    _pCGeffect (NULL)
+    _pCGeffect (NULL),
+	_pTechIdx(0)
 {
     this->markFieldsThreadLocal ((Self::MapCacheFieldMask        | 
                                   Self::FallbackMaterialFieldMask));
@@ -111,7 +112,8 @@ CgFXMaterial::CgFXMaterial(void) :
 CgFXMaterial::CgFXMaterial(const CgFXMaterial &source) :
      Inherited (source),
     _pCGcontext(NULL  ),
-    _pCGeffect (NULL  )
+    _pCGeffect (NULL  ),
+	_pTechIdx(source._pTechIdx)
 {
     this->markFieldsThreadLocal ((Self::MapCacheFieldMask        | 
                                   Self::FallbackMaterialFieldMask));
@@ -280,6 +282,10 @@ PrimeMaterial *CgFXMaterial::finalize(MaterialMapKey  oKey,
 
     if(_sfTreatTechniquesAsVariants.getValue() == true)
     {
+		if(_mfTechniques[_pTechIdx]->validate(this, &oEnv) == true)
+		{	
+			returnValue = _mfTechniques[_pTechIdx];
+		}
     }
     else
     {
@@ -516,6 +522,42 @@ void CgFXMaterial::processEffectString(void)
 
         pCGTech = cgGetNextTechnique(pCGTech);
     }
+}
+
+bool CgFXMaterial::setActiveTechnique(std::string techniqueName)
+{
+	// is this a valid technique name?
+	CGtechnique tech = cgGetNamedTechnique(_pCGeffect, techniqueName.c_str());
+	if(tech)
+	{ // if so, set it as the technique to use for this material
+
+        for(_pTechIdx = 0; _pTechIdx < _mfTechniques.size(); ++_pTechIdx)
+        {
+            if(tech == _mfTechniques[_pTechIdx]->_pCGTechnique)
+            {
+       			setTreatTechniquesAsVariants(true);
+				return true;
+			}
+        }
+	}
+	
+	return false;
+}
+
+/**
+*	Function to get the names of all of the available techniques for this material.
+*
+*/
+std::vector<std::string> CgFXMaterial::getAvailableTechniques()
+{
+	std::vector<std::string> techNames;
+	for(UInt32 i(0); i < _mfTechniques.size(); i++)
+	{
+		std::string curTechName(cgGetTechniqueName(_mfTechniques[i]->_pCGTechnique));
+		if(curTechName.compare("") != 0) techNames.push_back(curTechName);
+	}
+
+	return techNames;
 }
 
 void CgFXMaterial::extractParameters(CGparameter pBaseParam)
@@ -857,7 +899,20 @@ void CgFXMaterial::extractParameters(CGparameter pBaseParam)
                 _vStateVarNames[CgViewProjection] = szParamName;
                 
                 bFoundSemanticParam = true;
-            }
+            } 
+
+			// -------------
+            // Time / Timer
+            // -------------
+			else if(osgStringCaseCmp(szParamSemantic.c_str(), 
+                                     "TIME"       ) == 0)
+			{
+				editStateVariables() |= CgTimeMask;
+
+				_vStateVarNames[CgTime] = szParamName;
+
+				bFoundSemanticParam = true;
+			}
 
             if(bFoundSemanticParam == true)
             {
