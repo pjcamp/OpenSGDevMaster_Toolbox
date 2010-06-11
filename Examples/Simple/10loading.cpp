@@ -193,6 +193,7 @@ int main(int argc, char **argv)
         // tell the manager what to manage
         mgr->setWindow(gwin );
         mgr->setRoot  (scene);
+		mgr->setHeadlight(true);
     
         // show the whole scene
         mgr->showAll();
