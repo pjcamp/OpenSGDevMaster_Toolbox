@@ -224,6 +224,32 @@ struct TypeTraits<bool> : public TypeTraitsTemplateBase<bool>
         return getFromCString(pData, pDataEnd);
     }
 
+    static void putToString  (const bool        &val,
+                                    std::string &out)
+    {
+        if(val)
+        {
+            out.append("TRUE");
+        }
+        else
+        {
+            out.append("FALSE");
+        }
+    }
+
+    static void putToStream(const bool     &val,
+                                  OutStream &str)
+    {
+        if(val)
+        {
+            str << "TRUE";
+        }
+        else
+        {
+            str << "FALSE";
+        }
+    }
+
 };
 
 
