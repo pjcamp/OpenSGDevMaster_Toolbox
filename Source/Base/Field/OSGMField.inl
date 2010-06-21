@@ -449,6 +449,19 @@ typename MField<ValueT,
                 AllocT    >::iterator MField<ValueT, 
                                              iNamespace, 
                                              AllocT    >::insert(
+    size_type pos, ArgumentType value)
+{
+    iterator posItor(begin());
+    posItor += pos;
+    return _values.insert(posItor, value);
+}
+
+template <class ValueT, Int32 iNamespace, class AllocT> inline
+typename MField<ValueT, 
+                iNamespace, 
+                AllocT    >::iterator MField<ValueT, 
+                                             iNamespace, 
+                                             AllocT    >::insert(
     iterator pos, ArgumentType value)
 {
     return _values.insert(pos, value);
