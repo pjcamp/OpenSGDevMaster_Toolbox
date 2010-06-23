@@ -60,6 +60,8 @@ ColladaOptions::parseOptions(const OptionSet &optSet)
         optSet, "createNameAttachments", _createNameAttachments);
     IOFileTypeBase::getOptionAs<bool>(
         optSet, "flattenNodeXForms", _flattenNodeXForms);
+	IOFileTypeBase::getOptionAs<bool>(
+		optSet, "readAnimations", _readAnimations);
 }
 
 /*! Return \c true if transparency values should be inverted, \c false
@@ -118,11 +120,22 @@ void ColladaOptions::setFlattenNodeXForms    (bool value)
     _flattenNodeXForms = value;
 }
 
+bool ColladaOptions::getReadAnimations    (void      ) const
+{
+	return _readAnimations;
+}
+
+void ColladaOptions::setReadAnimations    (bool value)
+{
+	_readAnimations = value;
+}
+
 ColladaOptions::ColladaOptions(void)
     : Inherited             ()
     , _invertTransparency   (false)
     , _createNameAttachments(true)
     , _flattenNodeXForms    (true)
+	, _readAnimations		(true)
 {
 }
 
