@@ -73,6 +73,7 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
   public:
     /*---------------------------------------------------------------------*/
     /*! \name Types                                                        */
+	typedef std::set<FieldContainerUnrecPtr> FCPtrStore;
     /*! \{                                                                 */
 
     typedef MemoryObject   Inherited;
@@ -118,6 +119,9 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
 
     NodeTransitPtr read(      DAE          *dae,
                         const std::string  &fileName);
+
+	FCPtrStore readAll( std::istream &is,
+						const std::string &fileName);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
