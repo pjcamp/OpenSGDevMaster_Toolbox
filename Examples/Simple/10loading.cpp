@@ -13,8 +13,11 @@
 #include <OSGSimpleGeometry.h>
 #include <OSGGLUTWindow.h>
 #include <OSGSimpleSceneManager.h>
+#include <OSGContainerPtrFuncs.h>
+
 #include <OSGAction.h>
 
+#include <OSGFCFileHandler.h>
 // New Headers
 
 // the general scene file loading handler
@@ -41,7 +44,7 @@ OSG::SimpleSceneManager *mgr;
 
 // forward declaration so we can have the interesting stuff upfront
 int setupGLUT( int *argc, char *argv[] );
-
+OSG::Node *findRoot(OSG::FCFileType::FCPtrStore container);
 
 #ifdef OSG_BUILD_ACTIVE
 // helper class to find a named node
@@ -148,43 +151,49 @@ int main(int argc, char **argv)
             /*
                 All scene file loading is handled via the SceneFileHandler.
             */
-            scene = OSG::SceneFileHandler::the()->read(argv[1]);
+            //scene = OSG::SceneFileHandler::the()->read(argv[1]);
+			  //Read FieldContainers from an XML file
+			OSG::FCFileType::FCPtrStore NewContainers;
+			NewContainers = OSG::FCFileHandler::the()->read(boost::filesystem::path(argv[1]));
+			scene = findRoot(NewContainers);
+			
         }
     
     
         OSG::NodeRefPtr found;
     
-        NamedNodeFinder f;
+        //NamedNodeFinder f;
     
         // Try to find the Scene object. As it hasn't been named yet,
         // it's not expected to be found.
-        found = f(scene, "Scene");
+        //found = f(scene, "Scene");
         
-        if(found == NULL)
-        {
-            SLOG << "Found no object named 'Scene'.\n";
-        }
-        else
-        {
-            SLOG << "Found object " << found 
-                 << " named 'Scene'. How did that happen?\n";
-        }
+        // if(found == NULL)
+        //{
+            //SLOG << "Found no object named 'Scene'.\n";
+        // }
+        // else
+        //{
+        //    SLOG << "Found object " << found 
+        //         << " named 'Scene'. How did that happen?\n";
+        // }
     
         // Try to find the TF_DETAIL object. An object in Data/tie.wrl is called
         // TF_DETAIL, so we might find it.
-        found = NamedNodeFinder::find(scene, "TF_DETAIL");
-        
-        if(found == NULL)
-        {
-            SLOG << "Found no object named 'TF_DETAIL' (did you load the tie?)."
-                 << OSG::endLog;
-        }
-        else
-        {
-            SLOG << "Found object " << found << " named 'TF_DETAIL'."
-                 << OSG::endLog;
-        }
+        //found = NamedNodeFinder::find(scene, "TF_DETAIL");
+        //
+        //if(found == NULL)
+        //{
+        //    SLOG << "Found no object named 'TF_DETAIL' (did you load the tie?)."
+        //         << OSG::endLog;
+        //}
+        //else
+        //{
+        //    SLOG << "Found object " << found << " named 'TF_DETAIL'."
+        //         << OSG::endLog;
+        //}
     
+		
         OSG::commitChanges();
     
         // create the SimpleSceneManager helper
@@ -293,4 +302,20 @@ int setupGLUT(int *argc, char *argv[])
     glutKeyboardFunc(keyboard);
 
     return winid;
+}
+
+OSG::Node *findRoot(OSG::FCFileType::FCPtrStore container)
+{
+	// just iterating through the container and finding a node without a parent
+	for(OSG::FCFileType::FCPtrStore::iterator it = container.begin(); it != container.end(); it++)
+	{
+		//(*it)->
+		OSG::Node *cur = OSG::dynamic_pointer_cast<OSG::Node>((*it));
+		if(cur != NULL)
+		{
+			if(cur->getParent() == NULL) return cur;
+		}
+	}
+
+	return NULL;
 }

@@ -65,6 +65,9 @@
 #include <string>
 #include <vector>
 
+// should be removed later
+#include "OSGSkeletonDrawable.h"
+
 OSG_BEGIN_NAMESPACE
 
 /*! \ingroup GrpFileIOCollada
@@ -157,6 +160,13 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
            ColladaElement     *getElement   (const daeURI      &elemURI) const;
            ColladaElement     *getElement   (const std::string &elemId ) const;
 
+	inline bool addFieldContainer(FieldContainer * fc);
+	inline const FCPtrStore getFieldContainerStore( void ) const;
+	inline FCPtrStore editFieldContainerStore( void );
+
+	typedef std::pair<domInstance_controller *,SkeletonDrawable *>  ControllerPair;
+	void addController(ControllerPair controller);
+
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
   protected:
@@ -173,6 +183,9 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
     /*! \{                                                                 */
 
     NodeTransitPtr doRead(void);
+	FCPtrStore readAnimations(void);
+	void handleController(ControllerPair controller);
+	void createJointsRec(JointUnrecPtr parentJoint, NodeUnrecPtr childNode);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -188,6 +201,10 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
     DAE                  *_dae;
 
     NodeUnrecPtr          _rootN;
+	FCPtrStore			  _FCStore;
+
+	
+	std::vector<ControllerPair> _controllers;
 };
 
 
