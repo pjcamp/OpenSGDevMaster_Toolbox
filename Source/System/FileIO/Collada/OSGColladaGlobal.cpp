@@ -48,8 +48,12 @@
 #include "OSGColladaCOLLADA.h"
 #include "OSGColladaElementFactory.h"
 #include "OSGColladaOptions.h"
-
+#include "OSGColladaAnimation.h"
 #include "OSGNode.h"
+#include "OSGFileIOUtils.h"
+
+#include <dom/domInstance_controller.h>
+#include <dom/domNode.h>
 
 /*! \class OSG::ColladaGlobal
     This is the entry point for the Collada loader from which the loading
@@ -181,7 +185,8 @@ ColladaGlobal::FCPtrStore
 ColladaGlobal::readAll( std::istream &is, const std::string &fileName)
 {
 	NodeTransitPtr rootN;
-	FCPtrStore fields;
+	getOptions()->setCreateNameAttachments(true);
+	getOptions()->setFlattenNodeXForms(true);
     _pathHandler.clearPathList();
     _pathHandler.clearBaseFile();
 
@@ -194,11 +199,18 @@ ColladaGlobal::readAll( std::istream &is, const std::string &fileName)
     _dae->open(fileName.c_str());
 
     rootN = doRead();
-	fields.insert(rootN);
+	_FCStore.insert(rootN);
 
 	if(getOptions()->getReadAnimations())
-	{ // read animations here....
-		
+	{ // read animations here
+		FCPtrStore animations = readAnimations();
+		_FCStore.insert(animations.begin(), animations.end());
+	}
+
+	// now handle controllers...
+	for(UInt32 i(0); i < _controllers.size(); i++)
+	{
+	    handleController(_controllers[i]);
 	}
 
     _docPath. clear();
@@ -206,7 +218,7 @@ ColladaGlobal::readAll( std::istream &is, const std::string &fileName)
     delete _dae;
     _dae = NULL;
 
-    return fields;
+    return _FCStore;
 
 }
 
@@ -285,6 +297,93 @@ ColladaGlobal::doRead(void)
 #endif // OSG_COLLADA_SILENT
 
     return rootN;
+}
+
+ColladaGlobal::FCPtrStore ColladaGlobal::readAnimations(void)
+{
+	FCPtrStore animations;
+	
+	domCOLLADARef docRoot = _dae->getRoot(_docPath);
+
+    if(docRoot != NULL)
+    {
+		domLibrary_animations_Array libAnims = docRoot->getLibrary_animations_array();
+		for(UInt32 i(0); i < libAnims.getCount(); i++)
+		{
+			domAnimation_Array anims = libAnims[i]->getAnimation_array();
+			for(UInt32 j(0); j < anims.getCount(); j++)
+			{
+
+				ColladaAnimationRefPtr colAnim = dynamic_pointer_cast<ColladaAnimation>(
+								ColladaElementFactory::the()->create(anims[j], this));
+				
+				colAnim->read();
+			}
+		}
+    }
+	return animations;
+}
+void ColladaGlobal::handleController(ControllerPair controller)
+{
+	FileIONodeFinder finder;
+	//already has material initialized, now worry about the skeleton
+	SkeletonUnrecPtr theSkeleton = Skeleton::create();
+	domInstance_controllerRef instCtrl = controller.first;
+	domInstance_controller::domSkeleton_Array skels = instCtrl->getSkeleton_array();
+	for(UInt32 i(0); i < skels.getCount(); i++)
+	{	// for now, just building the skeleton
+		domNodeRef skelNode = daeSafeCast<domNode>(skels[i]->getValue().getElement());
+
+		if(skelNode->getType() == NODETYPE_JOINT)
+		{
+			std::string skelNodeName = skelNode->getName();
+			finder.setSearchName(skelNodeName);
+			finder.traverse(_rootN);
+			const std::vector<Node *> skelNodes = finder.getFoundNamedNodes();
+			if(skelNodes.size() > 0)
+			{
+				JointUnrecPtr rootJoint = Joint::create();
+				Matrixr currentXform = skelNodes[0]->getToWorld();
+				rootJoint->setRelativeTransformation(currentXform);
+				rootJoint->setBindRelativeTransformation(currentXform);
+				NodeUnrecPtr currentNode = skelNodes[0];
+				for(UInt32 i(0); i < currentNode->getNChildren(); i++)
+				{
+					createJointsRec(rootJoint,currentNode->getChild(i));
+				}
+
+				theSkeleton->pushToRootJoints(rootJoint);
+
+			}
+		}
+	}
+
+	controller.second->setSkeleton(theSkeleton);
+
+	return;
+}
+
+void ColladaGlobal::createJointsRec(JointUnrecPtr parentJoint, NodeUnrecPtr childNode)
+{
+	// create a child joint
+	JointUnrecPtr childJoint = Joint::create();
+	Matrixr curInv;
+	parentJoint->getBindRelativeTransformation().inverse(curInv);
+	curInv.mult(childNode->getToWorld());
+	
+	childJoint->setRelativeTransformation(curInv);
+	childJoint->setBindRelativeTransformation(curInv);
+	parentJoint->pushToChildJoints(childJoint);
+		// create joints for all the children nodes
+	for(UInt32 i(0); i < childNode->getNChildren(); i++)
+	{
+		createJointsRec(childJoint, childNode->getChild(i));
+	}
+}
+
+void ColladaGlobal::addController(ControllerPair controller)
+{
+	_controllers.push_back(controller);
 }
 
 OSG_END_NAMESPACE

@@ -151,7 +151,7 @@ void CgFXMaterial::onDestroy(UInt32 uiContainerId)
 
 bool CgFXMaterial::isTransparent(void) const
 {
-    return false;
+    return true;
 }
 
 UInt32 CgFXMaterial::handleGL(DrawEnv                 *pEnv, 
@@ -233,6 +233,12 @@ void CgFXMaterial::changed(ConstFieldMaskArg whichField,
                            UInt32            origin,
                            BitVector         detail)
 {
+
+	if(0x0000 != (whichField & EffectFileFieldMask))
+    {
+        this->readEffectFile();
+    }
+
     if(0x0000 != (whichField & EffectStringFieldMask))
     {
         Inherited::resolveLinks();
@@ -240,11 +246,6 @@ void CgFXMaterial::changed(ConstFieldMaskArg whichField,
         this->processEffectString();
 
         Window::reinitializeGLObject(getGLId());
-    }
-
-    if(0x0000 != (whichField & EffectFileFieldMask))
-    {
-        this->readEffectFile();
     }
 
     if(0x0000 != (whichField & VariablesFieldMask))
@@ -1188,6 +1189,11 @@ void CgFXMaterial::extractParameters( )
             {
             }
             break;
+
+			case CG_STRING:
+			{
+			}
+			break;
 
             default:
             {

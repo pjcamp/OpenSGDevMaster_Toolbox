@@ -52,6 +52,13 @@
 #include "OSGColladaVisualScene.h"
 #include "OSGTransform.h"
 #include "OSGNameAttachment.h"
+#include "OSGFileIOUtils.h"
+
+// skeleton drawable material includes...
+#include "OSGLineChunk.h"
+#include "OSGBlendChunk.h"
+#include "OSGChunkMaterial.h"
+#include "OSGMaterialChunk.h"
 
 #include <dom/domLookat.h>
 #include <dom/domMatrix.h>
@@ -268,7 +275,8 @@ ColladaNode::handleMatrix(domMatrix *matrix)
     {
         std::string nodeName = node->getName();
 
-        if(matrix->getSid() != NULL)
+        if(matrix->getSid() != NULL&& 
+			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
         {
             nodeName.append("."             );
             nodeName.append(matrix->getSid());
@@ -304,7 +312,8 @@ ColladaNode::handleRotate(domRotate *rotate)
     {
         std::string nodeName = node->getName();
 
-        if(rotate->getSid() != NULL)
+        if(rotate->getSid() != NULL&& 
+			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
         {
             nodeName.append("."             );
             nodeName.append(rotate->getSid());
@@ -336,7 +345,8 @@ ColladaNode::handleScale(domScale *scale)
     {
         std::string nodeName = node->getName();
 
-        if(scale->getSid() != NULL)
+        if(scale->getSid() != NULL&& 
+			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
         {
             nodeName.append("."            );
             nodeName.append(scale->getSid());
@@ -377,7 +387,8 @@ ColladaNode::handleTranslate(domTranslate *translate)
     {
         std::string nodeName = node->getName();
 
-        if(translate->getSid() != NULL)
+        if(translate->getSid() != NULL && 
+			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
         {
             nodeName.append("."                );
             nodeName.append(translate->getSid());
@@ -493,8 +504,45 @@ ColladaNode::handleInstanceLight(domInstance_light *instLight)
 void
 ColladaNode::handleInstanceController(domInstance_controller *instController)
 {
-    SWARNING << "ColladaNode::handleInstanceController: NIY"
-             << std::endl;
+   // SWARNING << "ColladaNode::handleInstanceController: NIY"
+   //          << std::endl;
+
+	// For now, we just push these instance_controllers to a store, and finish creating
+	// them later. This is because the instance controllers might need information from nodes
+	// that haven't been created in OpenSG yet. 
+	domControllerRef ctrlr = daeSafeCast<domController>(instController->getUrl().getElement());
+	if(ctrlr->getSkin() != NULL)
+	{	// this isn't a morph, it's a skeleton controller!  
+		// create a drawable skeleton for now
+		SkeletonDrawableUnrecPtr skeleton = SkeletonDrawable::create();
+
+		//SkeletonDrawer System Material
+		LineChunkUnrecPtr ExampleLineChunk = LineChunk::create();
+		ExampleLineChunk->setWidth(2.0f);
+		ExampleLineChunk->setSmooth(true);
+
+		BlendChunkUnrecPtr ExampleBlendChunk = BlendChunk::create();
+		ExampleBlendChunk->setSrcFactor(GL_SRC_ALPHA);
+		ExampleBlendChunk->setDestFactor(GL_ONE_MINUS_SRC_ALPHA);
+
+		MaterialChunkUnrecPtr ExampleMaterialChunk = MaterialChunk::create();
+		ExampleMaterialChunk->setAmbient(Color4f(1.0f,1.0f,1.0f,1.0f));
+		ExampleMaterialChunk->setDiffuse(Color4f(0.0f,0.0f,0.0f,1.0f));
+		ExampleMaterialChunk->setSpecular(Color4f(0.0f,0.0f,0.0f,1.0f));
+
+		ChunkMaterialUnrecPtr ExampleMaterial = ChunkMaterial::create();
+		ExampleMaterial->addChunk(ExampleLineChunk);
+		ExampleMaterial->addChunk(ExampleMaterialChunk);
+		ExampleMaterial->addChunk(ExampleBlendChunk);
+
+		skeleton->setMaterial(ExampleMaterial);
+	
+		NodeUnrecPtr skelNode = makeNodeFor(skeleton);
+		appendChild(skelNode);
+		std::pair<domInstance_controller *,SkeletonDrawable *> skelPair(instController,skeleton);
+		getGlobal()->addController(skelPair);
+	}
+
 }
 
 /*! Add a transform node to the OpenSG tree representing
