@@ -151,7 +151,7 @@ void CgFXMaterial::onDestroy(UInt32 uiContainerId)
 
 bool CgFXMaterial::isTransparent(void) const
 {
-    return false;
+    return true;
 }
 
 UInt32 CgFXMaterial::handleGL(DrawEnv                 *pEnv, 

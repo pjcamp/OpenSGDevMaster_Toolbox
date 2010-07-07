@@ -105,4 +105,22 @@ ColladaGlobal::editElemStore(void)
     return _elemStore;
 }
 
+inline bool 
+ColladaGlobal::addFieldContainer(FieldContainer * fc)
+{
+	std::pair<std::set<FieldContainerUnrecPtr>::iterator,bool> result = _FCStore.insert(fc);
+	return result.second;
+}
+
+inline const ColladaGlobal::FCPtrStore 
+ColladaGlobal::getFieldContainerStore( void ) const
+{
+	return _FCStore;
+}
+
+inline ColladaGlobal::FCPtrStore ColladaGlobal::editFieldContainerStore( void )
+{
+	return _FCStore;
+}
+
 OSG_END_NAMESPACE
