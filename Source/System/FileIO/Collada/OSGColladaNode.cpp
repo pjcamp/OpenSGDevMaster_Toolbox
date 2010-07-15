@@ -60,6 +60,9 @@
 #include "OSGChunkMaterial.h"
 #include "OSGMaterialChunk.h"
 
+#include "OSGSkeletonBlendedGeometry.h"
+#include "OSGSkeletonDrawable.h"
+
 #include <dom/domLookat.h>
 #include <dom/domMatrix.h>
 #include <dom/domRotate.h>
@@ -511,36 +514,78 @@ ColladaNode::handleInstanceController(domInstance_controller *instController)
 	// them later. This is because the instance controllers might need information from nodes
 	// that haven't been created in OpenSG yet. 
 	domControllerRef ctrlr = daeSafeCast<domController>(instController->getUrl().getElement());
-	if(ctrlr->getSkin() != NULL)
-	{	// this isn't a morph, it's a skeleton controller!  
+	domSkinRef theSkin = ctrlr->getSkin();
+	if(theSkin != NULL)
+	{	// it's a skeleton controller 
 		// create a drawable skeleton for now
-		SkeletonDrawableUnrecPtr skeleton = SkeletonDrawable::create();
+		
+		// get skeleton joints
+		domInstance_controller::domSkeleton_Array skelArr = instController->getSkeleton_array();
+		
+		// get the joint source
+		domSkin::domJointsRef dJoints = theSkin->getJoints();
+		domInputLocal_Array inputs = dJoints->getInput_array();
 
-		//SkeletonDrawer System Material
-		LineChunkUnrecPtr ExampleLineChunk = LineChunk::create();
-		ExampleLineChunk->setWidth(2.0f);
-		ExampleLineChunk->setSmooth(true);
+		// these two arrays correspond one to one, from the joint name to its inverse bind matrix
+		domName_arrayRef jointNamesArr;
+		domFloat_arrayRef IBPMArr;
+		UInt32 i(0),nameCount(0),matrixCount(0),stride(0);
+		for(i = 0; inputs.getCount(); i++)
+		{
+			if(inputs[i]->getSemantic() == "JOINT") 
+			{
+				domSourceRef src = daeSafeCast<domSource>(inputs[i]);
+				nameCount = src->getTechnique_common()->getAccessor()->getCount();
+				jointNamesArr = src->getName_array();
 
-		BlendChunkUnrecPtr ExampleBlendChunk = BlendChunk::create();
-		ExampleBlendChunk->setSrcFactor(GL_SRC_ALPHA);
-		ExampleBlendChunk->setDestFactor(GL_ONE_MINUS_SRC_ALPHA);
+			}
+			else if(inputs[i]->getSemantic() == "INV_BIND_MATRIX") 
+			{
+				domSourceRef src = daeSafeCast<domSource>(inputs[i]);
+				
+				IBPMArr = src->getFloat_array();
+				matrixCount = src->getTechnique_common()->getAccessor()->getCount();
+				stride = src->getTechnique_common()->getAccessor()->getStride();
+			}
+		}
 
-		MaterialChunkUnrecPtr ExampleMaterialChunk = MaterialChunk::create();
-		ExampleMaterialChunk->setAmbient(Color4f(1.0f,1.0f,1.0f,1.0f));
-		ExampleMaterialChunk->setDiffuse(Color4f(0.0f,0.0f,0.0f,1.0f));
-		ExampleMaterialChunk->setSpecular(Color4f(0.0f,0.0f,0.0f,1.0f));
+		// extracting the actual inverse bind matrices  and joint sids from the arrays
+		std::vector<Matrix> invBPMatrices;
+		std::vector<std::string> jointSIDs;
+		if(stride == 16 && nameCount == matrixCount)
+		{ // if the stride isn't 16, then we can't get the matrices!
+			domListOfFloats vals = IBPMArr->getValue();
+			for(i = 0; i < vals.getCount(); i++)
+			{
+				Matrix newMatrix(vals[i++],vals[i++],vals[i++],vals[i++],
+								 vals[i++],vals[i++],vals[i++],vals[i++],
+								 vals[i++],vals[i++],vals[i++],vals[i++],
+								 vals[i++],vals[i++],vals[i++],vals[i++]);
 
-		ChunkMaterialUnrecPtr ExampleMaterial = ChunkMaterial::create();
-		ExampleMaterial->addChunk(ExampleLineChunk);
-		ExampleMaterial->addChunk(ExampleMaterialChunk);
-		ExampleMaterial->addChunk(ExampleBlendChunk);
+				invBPMatrices.push_back(newMatrix);
+			}
 
-		skeleton->setMaterial(ExampleMaterial);
+			//TODO: get matrices for each joint node, build the joints, push to the skeleton.
+			domListOfNames names = jointNamesArr->getValue();
+			for(i = 0; i < names.getCount(); i++)
+			{
+				jointSIDs.push_back(names[i]);
+			}
+		}
+
+		std::vector<Joint *> joints;
+		
+		for(i = 0; i < skelArr.getCount(); i++)
+		{
+			domNodeRef node = daeSafeCast<domNode>(skelArr[i]->getValue().getElement());
+		}
+
+		SkeletonBlendedGeometryUnrecPtr skeleton = SkeletonBlendedGeometry::create();
+		SkeletonDrawableUnrecPtr ExampleSkeletonDrawable = SkeletonDrawable::create();
+		ExampleSkeletonDrawable->setSkeleton(skeleton);
+		
+		//ExampleSkeletonDrawable->setMaterial(ExampleMaterial); // make a material??
 	
-		NodeUnrecPtr skelNode = makeNodeFor(skeleton);
-		appendChild(skelNode);
-		std::pair<domInstance_controller *,SkeletonDrawable *> skelPair(instController,skeleton);
-		getGlobal()->addController(skelPair);
 	}
 
 }
