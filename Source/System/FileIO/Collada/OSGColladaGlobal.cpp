@@ -325,7 +325,7 @@ ColladaGlobal::FCPtrStore ColladaGlobal::readAnimations(void)
 }
 void ColladaGlobal::handleController(ControllerPair controller)
 {
-	FileIONodeFinder finder;
+	/*FileIONodeFinder finder;
 	//already has material initialized, now worry about the skeleton
 	SkeletonUnrecPtr theSkeleton = Skeleton::create();
 	domInstance_controllerRef instCtrl = controller.first;
@@ -359,14 +359,14 @@ void ColladaGlobal::handleController(ControllerPair controller)
 	}
 
 	controller.second->setSkeleton(theSkeleton);
-
+	*/
 	return;
 }
 
 void ColladaGlobal::createJointsRec(JointUnrecPtr parentJoint, NodeUnrecPtr childNode)
 {
 	// create a child joint
-	JointUnrecPtr childJoint = Joint::create();
+	/*JointUnrecPtr childJoint = Joint::create();
 	Matrixr curInv;
 	parentJoint->getBindRelativeTransformation().inverse(curInv);
 	curInv.mult(childNode->getToWorld());
@@ -378,7 +378,7 @@ void ColladaGlobal::createJointsRec(JointUnrecPtr parentJoint, NodeUnrecPtr chil
 	for(UInt32 i(0); i < childNode->getNChildren(); i++)
 	{
 		createJointsRec(childJoint, childNode->getChild(i));
-	}
+	}*/
 }
 
 void ColladaGlobal::addController(ControllerPair controller)
