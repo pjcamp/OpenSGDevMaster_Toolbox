@@ -49,6 +49,7 @@
 #if defined(__APPLE__) || defined(OSG_DO_DOC)
 
 #include <AGL/agl.h>
+#include <boost/algorithm/string.hpp>
 
 #include "OSGCarbonWindow.h"
 
@@ -381,7 +382,9 @@ std::vector<BoostPath> CarbonWindow::openFileDialog(const std::string& WindowTit
     }
     
     // Image Browser can open files with the ".imagebrowser" extension
-    CFMutableArrayRef identifiers = CFArrayCreateMutable( kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks );
+    CFMutableArrayRef identifiers = CFArrayCreateMutable( kCFAllocatorDefault,
+                                                          0,
+                                                          NULL );
     if(identifiers == NULL)
     {
         NavDialogDispose(OpenFileDialog);
@@ -417,32 +420,50 @@ std::vector<BoostPath> CarbonWindow::openFileDialog(const std::string& WindowTit
     AEDisposeDesc(&DefaultLocationAEDesc);
 
     //Filters
-    for(std::vector<FileDialogFilter>::const_iterator Itor(Filters.begin()) ; Itor != Filters.end(); ++Itor)
-    {
-        if(Itor->getFilter().compare("*") != 0)
-        {
-            // create the image browser UTI conforming to "public.data" because it's a data file rather than a bundle 
-            CFStringRef FilterCFString = UTTypeCreatePreferredIdentifierForTag( kUTTagClassFilenameExtension, CFStringCreateWithCString(NULL, Itor->getFilter().c_str(), Itor->getFilter().size()),kUTTypeData );
+    //for(std::vector<FileDialogFilter>::const_iterator Itor(Filters.begin()) ; Itor != Filters.end(); ++Itor)
+    //{
+        ////Split the Filters
+        //typedef std::vector< std::string > split_vector_type;
+        
+        //split_vector_type SplitVec;
+        //boost::split( SplitVec, Itor->getFilter(), boost::is_any_of(";,") );
 
-            if(FilterCFString == NULL)
-            {
-                NavDialogDispose(OpenFileDialog);
-                SWARNING << "CarbonWindow::openFileDialog: UTTypeCreatePreferredIdentifierForTag Error: NULL " <<  std::endl;
-                return FilesToOpen;
-            }
-            //Itor->getName();
-            CFArrayAppendValue( identifiers, FilterCFString );
-        }
-    }
+        //for(UInt32 j(0) ; j<SplitVec.size() ; ++j)
+        //{
+            //if(j != 0)
+            //{
+                //CFStringRef ExtStr = CFStringCreateWithCString(NULL,
+                                                            //SplitVec[j].c_str(),
+                                                            //SplitVec[j].size());
+                //CFStringRef extUTI= UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension,
+                                                                          //ExtStr,
+                                                                          //kUTTypeData);
+                //CFArrayAppendValue( identifiers, extUTI );
+
+            //}
+        //}
+        ////if(Itor->getFilter().compare("*") != 0)
+        ////{
+            ////CFStringRef FilterCFString = UTTypeCreatePreferredIdentifierForTag( kUTTagClassFilenameExtension, CFStringCreateWithCString(NULL, Itor->getFilter().c_str(), Itor->getFilter().size()),kUTTypeData );
+
+            ////if(FilterCFString == NULL)
+            ////{
+                ////NavDialogDispose(OpenFileDialog);
+                ////SWARNING << "CarbonWindow::openFileDialog: UTTypeCreatePreferredIdentifierForTag Error: NULL " <<  std::endl;
+                ////return FilesToOpen;
+            ////}
+            //////Itor->getName();
+            ////CFArrayAppendValue( identifiers, FilterCFString );
+        ////}
+    //}
     
-    // filter by image browser UTI
-    status = NavDialogSetFilterTypeIdentifiers( OpenFileDialog, identifiers );
-    if(status != noErr)
-    {
-        NavDialogDispose(OpenFileDialog);
-        SWARNING << "CarbonWindow::openFileDialog: NavDialogRun Error: "<< status << std::endl;
-        return FilesToOpen;
-    }
+    //status = NavDialogSetFilterTypeIdentifiers( OpenFileDialog, identifiers );
+    //if(status != noErr)
+    //{
+        //NavDialogDispose(OpenFileDialog);
+        //SWARNING << "CarbonWindow::openFileDialog: NavDialogRun Error: "<< status << std::endl;
+        //return FilesToOpen;
+    //}
  
     //Open the dialog
     status = NavDialogRun(OpenFileDialog);
