@@ -317,7 +317,7 @@ EventProducerType @!Classname!@Base::_producerType(
 @@else 
     "@!parentProducer!@ProducerType",
 @@endif 
-    NULL,
+    "",
     InitEventProducerFunctor(),
     _methodDesc,
     sizeof(_methodDesc));
