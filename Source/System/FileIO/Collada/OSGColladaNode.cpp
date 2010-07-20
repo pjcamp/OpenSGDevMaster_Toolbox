@@ -49,6 +49,7 @@
 #include "OSGColladaInstanceNode.h"
 #include "OSGColladaInstanceGeometry.h"
 #include "OSGColladaInstanceLight.h"
+#include "OSGColladaInstanceController.h"
 #include "OSGColladaVisualScene.h"
 #include "OSGTransform.h"
 #include "OSGNameAttachment.h"
@@ -268,7 +269,8 @@ ColladaNode::handleMatrix(domMatrix *matrix)
     {
         std::string nodeName = node->getName();
 
-        if(matrix->getSid() != NULL)
+        if(matrix->getSid() != NULL&& 
+			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
         {
             nodeName.append("."             );
             nodeName.append(matrix->getSid());
@@ -304,7 +306,8 @@ ColladaNode::handleRotate(domRotate *rotate)
     {
         std::string nodeName = node->getName();
 
-        if(rotate->getSid() != NULL)
+        if(rotate->getSid() != NULL&& 
+			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
         {
             nodeName.append("."             );
             nodeName.append(rotate->getSid());
@@ -336,7 +339,8 @@ ColladaNode::handleScale(domScale *scale)
     {
         std::string nodeName = node->getName();
 
-        if(scale->getSid() != NULL)
+        if(scale->getSid() != NULL&& 
+			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
         {
             nodeName.append("."            );
             nodeName.append(scale->getSid());
@@ -377,7 +381,8 @@ ColladaNode::handleTranslate(domTranslate *translate)
     {
         std::string nodeName = node->getName();
 
-        if(translate->getSid() != NULL)
+        if(translate->getSid() != NULL && 
+			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
         {
             nodeName.append("."                );
             nodeName.append(translate->getSid());
@@ -493,9 +498,23 @@ ColladaNode::handleInstanceLight(domInstance_light *instLight)
 void
 ColladaNode::handleInstanceController(domInstance_controller *instController)
 {
-    SWARNING << "ColladaNode::handleInstanceController: NIY"
-             << std::endl;
+    ColladaInstanceControllerRefPtr colInstCont =
+		getUserDataAs<ColladaInstanceController>(instController);
+
+    if(colInstCont == NULL)
+    {
+        colInstCont = dynamic_pointer_cast<ColladaInstanceController>(
+            ColladaElementFactory::the()->create(instController, getGlobal()));
+
+        colInstCont->read();
+    }
+
+    NodeUnrecPtr contN = colInstCont->process(this);
+
+    appendChild(contN);
+
 }
+
 
 /*! Add a transform node to the OpenSG tree representing
     this <node>.

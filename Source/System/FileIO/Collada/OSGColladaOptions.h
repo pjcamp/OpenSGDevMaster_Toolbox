@@ -101,6 +101,9 @@ class OSG_FILEIO_DLLMAPPING ColladaOptions : public MemoryObject
     bool getFlattenNodeXForms    (void      ) const;
     void setFlattenNodeXForms    (bool value);
 
+	bool getReadAnimations    (void      ) const;
+    void setReadAnimations    (bool value);
+
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
   protected:
@@ -117,6 +120,7 @@ class OSG_FILEIO_DLLMAPPING ColladaOptions : public MemoryObject
     bool _invertTransparency;
     bool _createNameAttachments;
     bool _flattenNodeXForms;
+	bool _readAnimations;
 };
 
 OSG_GEN_MEMOBJPTR(ColladaOptions);
