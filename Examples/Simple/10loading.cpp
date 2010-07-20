@@ -14,6 +14,7 @@
 #include <OSGGLUTWindow.h>
 #include <OSGSimpleSceneManager.h>
 #include <OSGContainerPtrFuncs.h>
+#include <OSGFCFileType.h>
 
 #include <OSGAction.h>
 
@@ -203,9 +204,19 @@ int main(int argc, char **argv)
         mgr->setWindow(gwin );
         mgr->setRoot  (scene);
 		mgr->setHeadlight(true);
+		mgr->setStatistics(true);
     
         // show the whole scene
         mgr->showAll();
+		
+		OSG::FCFileType::FCPtrStore Containers;
+		Containers.insert(scene);
+		//Use an empty Ignore types vector
+		OSG::FCFileType::FCTypeVector IgnoreTypes;
+		//IgnoreTypes.push_back(Node::getClassType().getId());
+	    
+		//Write the Field Containers to a xml file
+		//OSG::FCFileHandler::the()->write(Containers,OSG::BoostPath("./Output.xml"),IgnoreTypes);
     }
 
     // GLUT main loop

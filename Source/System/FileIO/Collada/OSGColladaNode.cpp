@@ -49,19 +49,10 @@
 #include "OSGColladaInstanceNode.h"
 #include "OSGColladaInstanceGeometry.h"
 #include "OSGColladaInstanceLight.h"
+#include "OSGColladaInstanceController.h"
 #include "OSGColladaVisualScene.h"
 #include "OSGTransform.h"
 #include "OSGNameAttachment.h"
-#include "OSGFileIOUtils.h"
-
-// skeleton drawable material includes...
-#include "OSGLineChunk.h"
-#include "OSGBlendChunk.h"
-#include "OSGChunkMaterial.h"
-#include "OSGMaterialChunk.h"
-
-#include "OSGSkeletonBlendedGeometry.h"
-#include "OSGSkeletonDrawable.h"
 
 #include <dom/domLookat.h>
 #include <dom/domMatrix.h>
@@ -507,88 +498,23 @@ ColladaNode::handleInstanceLight(domInstance_light *instLight)
 void
 ColladaNode::handleInstanceController(domInstance_controller *instController)
 {
-   // SWARNING << "ColladaNode::handleInstanceController: NIY"
-   //          << std::endl;
+    ColladaInstanceControllerRefPtr colInstCont =
+		getUserDataAs<ColladaInstanceController>(instController);
 
-	// For now, we just push these instance_controllers to a store, and finish creating
-	// them later. This is because the instance controllers might need information from nodes
-	// that haven't been created in OpenSG yet. 
-	domControllerRef ctrlr = daeSafeCast<domController>(instController->getUrl().getElement());
-	domSkinRef theSkin = ctrlr->getSkin();
-	if(theSkin != NULL)
-	{	// it's a skeleton controller 
-		// create a drawable skeleton for now
-		
-		// get skeleton joints
-		domInstance_controller::domSkeleton_Array skelArr = instController->getSkeleton_array();
-		
-		// get the joint source
-		domSkin::domJointsRef dJoints = theSkin->getJoints();
-		domInputLocal_Array inputs = dJoints->getInput_array();
+    if(colInstCont == NULL)
+    {
+        colInstCont = dynamic_pointer_cast<ColladaInstanceController>(
+            ColladaElementFactory::the()->create(instController, getGlobal()));
 
-		// these two arrays correspond one to one, from the joint name to its inverse bind matrix
-		domName_arrayRef jointNamesArr;
-		domFloat_arrayRef IBPMArr;
-		UInt32 i(0),nameCount(0),matrixCount(0),stride(0);
-		for(i = 0; inputs.getCount(); i++)
-		{
-			if(inputs[i]->getSemantic() == "JOINT") 
-			{
-				domSourceRef src = daeSafeCast<domSource>(inputs[i]);
-				nameCount = src->getTechnique_common()->getAccessor()->getCount();
-				jointNamesArr = src->getName_array();
+        colInstCont->read();
+    }
 
-			}
-			else if(inputs[i]->getSemantic() == "INV_BIND_MATRIX") 
-			{
-				domSourceRef src = daeSafeCast<domSource>(inputs[i]);
-				
-				IBPMArr = src->getFloat_array();
-				matrixCount = src->getTechnique_common()->getAccessor()->getCount();
-				stride = src->getTechnique_common()->getAccessor()->getStride();
-			}
-		}
+    NodeUnrecPtr contN = colInstCont->process(this);
 
-		// extracting the actual inverse bind matrices  and joint sids from the arrays
-		std::vector<Matrix> invBPMatrices;
-		std::vector<std::string> jointSIDs;
-		if(stride == 16 && nameCount == matrixCount)
-		{ // if the stride isn't 16, then we can't get the matrices!
-			domListOfFloats vals = IBPMArr->getValue();
-			for(i = 0; i < vals.getCount(); i++)
-			{
-				Matrix newMatrix(vals[i++],vals[i++],vals[i++],vals[i++],
-								 vals[i++],vals[i++],vals[i++],vals[i++],
-								 vals[i++],vals[i++],vals[i++],vals[i++],
-								 vals[i++],vals[i++],vals[i++],vals[i++]);
-
-				invBPMatrices.push_back(newMatrix);
-			}
-
-			//TODO: get matrices for each joint node, build the joints, push to the skeleton.
-			domListOfNames names = jointNamesArr->getValue();
-			for(i = 0; i < names.getCount(); i++)
-			{
-				jointSIDs.push_back(names[i]);
-			}
-		}
-
-		std::vector<Joint *> joints;
-		
-		for(i = 0; i < skelArr.getCount(); i++)
-		{
-			domNodeRef node = daeSafeCast<domNode>(skelArr[i]->getValue().getElement());
-		}
-
-		SkeletonBlendedGeometryUnrecPtr skeleton = SkeletonBlendedGeometry::create();
-		SkeletonDrawableUnrecPtr ExampleSkeletonDrawable = SkeletonDrawable::create();
-		ExampleSkeletonDrawable->setSkeleton(skeleton);
-		
-		//ExampleSkeletonDrawable->setMaterial(ExampleMaterial); // make a material??
-	
-	}
+    appendChild(contN);
 
 }
+
 
 /*! Add a transform node to the OpenSG tree representing
     this &lt;node&gt;.

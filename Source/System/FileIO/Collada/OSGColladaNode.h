@@ -58,6 +58,7 @@ class domNode;
 class domInstance_node;
 class domInstance_geometry;
 class domInstance_controller;
+class Joint;
 
 
 OSG_BEGIN_NAMESPACE
@@ -137,8 +138,7 @@ class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
     void handleInstanceLight     (domInstance_light      *instLight);
 
     void appendXForm(Node *xformN);
-    void appendChild(Node *childN);       
-
+    void appendChild(Node *childN);
 
     static ColladaElementRegistrationHelper _regHelper;
 

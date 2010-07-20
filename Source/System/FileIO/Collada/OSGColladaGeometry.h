@@ -115,6 +115,9 @@ class OSG_FILEIO_DLLMAPPING ColladaGeometry : public ColladaInstantiableElement
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
   protected:
+	
+	  friend class ColladaController;
+
     /*---------------------------------------------------------------------*/
     /*! \name Constructors/Destructor                                      */
     /*! \{                                                                 */
