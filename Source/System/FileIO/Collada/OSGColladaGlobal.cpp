@@ -50,7 +50,7 @@
 #include "OSGColladaOptions.h"
 #include "OSGColladaAnimation.h"
 #include "OSGNode.h"
-#include "OSGFileIOUtils.h"
+//#include "OSGFileIOUtils.h"
 
 #include <dom/domInstance_controller.h>
 #include <dom/domNode.h>
@@ -201,11 +201,13 @@ ColladaGlobal::readAll( std::istream &is, const std::string &fileName)
     rootN = doRead();
 	_FCStore.insert(rootN);
 
+	/*
 	if(getOptions()->getReadAnimations())
 	{ // read animations here
 		FCPtrStore animations = readAnimations();
 		_FCStore.insert(animations.begin(), animations.end());
 	}
+	*/
 
 	// now handle controllers...
 	for(UInt32 i(0); i < _controllers.size(); i++)
