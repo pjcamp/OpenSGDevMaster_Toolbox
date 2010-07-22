@@ -365,7 +365,7 @@ void ColladaGlobal::handleController(ControllerPair controller)
 	return;
 }
 
-void ColladaGlobal::createJointsRec(JointUnrecPtr parentJoint, NodeUnrecPtr childNode)
+void ColladaGlobal::createJointsRec(NodeUnrecPtr parentJoint, NodeUnrecPtr childNode)
 {
 	// create a child joint
 	/*JointUnrecPtr childJoint = Joint::create();
