@@ -53,6 +53,7 @@
 #include "OSGColladaInstanceEffect.h"
 
 #include "OSGGroup.h"
+#include "OSGTransform.h"
 #include "OSGTypedGeoVectorProperty.h"
 #include "OSGTypedGeoIntegralProperty.h"
 #include "OSGNameAttachment.h"
@@ -326,13 +327,14 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 
 	SkeletonBlendedGeometryRecPtr skeleton = SkeletonBlendedGeometry::create();	
 	skeleton->setBaseGeometry(geo);
+	skeleton->setBindTransformation(_mSkin.bindShapeMatrix);
 
 	NodeRecPtr skelNode = makeNodeFor(skeleton);
 
 	skeleton->setWeights(_mSkin.weights);
 		// get skeleton joints
 	domInstance_controller::domSkeleton_Array skelArr = colInstCont->getSkeleton();
-	std::vector<JointRecPtr> joints;
+    std::map<std::string, NodeRecPtr> joints;
 	std::vector<NodeRecPtr> osgNodes;
 	std::vector<domNodeRef> domNodes;
 	// create the joints/nodes and fetch the nodes
@@ -343,12 +345,11 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 		std::string nodeName = colDomNode->getSid();
 		domNodes.push_back(colDomNode);
 
-		JointRecPtr newJoint = createJointFromNode(colDomNode);
-		joints.push_back(newJoint);
+		NodeRecPtr newJointNode = createJointFromNode(colDomNode);
+		joints[nodeName] = newJointNode;
 
-		NodeRefPtr newNode = makeNodeFor(newJoint);
-		setName(newNode,colDomNode->getSid());
-		osgNodes.push_back(newNode);
+		setName(newJointNode,colDomNode->getSid());
+		osgNodes.push_back(newJointNode);
 	}
 
 	// now the heirarchy of the skeleton structure must be created from the visual scene node heirarchy
@@ -372,15 +373,16 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 		}
 	}
 
-	for(i = 0; i < domNodes.size(); i++)
-	{
-		// now we need to match up the SID of this domNode to the joint
-		for(j = 0; j < _mSkin.jointSIDs.size() && j < _mSkin.inverseBindPoseMatrices.size(); j++)
-		{
+    for(j = 0; j < _mSkin.jointSIDs.size() && j < _mSkin.inverseBindPoseMatrices.size(); j++)
+    {
+        // now we need to match up the SID of this domNode to the joint
+        for(i = 0; i < domNodes.size(); i++)
+        {
 			if(_mSkin.jointSIDs[j].compare(domNodes[i]->getSid()) == 0)
 			{	// this is a match, so push it to the skeleton
-				skeleton->pushToJoints(joints[j],_mSkin.inverseBindPoseMatrices[j]);
-				continue;
+                //TODO: The Node from the graph should be added
+				skeleton->pushToJoints(joints[_mSkin.jointSIDs[j]],_mSkin.inverseBindPoseMatrices[j]);
+			    break;
 			}
 		}
 	}
@@ -407,14 +409,8 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
     ExampleBlendChunk->setSrcFactor(GL_SRC_ALPHA);
     ExampleBlendChunk->setDestFactor(GL_ONE_MINUS_SRC_ALPHA);
 
-    MaterialChunkRecPtr ExampleMaterialChunk = MaterialChunk::create();
-    ExampleMaterialChunk->setAmbient(Color4f(1.0f,1.0f,1.0f,1.0f));
-    ExampleMaterialChunk->setDiffuse(Color4f(0.0f,0.0f,0.0f,1.0f));
-    ExampleMaterialChunk->setSpecular(Color4f(0.0f,0.0f,0.0f,1.0f));
-
     ChunkMaterialRecPtr ExampleMaterial = ChunkMaterial::create();
     ExampleMaterial->addChunk(ExampleLineChunk);
-    ExampleMaterial->addChunk(ExampleMaterialChunk);
     ExampleMaterial->addChunk(ExampleBlendChunk);
 
 	SkeletonDrawableRecPtr skelDraw = SkeletonDrawable::create();
@@ -431,18 +427,18 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 
 	theNode->addChild(skelDrawNode);
 	theNode->addChild(skelNode);
-editInstStore().push_back(skelNode);
-editInstStore().push_back(skelDrawNode);
-editInstStore().push_back(theNode);
+    editInstStore().push_back(skelNode);
+    editInstStore().push_back(skelDrawNode);
+    editInstStore().push_back(theNode);
 	return theNode;
 }
 
 /*! Creates a joint, and sets its transformations based on the transformation
 	of the domNode.
 */
-JointTransitPtr ColladaController::createJointFromNode(domNode *node)
+NodeTransitPtr ColladaController::createJointFromNode(domNode *node)
 {
-	JointRecPtr newJoint = Joint::create();
+	TransformRecPtr newJoint = Transform::create();
 	Matrix baseXform,jointXform,tmp;
 
 	domTranslate_Array translations = node->getTranslate_array();
@@ -510,7 +506,8 @@ JointTransitPtr ColladaController::createJointFromNode(domNode *node)
 		//}
 	}
 
-	return JointTransitPtr(newJoint);
+    NodeUnrecPtr      jointNode = makeNodeFor(newJoint);
+	return NodeTransitPtr(jointNode);
 }
 
 void

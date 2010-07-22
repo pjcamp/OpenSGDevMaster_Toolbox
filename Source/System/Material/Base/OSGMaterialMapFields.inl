@@ -85,7 +85,7 @@ void GetSFieldHandle<SFMaterialPtrMap>::pushValueToStream(
 {
     FWARNING(("illegal pushValueToStream called for %s\n", 
               this->getName().c_str()));
-    OSG_ASSERT(false);
+    //OSG_ASSERT(false);
 }
 
 inline
@@ -94,7 +94,7 @@ void GetSFieldHandle<SFMaterialPtrMap>::pushSizeToStream(
 {
     FWARNING(("illegal pushSizeToStream called for %s\n", 
               this->getName().c_str()));
-    OSG_ASSERT(false);
+    //OSG_ASSERT(false);
 }
 
 inline
@@ -185,7 +185,7 @@ void EditSFieldHandle<SFMaterialPtrMap>::pushValueToStream(
 {
     FWARNING(("illegal pushValueToStream called for %s\n", 
               this->getName().c_str()));
-    OSG_ASSERT(false);
+    //OSG_ASSERT(false);
 }
 
 inline
@@ -194,7 +194,7 @@ void EditSFieldHandle<SFMaterialPtrMap>::pushSizeToStream(
 {
     FWARNING(("illegal pushSizeToStream called for %s\n", 
               this->getName().c_str()));
-    OSG_ASSERT(false);
+    //OSG_ASSERT(false);
 }
 
 inline
@@ -230,7 +230,7 @@ void EditSFieldHandle<SFMaterialPtrMap>::pushValueFromCString(
 {
     FWARNING(("illegal pushValueFromCString called for %s\n", 
               this->getName().c_str()));
-    OSG_ASSERT(false);
+    //OSG_ASSERT(false);
 }
 
 inline
@@ -239,7 +239,7 @@ void EditSFieldHandle<SFMaterialPtrMap>::copyValues(
 {
     FWARNING(("illegal copyValues called for %s\n", 
               this->getName().c_str()));
-    OSG_ASSERT(false);
+    //OSG_ASSERT(false);
 }
 
 inline

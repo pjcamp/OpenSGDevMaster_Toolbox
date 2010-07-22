@@ -49,13 +49,13 @@
 #include "OSGColladaInstantiableElement.h"
 #include "OSGColladaElementFactoryHelper.h"
 #include "OSGColladaGeometry.h"
+#include "OSGNodeFields.h"
 
 #include <vector>
 
 OSG_BEGIN_NAMESPACE
 
 // forward decl
-class Joint;
 class domInstanceController;
 class ColladaInstanceController;
 OSG_GEN_MEMOBJPTR(ColladaInstanceController);
@@ -136,7 +136,7 @@ class OSG_FILEIO_DLLMAPPING ColladaController : public ColladaInstantiableElemen
 					    UInt32                 inSet,
 					    UInt32                &offset     );
 
-	JointTransitPtr  createJointFromNode(domNode *node);
+	NodeTransitPtr  createJointFromNode(domNode *node);
 	bool _hasSkin;
 	bool _hasMorph;
 	SkinInfo _mSkin;

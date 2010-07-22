@@ -242,7 +242,8 @@ ColladaNode::handleMatrix(domMatrix *matrix)
 
     domNodeRef        node   = getDOMElementAs<domNode>();
 
-    TransformUnrecPtr xform  = Transform::create();
+    TransformUnrecPtr xform = Transform::create();
+
     NodeUnrecPtr      xformN = makeNodeFor(xform);
 
     Matrix m(matrix->getValue()[0],      // rVal00
@@ -290,7 +291,7 @@ ColladaNode::handleRotate(domRotate *rotate)
 
     domNodeRef        node   = getDOMElementAs<domNode>();
 
-    TransformUnrecPtr xform  = Transform::create();
+    TransformUnrecPtr xform = Transform::create();
     NodeUnrecPtr      xformN = makeNodeFor(xform);
 
     Quaternion q;
@@ -327,7 +328,7 @@ ColladaNode::handleScale(domScale *scale)
 
     domNodeRef        node   = getDOMElementAs<domNode>();
 
-    TransformUnrecPtr xform  = Transform::create();
+    TransformUnrecPtr xform = Transform::create();
     NodeUnrecPtr      xformN = makeNodeFor(xform);
 
     xform->editMatrix().setScale(scale->getValue()[0],
@@ -369,7 +370,7 @@ ColladaNode::handleTranslate(domTranslate *translate)
 
     domNodeRef        node   = getDOMElementAs<domNode>();
 
-    TransformUnrecPtr xform  = Transform::create();
+    TransformUnrecPtr xform = Transform::create();
     NodeUnrecPtr      xformN = makeNodeFor(xform);
 
     xform->editMatrix().setTranslate(translate->getValue()[0],
@@ -470,28 +471,32 @@ ColladaNode::handleInstanceLight(domInstance_light *instLight)
 
         colInstLight->read();
     }
-
-    //Append the lights beacon node
-    GroupUnrecPtr lightBeacon = Group::create();
-    NodeRecPtr lightBeaconN = Node::create();
-    lightBeaconN->setCore(lightBeacon);
-    /*std::string BeaconNodeName(instLight->getName());
-    BeaconNodeName += "_beacon";
-    setName(lightBeaconN, BeaconNodeName);*/
-
-    //TODO: set beacon name
-    appendChild(lightBeaconN);
     
     //push the Light onto the root
     LightUnrecPtr light = colInstLight->process(this);
-    light->setBeacon(lightBeaconN);
+    if(light != NULL)
+    {
 
-    NodeRecPtr lightN = Node::create();
-    lightN->setCore(light);
-    //setName(lightN,instLight->getName());
-    //TODO: set light noame
+        //Append the lights beacon node
+        GroupUnrecPtr lightBeacon = Group::create();
+        NodeRecPtr lightBeaconN = Node::create();
+        lightBeaconN->setCore(lightBeacon);
+        /*std::string BeaconNodeName(instLight->getName());
+        BeaconNodeName += "_beacon";
+        setName(lightBeaconN, BeaconNodeName);*/
 
-    _visualScene->pushNodeToRoot(lightN);
+        //TODO: set beacon name
+        appendChild(lightBeaconN);
+
+        light->setBeacon(lightBeaconN);
+
+        NodeRecPtr lightN = Node::create();
+        lightN->setCore(light);
+        //setName(lightN,instLight->getName());
+        //TODO: set light noame
+
+        _visualScene->pushNodeToRoot(lightN);
+    }
 
 }
 
@@ -531,7 +536,7 @@ ColladaNode::appendXForm(Node *xformN)
     {
         if(_bottomN != NULL)
         {
-            if(_bottomN->getCore()->getType() == Transform::getClassType())
+            if(_bottomN->getCore()->getType().isDerivedFrom(Transform::getClassType()))
             {
                 Transform* _bottomTrans = dynamic_cast<Transform*>(_bottomN->getCore());
 

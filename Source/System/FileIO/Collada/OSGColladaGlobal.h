@@ -185,7 +185,7 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
     NodeTransitPtr doRead(void);
 	FCPtrStore readAnimations(void);
 	void handleController(ControllerPair controller);
-	void createJointsRec(JointUnrecPtr parentJoint, NodeUnrecPtr childNode);
+	void createJointsRec(NodeUnrecPtr parentJoint, NodeUnrecPtr childNode);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
