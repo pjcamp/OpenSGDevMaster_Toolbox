@@ -136,6 +136,7 @@ class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
     void handleInstanceGeometry  (domInstance_geometry   *instGeo       );
     void handleInstanceController(domInstance_controller *instController);
     void handleInstanceLight     (domInstance_light      *instLight);
+	void handleJointNode		 (domNode *node);
 
     void appendXForm(Node *xformN);
     void appendChild(Node *childN);

@@ -91,37 +91,42 @@ ColladaNode::read(void)
 
     // handle "transform" child elements in the order
     // they occur in the document
-
-    for(UInt32 i = 0; i < contents.getCount(); ++i)
-    {
-        switch(contents[i]->getElementType())
-        {
-        case COLLADA_TYPE::LOOKAT:
-            handleLookAt(daeSafeCast<domLookat>(contents[i]));
-            break;
-            
-        case COLLADA_TYPE::MATRIX:
-            handleMatrix(daeSafeCast<domMatrix>(contents[i]));
-        break;
-        
-        case COLLADA_TYPE::ROTATE:
-            handleRotate(daeSafeCast<domRotate>(contents[i]));
-        break;
-        
-        case COLLADA_TYPE::SCALE:
-            handleScale(daeSafeCast<domScale>(contents[i]));
-        break;
-        
-        case COLLADA_TYPE::SKEW:
-            handleSkew(daeSafeCast<domSkew>(contents[i]));
-        break;
-        
-        case COLLADA_TYPE::TRANSLATE:
-            handleTranslate(daeSafeCast<domTranslate>(contents[i]));
-        break;
-        }
-    }
-
+	if(node->getType() ==  NODETYPE_JOINT)
+	{
+		handleJointNode(node);
+	}
+	else
+	{
+		for(UInt32 i = 0; i < contents.getCount(); ++i)
+		{
+			switch(contents[i]->getElementType())
+			{
+			case COLLADA_TYPE::LOOKAT:
+				handleLookAt(daeSafeCast<domLookat>(contents[i]));
+				break;
+	            
+			case COLLADA_TYPE::MATRIX:
+				handleMatrix(daeSafeCast<domMatrix>(contents[i]));
+			break;
+	        
+			case COLLADA_TYPE::ROTATE:
+				handleRotate(daeSafeCast<domRotate>(contents[i]));
+			break;
+	        
+			case COLLADA_TYPE::SCALE:
+				handleScale(daeSafeCast<domScale>(contents[i]));
+			break;
+	        
+			case COLLADA_TYPE::SKEW:
+				handleSkew(daeSafeCast<domSkew>(contents[i]));
+			break;
+	        
+			case COLLADA_TYPE::TRANSLATE:
+				handleTranslate(daeSafeCast<domTranslate>(contents[i]));
+			break;
+			}
+		}
+	}
     // handle <node> child elements
     const domNode_Array &nodes = node->getNode_array();
     
@@ -493,7 +498,7 @@ ColladaNode::handleInstanceLight(domInstance_light *instLight)
         NodeRecPtr lightN = Node::create();
         lightN->setCore(light);
         //setName(lightN,instLight->getName());
-        //TODO: set light noame
+        //TODO: set light name
 
         _visualScene->pushNodeToRoot(lightN);
     }
@@ -517,6 +522,71 @@ ColladaNode::handleInstanceController(domInstance_controller *instController)
     NodeUnrecPtr contN = colInstCont->process(this);
 
     appendChild(contN);
+
+}
+
+/*! Creates a joint, and sets its transformations based on the transformation
+	of the domNode.
+*/
+void ColladaNode::handleJointNode(domNode *node)
+{
+	TransformRecPtr newJoint = Transform::create();
+	Matrix baseXform,jointXform,tmp;
+
+	domTranslate_Array translations = node->getTranslate_array();
+	domRotate_Array rotations = node->getRotate_array();
+	domScale_Array scalings = node->getScale_array();
+
+	UInt32 i(0);
+	for(i = 0; i < translations.getCount(); i++)
+	{	
+		Vec3f translate(translations[i]->getValue()[0],
+						translations[i]->getValue()[1],
+						translations[i]->getValue()[2]);
+		tmp.setTranslate(translate);
+
+		newJoint->editMatrix().mult(tmp);
+		
+	}
+	tmp.setIdentity(); // reset tmp matrix
+	for(i = 0; i < rotations.getCount(); i++)
+	{	
+		
+		Quaternion quat;
+		
+		quat.setValueAsAxisDeg( rotations[i]->getValue()[0],
+								rotations[i]->getValue()[1],
+								rotations[i]->getValue()[2],
+								rotations[i]->getValue()[3]);
+		tmp.setRotate(quat);
+
+		newJoint->editMatrix().mult(tmp);
+		
+	}
+	tmp.setIdentity(); // reset tmp matrix
+	for(i = 0; i < scalings.getCount(); i++)
+	{	
+		Vec3f scale(scalings[i]->getValue()[0],
+					scalings[i]->getValue()[1],
+					scalings[i]->getValue()[2]);
+		tmp.setScale(scale);
+		
+		newJoint->editMatrix().mult(tmp);
+
+	}
+
+    NodeRecPtr      jointN = makeNodeFor(newJoint);
+
+	_bottomN = jointN;
+
+	if(_topN == NULL)
+    {
+        _topN = _bottomN;
+    }
+
+	setName(_bottomN, node->getID());
+
+	getGlobal()->editNodeToNodeMap()[node] = jointN;
 
 }
 

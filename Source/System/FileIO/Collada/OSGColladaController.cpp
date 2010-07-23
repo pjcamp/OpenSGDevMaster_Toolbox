@@ -169,7 +169,6 @@ ColladaController::readSkin(domSkin *skin)
 							 vals[i+4],vals[i+5],vals[i+6],vals[i+7],
 							 vals[i+8],vals[i+9],vals[i+10],vals[i+11],
 							 vals[i+12],vals[i+13],vals[i+14],vals[i+15]);
-			//Matrix newMatrix2(&(vals[i]));
 
 			_mSkin.inverseBindPoseMatrices.push_back(newMatrix);
 		}
@@ -185,7 +184,6 @@ ColladaController::readSkin(domSkin *skin)
 	domSkin::domVertex_weightsRef vertWts = skin->getVertex_weights();
 	domInputLocalOffset_Array VWInputs = vertWts->getInput_array();
 
-	int jointOffset(0),weightOffset(0);
 	for(i = 0; i < VWInputs.getCount(); i++)
 	{
 		std::string sem = VWInputs[i]->getSemantic();
@@ -193,15 +191,11 @@ ColladaController::readSkin(domSkin *skin)
 		{
 			domSourceRef src = daeSafeCast<domSource>(VWInputs[i]->getSource().getElement());
 			domListOfFloats wts = src->getFloat_array()->getValue();
-			weightOffset = VWInputs[i]->getOffset();
+			
 			for(j = 0; j < wts.getCount(); j++)
 			{
 				_mSkin.weights->push_back(Vec1f(wts[j]));
 			}
-		}
-		if(sem.compare("") == 0)
-		{
-			jointOffset = VWInputs[i]->getOffset();
 		}
 	}
 
@@ -236,6 +230,8 @@ ColladaController::readSkin(domSkin *skin)
 
 void ColladaController::readMorph(domMorph *morph)
 {
+	_hasMorph = true;
+
 	return; // for now
 }
 
@@ -325,6 +321,7 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 	if(++gsIt != gsEnd) SWARNING << "ColladaController::createInstance: Geometry parially ignored!" << std::endl;
 	if(geo == NULL) return NULL; // can't do anything without the geometry!
 
+	// create the skeleton.  Joints won't be fully resolved until later (see ColladaGlobal)
 	SkeletonBlendedGeometryRecPtr skeleton = SkeletonBlendedGeometry::create();	
 	skeleton->setBaseGeometry(geo);
 	skeleton->setBindTransformation(_mSkin.bindShapeMatrix);
@@ -332,8 +329,8 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 	NodeRecPtr skelNode = makeNodeFor(skeleton);
 
 	skeleton->setWeights(_mSkin.weights);
-		// get skeleton joints
-	domInstance_controller::domSkeleton_Array skelArr = colInstCont->getSkeleton();
+	// get skeleton joints
+	domInstance_controller::domSkeleton_Array skelArr = colInstCont->getJoints();
     std::map<std::string, NodeRecPtr> joints;
 	std::vector<NodeRecPtr> osgNodes;
 	std::vector<domNodeRef> domNodes;
@@ -342,17 +339,25 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 	for(i = 0; i < skelArr.getCount(); i++)
 	{
 		domNodeRef colDomNode = daeSafeCast<domNode>(skelArr[i]->getValue().getElement());
+
 		std::string nodeName = colDomNode->getSid();
 		domNodes.push_back(colDomNode);
 
-		NodeRecPtr newJointNode = createJointFromNode(colDomNode);
-		joints[nodeName] = newJointNode;
+		NodeRecPtr jointNode = createJointFromNode(colDomNode);
+		joints[nodeName] = jointNode;
 
-		setName(newJointNode,colDomNode->getSid());
-		osgNodes.push_back(newJointNode);
+		setName(jointNode,colDomNode->getSid());
+		osgNodes.push_back(jointNode);
 	}
 
-	// now the heirarchy of the skeleton structure must be created from the visual scene node heirarchy
+	/* 
+		The heirarchy of the skeleton structure must be created from the 
+		visual scene node heirarchy.  But, since we don't want to have two
+		instances of the heirarchy, we just save the IDs of the nodes to a map, and 
+		link up the joints after the visual scene is finished reading.
+	*/
+
+	/*
 	for(i = 0; i < domNodes.size(); i++)
 	{
 		domNodeRef parent = daeSafeCast<domNode>(domNodes[i]->getParent());
@@ -362,7 +367,7 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 			{
 				std::string parentSID(parent->getSid());
 				std::string childSID(domNodes[j]->getSid());
-				if(parentSID.compare(childSID)==0)
+				if(parentSID.compare(childSID) == 0)
 				{	
 					osgNodes[j]->addChild(osgNodes[i]);
 				}
@@ -373,6 +378,8 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 		}
 	}
 
+	
+
     for(j = 0; j < _mSkin.jointSIDs.size() && j < _mSkin.inverseBindPoseMatrices.size(); j++)
     {
         // now we need to match up the SID of this domNode to the joint
@@ -380,13 +387,13 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
         {
 			if(_mSkin.jointSIDs[j].compare(domNodes[i]->getSid()) == 0)
 			{	// this is a match, so push it to the skeleton
-                //TODO: The Node from the graph should be added
+                
 				skeleton->pushToJoints(joints[_mSkin.jointSIDs[j]],_mSkin.inverseBindPoseMatrices[j]);
 			    break;
 			}
 		}
 	}
-
+	
 	int k(0);
 	for(i = 0; i < _mSkin.vCount.size(); i++)
 	{
@@ -395,10 +402,14 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 			skeleton->addJointBlending(i,_mSkin.v[k],_mSkin.v[k+1]);
 		}
 	}
+	
+	colInstCont->setSkeleton(skeleton);
+	editInstStore().push_back(skelNode);
 
-	//editInstStore().push_back(skelNode);
-
-	//return skelNode; // for now
+	return skelNode; 
+	*/
+	
+	// the code below is added to draw the bones of the skeletons
 
 	 //SkeletonDrawer System Material
     LineChunkRecPtr ExampleLineChunk = LineChunk::create();
@@ -425,12 +436,14 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 
 	NodeRecPtr theNode = makeNodeFor(OSG::Group::create());
 
+	colInstCont->setSkeleton(skeleton);
 	theNode->addChild(skelDrawNode);
 	theNode->addChild(skelNode);
     editInstStore().push_back(skelNode);
     editInstStore().push_back(skelDrawNode);
     editInstStore().push_back(theNode);
 	return theNode;
+	
 }
 
 /*! Creates a joint, and sets its transformations based on the transformation
@@ -452,17 +465,9 @@ NodeTransitPtr ColladaController::createJointFromNode(domNode *node)
 						translations[i]->getValue()[1],
 						translations[i]->getValue()[2]);
 		tmp.setTranslate(translate);
+
+		newJoint->editMatrix().mult(tmp);
 		
-		// if the sid of the translation contains "joint", 
-		// we assume it is a joint-specific translation
-		//if(std::string(translations[i]->getSid()).find("joint") != std::string::npos)
-		//{
-		//	newJoint->editJointTransformation().mult(tmp);
-		//}
-		//else
-		//{
-			newJoint->editMatrix().mult(tmp);
-		//}
 	}
 	tmp.setIdentity(); // reset tmp matrix
 	for(i = 0; i < rotations.getCount(); i++)
@@ -470,22 +475,14 @@ NodeTransitPtr ColladaController::createJointFromNode(domNode *node)
 		
 		Quaternion quat;
 		
-		quat.setIdentity();
 		quat.setValueAsAxisDeg( rotations[i]->getValue()[0],
 								rotations[i]->getValue()[1],
 								rotations[i]->getValue()[2],
 								rotations[i]->getValue()[3]);
 		tmp.setRotate(quat);
-		// if the sid of the rotation contains "joint", 
-		// we assume it is a joint-specific rotation
-		/*if(std::string(rotations[i]->getSid()).find("joint") != std::string::npos)
-		{
-			newJoint->editJointTransformation().mult(tmp);
-		}
-		else
-		{*/
-			newJoint->editMatrix().mult(tmp);
-		//}
+
+		newJoint->editMatrix().mult(tmp);
+		
 	}
 	tmp.setIdentity(); // reset tmp matrix
 	for(i = 0; i < scalings.getCount(); i++)
@@ -494,16 +491,9 @@ NodeTransitPtr ColladaController::createJointFromNode(domNode *node)
 					scalings[i]->getValue()[1],
 					scalings[i]->getValue()[2]);
 		tmp.setScale(scale);
-		// if the sid of the scaling contains "joint", 
-		// we assume it is a joint-specific scaling
-		/*if(std::string(scalings[i]->getSid()).find("joint") != std::string::npos)
-		{
-			newJoint->editJointTransformation().mult(tmp);
-		}
-		else
-		{*/
-			newJoint->editMatrix().mult(tmp);
-		//}
+		
+		newJoint->editMatrix().mult(tmp);
+
 	}
 
     NodeUnrecPtr      jointNode = makeNodeFor(newJoint);
@@ -708,6 +698,23 @@ const ColladaGeometry::BindVertexInfo *
     return retVal;
 }
 
+const ColladaController::SkinInfo &ColladaController::getSkinInfo		(void)
+{
+	return _mSkin;
+}
+
+bool	
+ColladaController::hasSkin (void)
+{
+	return _hasSkin;
+}
+
+bool	
+ColladaController::hasMorph	(void)
+{
+	return _hasMorph;
+}
+
 ColladaController::ColladaController(daeElement *elem, ColladaGlobal *global)
     : Inherited (elem, global),
 	_hasSkin(false),
@@ -715,6 +722,7 @@ ColladaController::ColladaController(daeElement *elem, ColladaGlobal *global)
 {
 	_mSkin.weights = GeoVec1fProperty::create();
 }
+
 
 ColladaController::~ColladaController(void)
 {

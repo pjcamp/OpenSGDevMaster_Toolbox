@@ -81,7 +81,7 @@ ColladaInstanceController::read(void)
 
 	domInstance_controllerRef instCont = getDOMElementAs<domInstance_controller>();
 	
-	_skeleton = instCont->getSkeleton_array();
+	_joints = instCont->getSkeleton_array();
 
     domBind_materialRef     bindMat = instCont->getBind_material            ();
 
@@ -127,6 +127,8 @@ ColladaInstanceController::process(ColladaElement *parent)
 
     ColladaControllerRefPtr colCont = getTargetElem();
 
+	getGlobal()->addInstanceController(this);
+
     return colCont->createInstance(this);
 }
 
@@ -158,9 +160,23 @@ ColladaInstanceController::getTargetDOMElem(void) const
     return retVal;
 }
 
-const ColladaInstanceController::Skeleton& ColladaInstanceController::getSkeleton	 (void) const
+SkeletonBlendedGeometry *
+ColladaInstanceController::getSkeleton	 (void) const
 {
 	return _skeleton;
+}
+
+void
+ColladaInstanceController::setSkeleton	 (SkeletonBlendedGeometry * skeleton)
+{
+	_skeleton = skeleton;
+}
+
+
+const ColladaInstanceController::Joints& 
+ColladaInstanceController::getJoints		 (void) const
+{
+	return _joints;
 }
 
 const ColladaInstanceController::MaterialMap &
