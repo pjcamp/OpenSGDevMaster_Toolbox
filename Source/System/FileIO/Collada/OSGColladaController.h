@@ -101,9 +101,14 @@ class OSG_FILEIO_DLLMAPPING ColladaController : public ColladaInstantiableElemen
 		std::vector<UInt32> vCount;
 
 	};
+
+	const	SkinInfo &getSkinInfo	(void);
+
+	bool	hasSkin					(void);
+	bool	hasMorph				(void);
 /*
 	struct MorphInfo {
-		// uhh
+		// NIY
 	};
 */
 
@@ -142,6 +147,7 @@ class OSG_FILEIO_DLLMAPPING ColladaController : public ColladaInstantiableElemen
 	SkinInfo _mSkin;
     GeometryRefPtr _sourceMesh;
 	ColladaGeometryRefPtr _sourceColGeo;
+
     
 	static ColladaElementRegistrationHelper _regHelper;
 

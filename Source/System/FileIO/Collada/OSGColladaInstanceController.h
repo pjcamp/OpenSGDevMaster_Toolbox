@@ -47,6 +47,7 @@
 #include "OSGColladaController.h"
 #include "OSGColladaInstanceMaterial.h"
 #include "OSGColladaElementFactoryHelper.h"
+#include "OSGSkeletonBlendedGeometry.h"
 
 #include <dom/domController.h>
 
@@ -72,7 +73,7 @@ class OSG_FILEIO_DLLMAPPING ColladaInstanceController
     typedef MaterialMap::iterator                    MaterialMapIt;
     typedef MaterialMap::const_iterator              MaterialMapConstIt;
 
-	typedef domInstance_controller::domSkeleton_Array Skeleton;
+	typedef domInstance_controller::domSkeleton_Array Joints;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -90,8 +91,11 @@ class OSG_FILEIO_DLLMAPPING ColladaInstanceController
     virtual void  read   (void                  );
     virtual Node *process(ColladaElement *parent);
 
-	const MaterialMap       &getMaterialMap  (void) const;
-	const Skeleton			&getSkeleton	 (void) const;
+	void	setSkeleton	 (SkeletonBlendedGeometry * skeleton);
+
+	SkeletonBlendedGeometry				*getSkeleton	 (void) const;
+	const MaterialMap							&getMaterialMap  (void) const;
+	const Joints								&getJoints		 (void) const;
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name Access                                                       */
@@ -118,7 +122,8 @@ class OSG_FILEIO_DLLMAPPING ColladaInstanceController
     static ColladaElementRegistrationHelper _regHelper;
 
 	MaterialMap _matMap;
-	Skeleton _skeleton;
+	Joints _joints;
+	SkeletonBlendedGeometryRecPtr _skeleton;
 
 };
 
