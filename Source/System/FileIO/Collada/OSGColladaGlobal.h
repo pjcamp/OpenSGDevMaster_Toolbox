@@ -65,10 +65,9 @@
 #include <string>
 #include <vector>
 
-// should be removed later
-#include "OSGSkeletonDrawable.h"
-
 OSG_BEGIN_NAMESPACE
+
+class ColladaInstanceController;
 
 class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
 {
@@ -156,12 +155,21 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
            ColladaElement     *getElement   (const daeURI      &elemURI) const;
            ColladaElement     *getElement   (const std::string &elemId ) const;
 
-	inline bool addFieldContainer(FieldContainer * fc);
-	inline const FCPtrStore getFieldContainerStore( void ) const;
-	inline FCPtrStore editFieldContainerStore( void );
+	inline 
+	bool				addFieldContainer		(FieldContainer * fc);
 
-	typedef std::pair<domInstance_controller *,SkeletonDrawable *>  ControllerPair;
-	void addController(ControllerPair controller);
+	inline 
+	const FCPtrStore	getFieldContainerStore	( void ) const;
+
+	inline			
+	FCPtrStore			editFieldContainerStore	( void );
+
+	void	addInstanceController		( ColladaInstanceController * const contr );
+
+	typedef std::map<domNode* ,Node*>	NodeToNodeMap;
+	typedef NodeToNodeMap::iterator		NTNMapIt;
+
+	NodeToNodeMap			&editNodeToNodeMap			(void);
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
@@ -178,10 +186,10 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
     /*! \name Read                                                         */
     /*! \{                                                                 */
 
-    NodeTransitPtr doRead(void);
-	FCPtrStore readAnimations(void);
-	void handleController(ControllerPair controller);
-	void createJointsRec(NodeUnrecPtr parentJoint, NodeUnrecPtr childNode);
+    NodeTransitPtr	doRead				(void);
+	FCPtrStore		readAnimations		(void);
+	void			resolveControllers	(void);
+
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -199,8 +207,10 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
     NodeUnrecPtr          _rootN;
 	FCPtrStore			  _FCStore;
 
-	
-	std::vector<ControllerPair> _controllers;
+	std::vector<ColladaInstanceController *> _instControllers;
+
+	NodeToNodeMap		  _nodeMap;
+
 };
 
 

@@ -205,7 +205,7 @@ int main(int argc, char **argv)
         mgr->setRoot  (scene);
 		mgr->setHeadlight(true);
 		mgr->setStatistics(true);
-    
+
         // show the whole scene
         mgr->showAll();
 		

@@ -49,8 +49,11 @@
 #include "OSGColladaElementFactory.h"
 #include "OSGColladaOptions.h"
 #include "OSGColladaAnimation.h"
+#include "OSGColladaController.h"
+#include "OSGColladaInstanceController.h"
 #include "OSGNode.h"
-//#include "OSGFileIOUtils.h"
+
+#include "OSGSkeletonDrawable.h"
 
 #include <dom/domInstance_controller.h>
 #include <dom/domNode.h>
@@ -209,12 +212,6 @@ ColladaGlobal::readAll( std::istream &is, const std::string &fileName)
 	}
 	*/
 
-	// now handle controllers...
-	for(UInt32 i(0); i < _controllers.size(); i++)
-	{
-	    handleController(_controllers[i]);
-	}
-
     _docPath. clear();
     _dae    ->clear();
     delete _dae;
@@ -288,6 +285,8 @@ ColladaGlobal::doRead(void)
     
     rootN = _rootN;
 
+	resolveControllers();
+
     _elemStore.clear();
 
 #ifndef OSG_COLLADA_SILENT
@@ -325,68 +324,113 @@ ColladaGlobal::FCPtrStore ColladaGlobal::readAnimations(void)
     }
 	return animations;
 }
-void ColladaGlobal::handleController(ControllerPair controller)
+
+void 
+ColladaGlobal::resolveControllers(void)
 {
-	/*FileIONodeFinder finder;
-	//already has material initialized, now worry about the skeleton
-	SkeletonUnrecPtr theSkeleton = Skeleton::create();
-	domInstance_controllerRef instCtrl = controller.first;
-	domInstance_controller::domSkeleton_Array skels = instCtrl->getSkeleton_array();
-	for(UInt32 i(0); i < skels.getCount(); i++)
-	{	// for now, just building the skeleton
-		domNodeRef skelNode = daeSafeCast<domNode>(skels[i]->getValue().getElement());
+	
+	for(UInt32 i(0); i < _instControllers.size(); ++i)
+	{
+		ColladaController * cont = _instControllers[i]->getTargetElem();
 
-		if(skelNode->getType() == NODETYPE_JOINT)
+		if(cont->hasSkin())
 		{
-			std::string skelNodeName = skelNode->getName();
-			finder.setSearchName(skelNodeName);
-			finder.traverse(_rootN);
-			const std::vector<Node *> skelNodes = finder.getFoundNamedNodes();
-			if(skelNodes.size() > 0)
-			{
-				JointUnrecPtr rootJoint = Joint::create();
-				Matrixr currentXform = skelNodes[0]->getToWorld();
-				rootJoint->setRelativeTransformation(currentXform);
-				rootJoint->setBindRelativeTransformation(currentXform);
-				NodeUnrecPtr currentNode = skelNodes[0];
-				for(UInt32 i(0); i < currentNode->getNChildren(); i++)
-				{
-					createJointsRec(rootJoint,currentNode->getChild(i));
-				}
+			const ColladaController::SkinInfo &skin = cont->getSkinInfo();
 
-				theSkeleton->pushToRootJoints(rootJoint);
+			domInstance_controller::domSkeleton_Array skelArr = _instControllers[i]->getJoints();
+			std::map<std::string, NodeRecPtr> joints;
+
+			std::vector<domNodeRef> domNodes;
+			// fetch the nodes
+
+			for(UInt32 j = 0; j < skelArr.getCount(); j++)
+			{
+				domNodeRef colDomNode = daeSafeCast<domNode>(skelArr[j]->getValue().getElement());
+
+				std::string nodeName = colDomNode->getSid();
+				domNodes.push_back(colDomNode);
+
+				NodeRecPtr jointNode = _nodeMap[colDomNode];
+				joints[nodeName] = jointNode;
 
 			}
+
+			/* 
+				The heirarchy of the skeleton structure must be created from the 
+				visual scene node heirarchy.  But, since we don't want to have two
+				instances of the heirarchy, we just save the IDs of the nodes to a map, and 
+				link up the joints after the visual scene is finished reading.
+			*/
+
+			/* // shouldn't be needed, nodes should already be created
+			for(i = 0; i < domNodes.size(); i++)
+			{
+				domNodeRef parent = daeSafeCast<domNode>(domNodes[i]->getParent());
+				if(parent != NULL && parent->getType() == NODETYPE_JOINT)
+				{
+					for(j = 0; j < domNodes.size(); j++)
+					{
+						std::string parentSID(parent->getSid());
+						std::string childSID(domNodes[j]->getSid());
+						if(parentSID.compare(childSID) == 0)
+						{	
+							osgNodes[j]->addChild(osgNodes[i]);
+						}
+					}
+				} else
+				{
+					skelNode->addChild(osgNodes[i]);
+				}
+			}
+			*/
+			UInt32 j(0);
+			SkeletonBlendedGeometry *skeleton = _instControllers[i]->getSkeleton();
+			for(j = 0; j < skin.jointSIDs.size() && j < skin.inverseBindPoseMatrices.size(); j++)
+			{
+				// now we need to match up the SID of this domNode to the joint
+				for(UInt32 k = 0; k < domNodes.size(); k++)
+				{
+					if(skin.jointSIDs[j].compare(domNodes[k]->getSid()) == 0)
+					{	// this is a match, so push it to the skeleton
+		                
+						skeleton->pushToJoints(joints[skin.jointSIDs[j]],skin.inverseBindPoseMatrices[j]);
+						break;
+					}
+				}
+			}
+
+			// handle joint blending
+			UInt32 k(0),m(0);
+			for(j = 0; j < skin.vCount.size(); j++)
+			{
+				for(k = 0; k < skin.vCount[j]; k++, m += 2)
+				{
+					skeleton->addJointBlending(j,skin.v[m],skin.v[m+1]);
+				}
+			}
+
+		} // end if(hasSkin())
+		else if(cont->hasMorph()) 
+		{
+			// morphs NIY
 		}
 	}
 
-	controller.second->setSkeleton(theSkeleton);
-	*/
 	return;
 }
 
-void ColladaGlobal::createJointsRec(NodeUnrecPtr parentJoint, NodeUnrecPtr childNode)
+void ColladaGlobal::addInstanceController( ColladaInstanceController * const contr)
 {
-	// create a child joint
-	/*JointUnrecPtr childJoint = Joint::create();
-	Matrixr curInv;
-	parentJoint->getBindRelativeTransformation().inverse(curInv);
-	curInv.mult(childNode->getToWorld());
-	
-	childJoint->setRelativeTransformation(curInv);
-	childJoint->setBindRelativeTransformation(curInv);
-	parentJoint->pushToChildJoints(childJoint);
-		// create joints for all the children nodes
-	for(UInt32 i(0); i < childNode->getNChildren(); i++)
-	{
-		createJointsRec(childJoint, childNode->getChild(i));
-	}*/
+	_instControllers.push_back(contr);
 }
 
-void ColladaGlobal::addController(ControllerPair controller)
+ColladaGlobal::NodeToNodeMap & 
+ColladaGlobal::editNodeToNodeMap(void)
 {
-	_controllers.push_back(controller);
+	return _nodeMap;
 }
+
+
 
 OSG_END_NAMESPACE
 
