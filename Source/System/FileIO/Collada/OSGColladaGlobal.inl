@@ -108,7 +108,7 @@ ColladaGlobal::editElemStore(void)
 inline bool 
 ColladaGlobal::addFieldContainer(FieldContainer * fc)
 {
-	std::pair<std::set<FieldContainerUnrecPtr>::iterator,bool> result = _FCStore.insert(fc);
+	std::pair<FCPtrStore::iterator,bool> result = _FCStore.insert(fc);
 	return result.second;
 }
 
