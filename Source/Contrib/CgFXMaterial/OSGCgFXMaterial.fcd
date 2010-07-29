@@ -53,7 +53,7 @@
 	 name="variables"
 	 type="ShaderProgramVariables"
 	 cardinality="single"
-	 visibility="internal"
+	 visibility="external"
 	 access="protected"
      category="childpointer"
      childParentType="FieldContainer"
@@ -94,7 +94,7 @@
 	 type="TextureObjChunk"
      category="pointer"
 	 cardinality="multi"
-	 visibility="internal"
+	 visibility="external"
 	 access="protected"
 	 >
   </Field>

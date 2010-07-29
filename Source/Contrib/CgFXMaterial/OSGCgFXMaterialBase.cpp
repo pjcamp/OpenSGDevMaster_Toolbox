@@ -206,7 +206,7 @@ void CgFXMaterialBase::classDescInserter(TypeObject &oType)
         "variables",
         "",
         VariablesFieldId, VariablesFieldMask,
-        true,
+        false,
         (Field::SFDefaultFlags | Field::FStdAccess),
         static_cast<FieldEditMethodSig>(&CgFXMaterial::editHandleVariables),
         static_cast<FieldGetMethodSig >(&CgFXMaterial::getHandleVariables));
@@ -254,7 +254,7 @@ void CgFXMaterialBase::classDescInserter(TypeObject &oType)
         "textures",
         "",
         TexturesFieldId, TexturesFieldMask,
-        true,
+        false,
         (Field::MFDefaultFlags | Field::FStdAccess),
         static_cast<FieldEditMethodSig>(&CgFXMaterial::editHandleTextures),
         static_cast<FieldGetMethodSig >(&CgFXMaterial::getHandleTextures));
@@ -341,7 +341,7 @@ CgFXMaterialBase::TypeObject CgFXMaterialBase::_type(
     "\t name=\"variables\"\n"
     "\t type=\"ShaderProgramVariables\"\n"
     "\t cardinality=\"single\"\n"
-    "\t visibility=\"internal\"\n"
+    "\t visibility=\"external\"\n"
     "\t access=\"protected\"\n"
     "     category=\"childpointer\"\n"
     "     childParentType=\"FieldContainer\"\n"
@@ -382,7 +382,7 @@ CgFXMaterialBase::TypeObject CgFXMaterialBase::_type(
     "\t type=\"TextureObjChunk\"\n"
     "     category=\"pointer\"\n"
     "\t cardinality=\"multi\"\n"
-    "\t visibility=\"internal\"\n"
+    "\t visibility=\"external\"\n"
     "\t access=\"protected\"\n"
     "\t >\n"
     "  </Field>\n"
