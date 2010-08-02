@@ -105,30 +105,30 @@ void ManipulatorBase::setActiveSubHandle(Node * const value)
 
     _sfActiveSubHandle.setValue(value);
 }
-//! Get the value of the Manipulator::_sfLastMousePos field.
+//! Get the value of the Manipulator::_sfStartMousePos field.
 
 inline
-Pnt2f &ManipulatorBase::editLastMousePos(void)
+Pnt2f &ManipulatorBase::editStartMousePos(void)
 {
-    editSField(LastMousePosFieldMask);
+    editSField(StartMousePosFieldMask);
 
-    return _sfLastMousePos.getValue();
+    return _sfStartMousePos.getValue();
 }
 
-//! Get the value of the Manipulator::_sfLastMousePos field.
+//! Get the value of the Manipulator::_sfStartMousePos field.
 inline
-const Pnt2f &ManipulatorBase::getLastMousePos(void) const
+const Pnt2f &ManipulatorBase::getStartMousePos(void) const
 {
-    return _sfLastMousePos.getValue();
+    return _sfStartMousePos.getValue();
 }
 
-//! Set the value of the Manipulator::_sfLastMousePos field.
+//! Set the value of the Manipulator::_sfStartMousePos field.
 inline
-void ManipulatorBase::setLastMousePos(const Pnt2f &value)
+void ManipulatorBase::setStartMousePos(const Pnt2f &value)
 {
-    editSField(LastMousePosFieldMask);
+    editSField(StartMousePosFieldMask);
 
-    _sfLastMousePos.setValue(value);
+    _sfStartMousePos.setValue(value);
 }
 
 //! Get the value of the Manipulator::_sfViewport field.
@@ -374,8 +374,8 @@ void ManipulatorBase::execSync (      ManipulatorBase *pFrom,
     if(FieldBits::NoField != (ActiveSubHandleFieldMask & whichField))
         _sfActiveSubHandle.syncWith(pFrom->_sfActiveSubHandle);
 
-    if(FieldBits::NoField != (LastMousePosFieldMask & whichField))
-        _sfLastMousePos.syncWith(pFrom->_sfLastMousePos);
+    if(FieldBits::NoField != (StartMousePosFieldMask & whichField))
+        _sfStartMousePos.syncWith(pFrom->_sfStartMousePos);
 
     if(FieldBits::NoField != (ViewportFieldMask & whichField))
         _sfViewport.syncWith(pFrom->_sfViewport);

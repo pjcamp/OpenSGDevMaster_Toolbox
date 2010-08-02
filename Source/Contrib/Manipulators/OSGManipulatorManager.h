@@ -57,11 +57,14 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorManager
 
     NodeTransitPtr createManipulator(const ManipulatorType  type);
     void           changeManipulator(const ManipulatorType  type);
-    bool           activate         (      Node            *n   );
+    Manipulator*   getManipulator   (void                       ) const;
     
     void           setTarget        (      Node     * const value);
+    Node*          getTarget        (void                        ) const;
     void           setViewport      (      Viewport * const value);
     bool           isActive         (      void                  );
+
+    void           setLength         (const Vec3f& len);
     
     void           mouseMove         (const Int16  x,
                                       const Int16  y);
@@ -71,12 +74,21 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorManager
     void           mouseButtonRelease(const UInt16 button,
                                       const Int16  x,
                                       const Int16  y     );
+
+    void           setUniformScale    (bool value        );
+    bool           getUniformScale    (void              ) const;
+
+    bool startManip    (Node *n);
+    void cancelManip   (void);
+    void endManip      (void);
+    bool isManipulating(void) const;
 private:
 
     ManipulatorUnrecPtr  _maniC;
     ManipulatorType      _currentType;
     NodeUnrecPtr         _target;
     ViewportUnrecPtr     _viewport;
+    bool                 _uniformScale;
 };
 
 OSG_END_NAMESPACE

@@ -154,18 +154,13 @@ void RotateManipulator::doMovement(      Transform    *t,
     axis[coord] = 1.0;
     const Quaternion rot(axis, value);
 
-    Matrix ma, mb, mc, md, me;
+    Matrix rotateMat;
+    rotateMat.setRotate(rot);
 
-    ma.setTranslate(-translation        );
-    mb.setRotate   ( rotation.inverse() );
-    mc.setRotate   ( rot                );
-    md.setRotate   ( rotation           );
-    me.setTranslate( translation        );
-    t->editMatrix().multLeft(ma);
-    t->editMatrix().multLeft(mb);
-    t->editMatrix().multLeft(mc);
-    t->editMatrix().multLeft(md);
-    t->editMatrix().multLeft(me);
+    Matrix Result(_initialXForm);
+    Result.mult(rotateMat);
+
+    t->setMatrix(Result);
 
     commitChanges();
 }

@@ -23,4 +23,35 @@ The ScaleHandle is used for scaling objects. It consist of three axis which can 
        >
       Uniform/Non-uniform scaling.
     </Field>
+	<Field
+		name="handleUniformNode"
+		type="Node"
+        category="pointer"
+		cardinality="single"
+		visibility="internal"
+		access="public"
+	>
+	The node for the uniform-handle geometry
+	</Field>
+	<Field
+		name="transUniformNode"
+		type="Node"
+        category="pointer"
+		cardinality="single"
+		visibility="internal"
+		access="public"
+	>
+	The node for the uniform-handle transform
+	</Field>
+	<Field
+		name="materialUniform"
+		type="Material"
+        category="pointer"
+		cardinality="single"
+		visibility="internal"
+		access="public"
+	>
+	material for the uniform-axis geometry
+	</Field>
 </FieldContainer>
+
