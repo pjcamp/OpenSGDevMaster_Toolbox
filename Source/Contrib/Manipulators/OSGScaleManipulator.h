@@ -74,6 +74,7 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulator : public ScaleManipulatorBase
                       const BitVector  bvFlags  = 0) const;
 
     /*! \}                                                                 */
+    virtual bool hasSubHandle(Node * const n);
     /*=========================  PROTECTED  ===============================*/
   protected:
 
@@ -85,6 +86,7 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulator : public ScaleManipulatorBase
 
     ScaleManipulator(void);
     ScaleManipulator(const ScaleManipulator &source);
+    void onCreate(const ScaleManipulator* source = NULL);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -92,8 +94,12 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulator : public ScaleManipulatorBase
     /*! \{                                                                 */
 
     virtual ~ScaleManipulator(void);
+    void    onDestroy();
 
     /*! \}                                                                 */
+    virtual void addHandleGeo(Node *n);
+    virtual void subHandleGeo(Node *n);
+    virtual UInt16 getActiveHandle(void) const;
 
     virtual NodeTransitPtr makeHandleGeo();
     virtual void           doMovement(      Transform    *t,
@@ -103,6 +109,7 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulator : public ScaleManipulatorBase
                                       const Quaternion   &rotation,
                                       const Vec3f        &scaleFactor,
                                       const Quaternion   &scaleOrientation);
+    virtual void updateLength(void);
 
     /*==========================  PRIVATE  ================================*/
   private:

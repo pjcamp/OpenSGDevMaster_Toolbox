@@ -30,7 +30,7 @@ Baseclass for all Manipulators
 	the active sub handle
 	</Field>
 	<Field
-		name="lastMousePos"
+		name="startMousePos"
 		type="Pnt2f"
 		cardinality="single"
 		visibility="external"

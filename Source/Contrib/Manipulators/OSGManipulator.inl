@@ -40,24 +40,5 @@
 
 OSG_BEGIN_NAMESPACE
 
-inline bool Manipulator::hasSubHandle(Node * const n)
-{
-    /*
-    PLOG << "hasSubHandle(n=" << n << ")\n"
-         << " getHandleXNode()=" << getHandleXNode() << "\n"
-         << " getHandleYNode()=" << getHandleYNode() << "\n"
-         << " getHandleZNode()=" << getHandleZNode() << "\n";
-    */
-
-    if( n == getHandleXNode() || n == getHandleYNode() || n == getHandleZNode() )
-    {
-       return true;
-    }
-    else
-    {
-       return false;
-    }
-}
-
 OSG_END_NAMESPACE
 

@@ -99,6 +99,54 @@ void ScaleManipulatorBase::setUniform(const bool value)
     _sfUniform.setValue(value);
 }
 
+//! Get the value of the ScaleManipulator::_sfHandleUniformNode field.
+inline
+Node * ScaleManipulatorBase::getHandleUniformNode(void) const
+{
+    return _sfHandleUniformNode.getValue();
+}
+
+//! Set the value of the ScaleManipulator::_sfHandleUniformNode field.
+inline
+void ScaleManipulatorBase::setHandleUniformNode(Node * const value)
+{
+    editSField(HandleUniformNodeFieldMask);
+
+    _sfHandleUniformNode.setValue(value);
+}
+
+//! Get the value of the ScaleManipulator::_sfTransUniformNode field.
+inline
+Node * ScaleManipulatorBase::getTransUniformNode(void) const
+{
+    return _sfTransUniformNode.getValue();
+}
+
+//! Set the value of the ScaleManipulator::_sfTransUniformNode field.
+inline
+void ScaleManipulatorBase::setTransUniformNode(Node * const value)
+{
+    editSField(TransUniformNodeFieldMask);
+
+    _sfTransUniformNode.setValue(value);
+}
+
+//! Get the value of the ScaleManipulator::_sfMaterialUniform field.
+inline
+Material * ScaleManipulatorBase::getMaterialUniform(void) const
+{
+    return _sfMaterialUniform.getValue();
+}
+
+//! Set the value of the ScaleManipulator::_sfMaterialUniform field.
+inline
+void ScaleManipulatorBase::setMaterialUniform(Material * const value)
+{
+    editSField(MaterialUniformFieldMask);
+
+    _sfMaterialUniform.setValue(value);
+}
+
 
 #ifdef OSG_MT_CPTR_ASPECT
 inline
@@ -112,6 +160,15 @@ void ScaleManipulatorBase::execSync (      ScaleManipulatorBase *pFrom,
 
     if(FieldBits::NoField != (UniformFieldMask & whichField))
         _sfUniform.syncWith(pFrom->_sfUniform);
+
+    if(FieldBits::NoField != (HandleUniformNodeFieldMask & whichField))
+        _sfHandleUniformNode.syncWith(pFrom->_sfHandleUniformNode);
+
+    if(FieldBits::NoField != (TransUniformNodeFieldMask & whichField))
+        _sfTransUniformNode.syncWith(pFrom->_sfTransUniformNode);
+
+    if(FieldBits::NoField != (MaterialUniformFieldMask & whichField))
+        _sfMaterialUniform.syncWith(pFrom->_sfMaterialUniform);
 }
 #endif
 

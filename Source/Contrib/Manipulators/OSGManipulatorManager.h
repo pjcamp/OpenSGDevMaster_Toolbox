@@ -55,32 +55,40 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorManager
  public:
     enum    ManipulatorType { ROTATE, SCALE, TRANSLATE };
 
-     ManipulatorManager();
-    ~ManipulatorManager();
+    NodeTransitPtr createManipulator(const ManipulatorType  type);
+    void           changeManipulator(const ManipulatorType  type);
+    Manipulator*   getManipulator   (void                       ) const;
+    
+    void           setTarget        (      Node     * const value);
+    Node*          getTarget        (void                        ) const;
+    void           setViewport      (      Viewport * const value);
+    bool           isActive         (      void                  );
 
-    Node*           createManipulator(const ManipulatorType  type);
-    void            changeManipulator(const ManipulatorType  type);
-    ManipulatorType getCurrentType   (                           ) const;
-    bool            activate         (      Node            *n   );
+    void           setLength         (const Vec3f& len);
     
-    void            setTarget        (      Node     * const value);
-    void            setViewport      (      Viewport * const value);
-    bool            isActive         (      void                  );
-    
-    void            mouseMove         (const Int16  x,
-                                       const Int16  y);
-    void            mouseButtonPress  (const UInt16 button,
-                                       const Int16  x,
-                                       const Int16  y     );
-    void            mouseButtonRelease(const UInt16 button,
-                                       const Int16  x,
-                                       const Int16  y     );
+    void           mouseMove         (const Int16  x,
+                                      const Int16  y);
+    void           mouseButtonPress  (const UInt16 button,
+                                      const Int16  x,
+                                      const Int16  y     );
+    void           mouseButtonRelease(const UInt16 button,
+                                      const Int16  x,
+                                      const Int16  y     );
+
+    void           setUniformScale    (bool value        );
+    bool           getUniformScale    (void              ) const;
+
+    bool startManip    (Node *n);
+    void cancelManip   (void);
+    void endManip      (void);
+    bool isManipulating(void) const;
 private:
 
-    NodeRefPtr         _maniN;
-    ManipulatorType    _currentType;
-    NodeRefPtr         _target;
-    ViewportRefPtr     _viewport;
+    ManipulatorUnrecPtr  _maniC;
+    ManipulatorType      _currentType;
+    NodeUnrecPtr         _target;
+    ViewportUnrecPtr     _viewport;
+    bool                 _uniformScale;
 };
 
 OSG_END_NAMESPACE

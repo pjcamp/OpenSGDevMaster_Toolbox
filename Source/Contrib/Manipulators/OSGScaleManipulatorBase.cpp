@@ -58,6 +58,8 @@
 
 
 
+#include "OSGNode.h"                    // HandleUniformNode Class
+#include "OSGMaterial.h"                // MaterialUniform Class
 
 #include "OSGScaleManipulatorBase.h"
 #include "OSGScaleManipulator.h"
@@ -84,6 +86,18 @@ OSG_BEGIN_NAMESPACE
 
 /*! \var bool            ScaleManipulatorBase::_sfUniform
     Uniform/Non-uniform scaling.
+*/
+
+/*! \var Node *          ScaleManipulatorBase::_sfHandleUniformNode
+    The node for the uniform-handle geometry
+*/
+
+/*! \var Node *          ScaleManipulatorBase::_sfTransUniformNode
+    The node for the uniform-handle transform
+*/
+
+/*! \var Material *      ScaleManipulatorBase::_sfMaterialUniform
+    material for the uniform-axis geometry
 */
 
 
@@ -115,6 +129,42 @@ void ScaleManipulatorBase::classDescInserter(TypeObject &oType)
         (Field::SFDefaultFlags | Field::FStdAccess),
         static_cast<FieldEditMethodSig>(&ScaleManipulator::editHandleUniform),
         static_cast<FieldGetMethodSig >(&ScaleManipulator::getHandleUniform));
+
+    oType.addInitialDesc(pDesc);
+
+    pDesc = new SFUnrecNodePtr::Description(
+        SFUnrecNodePtr::getClassType(),
+        "handleUniformNode",
+        "The node for the uniform-handle geometry\n",
+        HandleUniformNodeFieldId, HandleUniformNodeFieldMask,
+        true,
+        (Field::SFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&ScaleManipulator::editHandleHandleUniformNode),
+        static_cast<FieldGetMethodSig >(&ScaleManipulator::getHandleHandleUniformNode));
+
+    oType.addInitialDesc(pDesc);
+
+    pDesc = new SFUnrecNodePtr::Description(
+        SFUnrecNodePtr::getClassType(),
+        "transUniformNode",
+        "The node for the uniform-handle transform\n",
+        TransUniformNodeFieldId, TransUniformNodeFieldMask,
+        true,
+        (Field::SFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&ScaleManipulator::editHandleTransUniformNode),
+        static_cast<FieldGetMethodSig >(&ScaleManipulator::getHandleTransUniformNode));
+
+    oType.addInitialDesc(pDesc);
+
+    pDesc = new SFUnrecMaterialPtr::Description(
+        SFUnrecMaterialPtr::getClassType(),
+        "materialUniform",
+        "material for the uniform-axis geometry\n",
+        MaterialUniformFieldId, MaterialUniformFieldMask,
+        true,
+        (Field::SFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&ScaleManipulator::editHandleMaterialUniform),
+        static_cast<FieldGetMethodSig >(&ScaleManipulator::getHandleMaterialUniform));
 
     oType.addInitialDesc(pDesc);
 }
@@ -156,7 +206,38 @@ ScaleManipulatorBase::TypeObject ScaleManipulatorBase::_type(
     "       >\n"
     "      Uniform/Non-uniform scaling.\n"
     "    </Field>\n"
-    "</FieldContainer>\n",
+    "\t<Field\n"
+    "\t\tname=\"handleUniformNode\"\n"
+    "\t\ttype=\"Node\"\n"
+    "        category=\"pointer\"\n"
+    "\t\tcardinality=\"single\"\n"
+    "\t\tvisibility=\"internal\"\n"
+    "\t\taccess=\"public\"\n"
+    "\t>\n"
+    "\tThe node for the uniform-handle geometry\n"
+    "\t</Field>\n"
+    "\t<Field\n"
+    "\t\tname=\"transUniformNode\"\n"
+    "\t\ttype=\"Node\"\n"
+    "        category=\"pointer\"\n"
+    "\t\tcardinality=\"single\"\n"
+    "\t\tvisibility=\"internal\"\n"
+    "\t\taccess=\"public\"\n"
+    "\t>\n"
+    "\tThe node for the uniform-handle transform\n"
+    "\t</Field>\n"
+    "\t<Field\n"
+    "\t\tname=\"materialUniform\"\n"
+    "\t\ttype=\"Material\"\n"
+    "        category=\"pointer\"\n"
+    "\t\tcardinality=\"single\"\n"
+    "\t\tvisibility=\"internal\"\n"
+    "\t\taccess=\"public\"\n"
+    "\t>\n"
+    "\tmaterial for the uniform-axis geometry\n"
+    "\t</Field>\n"
+    "</FieldContainer>\n"
+    "\n",
     "The ScaleHandle is used for scaling objects. It consist of three axis which can be picked and scaled and one center box to scale freely in 3D.\n"
     );
 
@@ -193,6 +274,45 @@ const SFBool *ScaleManipulatorBase::getSFUniform(void) const
 }
 
 
+//! Get the ScaleManipulator::_sfHandleUniformNode field.
+const SFUnrecNodePtr *ScaleManipulatorBase::getSFHandleUniformNode(void) const
+{
+    return &_sfHandleUniformNode;
+}
+
+SFUnrecNodePtr      *ScaleManipulatorBase::editSFHandleUniformNode(void)
+{
+    editSField(HandleUniformNodeFieldMask);
+
+    return &_sfHandleUniformNode;
+}
+
+//! Get the ScaleManipulator::_sfTransUniformNode field.
+const SFUnrecNodePtr *ScaleManipulatorBase::getSFTransUniformNode(void) const
+{
+    return &_sfTransUniformNode;
+}
+
+SFUnrecNodePtr      *ScaleManipulatorBase::editSFTransUniformNode(void)
+{
+    editSField(TransUniformNodeFieldMask);
+
+    return &_sfTransUniformNode;
+}
+
+//! Get the ScaleManipulator::_sfMaterialUniform field.
+const SFUnrecMaterialPtr *ScaleManipulatorBase::getSFMaterialUniform(void) const
+{
+    return &_sfMaterialUniform;
+}
+
+SFUnrecMaterialPtr  *ScaleManipulatorBase::editSFMaterialUniform(void)
+{
+    editSField(MaterialUniformFieldMask);
+
+    return &_sfMaterialUniform;
+}
+
 
 
 
@@ -207,6 +327,18 @@ UInt32 ScaleManipulatorBase::getBinSize(ConstFieldMaskArg whichField)
     {
         returnValue += _sfUniform.getBinSize();
     }
+    if(FieldBits::NoField != (HandleUniformNodeFieldMask & whichField))
+    {
+        returnValue += _sfHandleUniformNode.getBinSize();
+    }
+    if(FieldBits::NoField != (TransUniformNodeFieldMask & whichField))
+    {
+        returnValue += _sfTransUniformNode.getBinSize();
+    }
+    if(FieldBits::NoField != (MaterialUniformFieldMask & whichField))
+    {
+        returnValue += _sfMaterialUniform.getBinSize();
+    }
 
     return returnValue;
 }
@@ -220,6 +352,18 @@ void ScaleManipulatorBase::copyToBin(BinaryDataHandler &pMem,
     {
         _sfUniform.copyToBin(pMem);
     }
+    if(FieldBits::NoField != (HandleUniformNodeFieldMask & whichField))
+    {
+        _sfHandleUniformNode.copyToBin(pMem);
+    }
+    if(FieldBits::NoField != (TransUniformNodeFieldMask & whichField))
+    {
+        _sfTransUniformNode.copyToBin(pMem);
+    }
+    if(FieldBits::NoField != (MaterialUniformFieldMask & whichField))
+    {
+        _sfMaterialUniform.copyToBin(pMem);
+    }
 }
 
 void ScaleManipulatorBase::copyFromBin(BinaryDataHandler &pMem,
@@ -231,6 +375,18 @@ void ScaleManipulatorBase::copyFromBin(BinaryDataHandler &pMem,
     {
         editSField(UniformFieldMask);
         _sfUniform.copyFromBin(pMem);
+    }
+    if(FieldBits::NoField != (HandleUniformNodeFieldMask & whichField))
+    {
+        _sfHandleUniformNode.copyFromBin(pMem);
+    }
+    if(FieldBits::NoField != (TransUniformNodeFieldMask & whichField))
+    {
+        _sfTransUniformNode.copyFromBin(pMem);
+    }
+    if(FieldBits::NoField != (MaterialUniformFieldMask & whichField))
+    {
+        _sfMaterialUniform.copyFromBin(pMem);
     }
 }
 
@@ -357,13 +513,19 @@ FieldContainerTransitPtr ScaleManipulatorBase::shallowCopy(void) const
 
 ScaleManipulatorBase::ScaleManipulatorBase(void) :
     Inherited(),
-    _sfUniform                (bool(false))
+    _sfUniform                (bool(false)),
+    _sfHandleUniformNode      (NULL),
+    _sfTransUniformNode       (NULL),
+    _sfMaterialUniform        (NULL)
 {
 }
 
 ScaleManipulatorBase::ScaleManipulatorBase(const ScaleManipulatorBase &source) :
     Inherited(source),
-    _sfUniform                (source._sfUniform                )
+    _sfUniform                (source._sfUniform                ),
+    _sfHandleUniformNode      (NULL),
+    _sfTransUniformNode       (NULL),
+    _sfMaterialUniform        (NULL)
 {
 }
 
@@ -374,6 +536,21 @@ ScaleManipulatorBase::~ScaleManipulatorBase(void)
 {
 }
 
+void ScaleManipulatorBase::onCreate(const ScaleManipulator *source)
+{
+    Inherited::onCreate(source);
+
+    if(source != NULL)
+    {
+        ScaleManipulator *pThis = static_cast<ScaleManipulator *>(this);
+
+        pThis->setHandleUniformNode(source->getHandleUniformNode());
+
+        pThis->setTransUniformNode(source->getTransUniformNode());
+
+        pThis->setMaterialUniform(source->getMaterialUniform());
+    }
+}
 
 GetFieldHandlePtr ScaleManipulatorBase::getHandleUniform         (void) const
 {
@@ -396,6 +573,90 @@ EditFieldHandlePtr ScaleManipulatorBase::editHandleUniform        (void)
 
 
     editSField(UniformFieldMask);
+
+    return returnValue;
+}
+
+GetFieldHandlePtr ScaleManipulatorBase::getHandleHandleUniformNode (void) const
+{
+    SFUnrecNodePtr::GetHandlePtr returnValue(
+        new  SFUnrecNodePtr::GetHandle(
+             &_sfHandleUniformNode,
+             this->getType().getFieldDesc(HandleUniformNodeFieldId),
+             const_cast<ScaleManipulatorBase *>(this)));
+
+    return returnValue;
+}
+
+EditFieldHandlePtr ScaleManipulatorBase::editHandleHandleUniformNode(void)
+{
+    SFUnrecNodePtr::EditHandlePtr returnValue(
+        new  SFUnrecNodePtr::EditHandle(
+             &_sfHandleUniformNode,
+             this->getType().getFieldDesc(HandleUniformNodeFieldId),
+             this));
+
+    returnValue->setSetMethod(
+        boost::bind(&ScaleManipulator::setHandleUniformNode,
+                    static_cast<ScaleManipulator *>(this), _1));
+
+    editSField(HandleUniformNodeFieldMask);
+
+    return returnValue;
+}
+
+GetFieldHandlePtr ScaleManipulatorBase::getHandleTransUniformNode (void) const
+{
+    SFUnrecNodePtr::GetHandlePtr returnValue(
+        new  SFUnrecNodePtr::GetHandle(
+             &_sfTransUniformNode,
+             this->getType().getFieldDesc(TransUniformNodeFieldId),
+             const_cast<ScaleManipulatorBase *>(this)));
+
+    return returnValue;
+}
+
+EditFieldHandlePtr ScaleManipulatorBase::editHandleTransUniformNode(void)
+{
+    SFUnrecNodePtr::EditHandlePtr returnValue(
+        new  SFUnrecNodePtr::EditHandle(
+             &_sfTransUniformNode,
+             this->getType().getFieldDesc(TransUniformNodeFieldId),
+             this));
+
+    returnValue->setSetMethod(
+        boost::bind(&ScaleManipulator::setTransUniformNode,
+                    static_cast<ScaleManipulator *>(this), _1));
+
+    editSField(TransUniformNodeFieldMask);
+
+    return returnValue;
+}
+
+GetFieldHandlePtr ScaleManipulatorBase::getHandleMaterialUniform (void) const
+{
+    SFUnrecMaterialPtr::GetHandlePtr returnValue(
+        new  SFUnrecMaterialPtr::GetHandle(
+             &_sfMaterialUniform,
+             this->getType().getFieldDesc(MaterialUniformFieldId),
+             const_cast<ScaleManipulatorBase *>(this)));
+
+    return returnValue;
+}
+
+EditFieldHandlePtr ScaleManipulatorBase::editHandleMaterialUniform(void)
+{
+    SFUnrecMaterialPtr::EditHandlePtr returnValue(
+        new  SFUnrecMaterialPtr::EditHandle(
+             &_sfMaterialUniform,
+             this->getType().getFieldDesc(MaterialUniformFieldId),
+             this));
+
+    returnValue->setSetMethod(
+        boost::bind(&ScaleManipulator::setMaterialUniform,
+                    static_cast<ScaleManipulator *>(this), _1));
+
+    editSField(MaterialUniformFieldMask);
 
     return returnValue;
 }
@@ -436,6 +697,12 @@ FieldContainer *ScaleManipulatorBase::createAspectCopy(
 void ScaleManipulatorBase::resolveLinks(void)
 {
     Inherited::resolveLinks();
+
+    static_cast<ScaleManipulator *>(this)->setHandleUniformNode(NULL);
+
+    static_cast<ScaleManipulator *>(this)->setTransUniformNode(NULL);
+
+    static_cast<ScaleManipulator *>(this)->setMaterialUniform(NULL);
 
 
 }

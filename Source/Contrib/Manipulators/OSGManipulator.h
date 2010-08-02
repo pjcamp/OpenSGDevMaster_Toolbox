@@ -59,6 +59,15 @@ class OSG_CONTRIBGUI_DLLMAPPING Manipulator : public ManipulatorBase
 {
     /*==========================  PUBLIC  =================================*/
   public:
+    enum ManipHandle
+    {
+        X_AXIS_HANDLE   = 0,
+        Y_AXIS_HANDLE   = 1,
+        Z_AXIS_HANDLE   = 2,
+        ALL_AXES_HANDLE = 3,
+        NO_AXES_HANDLE  = 4
+
+    };
 
     /*---------------------------------------------------------------------*/
     /*! \name                      Sync                                    */
@@ -93,6 +102,12 @@ class OSG_CONTRIBGUI_DLLMAPPING Manipulator : public ManipulatorBase
 
     void callExternalUpdateHandler();
 
+    virtual void startManip    (Node *subHandle);
+    virtual void cancelManip   (void);
+    virtual void endManip      (void);
+            bool isManipulating(void) const;
+    const Matrix& getInitialXForm(void) const;
+
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
   protected:
@@ -108,8 +123,7 @@ class OSG_CONTRIBGUI_DLLMAPPING Manipulator : public ManipulatorBase
     Manipulator(void);
     Manipulator(const Manipulator &source);
 
-    void onCreate();
-    void onCreate(const Manipulator* source);
+    void onCreate(const Manipulator* source = NULL);
 
 
     /*! \}                                                                 */
@@ -135,7 +149,10 @@ class OSG_CONTRIBGUI_DLLMAPPING Manipulator : public ManipulatorBase
     virtual NodeTransitPtr makeHandleGeo() = 0;
     virtual void           addHandleGeo(Node * n);
     virtual void           subHandleGeo(Node * n);
+    virtual UInt16         getActiveHandle(void) const;
     void                   reverseTransform();
+    virtual void           updateLength(void);
+    void                   updateParent(void);
 
     virtual void    doMovement(      Transform   *t,
                                const Int32        coord,
@@ -150,9 +167,14 @@ class OSG_CONTRIBGUI_DLLMAPPING Manipulator : public ManipulatorBase
 
     NodeRefPtr              _activeParent;
     ExternalUpdateHandler*  _externalUpdateHandler;
+    bool                    _isManipulating;
+    Matrix                  _initialXForm;
+    Pnt2f                   _startMouseProj;
+    Vec2f                   _handleScreenDir;
 
     /*==========================  PRIVATE  ================================*/
   private:
+
     friend class FieldContainer;
     friend class ManipulatorBase;
 

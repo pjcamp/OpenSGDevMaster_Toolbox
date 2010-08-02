@@ -89,6 +89,26 @@ Node* ManipulatorManager::createManipulator(const ManipulatorType type)
     return _maniN;
 }
 
+Manipulator* ManipulatorManager::getManipulator(void) const
+{
+    return _maniC;
+}
+
+Node* ManipulatorManager::getTarget(void) const
+{
+    return _target;
+}
+
+bool ManipulatorManager::getUniformScale(void) const
+{
+    return _uniformScale;
+}
+
+void ManipulatorManager::setUniformScale(bool value)
+{
+    _uniformScale = value;
+}
+
 // TODO: 
 void ManipulatorManager::changeManipulator(const ManipulatorType type)
 {
@@ -98,15 +118,44 @@ void ManipulatorManager::changeManipulator(const ManipulatorType type)
   
         switch (type)
         {
-        case ROTATE:
-            mani = RotateManipulator::create();
-            break;
-        case SCALE:
-            mani = ScaleManipulator::create();
-            break;
-        case TRANSLATE:
-            mani = MoveManipulator::create();    
-            break;
+            Node *maniN = dynamic_cast<Node *>(_maniC->getParents()[0]);
+            Vec3f len(1.0f,1.0f,1.0f);
+            if(_maniC != NULL)
+            {
+                len = _maniC->getLength();
+            }
+
+            _maniC = NULL;
+
+            switch (type)
+            {
+                case TRANSLATE:
+                    _maniC = MoveManipulator::create();
+                    _maniC->setLength(len);
+                    break;
+                case ROTATE:
+                    _maniC = RotateManipulator::create();
+                    _maniC->setLength(len);
+                    break;
+                case SCALE:
+                    _maniC = ScaleManipulator::create();
+                    _maniC->setLength(len);
+                    dynamic_pointer_cast<ScaleManipulator>(_maniC)->setUniform(_uniformScale);
+                    break;
+            }
+            
+            _currentType = type;
+
+            maniN->setCore(_maniC);
+
+            // Calling commitChanges() here seems to be critical for making
+            // this method behave at all.
+            commitChanges();
+
+            _maniC->setTarget  (_target  );
+            _maniC->setViewport(_viewport);
+
+            commitChanges();
         }
 
         _currentType = type;
@@ -195,13 +244,13 @@ void ManipulatorManager::mouseButtonRelease(const UInt16 uiButton,
     mani->mouseButtonRelease(uiButton, x, y);
 }
 
-bool ManipulatorManager::activate(Node *n)
+bool ManipulatorManager::startManip(Node *n)
 {
     Manipulator* mani = _maniN->getCore<Manipulator>();
 
     if(mani->hasSubHandle(n) )
     {
-        mani->setActiveSubHandle(n);
+        _maniC->startManip(n);
         return true;
     }
     else
@@ -209,5 +258,26 @@ bool ManipulatorManager::activate(Node *n)
         return false;
     }
 }
+
+void ManipulatorManager::cancelManip(void)
+{
+    _maniC->cancelManip();
+}
+
+void ManipulatorManager::endManip(void)
+{
+    _maniC->endManip();
+}
+
+bool ManipulatorManager::isManipulating(void) const
+{
+    return _maniC->isManipulating();
+}
+
+void ManipulatorManager::setLength(const Vec3f& len)
+{
+    _maniC->setLength(len);
+}
+
 
 OSG_END_NAMESPACE

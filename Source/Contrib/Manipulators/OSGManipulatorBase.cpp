@@ -93,7 +93,7 @@ OSG_BEGIN_NAMESPACE
     the active sub handle
 */
 
-/*! \var Pnt2f           ManipulatorBase::_sfLastMousePos
+/*! \var Pnt2f           ManipulatorBase::_sfStartMousePos
     Last mouse position (in pixel, although 2f is used!)
 */
 
@@ -203,13 +203,13 @@ void ManipulatorBase::classDescInserter(TypeObject &oType)
 
     pDesc = new SFPnt2f::Description(
         SFPnt2f::getClassType(),
-        "lastMousePos",
+        "startMousePos",
         "Last mouse position (in pixel, although 2f is used!)\n",
-        LastMousePosFieldId, LastMousePosFieldMask,
+        StartMousePosFieldId, StartMousePosFieldMask,
         false,
         (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Manipulator::editHandleLastMousePos),
-        static_cast<FieldGetMethodSig >(&Manipulator::getHandleLastMousePos));
+        static_cast<FieldEditMethodSig>(&Manipulator::editHandleStartMousePos),
+        static_cast<FieldGetMethodSig >(&Manipulator::getHandleStartMousePos));
 
     oType.addInitialDesc(pDesc);
 
@@ -414,7 +414,7 @@ ManipulatorBase::TypeObject ManipulatorBase::_type(
     "\tthe active sub handle\n"
     "\t</Field>\n"
     "\t<Field\n"
-    "\t\tname=\"lastMousePos\"\n"
+    "\t\tname=\"startMousePos\"\n"
     "\t\ttype=\"Pnt2f\"\n"
     "\t\tcardinality=\"single\"\n"
     "\t\tvisibility=\"external\"\n"
@@ -588,16 +588,16 @@ SFUnrecNodePtr      *ManipulatorBase::editSFActiveSubHandle(void)
     return &_sfActiveSubHandle;
 }
 
-SFPnt2f *ManipulatorBase::editSFLastMousePos(void)
+SFPnt2f *ManipulatorBase::editSFStartMousePos(void)
 {
-    editSField(LastMousePosFieldMask);
+    editSField(StartMousePosFieldMask);
 
-    return &_sfLastMousePos;
+    return &_sfStartMousePos;
 }
 
-const SFPnt2f *ManipulatorBase::getSFLastMousePos(void) const
+const SFPnt2f *ManipulatorBase::getSFStartMousePos(void) const
 {
-    return &_sfLastMousePos;
+    return &_sfStartMousePos;
 }
 
 
@@ -788,9 +788,9 @@ UInt32 ManipulatorBase::getBinSize(ConstFieldMaskArg whichField)
     {
         returnValue += _sfActiveSubHandle.getBinSize();
     }
-    if(FieldBits::NoField != (LastMousePosFieldMask & whichField))
+    if(FieldBits::NoField != (StartMousePosFieldMask & whichField))
     {
-        returnValue += _sfLastMousePos.getBinSize();
+        returnValue += _sfStartMousePos.getBinSize();
     }
     if(FieldBits::NoField != (ViewportFieldMask & whichField))
     {
@@ -861,9 +861,9 @@ void ManipulatorBase::copyToBin(BinaryDataHandler &pMem,
     {
         _sfActiveSubHandle.copyToBin(pMem);
     }
-    if(FieldBits::NoField != (LastMousePosFieldMask & whichField))
+    if(FieldBits::NoField != (StartMousePosFieldMask & whichField))
     {
-        _sfLastMousePos.copyToBin(pMem);
+        _sfStartMousePos.copyToBin(pMem);
     }
     if(FieldBits::NoField != (ViewportFieldMask & whichField))
     {
@@ -934,7 +934,7 @@ void ManipulatorBase::copyFromBin(BinaryDataHandler &pMem,
         editSField(ActiveSubHandleFieldMask);
         _sfActiveSubHandle.copyFromBin(pMem);
     }
-    if(FieldBits::NoField != (LastMousePosFieldMask & whichField))
+    if(FieldBits::NoField != (StartMousePosFieldMask & whichField))
     {
         editSField(LastMousePosFieldMask);
         _sfLastMousePos.copyFromBin(pMem);
@@ -1015,7 +1015,7 @@ ManipulatorBase::ManipulatorBase(void) :
     Inherited(),
     _sfTarget                 (NULL),
     _sfActiveSubHandle        (NULL),
-    _sfLastMousePos           (),
+    _sfStartMousePos          (),
     _sfViewport               (NULL),
     _sfActive                 (),
     _sfLength                 (Vec3f(1,1,1)),
@@ -1036,7 +1036,7 @@ ManipulatorBase::ManipulatorBase(const ManipulatorBase &source) :
     Inherited(source),
     _sfTarget                 (NULL),
     _sfActiveSubHandle        (NULL),
-    _sfLastMousePos           (source._sfLastMousePos           ),
+    _sfStartMousePos          (source._sfStartMousePos          ),
     _sfViewport               (NULL),
     _sfActive                 (source._sfActive                 ),
     _sfLength                 (source._sfLength                 ),
@@ -1152,27 +1152,27 @@ EditFieldHandlePtr ManipulatorBase::editHandleActiveSubHandle(void)
     return returnValue;
 }
 
-GetFieldHandlePtr ManipulatorBase::getHandleLastMousePos    (void) const
+GetFieldHandlePtr ManipulatorBase::getHandleStartMousePos   (void) const
 {
     SFPnt2f::GetHandlePtr returnValue(
         new  SFPnt2f::GetHandle(
-             &_sfLastMousePos,
-             this->getType().getFieldDesc(LastMousePosFieldId),
+             &_sfStartMousePos,
+             this->getType().getFieldDesc(StartMousePosFieldId),
              const_cast<ManipulatorBase *>(this)));
 
     return returnValue;
 }
 
-EditFieldHandlePtr ManipulatorBase::editHandleLastMousePos   (void)
+EditFieldHandlePtr ManipulatorBase::editHandleStartMousePos  (void)
 {
     SFPnt2f::EditHandlePtr returnValue(
         new  SFPnt2f::EditHandle(
-             &_sfLastMousePos,
-             this->getType().getFieldDesc(LastMousePosFieldId),
+             &_sfStartMousePos,
+             this->getType().getFieldDesc(StartMousePosFieldId),
              this));
 
 
-    editSField(LastMousePosFieldMask);
+    editSField(StartMousePosFieldMask);
 
     return returnValue;
 }

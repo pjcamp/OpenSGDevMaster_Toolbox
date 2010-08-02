@@ -66,7 +66,7 @@
 #include "OSGTransform.h" // Parent
 
 #include "OSGNodeFields.h"              // Target type
-#include "OSGVecFields.h"               // LastMousePos type
+#include "OSGVecFields.h"               // StartMousePos type
 #include "OSGViewportFields.h"          // Viewport type
 #include "OSGSysFields.h"               // Active type
 #include "OSGMaterialFields.h"          // MaterialX type
@@ -99,8 +99,8 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
     {
         TargetFieldId = Inherited::NextFieldId,
         ActiveSubHandleFieldId = TargetFieldId + 1,
-        LastMousePosFieldId = ActiveSubHandleFieldId + 1,
-        ViewportFieldId = LastMousePosFieldId + 1,
+        StartMousePosFieldId = ActiveSubHandleFieldId + 1,
+        ViewportFieldId = StartMousePosFieldId + 1,
         ActiveFieldId = ViewportFieldId + 1,
         LengthFieldId = ActiveFieldId + 1,
         HandleXNodeFieldId = LengthFieldId + 1,
@@ -120,8 +120,8 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
         (TypeTraits<BitVector>::One << TargetFieldId);
     static const OSG::BitVector ActiveSubHandleFieldMask =
         (TypeTraits<BitVector>::One << ActiveSubHandleFieldId);
-    static const OSG::BitVector LastMousePosFieldMask =
-        (TypeTraits<BitVector>::One << LastMousePosFieldId);
+    static const OSG::BitVector StartMousePosFieldMask =
+        (TypeTraits<BitVector>::One << StartMousePosFieldId);
     static const OSG::BitVector ViewportFieldMask =
         (TypeTraits<BitVector>::One << ViewportFieldId);
     static const OSG::BitVector ActiveFieldMask =
@@ -153,7 +153,7 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
         
     typedef SFUnrecNodePtr    SFTargetType;
     typedef SFUnrecNodePtr    SFActiveSubHandleType;
-    typedef SFPnt2f           SFLastMousePosType;
+    typedef SFPnt2f           SFStartMousePosType;
     typedef SFUnrecViewportPtr SFViewportType;
     typedef SFBool            SFActiveType;
     typedef SFVec3f           SFLengthType;
@@ -316,7 +316,7 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
 
     SFUnrecNodePtr    _sfTarget;
     SFUnrecNodePtr    _sfActiveSubHandle;
-    SFPnt2f           _sfLastMousePos;
+    SFPnt2f           _sfStartMousePos;
     SFUnrecViewportPtr _sfViewport;
     SFBool            _sfActive;
     SFVec3f           _sfLength;
@@ -362,8 +362,8 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
     EditFieldHandlePtr editHandleTarget         (void);
     GetFieldHandlePtr  getHandleActiveSubHandle (void) const;
     EditFieldHandlePtr editHandleActiveSubHandle(void);
-    GetFieldHandlePtr  getHandleLastMousePos    (void) const;
-    EditFieldHandlePtr editHandleLastMousePos   (void);
+    GetFieldHandlePtr  getHandleStartMousePos   (void) const;
+    EditFieldHandlePtr editHandleStartMousePos  (void);
     GetFieldHandlePtr  getHandleViewport        (void) const;
     EditFieldHandlePtr editHandleViewport       (void);
     GetFieldHandlePtr  getHandleActive          (void) const;
@@ -397,19 +397,19 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
     /*! \{                                                                 */
 
 
-                  SFPnt2f             *editSFLastMousePos   (void);
-            const SFPnt2f             *getSFLastMousePos    (void) const;
+                  SFPnt2f             *editSFStartMousePos  (void);
+            const SFPnt2f             *getSFStartMousePos   (void) const;
 
 
-                  Pnt2f               &editLastMousePos   (void);
-            const Pnt2f               &getLastMousePos    (void) const;
+                  Pnt2f               &editStartMousePos  (void);
+            const Pnt2f               &getStartMousePos   (void) const;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name                    Field Set                                 */
     /*! \{                                                                 */
 
-            void setLastMousePos   (const Pnt2f &value);
+            void setStartMousePos  (const Pnt2f &value);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
