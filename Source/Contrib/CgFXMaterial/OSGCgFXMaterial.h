@@ -169,7 +169,7 @@ class OSG_CONTRIBCGFX_DLLMAPPING CgFXMaterial : public CgFXMaterialBase
   protected:
     
     // Variables should all be in CGFXMaterialBase.
-    CGcontext   _pCGcontext;
+    static CGcontext   _pCGcontext;
     CGeffect    _pCGeffect;
 
     std::string _vStateVarNames[NumStateVars];
