@@ -72,7 +72,7 @@ OSG_BEGIN_NAMESPACE
 /***************************************************************************\
  *                           Class variables                               *
 \***************************************************************************/
-
+CGcontext CgFXMaterial::_pCGcontext = NULL;
 /***************************************************************************\
  *                           Class methods                                 *
 \***************************************************************************/
@@ -99,7 +99,7 @@ void CgFXMaterial::resolveLinks(void)
 
 CgFXMaterial::CgFXMaterial(void) :
      Inherited (    ),
-    _pCGcontext(NULL),
+    //_pCGcontext(NULL),
     _pCGeffect (NULL),
 	_pTechIdx(0),
 	_mDelayTextureExtraction(false)
@@ -112,7 +112,7 @@ CgFXMaterial::CgFXMaterial(void) :
 
 CgFXMaterial::CgFXMaterial(const CgFXMaterial &source) :
      Inherited (source),
-    _pCGcontext(NULL  ),
+   // _pCGcontext(NULL  ),
     _pCGeffect (NULL  ),
 	_pTechIdx(source._pTechIdx),
 	_mDelayTextureExtraction(source._mDelayTextureExtraction)
@@ -1223,6 +1223,7 @@ void CgFXMaterial::updateUniformVariables(void)
     checkForCgError("update precheck", _pCGcontext);
 #endif
 
+	if(_pCGeffect == NULL) return; // can't update variables w/out a program.
     const ShaderProgramVariables::MFVariablesType       *pMFVars   = NULL;
           ShaderProgramVariables::MFVariableChangedType *pMFVarChg = NULL;
 
