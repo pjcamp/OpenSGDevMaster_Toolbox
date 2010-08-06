@@ -46,6 +46,8 @@
 #include "OSGConfig.h"
 
 #include "OSGReflexiveContainer.h"
+#include "OSGActivity.h"
+#include <boost/bind.hpp>
 
 OSG_USING_NAMESPACE
 
@@ -58,6 +60,8 @@ ReflexiveContainer::TypeObject ReflexiveContainer::_type(
     false,
     0);
 
+EventProducerType ReflexiveContainer::_producerType(
+    "Invalid");
 
 ReflexiveContainer::TypeObject &ReflexiveContainer::getType(void)
 {
@@ -94,6 +98,27 @@ GetFieldHandlePtr ReflexiveContainer::invalidGetField(void) const
 {
     return GetFieldHandlePtr();
 }
+
+GetEventHandlePtr ReflexiveContainer::invalidGetEvent (void) const
+{
+    return GetEventHandlePtr();
+}
+
+void   ReflexiveContainer::disconnectAll(void)
+{
+    for(UInt32 i(0) ; i<getNumEvents() ; ++i)
+    {
+        disconnectAllSlotsEvent(i+1);
+    }
+}
+
+inline
+boost::signals2::connection ReflexiveContainer::attachActivity(UInt32 eventId,
+                                                               Activity* TheActivity)
+{
+    return connectEvent(eventId, boost::bind(&Activity::eventProduced, TheActivity, _1, _2) );
+}
+
 
 #ifdef OSG_ENABLE_MEMORY_DEBUGGING
 bool ReflexiveContainer::_check_is_deleted()

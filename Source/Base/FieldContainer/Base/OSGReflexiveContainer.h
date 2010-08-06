@@ -51,6 +51,9 @@
 #include "OSGThread.h"
 #include "OSGChangeList.h"
 #include "OSGFieldHandle.h"
+#include "OSGEventHandle.h"
+#include "OSGEventProducerType.h"
+#include <boost/signals2.hpp>
 
 OSG_BEGIN_NAMESPACE
 
@@ -125,6 +128,9 @@ class ReflexiveContainer
     OSG_BASE_DLLMAPPING 
             const Char8      *getTypeName(void) const;
 
+    OSG_BASE_DLLMAPPING 
+    virtual const EventProducerType &getProducerType(void) const;
+
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name        General Fieldcontainer Declaration                    */
@@ -167,6 +173,58 @@ class ReflexiveContainer
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
+    /*! \name                  Get Events                                 */
+    /*! \{                                                                 */
+
+
+    OSG_BASE_DLLMAPPING
+    virtual UInt32              getNumEvents(      void            ) const;
+
+    OSG_BASE_DLLMAPPING 
+    virtual GetEventHandlePtr  getEvent    (      UInt32 eventId  ) const;
+    
+    OSG_BASE_DLLMAPPING 
+    virtual GetEventHandlePtr  getEvent    (const Char8 *eventName) const;
+
+    OSG_BASE_DLLMAPPING 
+    bool isEventProducer(void) const;
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                  Manage Events                                 */
+    /*! \{                                                                 */
+
+    OSG_BASE_DLLMAPPING
+    virtual boost::signals2::connection attachActivity(UInt32 eventId,
+                                                       Activity* TheActivity);
+
+    OSG_BASE_DLLMAPPING
+    virtual boost::signals2::connection connectEvent(UInt32 eventId, 
+                                                      const BaseEventType::slot_type &listener,
+                                                      boost::signals2::connect_position at= boost::signals2::at_back);
+                                              
+    OSG_BASE_DLLMAPPING
+    virtual boost::signals2::connection connectEvent(UInt32 eventId, 
+                                                      const BaseEventType::group_type &group,
+                                                      const BaseEventType::slot_type &listener,
+                                                      boost::signals2::connect_position at= boost::signals2::at_back);
+    
+    OSG_BASE_DLLMAPPING
+    virtual void   disconnectEvent        (UInt32 eventId, const BaseEventType::group_type &group);
+
+    OSG_BASE_DLLMAPPING
+    virtual void   disconnectAllSlotsEvent(UInt32 eventId);
+
+    OSG_BASE_DLLMAPPING
+    virtual bool   isEmptyEvent           (UInt32 eventId) const;
+
+    OSG_BASE_DLLMAPPING
+    virtual UInt32 numSlotsEvent          (UInt32 eventId) const;
+
+    OSG_BASE_DLLMAPPING
+    virtual void   disconnectAll(void);
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
     /*! \name                  Get Field                                   */
     /*! \{                                                                 */
 
@@ -196,6 +254,20 @@ class ReflexiveContainer
     OSG_BASE_DLLMAPPING 
     virtual FieldDescriptionBase *
                            getFieldDescription(const Char8 *fieldName) const;
+
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                 Get Event Description                       */
+    /*! \{                                                                 */
+
+    OSG_BASE_DLLMAPPING 
+    virtual EventDescription const *
+                           getEventDescription(      UInt32 eventId  ) const;
+    
+    OSG_BASE_DLLMAPPING 
+    virtual EventDescription const *
+                           getEventDescription(const Char8 *eventName) const;
 
 
     /*! \}                                                                 */
@@ -255,6 +327,9 @@ class ReflexiveContainer
     OSG_BASE_DLLMAPPING 
     GetFieldHandlePtr invalidGetField (void) const;
 
+    OSG_BASE_DLLMAPPING 
+    GetEventHandlePtr invalidGetEvent (void) const;
+
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name                        Dump                                  */
@@ -278,6 +353,7 @@ class ReflexiveContainer
     /*! \{                                                                 */
 
     static TypeObject _type;
+    static EventProducerType _producerType;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -377,6 +453,8 @@ class ReflexiveContainer
 
     /*!\brief prohibit default function (move to 'public' if needed) */
     void operator =(const ReflexiveContainer &source);
+
+    std::list<std::pair<boost::signals2::connection, Activity*> > _ConnectedActivities;
 };
 
 #define OSG_RC_FIRST_FIELD_DECL(OSG_ELEMNAME)                                 \
