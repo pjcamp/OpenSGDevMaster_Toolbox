@@ -233,76 +233,88 @@ const Char8 *@!Classname!@Base::getClassname(void)
 {
     return "@!Classname!@";
 }
+@@if hasProducedMethods 
 @@if isRootProducer 
 
 inline
-EventConnection @!Classname!@Base::attachActivity(ActivityRefPtr TheActivity, UInt32 ProducedEventId)
+boost::signals2::connection @!Classname!@Base::attachActivity(UInt32 methodId,
+                                                              Activity* TheActivity)
 {
-    return _Producer.attachActivity(TheActivity, ProducedEventId);
-}
-
-inline
-bool @!Classname!@Base::isActivityAttached(ActivityRefPtr TheActivity, UInt32 ProducedEventId) const
-{
-    return _Producer.isActivityAttached(TheActivity, ProducedEventId);
-}
-
-inline
-UInt32 @!Classname!@Base::getNumActivitiesAttached(UInt32 ProducedEventId) const
-{
-    return _Producer.getNumActivitiesAttached(ProducedEventId);
-}
-
-inline
-ActivityRefPtr @!Classname!@Base::getAttachedActivity(UInt32 ProducedEventId, UInt32 ActivityIndex) const
-{
-    return _Producer.getAttachedActivity(ProducedEventId,ActivityIndex);
-}
-
-inline
-void @!Classname!@Base::detachActivity(ActivityRefPtr TheActivity, UInt32 ProducedEventId)
-{
-    _Producer.detachActivity(TheActivity, ProducedEventId);
+    return connectMethod(methodId, boost::bind(&Activity::eventProduced, TheActivity, _1, _2) );
 }
 
 inline
 UInt32 @!Classname!@Base::getNumProducedEvents(void) const
 {
-    return _Producer.getNumProducedEvents();
+    return getProducerType().getNumMethodDescs();
 }
 
 inline
 const MethodDescription *@!Classname!@Base::getProducedEventDescription(const std::string &ProducedEventName) const
 {
-    return _Producer.getProducedEventDescription(ProducedEventName);
+    return getProducerType().findMethodDescription(ProducedEventName);
 }
 
 inline
 const MethodDescription *@!Classname!@Base::getProducedEventDescription(UInt32 ProducedEventId) const
 {
-    return _Producer.getProducedEventDescription(ProducedEventId);
+    return getProducerType().getMethodDescription(ProducedEventId);
 }
 
 inline
 UInt32 @!Classname!@Base::getProducedEventId(const std::string &ProducedEventName) const
 {
-    return _Producer.getProducedEventId(ProducedEventName);
+    return getProducerType().getProducedEventId(ProducedEventName);
+}
+
+@@endif  // isRootProducer
+@@BeginProducedMethodLoop@@
+inline
+boost::signals2::connection  @!Classname!@Base::connect@!producedMethod.Name!@(const @!producedMethod.Name!@MethodType::slot_type &listener, 
+                                                                               boost::signals2::connect_position at)
+{
+    return _@!producedMethod.Name!@Method.connect(listener, at);
 }
 
 inline
-SFEventProducerPtr *@!Classname!@Base::editSFEventProducer(void)
+boost::signals2::connection  @!Classname!@Base::connect@!producedMethod.Name!@(const @!producedMethod.Name!@MethodType::group_type &group,
+                                                    const @!producedMethod.Name!@MethodType::slot_type &listener, boost::signals2::connect_position at)
 {
-    return &_sfEventProducer;
+    return _@!producedMethod.Name!@Method.connect(group, listener, at);
 }
 
-//! Get the value of the @!Classname!@::_sfEventProducer field.
 inline
-EventProducerPtr &@!Classname!@Base::editEventProducer(void)
+void  @!Classname!@Base::disconnect@!producedMethod.Name!@(const @!producedMethod.Name!@MethodType::group_type &group)
 {
-    return _sfEventProducer.getValue();
+    _@!producedMethod.Name!@Method.disconnect(group);
 }
 
-@@endif 
+inline
+void  @!Classname!@Base::disconnectAllSlots@!producedMethod.Name!@(void)
+{
+    _@!producedMethod.Name!@Method.disconnect_all_slots();
+}
+
+inline
+bool  @!Classname!@Base::isEmpty@!producedMethod.Name!@(void) const
+{
+    return _@!producedMethod.Name!@Method.empty();
+}
+
+inline
+UInt32  @!Classname!@Base::numSlots@!producedMethod.Name!@(void) const
+{
+    return _@!producedMethod.Name!@Method.num_slots();
+}
+
+inline
+void @!Classname!@Base::produce@!producedMethod.Name!@(@!producedMethod.Name!@EventType* const e)
+{
+    produceEvent(@!producedMethod.Name!@MethodId, e);
+}
+
+@@EndProducedMethodLoop@@
+@@endif  // hasProducedMethods
 OSG_GEN_CONTAINERPTR(@!Classname!@);
 
 OSG_END_NAMESPACE

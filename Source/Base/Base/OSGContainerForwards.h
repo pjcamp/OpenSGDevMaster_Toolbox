@@ -48,6 +48,7 @@
 #include "OSGContainerRefCountPoliciesFwd.h"
 
 #include "boost/shared_ptr.hpp"
+#include <boost/signals2.hpp>
 
 #include <map>
 
@@ -167,6 +168,17 @@ typedef GetFieldHandlePtr (ReflexiveContainer::*FieldGetMethod )(void) const;
 typedef EditFieldHandlePtr(ReflexiveContainer::*FieldIndexEditMethod)(UInt32);
 typedef GetFieldHandlePtr (ReflexiveContainer::*FieldIndexGetMethod )(
     UInt32) const;
+
+class Event;
+typedef boost::signals2::signal<void (Event* const            , UInt32)> BaseMethodType;
+
+class GetMethodHandle;
+
+typedef boost::shared_ptr<GetMethodHandle > GetMethodHandlePtr;
+
+class Activity;
+
+typedef GetMethodHandlePtr(ReflexiveContainer::*MethodGetMethod)(void) const;
 
 namespace FCLocal
 {

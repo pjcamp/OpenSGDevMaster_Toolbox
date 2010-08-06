@@ -204,7 +204,7 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
 
   protected:
 
-    typedef std::map<HWND, WIN32WindowUnrecPtr> WIN32HWNDToProducerMap;
+    typedef std::map<HWND, WIN32Window* > WIN32HWNDToProducerMap;
     
 
     // Variables should all be in WIN32WindowBase.

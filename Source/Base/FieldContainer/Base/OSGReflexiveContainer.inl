@@ -216,6 +216,85 @@ GetFieldHandlePtr ReflexiveContainer::getField(const Char8 *fieldName) const
     return (desc != NULL) ? desc->getField(*this) : GetFieldHandlePtr();
 }
 
+inline
+UInt32 ReflexiveContainer::getNumMethods(      void            ) const
+{
+    return getProducerType().getNumMethodDescs();
+}
+
+inline
+GetMethodHandlePtr ReflexiveContainer::getMethod    (      UInt32 methodId  ) const
+{
+    const MethodDescription *desc = getMethodDescription(methodId);
+
+    return (desc != NULL) ? desc->getMethod(*this) : invalidGetMethod();
+}
+
+inline
+GetMethodHandlePtr ReflexiveContainer::getMethod    (const Char8 *methodName) const
+{
+    const MethodDescription *desc = getMethodDescription(methodName);
+
+    return (desc != NULL) ? desc->getMethod(*this) : invalidGetMethod();
+}
+
+inline
+const EventProducerType &ReflexiveContainer::getProducerType(void) const
+{
+    return _producerType;
+}
+
+inline
+boost::signals2::connection ReflexiveContainer::connectMethod(UInt32 methodId, 
+                                                      const BaseMethodType::slot_type &listener,
+                                                      boost::signals2::connect_position at)
+{
+    return boost::signals2::connection();
+}
+                                              
+inline
+boost::signals2::connection ReflexiveContainer::connectMethod(UInt32 methodId, 
+                                                      const BaseMethodType::group_type &group,
+                                                      const BaseMethodType::slot_type &listener,
+                                                      boost::signals2::connect_position at)
+{
+    return boost::signals2::connection();
+}
+    
+inline
+void   ReflexiveContainer::disconnectMethod(UInt32 methodId, const BaseMethodType::group_type &group)
+{
+}
+
+inline
+void   ReflexiveContainer::disconnectAllSlotsMethod(UInt32 methodId)
+{
+}
+
+inline
+bool   ReflexiveContainer::isEmptyMethod(UInt32 methodId) const
+{
+    return true;
+}
+
+inline
+UInt32 ReflexiveContainer::numSlotsMethod(UInt32 methodId) const
+{
+    return 0;
+}
+
+inline
+MethodDescription const * ReflexiveContainer::getMethodDescription(      UInt32 methodId  ) const
+{
+    return getProducerType().getMethodDescription(methodId);
+}
+    
+inline
+MethodDescription const * ReflexiveContainer::getMethodDescription(const Char8 *methodName) const
+{
+    return getProducerType().findMethodDescription(methodName);
+}
+
 #if 0
 inline
 EditFieldHandle ReflexiveContainer::editHandledField(UInt32 fieldId)

@@ -63,6 +63,13 @@
 
 @@AdditionalIncludes@@
 
+
+@@BeginProducedMethodLoop@@
+    @@if producedMethod.needTypeInclude
+#include @!producedMethod.TypeInclude!@
+    @@endif // producedMethod.needTypeInclude
+@@EndProducedMethodLoop@@
+
 @@BeginFieldLoop@@
     @@if field.needDefaultInclude
 #include @!field.DefaultInclude:30!@   // @!field.Name!@ default header
@@ -211,10 +218,10 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
     Inherited::classDescInserter(oType);
 
 @@endif
-    @@if hasFieldsOrIsRootProducer
+    @@if hasFields
     FieldDescriptionBase *pDesc = NULL;
 
-    @@endif // hasFieldsOrIsRootProducer
+    @@endif // hasFields
     @@if isDecorator
     pDesc = new SFUnrec@!Parent!@Ptr::Description(
         SFUnrec@!Parent!@Ptr::getClassType(),
@@ -227,6 +234,7 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&@!Classname!@::getHandleDecoratee ));
 
     oType.addInitialDesc(pDesc);
+<<<<<<< Updated upstream
         @@if isRootProducer
     pDesc = new SFEventProducerPtr::Description(
         SFEventProducerPtr::getClassType(),
@@ -240,6 +248,8 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
         @@endif // isRootProducer
+=======
+>>>>>>> Stashed changes
     @@else // isDecorator
         @@BeginFieldLoop@@
 
@@ -260,6 +270,7 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
         @@EndFieldLoop@@
+<<<<<<< Updated upstream
         @@if isRootProducer
     pDesc = new SFEventProducerPtr::Description(
         SFEventProducerPtr::getClassType(),
@@ -273,6 +284,8 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
         @@endif // isRootProducer
+=======
+>>>>>>> Stashed changes
     @@endif // isDecorator
 }
 
@@ -303,10 +316,16 @@ MethodDescription *@!Classname!@Base::_methodDesc[] =
 {
 @@BeginProducedMethodLoop@@
     new MethodDescription("@!producedMethod.Name!@", 
-                    "@!producedMethod.Description!@",
-                     @!producedMethod.Name!@MethodId, 
-                     SFUnrecEventPtr::getClassType(),
-                     FunctorAccessMethod())@!producedMethod.Separator!@
+                          "@!producedMethod.Description!@",
+                          @!producedMethod.Name!@MethodId, 
+                          FieldTraits<@!producedMethod.TypeRaw!@ *>::getType(),
+    @@if producedMethod.consumable
+                          true,
+    @@else 
+                          false,
+    @@endif 
+                          static_cast<MethodGetMethod>(&@!Classname!@Base::getHandle@!producedMethod.Name!@Signal))@!producedMethod.Separator!@
+
 @@EndProducedMethodLoop@@
 };
 
@@ -646,12 +665,6 @@ UInt32 @!Classname!@Base::getBinSize(ConstFieldMaskArg whichField)
         returnValue += _@!field.VarName!@.getBinSize();
     }
     @@EndFieldLoop@@
-@@if isRootProducer 
-    if(FieldBits::NoField != (EventProducerFieldMask & whichField))
-    {
-        returnValue += _sfEventProducer.getBinSize();
-    }
-@@endif
 @@endif // isDecorator
 
     return returnValue;
@@ -674,12 +687,6 @@ void @!Classname!@Base::copyToBin(BinaryDataHandler &pMem,
         _@!field.VarName!@.copyToBin(pMem);
     }
     @@EndFieldLoop@@
-@@if isRootProducer 
-    if(FieldBits::NoField != (EventProducerFieldMask & whichField))
-    {
-        _sfEventProducer.copyToBin(pMem);
-    }
-@@endif
 @@endif // isDecorator
 }
 
@@ -700,12 +707,6 @@ void @!Classname!@Base::copyFromBin(BinaryDataHandler &pMem,
         _@!field.VarName!@.copyFromBin(pMem);
     }
     @@EndFieldLoop@@
-@@if isRootProducer 
-    if(FieldBits::NoField != (EventProducerFieldMask & whichField))
-    {
-        _sfEventProducer.copyFromBin(pMem);
-    }
-@@endif
 @@endif // isDecorator
 }
 
@@ -843,16 +844,167 @@ FieldContainerTransitPtr @!Classname!@Base::shallowCopy(void) const
 
 @@endif // !isAbstract
 
+@@if hasProducedMethods
+/*------------------------- event producers ----------------------------------*/
+void @!Classname!@Base::produceEvent(UInt32 methodId, Event* const e)
+{
+    switch(methodId)
+    {
+@@BeginProducedMethodLoop@@
+    case @!producedMethod.Name!@MethodId:
+        assert(dynamic_cast<@!producedMethod.Name!@EventType* const>(e));
 
+    @@if producedMethod.consumable 
+        _@!producedMethod.Name!@Method.set_combiner(ConsumableEventCombiner(e));
+    @@endif // producedMethod.consumable
+        _@!producedMethod.Name!@Method(dynamic_cast<@!producedMethod.Name!@EventType* const>(e), @!producedMethod.Name!@MethodId);
+        break;
+@@EndProducedMethodLoop@@
+    default:
+    @@if isRootProducer 
+        assert(false && "No method defined with that ID");
+    @@else
+        Inherited::produceEvent(methodId, e);
+    @@endif // !isRootProducer
+        break;
+    }
+}
+
+boost::signals2::connection @!Classname!@Base::connectMethod(UInt32 methodId, 
+                                                             const BaseMethodType::slot_type &listener, 
+                                                             boost::signals2::connect_position at)
+{
+    switch(methodId)
+    {
+@@BeginProducedMethodLoop@@
+    case @!producedMethod.Name!@MethodId:
+        return _@!producedMethod.Name!@Method.connect(listener, at);
+        break;
+@@EndProducedMethodLoop@@
+    default:
+    @@if isRootProducer 
+        assert(false && "No method defined with that ID");
+        return boost::signals2::connection();
+    @@else
+        return Inherited::connectMethod(methodId, listener, at);
+    @@endif // !isRootProducer
+        break;
+    }
+
+    return boost::signals2::connection();
+}
+
+boost::signals2::connection  @!Classname!@Base::connectMethod(UInt32 methodId, 
+                                                              const BaseMethodType::group_type &group,
+                                                              const BaseMethodType::slot_type &listener,
+                                                              boost::signals2::connect_position at)
+{
+    switch(methodId)
+    {
+@@BeginProducedMethodLoop@@
+    case @!producedMethod.Name!@MethodId:
+        return _@!producedMethod.Name!@Method.connect(group, listener, at);
+        break;
+@@EndProducedMethodLoop@@
+    default:
+    @@if isRootProducer 
+        assert(false && "No method defined with that ID");
+        return boost::signals2::connection();
+    @@else
+        return Inherited::connectMethod(methodId, group, listener, at);
+    @@endif // !isRootProducer
+        break;
+    }
+
+    return boost::signals2::connection();
+}
+    
+void  @!Classname!@Base::disconnectMethod(UInt32 methodId, const BaseMethodType::group_type &group)
+{
+    switch(methodId)
+    {
+@@BeginProducedMethodLoop@@
+    case @!producedMethod.Name!@MethodId:
+        _@!producedMethod.Name!@Method.disconnect(group);
+        break;
+@@EndProducedMethodLoop@@
+    default:
+    @@if isRootProducer 
+        assert(false && "No method defined with that ID");
+    @@else
+        return Inherited::disconnectMethod(methodId, group);
+    @@endif // !isRootProducer
+        break;
+    }
+}
+
+void  @!Classname!@Base::disconnectAllSlotsMethod(UInt32 methodId)
+{
+    switch(methodId)
+    {
+@@BeginProducedMethodLoop@@
+    case @!producedMethod.Name!@MethodId:
+        _@!producedMethod.Name!@Method.disconnect_all_slots();
+        break;
+@@EndProducedMethodLoop@@
+    default:
+    @@if isRootProducer 
+        assert(false && "No method defined with that ID");
+    @@else
+        Inherited::disconnectAllSlotsMethod(methodId);
+    @@endif // !isRootProducer
+        break;
+    }
+}
+
+bool  @!Classname!@Base::isEmptyMethod(UInt32 methodId) const
+{
+    switch(methodId)
+    {
+@@BeginProducedMethodLoop@@
+    case @!producedMethod.Name!@MethodId:
+        return _@!producedMethod.Name!@Method.empty();
+        break;
+@@EndProducedMethodLoop@@
+    default:
+    @@if isRootProducer 
+        assert(false && "No method defined with that ID");
+        return true;
+    @@else
+        return Inherited::isEmptyMethod(methodId);
+    @@endif // !isRootProducer
+        break;
+    }
+}
+
+UInt32  @!Classname!@Base::numSlotsMethod(UInt32 methodId) const
+{
+    switch(methodId)
+    {
+@@BeginProducedMethodLoop@@
+    case @!producedMethod.Name!@MethodId:
+        return _@!producedMethod.Name!@Method.num_slots();
+        break;
+@@EndProducedMethodLoop@@
+    default:
+    @@if isRootProducer 
+        assert(false && "No method defined with that ID");
+        return 0;
+    @@else
+        return Inherited::numSlotsMethod(methodId);
+    @@endif // !isRootProducer
+        break;
+    }
+}
+
+
+@@endif  // hasProducedMethods
 /*------------------------- constructors ----------------------------------*/
 
 @!Classname!@Base::@!Classname!@Base(void) :
-@@if isRootProducer 
-    _Producer(&getProducerType()),
-@@endif
-@@if !hasFieldsOrIsRootProducer
+@@if !hasFields
     Inherited()
-@@else // !hasFieldsOrIsRootProducer
+@@else // !hasFields
     Inherited(),
     @@if hasFields
         @@if isDecorator
@@ -869,29 +1021,14 @@ FieldContainerTransitPtr @!Classname!@Base::shallowCopy(void) const
             @@EndFieldLoop@@
         @@endif // isDecorator
     @@endif // hasFields
-    @@if isRootProducer 
-        @@if hasFields
-    ,_sfEventProducer(&_Producer)
-        @@else // hasFields
-    _sfEventProducer(&_Producer)
-        @@endif // hasFields
-    @@endif
-@@endif // !hasFieldsOrIsRootProducer
+@@endif // !hasFields
 {
-@@if hasProducedMethods 
-@@if !isRootProducer 
-    _Producer.setType(&_producerType);
-@@endif
-@@endif
 }
 
 @!Classname!@Base::@!Classname!@Base(const @!Classname!@Base &source) :
-@@if isRootProducer 
-    _Producer(&source.getProducerType()),
-@@endif
-@@if !hasFieldsOrIsRootProducer
+@@if !hasFields
     Inherited(source)
-@@else // !hasFieldsOrIsRootProducer
+@@else // !hasFields
     Inherited(source),
     @@if hasFields
     @@if isDecorator
@@ -916,14 +1053,7 @@ FieldContainerTransitPtr @!Classname!@Base::shallowCopy(void) const
         @@EndFieldLoop@@
     @@endif // isDecorator
     @@endif // hasFields
-    @@if isRootProducer 
-        @@if hasFields
-    ,_sfEventProducer(&_Producer)
-        @@else // hasFields
-    _sfEventProducer(&_Producer)
-        @@endif // hasFields
-    @@endif
-@@endif // !hasFieldsOrIsRootProducer
+@@endif // !hasFields
 {
 }
 
@@ -1238,34 +1368,22 @@ EditFieldHandlePtr @!Classname!@Base::editHandle@!field.Name:15!@(void)
 }
 
 @@EndFieldLoop@@
-@@if isRootProducer 
 
-GetFieldHandlePtr @!Classname!@Base::getHandleEventProducer        (void) const
+@@if hasProducedMethods
+@@BeginProducedMethodLoop@@
+GetMethodHandlePtr @!Classname!@Base::getHandle@!producedMethod.Name!@Signal(void) const
 {
-    SFEventProducerPtr::GetHandlePtr returnValue(
-        new  SFEventProducerPtr::GetHandle(
-             &_sfEventProducer,
-             this->getType().getFieldDesc(EventProducerFieldId),
+    GetMethodHandlePtr returnValue(
+        new  GetTypedMethodHandle<@!producedMethod.Name!@MethodType>(
+             const_cast<@!producedMethod.Name!@MethodType *>(&_@!producedMethod.Name!@Method),
+             _producerType.getMethodDescription(@!producedMethod.Name!@MethodId),
              const_cast<@!Classname!@Base *>(this)));
 
     return returnValue;
 }
 
-EditFieldHandlePtr @!Classname!@Base::editHandleEventProducer       (void)
-{
-    SFEventProducerPtr::EditHandlePtr returnValue(
-        new  SFEventProducerPtr::EditHandle(
-             &_sfEventProducer,
-             this->getType().getFieldDesc(EventProducerFieldId),
-             this));
-
-
-    editSField(EventProducerFieldMask);
-
-    return returnValue;
-}
-
-@@endif 
+@@EndProducedMethodLoop@@
+@@endif  // hasProducedMethods
 
 #ifdef OSG_MT_CPTR_ASPECT
 void @!Classname!@Base::execSyncV(      FieldContainer    &oFrom,

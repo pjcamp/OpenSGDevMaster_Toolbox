@@ -20,7 +20,10 @@ class ProducedMethod(FCDElement):
         self.setFCD("name",                           "",         True);
         self.setFCD("type",                           "",         True);
         self.setFCD("typeNamespace",                           "",         True);
+        self.setFCD("consumable",                    "true",         True);
         self.setFCD("description",                    "",         True);
+        self.setFCD("fieldHeader",                    "(AUTO)",   True);
+        self.setFCD("typeHeader",                     "(AUTO)",   True);
     
     def setFieldContainer(self, container):
         self.m_fieldContainer = container;
@@ -59,6 +62,7 @@ class ProducedMethod(FCDElement):
         self["TypeCaps"]      = TypeCaps;
         self["FullType"]      = TypeNS + Type;
         self["TypeRaw"]       = TypeRaw;
+        self["MethodEventType"]       = TypeRaw + "* const";
 
         # -----------------------------------------------------------------
         # Name
@@ -66,6 +70,8 @@ class ProducedMethod(FCDElement):
           
         self["Name"]          = self.getFCD("name")[0].upper() + self.getFCD("name")[1:];
         self["DescName"]      = self.getFCD("name");
+        
+        self["consumable"]      = (self.getFCD("consumable") == "true");
 
         if self.getFCD("name") == "id":
             self.m_log.warning("finalize: invalid field name: >%s<", 
@@ -80,6 +86,55 @@ class ProducedMethod(FCDElement):
         else:
             self["Description"]     = self._formatString    (self.getFCD("description"), 4)
             self["SafeDescription"] = self._formatSafeString(self.getFCD("description"), 8)
+            
+            
+        fieldInclude = "";
+        
+        if ((self.getFCD("fieldHeader") == ""      ) or 
+            (self.getFCD("fieldHeader") == "(AUTO)")   ):
+            
+            if self.getFieldContainer().isSystemComponent():
+                fieldInclude = "OSG"
+            else:
+                fieldInclude = "OpenSG/OSG"
+
+            fieldInclude = "\"" + fieldInclude + TypeRawCaps               + "Fields.h" + "\""
+
+        else:
+            if ((self.getFCD("fieldHeader").find("\"") == -1) and
+                (self.getFCD("fieldHeader").find("<")  == -1)    ):
+                fieldInclude = "\"" + self.getFCD("fieldHeader") + "\"";
+            else:
+                fieldInclude = self.getFCD("fieldHeader");
+
+        self["FieldInclude"]     = fieldInclude
+        self["needFieldInclude"] = True;     
+        
+        typeInclude = "";
+        
+        if ((self.getFCD("typeHeader") == "")      or
+            (self.getFCD("typeHeader") == "(AUTO)")  ):
+
+            if self.getFieldContainer().isSystemComponent():
+                typeInclude = "OSG";
+            else:
+                typeInclude = "OpenSG/OSG";
+        
+            typeInclude = typeInclude + TypeRawCaps;
+                 
+            typeInclude = typeInclude.replace("Parent", "");
+            typeInclude = "\"" + typeInclude + ".h" + "\""
+
+        else:
+            if ((self.getFCD("typeHeader").find("\"") == -1) and
+                (self.getFCD("typeHeader").find("<")  == -1)    ):
+                typeInclude = "\"" + self.getFCD("typeHeader") + "\"";
+            else:
+                typeInclude = self.getFCD("typeHeader");
+        
+        self["TypeInclude"]     = typeInclude;
+        self["needTypeInclude"] = True;
+
 
     def _dumpValues(self):
         self.m_log.info("ProducedMethod dumpValues:");

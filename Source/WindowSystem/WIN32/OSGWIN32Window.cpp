@@ -1364,7 +1364,7 @@ bool WIN32Window::attachWindow(void)
         return false;
     }
     
-    _WIN32HWNDToProducerMap[getHwnd()] = WIN32WindowRefPtr(this);
+    _WIN32HWNDToProducerMap[getHwnd()] = this;
     
     return true;
 }

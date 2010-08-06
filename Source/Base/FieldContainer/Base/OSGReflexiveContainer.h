@@ -51,6 +51,9 @@
 #include "OSGThread.h"
 #include "OSGChangeList.h"
 #include "OSGFieldHandle.h"
+#include "OSGMethodHandle.h"
+#include "OSGEventProducerType.h"
+#include <boost/signals2.hpp>
 
 OSG_BEGIN_NAMESPACE
 
@@ -125,6 +128,9 @@ class ReflexiveContainer
     OSG_BASE_DLLMAPPING 
             const Char8      *getTypeName(void) const;
 
+    OSG_BASE_DLLMAPPING 
+    virtual const EventProducerType &getProducerType(void) const;
+
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name        General Fieldcontainer Declaration                    */
@@ -167,6 +173,55 @@ class ReflexiveContainer
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
+    /*! \name                  Get Methods                                 */
+    /*! \{                                                                 */
+
+
+    OSG_BASE_DLLMAPPING
+    virtual UInt32              getNumMethods(      void            ) const;
+
+    OSG_BASE_DLLMAPPING 
+    virtual GetMethodHandlePtr  getMethod    (      UInt32 methodId  ) const;
+    
+    OSG_BASE_DLLMAPPING 
+    virtual GetMethodHandlePtr  getMethod    (const Char8 *methodName) const;
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                  Manage Methods                                 */
+    /*! \{                                                                 */
+
+    OSG_BASE_DLLMAPPING
+    virtual boost::signals2::connection attachActivity(UInt32 methodId,
+                                                       Activity* TheActivity);
+
+    OSG_BASE_DLLMAPPING
+    virtual boost::signals2::connection connectMethod(UInt32 methodId, 
+                                                      const BaseMethodType::slot_type &listener,
+                                                      boost::signals2::connect_position at= boost::signals2::at_back);
+                                              
+    OSG_BASE_DLLMAPPING
+    virtual boost::signals2::connection connectMethod(UInt32 methodId, 
+                                                      const BaseMethodType::group_type &group,
+                                                      const BaseMethodType::slot_type &listener,
+                                                      boost::signals2::connect_position at= boost::signals2::at_back);
+    
+    OSG_BASE_DLLMAPPING
+    virtual void   disconnectMethod        (UInt32 methodId, const BaseMethodType::group_type &group);
+
+    OSG_BASE_DLLMAPPING
+    virtual void   disconnectAllSlotsMethod(UInt32 methodId);
+
+    OSG_BASE_DLLMAPPING
+    virtual bool   isEmptyMethod           (UInt32 methodId) const;
+
+    OSG_BASE_DLLMAPPING
+    virtual UInt32 numSlotsMethod          (UInt32 methodId) const;
+
+    OSG_BASE_DLLMAPPING
+    virtual void   disconnectAll(void);
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
     /*! \name                  Get Field                                   */
     /*! \{                                                                 */
 
@@ -196,6 +251,20 @@ class ReflexiveContainer
     OSG_BASE_DLLMAPPING 
     virtual FieldDescriptionBase *
                            getFieldDescription(const Char8 *fieldName) const;
+
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                 Get Method Description                       */
+    /*! \{                                                                 */
+
+    OSG_BASE_DLLMAPPING 
+    virtual MethodDescription const *
+                           getMethodDescription(      UInt32 methodId  ) const;
+    
+    OSG_BASE_DLLMAPPING 
+    virtual MethodDescription const *
+                           getMethodDescription(const Char8 *methodName) const;
 
 
     /*! \}                                                                 */
@@ -255,6 +324,9 @@ class ReflexiveContainer
     OSG_BASE_DLLMAPPING 
     GetFieldHandlePtr invalidGetField (void) const;
 
+    OSG_BASE_DLLMAPPING 
+    GetMethodHandlePtr invalidGetMethod (void) const;
+
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name                        Dump                                  */
@@ -278,6 +350,7 @@ class ReflexiveContainer
     /*! \{                                                                 */
 
     static TypeObject _type;
+    static EventProducerType _producerType;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -377,6 +450,8 @@ class ReflexiveContainer
 
     /*!\brief prohibit default function (move to 'public' if needed) */
     void operator =(const ReflexiveContainer &source);
+
+    std::list<std::pair<boost::signals2::connection, Activity*> > _ConnectedActivities;
 };
 
 #define OSG_RC_FIRST_FIELD_DECL(OSG_ELEMNAME)                                 \
