@@ -48,8 +48,15 @@
 #include "OSGColladaCOLLADA.h"
 #include "OSGColladaElementFactory.h"
 #include "OSGColladaOptions.h"
-
+#include "OSGColladaAnimation.h"
+#include "OSGColladaController.h"
+#include "OSGColladaInstanceController.h"
 #include "OSGNode.h"
+
+#include "OSGSkeletonDrawable.h"
+
+#include <dom/domInstance_controller.h>
+#include <dom/domNode.h>
 
 /*! \class OSG::ColladaGlobal
     This is the entry point for the Collada loader from which the loading
@@ -167,6 +174,53 @@ ColladaGlobal::read(DAE *dae, const std::string &fileName)
     return rootN;
 }
 
+/*! Read the file \a fileName using a new DAE database. This
+	method differs from the other read method in that it will 
+	also read in other elements not directly associated with 
+	the scene heirarchy (e.g. <library_animations>, etc.)
+	based on the options set.
+
+    Useful if multiple documents are stored in one DAE database or
+    if an application needs to access the DAE itself to extract
+    data that is not processed by the loader.
+ */
+ColladaGlobal::FCPtrStore 
+ColladaGlobal::readAll( std::istream &is, const std::string &fileName)
+{
+	NodeTransitPtr rootN;
+	getOptions()->setCreateNameAttachments(true);
+	getOptions()->setFlattenNodeXForms(true);
+    _pathHandler.clearPathList();
+    _pathHandler.clearBaseFile();
+
+    _pathHandler.push_frontCurrentDir(                );
+    _pathHandler.setBaseFile         (fileName.c_str());
+
+    _docPath = fileName;
+
+    _dae = new DAE;
+    _dae->open(fileName.c_str());
+
+    rootN = doRead();
+	_FCStore.insert(rootN);
+
+	/*
+	if(getOptions()->getReadAnimations())
+	{ // read animations here
+		FCPtrStore animations = readAnimations();
+		_FCStore.insert(animations.begin(), animations.end());
+	}
+	*/
+
+    _docPath. clear();
+    _dae    ->clear();
+    delete _dae;
+    _dae = NULL;
+
+    return _FCStore;
+
+}
+
 void
 ColladaGlobal::addElement(ColladaElement *elem)
 {
@@ -231,6 +285,8 @@ ColladaGlobal::doRead(void)
     
     rootN = _rootN;
 
+	resolveControllers();
+
     _elemStore.clear();
 
 #ifndef OSG_COLLADA_SILENT
@@ -243,6 +299,138 @@ ColladaGlobal::doRead(void)
 
     return rootN;
 }
+
+ColladaGlobal::FCPtrStore ColladaGlobal::readAnimations(void)
+{
+	FCPtrStore animations;
+	
+	domCOLLADARef docRoot = _dae->getRoot(_docPath);
+
+    if(docRoot != NULL)
+    {
+		domLibrary_animations_Array libAnims = docRoot->getLibrary_animations_array();
+		for(UInt32 i(0); i < libAnims.getCount(); i++)
+		{
+			domAnimation_Array anims = libAnims[i]->getAnimation_array();
+			for(UInt32 j(0); j < anims.getCount(); j++)
+			{
+
+				ColladaAnimationRefPtr colAnim = dynamic_pointer_cast<ColladaAnimation>(
+								ColladaElementFactory::the()->create(anims[j], this));
+				
+				colAnim->read();
+			}
+		}
+    }
+	return animations;
+}
+
+void 
+ColladaGlobal::resolveControllers(void)
+{
+	
+	for(UInt32 i(0); i < _instControllers.size(); ++i)
+	{
+		ColladaController * cont = _instControllers[i]->getTargetElem();
+
+		if(cont->hasSkin())
+		{
+			const ColladaController::SkinInfo &skin = cont->getSkinInfo();
+
+			domInstance_controller::domSkeleton_Array skelArr = _instControllers[i]->getJoints();
+			std::map<std::string, NodeRecPtr> joints;
+
+			std::vector<domNodeRef> domNodes;
+			// fetch the nodes
+
+			for(UInt32 j = 0; j < skelArr.getCount(); j++)
+			{
+				domNodeRef colDomNode = daeSafeCast<domNode>(skelArr[j]->getValue().getElement());
+
+				std::string nodeName = colDomNode->getSid();
+				domNodes.push_back(colDomNode);
+
+				NodeRecPtr jointNode = _nodeMap[colDomNode];
+				joints[nodeName] = jointNode;
+
+			}
+
+			/* 
+				The heirarchy of the skeleton structure must be created from the 
+				visual scene node heirarchy.  But, since we don't want to have two
+				instances of the heirarchy, we just save the IDs of the nodes to a map, and 
+				link up the joints after the visual scene is finished reading.
+			*/
+
+			/* // shouldn't be needed, nodes should already be created
+			for(i = 0; i < domNodes.size(); i++)
+			{
+				domNodeRef parent = daeSafeCast<domNode>(domNodes[i]->getParent());
+				if(parent != NULL && parent->getType() == NODETYPE_JOINT)
+				{
+					for(j = 0; j < domNodes.size(); j++)
+					{
+						std::string parentSID(parent->getSid());
+						std::string childSID(domNodes[j]->getSid());
+						if(parentSID.compare(childSID) == 0)
+						{	
+							osgNodes[j]->addChild(osgNodes[i]);
+						}
+					}
+				} else
+				{
+					skelNode->addChild(osgNodes[i]);
+				}
+			}
+			*/
+			UInt32 j(0);
+			SkeletonBlendedGeometry *skeleton = _instControllers[i]->getSkeleton();
+			for(j = 0; j < skin.jointSIDs.size() && j < skin.inverseBindPoseMatrices.size(); j++)
+			{
+				// now we need to match up the SID of this domNode to the joint
+				for(UInt32 k = 0; k < domNodes.size(); k++)
+				{
+					if(skin.jointSIDs[j].compare(domNodes[k]->getSid()) == 0)
+					{	// this is a match, so push it to the skeleton
+		                
+						skeleton->pushToJoints(joints[skin.jointSIDs[j]],skin.inverseBindPoseMatrices[j]);
+						break;
+					}
+				}
+			}
+
+			// handle joint blending
+			UInt32 k(0),m(0);
+			for(j = 0; j < skin.vCount.size(); j++)
+			{
+				for(k = 0; k < skin.vCount[j]; k++, m += 2)
+				{
+					skeleton->addJointBlending(j,skin.v[m],skin.v[m+1]);
+				}
+			}
+
+		} // end if(hasSkin())
+		else if(cont->hasMorph()) 
+		{
+			// morphs NIY
+		}
+	}
+
+	return;
+}
+
+void ColladaGlobal::addInstanceController( ColladaInstanceController * const contr)
+{
+	_instControllers.push_back(contr);
+}
+
+ColladaGlobal::NodeToNodeMap & 
+ColladaGlobal::editNodeToNodeMap(void)
+{
+	return _nodeMap;
+}
+
+
 
 OSG_END_NAMESPACE
 

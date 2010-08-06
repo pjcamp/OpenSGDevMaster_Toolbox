@@ -66,6 +66,8 @@
 #include "OSGManipulator.h" // Parent
 
 #include "OSGSysFields.h"               // Uniform type
+#include "OSGNodeFields.h"              // HandleUniformNode type
+#include "OSGMaterialFields.h"          // MaterialUniform type
 
 #include "OSGScaleManipulatorFields.h"
 
@@ -94,15 +96,27 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
     enum
     {
         UniformFieldId = Inherited::NextFieldId,
-        NextFieldId = UniformFieldId + 1
+        HandleUniformNodeFieldId = UniformFieldId + 1,
+        TransUniformNodeFieldId = HandleUniformNodeFieldId + 1,
+        MaterialUniformFieldId = TransUniformNodeFieldId + 1,
+        NextFieldId = MaterialUniformFieldId + 1
     };
 
     static const OSG::BitVector UniformFieldMask =
         (TypeTraits<BitVector>::One << UniformFieldId);
+    static const OSG::BitVector HandleUniformNodeFieldMask =
+        (TypeTraits<BitVector>::One << HandleUniformNodeFieldId);
+    static const OSG::BitVector TransUniformNodeFieldMask =
+        (TypeTraits<BitVector>::One << TransUniformNodeFieldId);
+    static const OSG::BitVector MaterialUniformFieldMask =
+        (TypeTraits<BitVector>::One << MaterialUniformFieldId);
     static const OSG::BitVector NextFieldMask =
         (TypeTraits<BitVector>::One << NextFieldId);
         
     typedef SFBool            SFUniformType;
+    typedef SFUnrecNodePtr    SFHandleUniformNodeType;
+    typedef SFUnrecNodePtr    SFTransUniformNodeType;
+    typedef SFUnrecMaterialPtr SFMaterialUniformType;
 
     /*---------------------------------------------------------------------*/
     /*! \name                    Class Get                                 */
@@ -130,10 +144,22 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
 
                   SFBool              *editSFUniform        (void);
             const SFBool              *getSFUniform         (void) const;
+            const SFUnrecNodePtr      *getSFHandleUniformNode(void) const;
+                  SFUnrecNodePtr      *editSFHandleUniformNode(void);
+            const SFUnrecNodePtr      *getSFTransUniformNode(void) const;
+                  SFUnrecNodePtr      *editSFTransUniformNode(void);
+            const SFUnrecMaterialPtr  *getSFMaterialUniform(void) const;
+                  SFUnrecMaterialPtr  *editSFMaterialUniform(void);
 
 
                   bool                &editUniform        (void);
                   bool                 getUniform         (void) const;
+
+                  Node * getHandleUniformNode(void) const;
+
+                  Node * getTransUniformNode(void) const;
+
+                  Material * getMaterialUniform(void) const;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -141,6 +167,14 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
     /*! \{                                                                 */
 
             void setUniform        (const bool value);
+            void setHandleUniformNode(Node * const value);
+            void setTransUniformNode(Node * const value);
+            void setMaterialUniform(Material * const value);
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                Ptr Field Set                                 */
+    /*! \{                                                                 */
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -201,6 +235,9 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
     /*! \{                                                                 */
 
     SFBool            _sfUniform;
+    SFUnrecNodePtr    _sfHandleUniformNode;
+    SFUnrecNodePtr    _sfTransUniformNode;
+    SFUnrecMaterialPtr _sfMaterialUniform;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -222,6 +259,7 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
     /*! \name                     onCreate                                */
     /*! \{                                                                 */
 
+    void onCreate(const ScaleManipulator *source = NULL);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -230,6 +268,12 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
 
     GetFieldHandlePtr  getHandleUniform         (void) const;
     EditFieldHandlePtr editHandleUniform        (void);
+    GetFieldHandlePtr  getHandleHandleUniformNode (void) const;
+    EditFieldHandlePtr editHandleHandleUniformNode(void);
+    GetFieldHandlePtr  getHandleTransUniformNode (void) const;
+    EditFieldHandlePtr editHandleTransUniformNode(void);
+    GetFieldHandlePtr  getHandleMaterialUniform (void) const;
+    EditFieldHandlePtr editHandleMaterialUniform(void);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

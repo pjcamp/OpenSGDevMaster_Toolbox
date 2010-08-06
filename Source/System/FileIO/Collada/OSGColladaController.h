@@ -36,29 +36,31 @@
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 
-#ifndef _OSGCOLLADAOPTIONS_H_
-#define _OSGCOLLADAOPTIONS_H_
-
+#ifndef _OSGCOLLADACONTROLLER_H_
+#define _OSGCOLLADACONTROLLER_H_
 #ifdef __sgi
 #pragma once
 #endif
 
-/*! \file OSGColladaOptions.h
-    \ingroup GrpLoader
- */
 #include "OSGConfig.h"
 
 #ifdef OSG_WITH_COLLADA
 
-#include "OSGFileIODef.h"
-#include "OSGMemoryObject.h"
-#include "OSGRefCountPtr.h"
-#include "OSGTransitPtr.h"
-#include "OSGIOFileTypeBase.h"
+#include "OSGColladaInstantiableElement.h"
+#include "OSGColladaElementFactoryHelper.h"
+#include "OSGColladaGeometry.h"
+#include "OSGNodeFields.h"
+
+#include <vector>
 
 OSG_BEGIN_NAMESPACE
 
-class OSG_FILEIO_DLLMAPPING ColladaOptions : public MemoryObject
+// forward decl
+class domInstanceController;
+class ColladaInstanceController;
+OSG_GEN_MEMOBJPTR(ColladaInstanceController);
+
+class OSG_FILEIO_DLLMAPPING ColladaController : public ColladaInstantiableElement
 {
     /*==========================  PUBLIC  =================================*/
   public:
@@ -66,43 +68,49 @@ class OSG_FILEIO_DLLMAPPING ColladaOptions : public MemoryObject
     /*! \name Types                                                        */
     /*! \{                                                                 */
 
-    typedef MemoryObject    Inherited;
-    typedef ColladaOptions  Self;
+    typedef ColladaInstantiableElement             Inherited;
+    typedef ColladaController Self;
 
-    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaOptions);
+    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaController);
 
-    typedef IOFileTypeBase::OptionSet OptionSet;
+
+	static ColladaElementTransitPtr
+        create(daeElement *elem, ColladaGlobal *global);
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name Reading                                                      */
+    /*! \{                                                                 */
+
+    virtual void read(void);
+
+    virtual Node *
+        createInstance(ColladaInstanceElement *instElem);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
-    /*! \name Create                                                       */
+    /*! \name Access                                                       */
     /*! \{                                                                 */
 
-    static ObjTransitPtr create(void);
+	struct SkinInfo {
+		GeoVec1fPropertyRecPtr weights;
+		Matrix bindShapeMatrix;
 
-    /*! \}                                                                 */
-    /*---------------------------------------------------------------------*/
-    /*! \name Options                                                      */
-    /*! \{                                                                 */
+		std::vector<Matrix> inverseBindPoseMatrices;
+		std::vector<std::string> jointSIDs;
+		std::vector<UInt32> v;
+		std::vector<UInt32> vCount;
 
-    virtual void parseOptions(const OptionSet &optSet);
+	};
 
-    /*! \}                                                                 */
-    /*---------------------------------------------------------------------*/
-    /*! \name Options                                                      */
-    /*! \{                                                                 */
+	const	SkinInfo &getSkinInfo	(void);
 
-    bool getInvertTransparency   (void      ) const;
-    void setInvertTransparency   (bool value);
-
-    bool getCreateNameAttachments(void      ) const;
-    void setCreateNameAttachments(bool value);
-
-    bool getFlattenNodeXForms    (void      ) const;
-    void setFlattenNodeXForms    (bool value);
-
-	bool getReadAnimations    (void      ) const;
-    void setReadAnimations    (bool value);
+	bool	hasSkin					(void);
+	bool	hasMorph				(void);
+/*
+	struct MorphInfo {
+		// NIY
+	};
+*/
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
@@ -110,25 +118,45 @@ class OSG_FILEIO_DLLMAPPING ColladaOptions : public MemoryObject
     /*---------------------------------------------------------------------*/
     /*! \name Constructors/Destructor                                      */
     /*! \{                                                                 */
+    
+             ColladaController(daeElement    *elem,
+                                        ColladaGlobal *global);
+    virtual ~ColladaController(void                 );
 
-             ColladaOptions(void);
-    virtual ~ColladaOptions(void);
+	void readSkin(domSkin *skin);
+	void readMorph(domMorph *morph);
 
-    /*! \}                                                                 */
-    /*---------------------------------------------------------------------*/
+	// stolen from ColladaGeometry to help with material binding
+	void handleBindMaterial( const ColladaGeometry::GeoInfo &geoInfo, 
+							 Geometry *geo, 
+							 ColladaInstanceController *colInstCont);
 
-    bool _invertTransparency;
-    bool _createNameAttachments;
-    bool _flattenNodeXForms;
-	bool _readAnimations;
+	const ColladaGeometry::BindInfo       
+		*findBind      (const ColladaGeometry::BindStore       &store,
+					    const std::string     &semantic,
+					    UInt32                &offset     );
+    const ColladaGeometry::BindVertexInfo 
+		*findBindVertex(const ColladaGeometry::BindVertexStore &store,
+						const std::string     &inSemantic,
+					    UInt32                 inSet,
+					    UInt32                &offset     );
+
+	NodeTransitPtr  createJointFromNode(domNode *node);
+	bool _hasSkin;
+	bool _hasMorph;
+	SkinInfo _mSkin;
+    GeometryRefPtr _sourceMesh;
+	ColladaGeometryRefPtr _sourceColGeo;
+
+    
+	static ColladaElementRegistrationHelper _regHelper;
+
 };
 
-OSG_GEN_MEMOBJPTR(ColladaOptions);
+OSG_GEN_MEMOBJPTR(ColladaController);
 
 OSG_END_NAMESPACE
 
-#include "OSGColladaOptions.inl"
-
 #endif // OSG_WITH_COLLADA
 
-#endif // _OSGCOLLADAOPTIONS_H_
+#endif // _OSGCOLLADACONTROLLER_H_

@@ -49,6 +49,7 @@
 #include "OSGColladaInstanceNode.h"
 #include "OSGColladaInstanceGeometry.h"
 #include "OSGColladaInstanceLight.h"
+#include "OSGColladaInstanceController.h"
 #include "OSGColladaVisualScene.h"
 #include "OSGTransform.h"
 #include "OSGNameAttachment.h"
@@ -90,37 +91,42 @@ ColladaNode::read(void)
 
     // handle "transform" child elements in the order
     // they occur in the document
-
-    for(UInt32 i = 0; i < contents.getCount(); ++i)
-    {
-        switch(contents[i]->getElementType())
-        {
-        case COLLADA_TYPE::LOOKAT:
-            handleLookAt(daeSafeCast<domLookat>(contents[i]));
-            break;
-            
-        case COLLADA_TYPE::MATRIX:
-            handleMatrix(daeSafeCast<domMatrix>(contents[i]));
-        break;
-        
-        case COLLADA_TYPE::ROTATE:
-            handleRotate(daeSafeCast<domRotate>(contents[i]));
-        break;
-        
-        case COLLADA_TYPE::SCALE:
-            handleScale(daeSafeCast<domScale>(contents[i]));
-        break;
-        
-        case COLLADA_TYPE::SKEW:
-            handleSkew(daeSafeCast<domSkew>(contents[i]));
-        break;
-        
-        case COLLADA_TYPE::TRANSLATE:
-            handleTranslate(daeSafeCast<domTranslate>(contents[i]));
-        break;
-        }
-    }
-
+	if(node->getType() ==  NODETYPE_JOINT)
+	{
+		handleJointNode(node);
+	}
+	else
+	{
+		for(UInt32 i = 0; i < contents.getCount(); ++i)
+		{
+			switch(contents[i]->getElementType())
+			{
+			case COLLADA_TYPE::LOOKAT:
+				handleLookAt(daeSafeCast<domLookat>(contents[i]));
+				break;
+	            
+			case COLLADA_TYPE::MATRIX:
+				handleMatrix(daeSafeCast<domMatrix>(contents[i]));
+			break;
+	        
+			case COLLADA_TYPE::ROTATE:
+				handleRotate(daeSafeCast<domRotate>(contents[i]));
+			break;
+	        
+			case COLLADA_TYPE::SCALE:
+				handleScale(daeSafeCast<domScale>(contents[i]));
+			break;
+	        
+			case COLLADA_TYPE::SKEW:
+				handleSkew(daeSafeCast<domSkew>(contents[i]));
+			break;
+	        
+			case COLLADA_TYPE::TRANSLATE:
+				handleTranslate(daeSafeCast<domTranslate>(contents[i]));
+			break;
+			}
+		}
+	}
     // handle <node> child elements
     const domNode_Array &nodes = node->getNode_array();
     
@@ -241,7 +247,8 @@ ColladaNode::handleMatrix(domMatrix *matrix)
 
     domNodeRef        node   = getDOMElementAs<domNode>();
 
-    TransformUnrecPtr xform  = Transform::create();
+    TransformUnrecPtr xform = Transform::create();
+
     NodeUnrecPtr      xformN = makeNodeFor(xform);
 
     Matrix m(matrix->getValue()[0],      // rVal00
@@ -268,7 +275,8 @@ ColladaNode::handleMatrix(domMatrix *matrix)
     {
         std::string nodeName = node->getName();
 
-        if(matrix->getSid() != NULL)
+        if(matrix->getSid() != NULL&& 
+			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
         {
             nodeName.append("."             );
             nodeName.append(matrix->getSid());
@@ -288,7 +296,7 @@ ColladaNode::handleRotate(domRotate *rotate)
 
     domNodeRef        node   = getDOMElementAs<domNode>();
 
-    TransformUnrecPtr xform  = Transform::create();
+    TransformUnrecPtr xform = Transform::create();
     NodeUnrecPtr      xformN = makeNodeFor(xform);
 
     Quaternion q;
@@ -304,7 +312,8 @@ ColladaNode::handleRotate(domRotate *rotate)
     {
         std::string nodeName = node->getName();
 
-        if(rotate->getSid() != NULL)
+        if(rotate->getSid() != NULL&& 
+			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
         {
             nodeName.append("."             );
             nodeName.append(rotate->getSid());
@@ -324,7 +333,7 @@ ColladaNode::handleScale(domScale *scale)
 
     domNodeRef        node   = getDOMElementAs<domNode>();
 
-    TransformUnrecPtr xform  = Transform::create();
+    TransformUnrecPtr xform = Transform::create();
     NodeUnrecPtr      xformN = makeNodeFor(xform);
 
     xform->editMatrix().setScale(scale->getValue()[0],
@@ -336,7 +345,8 @@ ColladaNode::handleScale(domScale *scale)
     {
         std::string nodeName = node->getName();
 
-        if(scale->getSid() != NULL)
+        if(scale->getSid() != NULL&& 
+			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
         {
             nodeName.append("."            );
             nodeName.append(scale->getSid());
@@ -365,7 +375,7 @@ ColladaNode::handleTranslate(domTranslate *translate)
 
     domNodeRef        node   = getDOMElementAs<domNode>();
 
-    TransformUnrecPtr xform  = Transform::create();
+    TransformUnrecPtr xform = Transform::create();
     NodeUnrecPtr      xformN = makeNodeFor(xform);
 
     xform->editMatrix().setTranslate(translate->getValue()[0],
@@ -377,7 +387,8 @@ ColladaNode::handleTranslate(domTranslate *translate)
     {
         std::string nodeName = node->getName();
 
-        if(translate->getSid() != NULL)
+        if(translate->getSid() != NULL && 
+			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
         {
             nodeName.append("."                );
             nodeName.append(translate->getSid());
@@ -465,37 +476,120 @@ ColladaNode::handleInstanceLight(domInstance_light *instLight)
 
         colInstLight->read();
     }
-
-    //Append the lights beacon node
-    GroupUnrecPtr lightBeacon = Group::create();
-    NodeRecPtr lightBeaconN = Node::create();
-    lightBeaconN->setCore(lightBeacon);
-    /*std::string BeaconNodeName(instLight->getName());
-    BeaconNodeName += "_beacon";
-    setName(lightBeaconN, BeaconNodeName);*/
-
-    //TODO: set beacon name
-    appendChild(lightBeaconN);
     
     //push the Light onto the root
     LightUnrecPtr light = colInstLight->process(this);
-    light->setBeacon(lightBeaconN);
+    if(light != NULL)
+    {
 
-    NodeRecPtr lightN = Node::create();
-    lightN->setCore(light);
-    //setName(lightN,instLight->getName());
-    //TODO: set light noame
+        //Append the lights beacon node
+        GroupUnrecPtr lightBeacon = Group::create();
+        NodeRecPtr lightBeaconN = Node::create();
+        lightBeaconN->setCore(lightBeacon);
+        /*std::string BeaconNodeName(instLight->getName());
+        BeaconNodeName += "_beacon";
+        setName(lightBeaconN, BeaconNodeName);*/
 
-    _visualScene->pushNodeToRoot(lightN);
+        //TODO: set beacon name
+        appendChild(lightBeaconN);
+
+        light->setBeacon(lightBeaconN);
+
+        NodeRecPtr lightN = Node::create();
+        lightN->setCore(light);
+        //setName(lightN,instLight->getName());
+        //TODO: set light name
+
+        _visualScene->pushNodeToRoot(lightN);
+    }
 
 }
 
 void
 ColladaNode::handleInstanceController(domInstance_controller *instController)
 {
-    SWARNING << "ColladaNode::handleInstanceController: NIY"
-             << std::endl;
+    ColladaInstanceControllerRefPtr colInstCont =
+		getUserDataAs<ColladaInstanceController>(instController);
+
+    if(colInstCont == NULL)
+    {
+        colInstCont = dynamic_pointer_cast<ColladaInstanceController>(
+            ColladaElementFactory::the()->create(instController, getGlobal()));
+
+        colInstCont->read();
+    }
+
+    NodeUnrecPtr contN = colInstCont->process(this);
+
+    appendChild(contN);
+
 }
+
+/*! Creates a joint, and sets its transformations based on the transformation
+	of the domNode.
+*/
+void ColladaNode::handleJointNode(domNode *node)
+{
+	TransformRecPtr newJoint = Transform::create();
+	Matrix baseXform,jointXform,tmp;
+
+	domTranslate_Array translations = node->getTranslate_array();
+	domRotate_Array rotations = node->getRotate_array();
+	domScale_Array scalings = node->getScale_array();
+
+	UInt32 i(0);
+	for(i = 0; i < translations.getCount(); i++)
+	{	
+		Vec3f translate(translations[i]->getValue()[0],
+						translations[i]->getValue()[1],
+						translations[i]->getValue()[2]);
+		tmp.setTranslate(translate);
+
+		newJoint->editMatrix().mult(tmp);
+		
+	}
+	tmp.setIdentity(); // reset tmp matrix
+	for(i = 0; i < rotations.getCount(); i++)
+	{	
+		
+		Quaternion quat;
+		
+		quat.setValueAsAxisDeg( rotations[i]->getValue()[0],
+								rotations[i]->getValue()[1],
+								rotations[i]->getValue()[2],
+								rotations[i]->getValue()[3]);
+		tmp.setRotate(quat);
+
+		newJoint->editMatrix().mult(tmp);
+		
+	}
+	tmp.setIdentity(); // reset tmp matrix
+	for(i = 0; i < scalings.getCount(); i++)
+	{	
+		Vec3f scale(scalings[i]->getValue()[0],
+					scalings[i]->getValue()[1],
+					scalings[i]->getValue()[2]);
+		tmp.setScale(scale);
+		
+		newJoint->editMatrix().mult(tmp);
+
+	}
+
+    NodeRecPtr      jointN = makeNodeFor(newJoint);
+
+	_bottomN = jointN;
+
+	if(_topN == NULL)
+    {
+        _topN = _bottomN;
+    }
+
+	setName(_bottomN, node->getID());
+
+	getGlobal()->editNodeToNodeMap()[node] = jointN;
+
+}
+
 
 /*! Add a transform node to the OpenSG tree representing
     this <node>.
@@ -512,7 +606,7 @@ ColladaNode::appendXForm(Node *xformN)
     {
         if(_bottomN != NULL)
         {
-            if(_bottomN->getCore()->getType() == Transform::getClassType())
+            if(_bottomN->getCore()->getType().isDerivedFrom(Transform::getClassType()))
             {
                 Transform* _bottomTrans = dynamic_cast<Transform*>(_bottomN->getCore());
 

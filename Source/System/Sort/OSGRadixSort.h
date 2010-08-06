@@ -2,11 +2,11 @@
  *                                OpenSG                                     *
  *                                                                           *
  *                                                                           *
- *               Copyright (C) 2000-2002 by the OpenSG Forum                 *
+ *             Copyright (C) 2000-2002 by the OpenSG Forum                   *
  *                                                                           *
  *                            www.opensg.org                                 *
  *                                                                           *
- *   contact: dirk@opensg.org, gerrit.voss@vossg.org, jbehr@zgdv.de          *
+ *                     contact: danielg@iastate.edu                          *
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*\
@@ -36,61 +36,28 @@
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 
-#ifndef _OSGMANIPULATORMANAGER_H_
-#define _OSGMANIPULATORMANAGER_H_
+#ifndef _OSG_RADIXSORT_H_
+#define _OSG_RADIXSORT_H_
 
 #include "OSGConfig.h"
-#include "OSGBaseTypes.h"
-#include "OSGNodeFields.h"
+#include "OSGUtilDef.h"
 
-#include "OSGManipulator.h"
-#include "OSGMoveManipulator.h"
-#include "OSGRotateManipulator.h"
-#include "OSGScaleManipulator.h"
+#include "OSGBaseTypes.h"
+#include "OSGSysFields.h"
 
 OSG_BEGIN_NAMESPACE
-
-class OSG_CONTRIBGUI_DLLMAPPING ManipulatorManager
-{
- public:
-    enum    ManipulatorType { ROTATE, SCALE, TRANSLATE };
-
-    NodeTransitPtr createManipulator(const ManipulatorType  type);
-    void           changeManipulator(const ManipulatorType  type);
-    Manipulator*   getManipulator   (void                       ) const;
-    
-    void           setTarget        (      Node     * const value);
-    Node*          getTarget        (void                        ) const;
-    void           setViewport      (      Viewport * const value);
-    bool           isActive         (      void                  );
-
-    void           setLength         (const Vec3f& len);
-    
-    void           mouseMove         (const Int16  x,
-                                      const Int16  y);
-    void           mouseButtonPress  (const UInt16 button,
-                                      const Int16  x,
-                                      const Int16  y     );
-    void           mouseButtonRelease(const UInt16 button,
-                                      const Int16  x,
-                                      const Int16  y     );
-
-    void           setUniformScale    (bool value        );
-    bool           getUniformScale    (void              ) const;
-
-    bool startManip    (Node *n);
-    void cancelManip   (void);
-    void endManip      (void);
-    bool isManipulating(void) const;
-private:
-
-    ManipulatorUnrecPtr  _maniC;
-    ManipulatorType      _currentType;
-    NodeUnrecPtr         _target;
-    ViewportUnrecPtr     _viewport;
-    bool                 _uniformScale;
-};
+/**
+*	Sorts a vector of floating point values.  After the sort is finished, the 
+*	sorted order of indices will be in the indices vector.
+*
+*	@param size		Number of elements to sort
+*	@param floats	Vector of 32-bit floating point numbers to sort
+*	@param indices	Vector which will contain the sorted indices, such that 
+*						indices[0] will be the index of the smallest value in floats
+*
+*/
+void OSG_UTIL_DLLMAPPING RadixSort(UInt32 size, const MFReal32 &floats, MFUInt32 &indices);
 
 OSG_END_NAMESPACE
 
-#endif // _OSGMANIPULATORMANAGER_H_
+#endif //_OSG_RADIXSORT_H_

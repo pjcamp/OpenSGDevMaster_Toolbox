@@ -131,7 +131,7 @@ void CgFXTechnique::rebuildState(void)
 
 bool CgFXTechnique::isTransparent(void) const
 {
-    return false;
+    return true;
 }
 
 UInt32 CgFXTechnique::getNPasses(void) const

@@ -67,12 +67,15 @@
 
 OSG_BEGIN_NAMESPACE
 
+class ColladaInstanceController;
+
 class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
 {
     /*==========================  PUBLIC  =================================*/
   public:
     /*---------------------------------------------------------------------*/
     /*! \name Types                                                        */
+	typedef std::set<FieldContainerUnrecPtr> FCPtrStore;
     /*! \{                                                                 */
 
     typedef MemoryObject   Inherited;
@@ -119,6 +122,9 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
     NodeTransitPtr read(      DAE          *dae,
                         const std::string  &fileName);
 
+	FCPtrStore readAll( std::istream &is,
+						const std::string &fileName);
+
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name Access                                                       */
@@ -149,6 +155,22 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
            ColladaElement     *getElement   (const daeURI      &elemURI) const;
            ColladaElement     *getElement   (const std::string &elemId ) const;
 
+	inline 
+	bool				addFieldContainer		(FieldContainer * fc);
+
+	inline 
+	const FCPtrStore	getFieldContainerStore	( void ) const;
+
+	inline			
+	FCPtrStore			editFieldContainerStore	( void );
+
+	void	addInstanceController		( ColladaInstanceController * const contr );
+
+	typedef std::map<domNode* ,Node*>	NodeToNodeMap;
+	typedef NodeToNodeMap::iterator		NTNMapIt;
+
+	NodeToNodeMap			&editNodeToNodeMap			(void);
+
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
   protected:
@@ -164,7 +186,10 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
     /*! \name Read                                                         */
     /*! \{                                                                 */
 
-    NodeTransitPtr doRead(void);
+    NodeTransitPtr	doRead				(void);
+	FCPtrStore		readAnimations		(void);
+	void			resolveControllers	(void);
+
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -180,6 +205,12 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
     DAE                  *_dae;
 
     NodeUnrecPtr          _rootN;
+	FCPtrStore			  _FCStore;
+
+	std::vector<ColladaInstanceController *> _instControllers;
+
+	NodeToNodeMap		  _nodeMap;
+
 };
 
 

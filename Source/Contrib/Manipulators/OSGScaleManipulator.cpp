@@ -48,6 +48,7 @@
 #include "OSGConfig.h"
 #include "OSGRenderAction.h"
 #include "OSGIntersectAction.h"
+#include "OSGSimpleMaterial.h"
 
 #include "OSGScaleManipulator.h"
 
@@ -104,6 +105,53 @@ void ScaleManipulator::initMethod(InitPhase ePhase)
 /*-------------------------------------------------------------------------*\
  -  private                                                                 -
 \*-------------------------------------------------------------------------*/
+void ScaleManipulator::addHandleGeo(Node *n)
+{
+    Inherited::addHandleGeo(n);
+
+    n->addChild(getTransUniformNode());
+}
+
+void ScaleManipulator::subHandleGeo(Node *n)
+{
+    Inherited::subHandleGeo(n);
+
+    n->subChild(getTransUniformNode());
+}
+
+void ScaleManipulator::onCreate(const ScaleManipulator* source)
+{
+    Inherited::onCreate(source);
+
+    if(source != NULL)
+    {
+        //
+        // make the yellow uniform scale transform and handle
+
+
+        SimpleMaterialRecPtr simpleMat = SimpleMaterial::create();
+        simpleMat->setDiffuse(Color3f(1, 1, 0));
+        simpleMat->setLit    (true            );
+        setMaterialUniform(simpleMat);
+
+
+        NodeRecPtr pNode = makeHandleGeo();
+        dynamic_cast<Geometry *>(pNode->getCore())->setMaterial(getMaterialUniform());
+        setHandleUniformNode(pNode);
+
+        pNode = Node::create();
+        ComponentTransformUnrecPtr transHandleUniformC = ComponentTransform::create();
+        pNode->setCore (transHandleUniformC  );
+        pNode->addChild(getHandleUniformNode());
+        setTransUniformNode(pNode);
+
+        commitChanges();
+    }
+}
+
+void ScaleManipulator::onDestroy()
+{
+}
 
 /*----------------------- constructors & destructors ----------------------*/
 
@@ -136,9 +184,45 @@ void ScaleManipulator::dump(      UInt32    uiIndent,
     Inherited::dump(uiIndent, bvFlags);
 }
 
+bool ScaleManipulator::hasSubHandle(Node * const n)
+{
+    return ( n == getHandleUniformNode() ||
+             Inherited::hasSubHandle(n));
+}
+
 NodeTransitPtr ScaleManipulator::makeHandleGeo()
 {
-    return makeCylinder(0.75f, 0.1f, 12, true, true, true);
+    return makeBox(0.5f,0.5f,0.5f, 2, 2, 2);
+}
+
+UInt16 ScaleManipulator::getActiveHandle(void) const
+{
+    //  check for the active handle
+    if(getActiveSubHandle() == getHandleXNode())
+    {
+        return X_AXIS_HANDLE;
+    }
+    else if(getActiveSubHandle() == getHandleYNode())
+    {
+        return Y_AXIS_HANDLE;
+    }
+    else if(getActiveSubHandle() == getHandleZNode())
+    {
+        return Z_AXIS_HANDLE;
+    }
+    else if(getActiveSubHandle() == getHandleUniformNode())
+    {
+        return ALL_AXES_HANDLE;
+    }
+    return NO_AXES_HANDLE;
+}
+
+void ScaleManipulator::updateLength(void)
+{
+    Vec3f scale(Vec3f(1.0f,1.0f,1.0f) * osgMax(1.0f, getLength().maxValue() * 0.2f));
+    dynamic_cast<ComponentTransform*>(getTransUniformNode()->getCore())->setScale(scale);
+
+    Inherited::updateLength();
 }
 
 void ScaleManipulator::doMovement(      Transform    *t,
@@ -151,28 +235,23 @@ void ScaleManipulator::doMovement(      Transform    *t,
 {
     Vec3f scale(1.0f, 1.0f, 1.0f);
 
-    if(getUniform() == true)
+    if(coord == ALL_AXES_HANDLE)
     {
         scale += Vec3f(value, value, value);
     }
     else
     {
-        scale[coord] += value;
+        scale[coord] += value * getLength()[coord];
     }
+    
+    Matrix scaleMat;
+    scaleMat.setScale(scale);
 
-    Matrix ma, mb, mc, md, me;
+    Matrix Result(_initialXForm);
+    Result.mult(scaleMat);
 
-    ma.setTranslate(-translation       );
-    mb.setRotate   ( rotation.inverse());
-    mc.setScale    ( scale             );
-    md.setRotate   ( rotation          );
-    me.setTranslate( translation       );
-
-    t->editMatrix().multLeft(ma);
-    t->editMatrix().multLeft(mb);
-    t->editMatrix().multLeft(mc);
-    t->editMatrix().multLeft(md);
-    t->editMatrix().multLeft(me);
+    t->setMatrix(Result);
 
     commitChanges();
 }
+

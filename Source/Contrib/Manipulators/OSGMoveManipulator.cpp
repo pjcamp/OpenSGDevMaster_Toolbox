@@ -138,7 +138,7 @@ void MoveManipulator::dump(      UInt32    uiIndent,
 
 NodeTransitPtr MoveManipulator::makeHandleGeo()
 {
-    return makeCone(0.75f, 0.1f, 12, true, true);
+    return makeCone(0.6f, 0.15f, 12, true, true);
 }
 
 void MoveManipulator::doMovement(      Transform    *t,
@@ -150,20 +150,15 @@ void MoveManipulator::doMovement(      Transform    *t,
                                  const Quaternion   &scaleOrientation)
 {
     Vec3f trans(0.0f, 0.0f, 0.0f);
-    trans[coord] = value;
+    trans[coord] = value * getLength()[coord];
 
-    Matrix ma, mb, mc, md, me;
+    Matrix translateMat;
+    translateMat.setTranslate(trans);
 
-    ma.setTranslate( -translation        );
-    mb.setRotate   (  rotation.inverse() );
-    mc.setTransform(  trans              );
-    md.setRotate   (  rotation           );
-    me.setTranslate(  translation        );
-    t->editMatrix().multLeft(ma);
-    t->editMatrix().multLeft(mb);
-    t->editMatrix().multLeft(mc);
-    t->editMatrix().multLeft(md);
-    t->editMatrix().multLeft(me);
+    Matrix Result(_initialXForm);
+    Result.mult(translateMat);
+
+    t->setMatrix(Result);
 
     commitChanges();
 }

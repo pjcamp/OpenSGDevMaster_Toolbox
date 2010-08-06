@@ -857,23 +857,23 @@ void QuaternionBase<ValueTypeT>::getEulerAngleRad(VectorType &euler) const
     ValueTypeT test(x()*y() + z()*w());
     if(test > 0.499)// (north pole)
     {
-        euler[0] = 2.0 * osgATan2(x(),w());
-        euler[1] = 1.5707963267;
-        euler[2] = 0.0;
+        euler[0] = 0.0;
+        euler[1] = 2.0 * osgATan2(x(),w());
+        euler[2] = 1.5707963267;
         return;
     }
     else if(test < -0.499)// (south pole)
     {
-        euler[0] = -2.0 * osgATan2(x(),w());
-        euler[1] = 1.5707963267;
-        euler[2] = 0.0; 
+        euler[0] = 0.0; 
+        euler[1] = -2.0 * osgATan2(x(),w());
+        euler[2] = 1.5707963267;
         return;
     }
     else
     {
         euler[0] = osgATan2(2.0*x()*w()-2.0*y()*z() , 1.0 - 2.0*x()*x() - 2.0*z()*z());
-        euler[1] = osgASin(2.0*x()*y() + 2.0*z()*w());
-        euler[2] = osgATan2(2.0*y()*w()-2.0*x()*z() , 1.0 - 2.0*y()*y() - 2.0*z()*z());
+        euler[1] = osgATan2(2.0*y()*w()-2.0*x()*z() , 1.0 - 2.0*y()*y() - 2.0*z()*z());
+        euler[2] = osgASin (2.0*x()*y() + 2.0*z()*w());
     }
 
 }

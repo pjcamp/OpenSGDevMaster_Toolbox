@@ -36,29 +36,25 @@
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 
-#ifndef _OSGCOLLADAOPTIONS_H_
-#define _OSGCOLLADAOPTIONS_H_
+#ifndef _OSGCOLLADAINSTANCECONTROLLER_H_
+#define _OSGCOLLADAINSTANCECONTROLLER_H_
 
-#ifdef __sgi
-#pragma once
-#endif
-
-/*! \file OSGColladaOptions.h
-    \ingroup GrpLoader
- */
 #include "OSGConfig.h"
 
 #ifdef OSG_WITH_COLLADA
 
-#include "OSGFileIODef.h"
-#include "OSGMemoryObject.h"
-#include "OSGRefCountPtr.h"
-#include "OSGTransitPtr.h"
-#include "OSGIOFileTypeBase.h"
+#include "OSGColladaInstanceElement.h"
+#include "OSGColladaController.h"
+#include "OSGColladaInstanceMaterial.h"
+#include "OSGColladaElementFactoryHelper.h"
+#include "OSGSkeletonBlendedGeometry.h"
+
+#include <dom/domController.h>
 
 OSG_BEGIN_NAMESPACE
 
-class OSG_FILEIO_DLLMAPPING ColladaOptions : public MemoryObject
+class OSG_FILEIO_DLLMAPPING ColladaInstanceController
+    : public ColladaInstanceElement
 {
     /*==========================  PUBLIC  =================================*/
   public:
@@ -66,43 +62,49 @@ class OSG_FILEIO_DLLMAPPING ColladaOptions : public MemoryObject
     /*! \name Types                                                        */
     /*! \{                                                                 */
 
-    typedef MemoryObject    Inherited;
-    typedef ColladaOptions  Self;
+    typedef ColladaInstanceElement  Inherited;
+    typedef ColladaInstanceController Self;
 
-    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaOptions);
+    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaInstanceController);
 
-    typedef IOFileTypeBase::OptionSet OptionSet;
+	// map material symbol to material instance
+    typedef std::map<std::string,
+                     ColladaInstanceMaterialRefPtr>  MaterialMap;
+    typedef MaterialMap::iterator                    MaterialMapIt;
+    typedef MaterialMap::const_iterator              MaterialMapConstIt;
+
+	typedef domInstance_controller::domSkeleton_Array Joints;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name Create                                                       */
     /*! \{                                                                 */
 
-    static ObjTransitPtr create(void);
+    static ColladaElementTransitPtr
+        create(daeElement *elem, ColladaGlobal *global); 
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
-    /*! \name Options                                                      */
+    /*! \name Reading                                                      */
     /*! \{                                                                 */
 
-    virtual void parseOptions(const OptionSet &optSet);
+    virtual void  read   (void                  );
+    virtual Node *process(ColladaElement *parent);
 
+	void	setSkeleton	 (SkeletonBlendedGeometry * skeleton);
+
+	SkeletonBlendedGeometry				*getSkeleton	 (void) const;
+	const MaterialMap							&getMaterialMap  (void) const;
+	const Joints								&getJoints		 (void) const;
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
-    /*! \name Options                                                      */
+    /*! \name Access                                                       */
     /*! \{                                                                 */
 
-    bool getInvertTransparency   (void      ) const;
-    void setInvertTransparency   (bool value);
+    virtual ColladaController *getTargetElem   (void) const;
+    virtual daeElement      *getTargetDOMElem(void) const;
 
-    bool getCreateNameAttachments(void      ) const;
-    void setCreateNameAttachments(bool value);
 
-    bool getFlattenNodeXForms    (void      ) const;
-    void setFlattenNodeXForms    (bool value);
-
-	bool getReadAnimations    (void      ) const;
-    void setReadAnimations    (bool value);
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
@@ -110,25 +112,27 @@ class OSG_FILEIO_DLLMAPPING ColladaOptions : public MemoryObject
     /*---------------------------------------------------------------------*/
     /*! \name Constructors/Destructor                                      */
     /*! \{                                                                 */
-
-             ColladaOptions(void);
-    virtual ~ColladaOptions(void);
+    
+             ColladaInstanceController(daeElement *elem, ColladaGlobal *global);
+    virtual ~ColladaInstanceController(void                                   );
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
 
-    bool _invertTransparency;
-    bool _createNameAttachments;
-    bool _flattenNodeXForms;
-	bool _readAnimations;
+    static ColladaElementRegistrationHelper _regHelper;
+
+	MaterialMap _matMap;
+	Joints _joints;
+	SkeletonBlendedGeometryRecPtr _skeleton;
+
 };
 
-OSG_GEN_MEMOBJPTR(ColladaOptions);
+OSG_GEN_MEMOBJPTR(ColladaInstanceController);
 
 OSG_END_NAMESPACE
 
-#include "OSGColladaOptions.inl"
+// #include "OSGColladaInstanceController.inl"
 
 #endif // OSG_WITH_COLLADA
 
-#endif // _OSGCOLLADAOPTIONS_H_
+#endif // _OSGCOLLADAINSTANCECONTROLLER_H_

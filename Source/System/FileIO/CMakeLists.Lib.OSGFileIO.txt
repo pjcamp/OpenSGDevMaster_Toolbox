@@ -11,7 +11,8 @@ SET(${PROJECT_NAME}_DEP_OSG_LIB OSGDrawable
                                 OSGGroup
                                 OSGState
                                 OSGDynamics
-                                OSGContribCgFX)
+                                OSGContribCgFX
+                                OSGTBAnimation)
 SET(${PROJECT_NAME}_DEP_TEST_OSG_LIB OSGImageFileIO
                                      OSGUtil
                                      OSGWindowGLUT)

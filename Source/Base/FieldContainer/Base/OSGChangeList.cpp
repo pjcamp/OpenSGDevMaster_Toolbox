@@ -384,7 +384,7 @@ void ChangeList::doCommitChanges(void)
     }
 
 
-    const unsigned loop_detection_limit(15);
+    const unsigned loop_detection_limit(25);
     unsigned loop_count(0);
     bool  detected_loop(false);
     

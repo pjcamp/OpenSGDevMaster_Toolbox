@@ -6,7 +6,7 @@
  *                                                                           *
  *                            www.opensg.org                                 *
  *                                                                           *
- *   contact: dirk@opensg.org, gerrit.voss@vossg.org, jbehr@zgdv.de          *
+ *                 contact: dan.guilliams@gmail.com			     *
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*\
@@ -36,29 +36,41 @@
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 
-#ifndef _OSGCOLLADAOPTIONS_H_
-#define _OSGCOLLADAOPTIONS_H_
+#ifndef _OSGCOLLADANIMATION_H_
+#define _OSGCOLLADANIMATION_H_
 
-#ifdef __sgi
-#pragma once
-#endif
-
-/*! \file OSGColladaOptions.h
-    \ingroup GrpLoader
- */
 #include "OSGConfig.h"
 
 #ifdef OSG_WITH_COLLADA
 
-#include "OSGFileIODef.h"
-#include "OSGMemoryObject.h"
-#include "OSGRefCountPtr.h"
-#include "OSGTransitPtr.h"
-#include "OSGIOFileTypeBase.h"
+#include "OSGColladaInstantiableElement.h"
+#include "OSGColladaElementFactoryHelper.h"
+#include "OSGColladaInstanceMaterial.h"
+#include "OSGColladaSource.h"
+#include "OSGNode.h"
+//Animation
+#include "OSGKeyframeSequences.h"
+#include "OSGKeyframeAnimator.h"
+#include "OSGFieldAnimation.h"
+#include "OSGAnimation.h"
+
+
+#include <dae/daeDomTypes.h>
+#include <dom/domInputLocal.h>
+#include <dom/domInputLocalOffset.h>
+
+// forward decls
+
+
 
 OSG_BEGIN_NAMESPACE
 
-class OSG_FILEIO_DLLMAPPING ColladaOptions : public MemoryObject
+// forward decls
+class ColladaInstanceAnimation;
+OSG_GEN_MEMOBJPTR(ColladaInstanceAnimation);
+
+
+class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 {
     /*==========================  PUBLIC  =================================*/
   public:
@@ -66,44 +78,32 @@ class OSG_FILEIO_DLLMAPPING ColladaOptions : public MemoryObject
     /*! \name Types                                                        */
     /*! \{                                                                 */
 
-    typedef MemoryObject    Inherited;
-    typedef ColladaOptions  Self;
+    typedef ColladaInstantiableElement Inherited;
+    typedef ColladaAnimation            Self;
 
-    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaOptions);
+    OSG_GEN_INTERNAL_MEMOBJPTR(ColladaAnimation);
 
-    typedef IOFileTypeBase::OptionSet OptionSet;
+
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name Create                                                       */
     /*! \{                                                                 */
 
-    static ObjTransitPtr create(void);
+    static ColladaElementTransitPtr
+        create(daeElement *elem, ColladaGlobal *global);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
-    /*! \name Options                                                      */
+    /*! \name Reading                                                      */
     /*! \{                                                                 */
 
-    virtual void parseOptions(const OptionSet &optSet);
+    virtual void		read(void);
+   // virtual FieldContainer *process(void);
 
-    /*! \}                                                                 */
-    /*---------------------------------------------------------------------*/
-    /*! \name Options                                                      */
-    /*! \{                                                                 */
+	virtual FieldContainer *createInstance(ColladaInstanceElement *colInstElem);
 
-    bool getInvertTransparency   (void      ) const;
-    void setInvertTransparency   (bool value);
-
-    bool getCreateNameAttachments(void      ) const;
-    void setCreateNameAttachments(bool value);
-
-    bool getFlattenNodeXForms    (void      ) const;
-    void setFlattenNodeXForms    (bool value);
-
-	bool getReadAnimations    (void      ) const;
-    void setReadAnimations    (bool value);
-
+	
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
   protected:
@@ -111,24 +111,54 @@ class OSG_FILEIO_DLLMAPPING ColladaOptions : public MemoryObject
     /*! \name Constructors/Destructor                                      */
     /*! \{                                                                 */
 
-             ColladaOptions(void);
-    virtual ~ColladaOptions(void);
+             ColladaAnimation(daeElement *elem, ColladaGlobal *global);
+    virtual ~ColladaAnimation(void                                   );
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
+    /*! \name Internal Types                                               */
+    /*! \{                                                                 */
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+	static ColladaElementRegistrationHelper _regHelper;
 
-    bool _invertTransparency;
-    bool _createNameAttachments;
-    bool _flattenNodeXForms;
-	bool _readAnimations;
+	// used to determine which type of keyframe sequence we need
+	enum SequenceType {	REAL,REAL2,REAL3,REAL4,INT,INT2,INT3,INT4,BOOL,BOOL2,
+						BOOL3,BOOL4,COLOR3,COLOR4,QUATX,QUATY,QUATZ,INVALID};
+
+	void buildKeyframeSequence(domAnimationRef anim);
+	void buildFloatSequence(domAnimationRef animation, domAccessorRef accessor, std::vector<Real32> timeKeys);
+	void buildIntSequence(domAnimationRef animation, domAccessorRef accessor, std::vector<Real32> timeKeys);
+	void buildBoolSequence(domAnimationRef animation, domAccessorRef accessor, std::vector<Real32> timeKeys);
+	void readSamplers(domAnimationRef anim);
+	void getInterpolationType();
+
+	
+	//  map from a <source> name to its corresponding OpenSG keyframe sequence
+	//  typedef std::map<std::string, KeyframeInfoPtr>	SourceMap;
+	//  typedef SourceMap::iterator								SourceMapIt;
+	//	typedef SourceMap::const_iterator						SourceMapConstIt;
+
+	//SourceMap _sourceMap;
+	//SourceMap _samplerMap;
+	std::string _animationTarget;
+	KeyframeSequenceUnrecPtr _keyframeSequence;
+	AnimatorUnrecPtr _animator;
+	AnimationUnrecPtr _animation;
+	Animator::InterpolationType _interpolationType;
+	domSourceRef _inputSource;
+	domSourceRef _outputSource;
+	domSourceRef _interpolationSource;
+	
 };
 
-OSG_GEN_MEMOBJPTR(ColladaOptions);
+OSG_GEN_MEMOBJPTR(ColladaAnimation);
 
 OSG_END_NAMESPACE
 
-#include "OSGColladaOptions.inl"
+// #include "OSGColladaGeometry.inl"
 
 #endif // OSG_WITH_COLLADA
 
-#endif // _OSGCOLLADAOPTIONS_H_
+#endif // _OSGCOLLADANIMATION_H_
+
