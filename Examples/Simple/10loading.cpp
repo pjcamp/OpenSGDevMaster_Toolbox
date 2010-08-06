@@ -63,7 +63,6 @@ int main(int argc, char **argv)
 {
 	// load necessary libs for reading files
 	OSG::preloadSharedObject("OSGFileIO");
-	OSG::preloadSharedObject("OSGTBFileIO");
     OSG::preloadSharedObject("OSGImageFileIO");
     // OSG init
     OSG::osgInit(argc,argv);
