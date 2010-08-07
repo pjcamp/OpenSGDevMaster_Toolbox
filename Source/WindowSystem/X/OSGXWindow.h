@@ -93,7 +93,7 @@ class OSG_WINDOWX_DLLMAPPING XWindow : public XWindowBase
                       const BitVector  bvFlags  = 0) const;
 
     /*! \}                                                                 */
-	virtual WindowUnrecPtr initWindow(void);
+	virtual Window* initWindow(void);
 
     virtual bool attachWindow(void);
 
