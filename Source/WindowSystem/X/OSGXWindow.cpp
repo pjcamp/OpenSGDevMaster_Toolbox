@@ -389,7 +389,7 @@ KeyEvent::Key XWindow::determineKey(const KeySym& XKeySym)
  *                           Instance methods                              *
 \***************************************************************************/
 
-WindowUnrecPtr XWindow::initWindow(void)
+Window* XWindow::initWindow(void)
 {
 	WindowPtr MyWindow = Inherited::initWindow();
 	

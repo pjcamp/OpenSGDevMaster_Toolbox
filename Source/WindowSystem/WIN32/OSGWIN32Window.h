@@ -102,7 +102,7 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
                                           WPARAM wParam, LPARAM lParam);
 
     virtual bool attachWindow(void);
-    virtual WindowUnrecPtr initWindow(void);
+    virtual Window* initWindow(void);
     virtual void mainLoop(void);
 
     //Set the Window Position
@@ -206,7 +206,7 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
 
   protected:
 
-    typedef std::map<HWND, WIN32WindowUnrecPtr> WIN32HWNDToProducerMap;
+    typedef std::map<HWND, WIN32Window*> WIN32HWNDToProducerMap;
     
 
     // Variables should all be in WIN32WindowBase.
@@ -274,6 +274,8 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
     bool _IsMouseCursorAssociated;
     bool _HandleNextMouseMove;
     Pnt2f _PreviousCursorPos;
+
+    bool _RunMainLoop;
     /*==========================  PRIVATE  ================================*/
 
   private:

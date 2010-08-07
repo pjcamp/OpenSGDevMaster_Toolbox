@@ -117,7 +117,7 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
     
     virtual void mainLoop(void);
 	
-	virtual WindowUnrecPtr initWindow(void);
+	virtual Window* initWindow(void);
 	
     //Set the Window Position
     virtual void setPosition(Pnt2f Pos);

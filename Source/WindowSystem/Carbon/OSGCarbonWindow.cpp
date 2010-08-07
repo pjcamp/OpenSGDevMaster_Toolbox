@@ -1042,7 +1042,7 @@ KeyEvent::KeyState CarbonWindow::getKeyState(KeyEvent::Key TheKey) const
 	}
 }
 
-WindowUnrecPtr CarbonWindow::initWindow(void)
+Window* CarbonWindow::initWindow(void)
 {
 	WindowUnrecPtr MyWindow = Inherited::initWindow();
     

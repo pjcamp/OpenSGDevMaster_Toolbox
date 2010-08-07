@@ -135,7 +135,8 @@ void  WIN32Window::mainLoop(void)
     // main loop 
     WIN32HWNDToProducerMap::iterator MapItor;
     //while ( GetMessage(&msg, NULL, 0, 0) > 0 )
-    while (_WIN32HWNDToProducerMap.size() != 0  )
+    _RunMainLoop = true;
+    while (_RunMainLoop)
     {
         if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
         {
@@ -1217,7 +1218,7 @@ void WIN32Window::update(void)
     SendMessage(getHwnd(),WIN32_UPDATE_MESSAGE,0,0);
 }
 
-WindowUnrecPtr WIN32Window::initWindow(void)
+Window* WIN32Window::initWindow(void)
 {
 	WindowRefPtr MyWindow = Inherited::initWindow();
     //Create the Win32 Window
@@ -1501,7 +1502,12 @@ LRESULT WIN32Window::WndProc(HWND hwnd, UINT uMsg,
 
         case WM_CLOSE:
             produceWindowClosing();
-            return DefWindowProc(hwnd,uMsg,wParam,lParam);
+            //Hide the window
+            ShowWindow(hwnd, SW_HIDE);
+            _RunMainLoop = false;
+            _WIN32HWNDToProducerMap.erase(_WIN32HWNDToProducerMap.find(getHwnd()));
+            //Don't actually destroy the window yet
+            //return DefWindowProc(hwnd,uMsg,wParam,lParam);
             break;
             
         case WIN32_DRAW_MESSAGE:
@@ -1551,7 +1557,7 @@ LRESULT WIN32Window::WndProc(HWND hwnd, UINT uMsg,
             break;
 
         case WM_DESTROY:
-            produceWindowClosing();
+            produceWindowClosed();
             PostQuitMessage(0);
             _WIN32HWNDToProducerMap.erase(_WIN32HWNDToProducerMap.find(getHwnd()));
             break;
@@ -1726,7 +1732,7 @@ bool WIN32Window::getFullscreen(void) const
 
 void WIN32Window::closeWindow(void)
 {
-	DestroyWindow(getHwnd());
+    SendMessage(getHwnd(),WM_CLOSE,0,0);
 }
 
 void WIN32Window::setTitle(const std::string& TitleText)
@@ -1793,6 +1799,13 @@ void WIN32Window::onDestroy(UInt32 uiContainerId)
 {
 
     Inherited::onDestroy(uiContainerId);
+
+    if(IsWindow(getHwnd()))
+    {
+        DestroyWindow(getHwnd());
+        produceWindowClosed();
+        //PostQuitMessage(0);
+    }
 }
 
 /*----------------------- constructors & destructors ----------------------*/
