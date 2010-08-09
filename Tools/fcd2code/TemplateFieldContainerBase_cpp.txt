@@ -63,13 +63,6 @@
 
 @@AdditionalIncludes@@
 
-
-@@BeginProducedMethodLoop@@
-    @@if producedMethod.needTypeInclude
-#include @!producedMethod.TypeInclude!@
-    @@endif // producedMethod.needTypeInclude
-@@EndProducedMethodLoop@@
-
 @@BeginFieldLoop@@
     @@if field.needDefaultInclude
 #include @!field.DefaultInclude:30!@   // @!field.Name!@ default header
@@ -88,10 +81,10 @@
 #include "OSG@!Classname!@.h"
 
 #include <boost/bind.hpp>
-@@if hasProducedMethods
+@@if hasProducedEvents
 
-#include "OSGEvent.h"
-@@endif // hasProducedMethods
+#include "OSGEventDetails.h"
+@@endif // hasProducedEvents
 
 #ifdef WIN32 // turn off 'this' : used in base member initializer list warning
 #pragma warning(disable:4355)
@@ -234,22 +227,6 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&@!Classname!@::getHandleDecoratee ));
 
     oType.addInitialDesc(pDesc);
-<<<<<<< Updated upstream
-        @@if isRootProducer
-    pDesc = new SFEventProducerPtr::Description(
-        SFEventProducerPtr::getClassType(),
-        "@!Classname!@EventProducer",
-        "Event Producer",
-        EventProducerFieldId,EventProducerFieldMask,
-        false,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast     <FieldEditMethodSig>(&@!Classname!@::editHandleEventProducer),
-        static_cast     <FieldGetMethodSig >(&@!Classname!@::getHandleEventProducer));
-
-    oType.addInitialDesc(pDesc);
-        @@endif // isRootProducer
-=======
->>>>>>> Stashed changes
     @@else // isDecorator
         @@BeginFieldLoop@@
 
@@ -270,22 +247,6 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
         @@EndFieldLoop@@
-<<<<<<< Updated upstream
-        @@if isRootProducer
-    pDesc = new SFEventProducerPtr::Description(
-        SFEventProducerPtr::getClassType(),
-        "EventProducer",
-        "Event Producer",
-        EventProducerFieldId,EventProducerFieldMask,
-        false,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast     <FieldEditMethodSig>(&@!Classname!@::editHandleEventProducer),
-        static_cast     <FieldGetMethodSig >(&@!Classname!@::getHandleEventProducer));
-
-    oType.addInitialDesc(pDesc);
-        @@endif // isRootProducer
-=======
->>>>>>> Stashed changes
     @@endif // isDecorator
 }
 
@@ -308,25 +269,25 @@ void @!Classname!@Base::classDescInserter(TypeObject &oType)
     @!Fcdxml!@,
     @!SafeDescription!@
     );
-@@if hasProducedMethods
+@@if hasProducedEvents
 
-//! @!Classname!@ Produced Methods
+//! @!Classname!@ Produced Events
 
-MethodDescription *@!Classname!@Base::_methodDesc[] =
+EventDescription *@!Classname!@Base::_eventDesc[] =
 {
-@@BeginProducedMethodLoop@@
-    new MethodDescription("@!producedMethod.Name!@", 
-                          "@!producedMethod.Description!@",
-                          @!producedMethod.Name!@MethodId, 
-                          FieldTraits<@!producedMethod.TypeRaw!@ *>::getType(),
-    @@if producedMethod.consumable
+@@BeginProducedEventLoop@@
+    new EventDescription("@!producedEvent.Name!@", 
+                          "@!producedEvent.Description!@",
+                          @!producedEvent.Name!@EventId, 
+                          FieldTraits<@!producedEvent.TypeRaw!@ *>::getType(),
+    @@if producedEvent.consumable
                           true,
     @@else 
                           false,
     @@endif 
-                          static_cast<MethodGetMethod>(&@!Classname!@Base::getHandle@!producedMethod.Name!@Signal))@!producedMethod.Separator!@
+                          static_cast<EventGetMethod>(&@!Classname!@Base::getHandle@!producedEvent.Name!@Signal))@!producedEvent.Separator!@
 
-@@EndProducedMethodLoop@@
+@@EndProducedEventLoop@@
 };
 
 EventProducerType @!Classname!@Base::_producerType(
@@ -338,8 +299,8 @@ EventProducerType @!Classname!@Base::_producerType(
 @@endif 
     "",
     InitEventProducerFunctor(),
-    _methodDesc,
-    sizeof(_methodDesc));
+    _eventDesc,
+    sizeof(_eventDesc));
 @@endif 
 
 /*------------------------------ get -----------------------------------*/
@@ -354,7 +315,7 @@ const FieldContainerType &@!Classname!@Base::getType(void) const
     return _type;
 }
 
-@@if hasProducedMethods 
+@@if hasProducedEvents 
 const EventProducerType &@!Classname!@Base::getProducerType(void) const
 {
     return _producerType;
@@ -844,49 +805,49 @@ FieldContainerTransitPtr @!Classname!@Base::shallowCopy(void) const
 
 @@endif // !isAbstract
 
-@@if hasProducedMethods
+@@if hasProducedEvents
 /*------------------------- event producers ----------------------------------*/
-void @!Classname!@Base::produceEvent(UInt32 methodId, Event* const e)
+void @!Classname!@Base::produceEvent(UInt32 eventId, EventDetails* const e)
 {
-    switch(methodId)
+    switch(eventId)
     {
-@@BeginProducedMethodLoop@@
-    case @!producedMethod.Name!@MethodId:
-        assert(dynamic_cast<@!producedMethod.Name!@EventType* const>(e));
+@@BeginProducedEventLoop@@
+    case @!producedEvent.Name!@EventId:
+        OSG_ASSERT(dynamic_cast<@!producedEvent.Name!@EventDetailsType* const>(e));
 
-    @@if producedMethod.consumable 
-        _@!producedMethod.Name!@Method.set_combiner(ConsumableEventCombiner(e));
-    @@endif // producedMethod.consumable
-        _@!producedMethod.Name!@Method(dynamic_cast<@!producedMethod.Name!@EventType* const>(e), @!producedMethod.Name!@MethodId);
+    @@if producedEvent.consumable 
+        _@!producedEvent.Name!@Event.set_combiner(ConsumableEventCombiner(e));
+    @@endif // producedEvent.consumable
+        _@!producedEvent.Name!@Event(dynamic_cast<@!producedEvent.Name!@EventDetailsType* const>(e), @!producedEvent.Name!@EventId);
         break;
-@@EndProducedMethodLoop@@
+@@EndProducedEventLoop@@
     default:
     @@if isRootProducer 
-        assert(false && "No method defined with that ID");
+        SWARNING << "No event defined with that ID";
     @@else
-        Inherited::produceEvent(methodId, e);
+        Inherited::produceEvent(eventId, e);
     @@endif // !isRootProducer
         break;
     }
 }
 
-boost::signals2::connection @!Classname!@Base::connectMethod(UInt32 methodId, 
-                                                             const BaseMethodType::slot_type &listener, 
+boost::signals2::connection @!Classname!@Base::connectEvent(UInt32 eventId, 
+                                                             const BaseEventType::slot_type &listener, 
                                                              boost::signals2::connect_position at)
 {
-    switch(methodId)
+    switch(eventId)
     {
-@@BeginProducedMethodLoop@@
-    case @!producedMethod.Name!@MethodId:
-        return _@!producedMethod.Name!@Method.connect(listener, at);
+@@BeginProducedEventLoop@@
+    case @!producedEvent.Name!@EventId:
+        return _@!producedEvent.Name!@Event.connect(listener, at);
         break;
-@@EndProducedMethodLoop@@
+@@EndProducedEventLoop@@
     default:
     @@if isRootProducer 
-        assert(false && "No method defined with that ID");
+        SWARNING << "No event defined with that ID";
         return boost::signals2::connection();
     @@else
-        return Inherited::connectMethod(methodId, listener, at);
+        return Inherited::connectEvent(eventId, listener, at);
     @@endif // !isRootProducer
         break;
     }
@@ -894,24 +855,24 @@ boost::signals2::connection @!Classname!@Base::connectMethod(UInt32 methodId,
     return boost::signals2::connection();
 }
 
-boost::signals2::connection  @!Classname!@Base::connectMethod(UInt32 methodId, 
-                                                              const BaseMethodType::group_type &group,
-                                                              const BaseMethodType::slot_type &listener,
+boost::signals2::connection  @!Classname!@Base::connectEvent(UInt32 eventId, 
+                                                              const BaseEventType::group_type &group,
+                                                              const BaseEventType::slot_type &listener,
                                                               boost::signals2::connect_position at)
 {
-    switch(methodId)
+    switch(eventId)
     {
-@@BeginProducedMethodLoop@@
-    case @!producedMethod.Name!@MethodId:
-        return _@!producedMethod.Name!@Method.connect(group, listener, at);
+@@BeginProducedEventLoop@@
+    case @!producedEvent.Name!@EventId:
+        return _@!producedEvent.Name!@Event.connect(group, listener, at);
         break;
-@@EndProducedMethodLoop@@
+@@EndProducedEventLoop@@
     default:
     @@if isRootProducer 
-        assert(false && "No method defined with that ID");
+        SWARNING << "No event defined with that ID";
         return boost::signals2::connection();
     @@else
-        return Inherited::connectMethod(methodId, group, listener, at);
+        return Inherited::connectEvent(eventId, group, listener, at);
     @@endif // !isRootProducer
         break;
     }
@@ -919,86 +880,86 @@ boost::signals2::connection  @!Classname!@Base::connectMethod(UInt32 methodId,
     return boost::signals2::connection();
 }
     
-void  @!Classname!@Base::disconnectMethod(UInt32 methodId, const BaseMethodType::group_type &group)
+void  @!Classname!@Base::disconnectEvent(UInt32 eventId, const BaseEventType::group_type &group)
 {
-    switch(methodId)
+    switch(eventId)
     {
-@@BeginProducedMethodLoop@@
-    case @!producedMethod.Name!@MethodId:
-        _@!producedMethod.Name!@Method.disconnect(group);
+@@BeginProducedEventLoop@@
+    case @!producedEvent.Name!@EventId:
+        _@!producedEvent.Name!@Event.disconnect(group);
         break;
-@@EndProducedMethodLoop@@
+@@EndProducedEventLoop@@
     default:
     @@if isRootProducer 
-        assert(false && "No method defined with that ID");
+        SWARNING << "No event defined with that ID";
     @@else
-        return Inherited::disconnectMethod(methodId, group);
+        return Inherited::disconnectEvent(eventId, group);
     @@endif // !isRootProducer
         break;
     }
 }
 
-void  @!Classname!@Base::disconnectAllSlotsMethod(UInt32 methodId)
+void  @!Classname!@Base::disconnectAllSlotsEvent(UInt32 eventId)
 {
-    switch(methodId)
+    switch(eventId)
     {
-@@BeginProducedMethodLoop@@
-    case @!producedMethod.Name!@MethodId:
-        _@!producedMethod.Name!@Method.disconnect_all_slots();
+@@BeginProducedEventLoop@@
+    case @!producedEvent.Name!@EventId:
+        _@!producedEvent.Name!@Event.disconnect_all_slots();
         break;
-@@EndProducedMethodLoop@@
+@@EndProducedEventLoop@@
     default:
     @@if isRootProducer 
-        assert(false && "No method defined with that ID");
+        SWARNING << "No event defined with that ID";
     @@else
-        Inherited::disconnectAllSlotsMethod(methodId);
+        Inherited::disconnectAllSlotsEvent(eventId);
     @@endif // !isRootProducer
         break;
     }
 }
 
-bool  @!Classname!@Base::isEmptyMethod(UInt32 methodId) const
+bool  @!Classname!@Base::isEmptyEvent(UInt32 eventId) const
 {
-    switch(methodId)
+    switch(eventId)
     {
-@@BeginProducedMethodLoop@@
-    case @!producedMethod.Name!@MethodId:
-        return _@!producedMethod.Name!@Method.empty();
+@@BeginProducedEventLoop@@
+    case @!producedEvent.Name!@EventId:
+        return _@!producedEvent.Name!@Event.empty();
         break;
-@@EndProducedMethodLoop@@
+@@EndProducedEventLoop@@
     default:
     @@if isRootProducer 
-        assert(false && "No method defined with that ID");
+        SWARNING << "No event defined with that ID";
         return true;
     @@else
-        return Inherited::isEmptyMethod(methodId);
+        return Inherited::isEmptyEvent(eventId);
     @@endif // !isRootProducer
         break;
     }
 }
 
-UInt32  @!Classname!@Base::numSlotsMethod(UInt32 methodId) const
+UInt32  @!Classname!@Base::numSlotsEvent(UInt32 eventId) const
 {
-    switch(methodId)
+    switch(eventId)
     {
-@@BeginProducedMethodLoop@@
-    case @!producedMethod.Name!@MethodId:
-        return _@!producedMethod.Name!@Method.num_slots();
+@@BeginProducedEventLoop@@
+    case @!producedEvent.Name!@EventId:
+        return _@!producedEvent.Name!@Event.num_slots();
         break;
-@@EndProducedMethodLoop@@
+@@EndProducedEventLoop@@
     default:
     @@if isRootProducer 
-        assert(false && "No method defined with that ID");
+        SWARNING << "No event defined with that ID";
         return 0;
     @@else
-        return Inherited::numSlotsMethod(methodId);
+        return Inherited::numSlotsEvent(eventId);
     @@endif // !isRootProducer
         break;
     }
 }
 
 
-@@endif  // hasProducedMethods
+@@endif  // hasProducedEvents
 /*------------------------- constructors ----------------------------------*/
 
 @!Classname!@Base::@!Classname!@Base(void) :
@@ -1369,21 +1330,21 @@ EditFieldHandlePtr @!Classname!@Base::editHandle@!field.Name:15!@(void)
 
 @@EndFieldLoop@@
 
-@@if hasProducedMethods
-@@BeginProducedMethodLoop@@
-GetMethodHandlePtr @!Classname!@Base::getHandle@!producedMethod.Name!@Signal(void) const
+@@if hasProducedEvents
+@@BeginProducedEventLoop@@
+GetEventHandlePtr @!Classname!@Base::getHandle@!producedEvent.Name!@Signal(void) const
 {
-    GetMethodHandlePtr returnValue(
-        new  GetTypedMethodHandle<@!producedMethod.Name!@MethodType>(
-             const_cast<@!producedMethod.Name!@MethodType *>(&_@!producedMethod.Name!@Method),
-             _producerType.getMethodDescription(@!producedMethod.Name!@MethodId),
+    GetEventHandlePtr returnValue(
+        new  GetTypedEventHandle<@!producedEvent.Name!@EventType>(
+             const_cast<@!producedEvent.Name!@EventType *>(&_@!producedEvent.Name!@Event),
+             _producerType.getEventDescription(@!producedEvent.Name!@EventId),
              const_cast<@!Classname!@Base *>(this)));
 
     return returnValue;
 }
 
-@@EndProducedMethodLoop@@
-@@endif  // hasProducedMethods
+@@EndProducedEventLoop@@
+@@endif  // hasProducedEvents
 
 #ifdef OSG_MT_CPTR_ASPECT
 void @!Classname!@Base::execSyncV(      FieldContainer    &oFrom,

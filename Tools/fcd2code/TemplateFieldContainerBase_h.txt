@@ -87,18 +87,19 @@
 #include "@!MixinHeader!@"
 @@endif
 
-@@if hasProducedMethods 
+@@if hasProducedEvents 
     @@if isRootProducer
 //Event Producer Headers
 #include "OSGActivity.h"
 #include "OSGConsumableEventCombiner.h"
 
     @@endif
-@@BeginProducedMethodLoop@@
-    @@if producedMethod.needFieldInclude
-#include @!producedMethod.FieldInclude!@
-    @@endif // producedMethod.needFieldInclude
-@@EndProducedMethodLoop@@
+@@BeginProducedEventLoop@@
+    @@if producedEvent.needFieldInclude
+#include @!producedEvent.FieldInclude!@
+    @@endif // producedEvent.needFieldInclude
+@@EndProducedEventLoop@@
+
 @@endif
 OSG_BEGIN_NAMESPACE
 
@@ -135,21 +136,21 @@ class @!Classname!@Base : public @!Parent!@
     OSG_GEN_INTERNALPTR(@!Classname!@);
     
     
-@@if hasProducedMethods 
-@@BeginProducedMethodLoop@@
-    typedef @!producedMethod.TypeRaw:18!@ @!producedMethod.Name!@EventType;
-@@EndProducedMethodLoop@@
+@@if hasProducedEvents 
+@@BeginProducedEventLoop@@
+    typedef @!producedEvent.TypeRaw:18!@ @!producedEvent.Name!@EventDetailsType;
+@@EndProducedEventLoop@@
 
     @@if isRootProducer
-    typedef boost::signals2::signal<void (Event* const            , UInt32)> BaseMethodType;
+    typedef boost::signals2::signal<void (EventDetails* const            , UInt32)> BaseEventType;
     @@endif
-@@BeginProducedMethodLoop@@
-    @@if producedMethod.consumable
-    typedef boost::signals2::signal<void (@!producedMethod.MethodEventType:24!@, UInt32), ConsumableEventCombiner> @!producedMethod.Name!@MethodType;
+@@BeginProducedEventLoop@@
+    @@if producedEvent.consumable
+    typedef boost::signals2::signal<void (@!producedEvent.EventDetailsType:24!@, UInt32), ConsumableEventCombiner> @!producedEvent.Name!@EventType;
     @@else
-    typedef boost::signals2::signal<void (@!producedMethod.MethodEventType:24!@, UInt32)> @!producedMethod.Name!@MethodType;
-    @@endif //producedMethod.consumable
-@@EndProducedMethodLoop@@
+    typedef boost::signals2::signal<void (@!producedEvent.EventDetailsType:24!@, UInt32)> @!producedEvent.Name!@EventType;
+    @@endif //producedEvent.consumable
+@@EndProducedEventLoop@@
 @@endif
 
     /*==========================  PUBLIC  =================================*/
@@ -196,29 +197,29 @@ class @!Classname!@Base : public @!Parent!@
         @@EndFieldLoop
     @@endif // hasFields
 @@endif // isDecorator
-@@if hasProducedMethods 
+@@if hasProducedEvents 
 
     enum
     {
-    @@BeginProducedMethodLoop
-        @@if producedMethod.isFirstProducedMethod
+    @@BeginProducedEventLoop
+        @@if producedEvent.isFirstProducedEvent
             @@if isRootProducer
-        @!producedMethod.Name!@MethodId = 1,
+        @!producedEvent.Name!@EventId = 1,
             @@else // isRootProducer
-        @!producedMethod.Name!@MethodId = Inherited::NextProducedMethodId,
+        @!producedEvent.Name!@EventId = Inherited::NextProducedEventId,
             @@endif // isRootProducer
-            @@if producedMethod.isLastProducedMethod
-        NextProducedMethodId = @!producedMethod.Name!@MethodId + 1
-            @@endif // producedMethod.isLastProducedMethod
-        @@else // producedMethod.isFirstProducedMethod
-        @!producedMethod.Name!@MethodId = @!producedMethod.prevProducedMethod.Name!@MethodId + 1,
-            @@if producedMethod.isLastProducedMethod
-        NextProducedMethodId = @!producedMethod.Name!@MethodId + 1
-            @@endif // producedMethod.isLastProducedMethod
-        @@endif // producedMethod.isFirstProducedMethod
-    @@EndProducedMethodLoop
+            @@if producedEvent.isLastProducedEvent
+        NextProducedEventId = @!producedEvent.Name!@EventId + 1
+            @@endif // producedEvent.isLastProducedEvent
+        @@else // producedEvent.isFirstProducedEvent
+        @!producedEvent.Name!@EventId = @!producedEvent.prevProducedEvent.Name!@EventId + 1,
+            @@if producedEvent.isLastProducedEvent
+        NextProducedEventId = @!producedEvent.Name!@EventId + 1
+            @@endif // producedEvent.isLastProducedEvent
+        @@endif // producedEvent.isFirstProducedEvent
+    @@EndProducedEventLoop
     };
-@@endif // hasProducedMethods
+@@endif // hasProducedEvents
 
     /*---------------------------------------------------------------------*/
     /*! \name                    Class Get                                 */
@@ -227,7 +228,7 @@ class @!Classname!@Base : public @!Parent!@
     static FieldContainerType &getClassType   (void);
     static UInt32              getClassTypeId (void);
     static UInt16              getClassGroupId(void);
-@@if hasProducedMethods
+@@if hasProducedEvents
     static const  EventProducerType  &getProducerClassType  (void);
     static        UInt32              getProducerClassTypeId(void);
 @@endif
@@ -385,54 +386,54 @@ class @!Classname!@Base : public @!Parent!@
 
 
     /*! \}                                                                 */
-@@if hasProducedMethods 
+@@if hasProducedEvents 
     /*---------------------------------------------------------------------*/
-    /*! \name                Method Produced Get                           */
+    /*! \name                Event Produced Get                           */
     /*! \{                                                                 */
 
     virtual const EventProducerType &getProducerType(void) const; 
 
     @@if isRootProducer 
-    virtual boost::signals2::connection attachActivity(UInt32 methodId,
+    virtual boost::signals2::connection attachActivity(UInt32 eventId,
                                                        Activity* TheActivity);
                                                          
     virtual UInt32                   getNumProducedEvents       (void                                ) const;
-    virtual const MethodDescription *getProducedEventDescription(const std::string &ProducedEventName) const;
-    virtual const MethodDescription *getProducedEventDescription(UInt32 ProducedEventId              ) const;
+    virtual const EventDescription *getProducedEventDescription(const std::string &ProducedEventName) const;
+    virtual const EventDescription *getProducedEventDescription(UInt32 ProducedEventId              ) const;
     virtual UInt32                   getProducedEventId         (const std::string &ProducedEventName) const;
+    @@endif 
     
-    virtual boost::signals2::connection connectMethod(UInt32 methodId, 
-                                              const BaseMethodType::slot_type &listener,
+    virtual boost::signals2::connection connectEvent(UInt32 eventId, 
+                                              const BaseEventType::slot_type &listener,
                                               boost::signals2::connect_position at= boost::signals2::at_back);
                                               
-    virtual boost::signals2::connection connectMethod(UInt32 methodId, 
-                                              const BaseMethodType::group_type &group,
-                                              const BaseMethodType::slot_type &listener,
+    virtual boost::signals2::connection connectEvent(UInt32 eventId, 
+                                              const BaseEventType::group_type &group,
+                                              const BaseEventType::slot_type &listener,
                                               boost::signals2::connect_position at= boost::signals2::at_back);
     
-    virtual void   disconnectMethod        (UInt32 methodId, const BaseMethodType::group_type &group);
-    virtual void   disconnectAllSlotsMethod(UInt32 methodId);
-    virtual bool   isEmptyMethod           (UInt32 methodId) const;
-    virtual UInt32 numSlotsMethod          (UInt32 methodId) const;
-    @@endif 
+    virtual void   disconnectEvent        (UInt32 eventId, const BaseEventType::group_type &group);
+    virtual void   disconnectAllSlotsEvent(UInt32 eventId);
+    virtual bool   isEmptyEvent           (UInt32 eventId) const;
+    virtual UInt32 numSlotsEvent          (UInt32 eventId) const;
 
     /*! \}                                                                 */
-    /*! \name                Method Access                                 */
+    /*! \name                Event Access                                 */
     /*! \{                                                                 */
     
-@@BeginProducedMethodLoop@@
-    //@!producedMethod.Name!@
-    boost::signals2::connection connect@!producedMethod.Name:15!@(const @!producedMethod.Name!@MethodType::slot_type &listener,
+@@BeginProducedEventLoop@@
+    //@!producedEvent.Name!@
+    boost::signals2::connection connect@!producedEvent.Name:15!@(const @!producedEvent.Name!@EventType::slot_type &listener,
                                                        boost::signals2::connect_position at= boost::signals2::at_back);
-    boost::signals2::connection connect@!producedMethod.Name:15!@(const @!producedMethod.Name!@MethodType::group_type &group,
-                                                       const @!producedMethod.Name!@MethodType::slot_type &listener,
+    boost::signals2::connection connect@!producedEvent.Name:15!@(const @!producedEvent.Name!@EventType::group_type &group,
+                                                       const @!producedEvent.Name!@EventType::slot_type &listener,
                                                        boost::signals2::connect_position at= boost::signals2::at_back);
-    void   disconnect@!producedMethod.Name:23!@(const @!producedMethod.Name!@MethodType::group_type &group);
-    void   disconnectAllSlots@!producedMethod.Name:15!@(void);
-    bool   isEmpty@!producedMethod.Name:26!@(void) const;
-    UInt32 numSlots@!producedMethod.Name:25!@(void) const;
+    void   disconnect@!producedEvent.Name:23!@(const @!producedEvent.Name!@EventType::group_type &group);
+    void   disconnectAllSlots@!producedEvent.Name:15!@(void);
+    bool   isEmpty@!producedEvent.Name:26!@(void) const;
+    UInt32 numSlots@!producedEvent.Name:25!@(void) const;
     
-@@EndProducedMethodLoop@@
+@@EndProducedEventLoop@@
     
     /*! \}                                                                 */
 @@endif 
@@ -468,17 +469,17 @@ class @!Classname!@Base : public @!Parent!@
     /*=========================  PROTECTED  ===============================*/
 
   protected:
-@@if hasProducedMethods 
+@@if hasProducedEvents 
     /*---------------------------------------------------------------------*/
-    /*! \name                    Produced Method Signals                   */
+    /*! \name                    Produced Event Signals                   */
     /*! \{                                                                 */
 
-    //Event Method producers
-@@BeginProducedMethodLoop@@
-    @!producedMethod.Name!@MethodType _@!producedMethod.Name!@Method;
-@@EndProducedMethodLoop@@
+    //Event Event producers
+@@BeginProducedEventLoop@@
+    @!producedEvent.Name!@EventType _@!producedEvent.Name!@Event;
+@@EndProducedEventLoop@@
     /*! \}                                                                 */
-@@endif  // !hasProducedMethods
+@@endif  // !hasProducedEvents
 
     static TypeObject _type;
 
@@ -562,16 +563,16 @@ class @!Classname!@Base : public @!Parent!@
     @@EndFieldLoop@@
 
     /*! \}                                                                 */
-@@if hasProducedMethods 
+@@if hasProducedEvents 
     /*---------------------------------------------------------------------*/
-    /*! \name                    Generic Method Access                     */
+    /*! \name                    Generic Event Access                     */
     /*! \{                                                                 */
 
-@@BeginProducedMethodLoop@@
-    GetMethodHandlePtr getHandle@!producedMethod.Name!@Signal(void) const;
-@@EndProducedMethodLoop@@
+@@BeginProducedEventLoop@@
+    GetEventHandlePtr getHandle@!producedEvent.Name!@Signal(void) const;
+@@EndProducedEventLoop@@
     /*! \}                                                                 */
-@@endif  // !hasProducedMethods
+@@endif  // !hasProducedEvents
 @@if hasProtectedFields
     /*---------------------------------------------------------------------*/
     /*! \name                    Field Get                                 */
@@ -683,18 +684,18 @@ class @!Classname!@Base : public @!Parent!@
     @@EndMFFieldLoop@@
     /*! \}                                                                 */
 @@endif // hasProtectedFields
-@@if hasProducedMethods 
+@@if hasProducedEvents 
     /*---------------------------------------------------------------------*/
-    /*! \name                    Event Producer Firing                   */
+    /*! \name                     Event Producer Firing                    */
     /*! \{                                                                 */
 
-    virtual void produceEvent       (UInt32 methodId, Event* const e);
+    virtual void produceEvent       (UInt32 eventId, EventDetails* const e);
     
-@@BeginProducedMethodLoop@@
-    void produce@!producedMethod.Name:18!@  (@!producedMethod.Name!@EventType* const e);
-@@EndProducedMethodLoop@@
+@@BeginProducedEventLoop@@
+    void produce@!producedEvent.Name:18!@  (@!producedEvent.Name!@EventDetailsType* const e);
+@@EndProducedEventLoop@@
     /*! \}                                                                 */
-@@endif  // !hasProducedMethods
+@@endif  // !hasProducedEvents
     /*---------------------------------------------------------------------*/
     /*! \name                       Sync                                   */
     /*! \{                                                                 */
@@ -746,8 +747,8 @@ class @!Classname!@Base : public @!Parent!@
 
   private:
     /*---------------------------------------------------------------------*/
-@@if hasProducedMethods 
-    static MethodDescription   *_methodDesc[];
+@@if hasProducedEvents 
+    static EventDescription   *_eventDesc[];
     static EventProducerType _producerType;
 
 @@endif 

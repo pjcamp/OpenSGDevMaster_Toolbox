@@ -60,6 +60,8 @@ ReflexiveContainer::TypeObject ReflexiveContainer::_type(
     false,
     0);
 
+EventProducerType ReflexiveContainer::_producerType(
+    "Invalid");
 
 ReflexiveContainer::TypeObject &ReflexiveContainer::getType(void)
 {
@@ -97,24 +99,24 @@ GetFieldHandlePtr ReflexiveContainer::invalidGetField(void) const
     return GetFieldHandlePtr();
 }
 
-GetMethodHandlePtr ReflexiveContainer::invalidGetMethod (void) const
+GetEventHandlePtr ReflexiveContainer::invalidGetEvent (void) const
 {
-    return GetMethodHandlePtr();
+    return GetEventHandlePtr();
 }
 
 void   ReflexiveContainer::disconnectAll(void)
 {
-    for(UInt32 i(0) ; i<getNumMethods() ; ++i)
+    for(UInt32 i(0) ; i<getNumEvents() ; ++i)
     {
-        disconnectAllSlotsMethod(i+1);
+        disconnectAllSlotsEvent(i+1);
     }
 }
 
 inline
-boost::signals2::connection ReflexiveContainer::attachActivity(UInt32 methodId,
+boost::signals2::connection ReflexiveContainer::attachActivity(UInt32 eventId,
                                                                Activity* TheActivity)
 {
-    return connectMethod(methodId, boost::bind(&Activity::eventProduced, TheActivity, _1, _2) );
+    return connectEvent(eventId, boost::bind(&Activity::eventProduced, TheActivity, _1, _2) );
 }
 
 

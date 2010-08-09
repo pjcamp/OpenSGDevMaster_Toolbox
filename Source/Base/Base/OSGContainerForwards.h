@@ -169,16 +169,16 @@ typedef EditFieldHandlePtr(ReflexiveContainer::*FieldIndexEditMethod)(UInt32);
 typedef GetFieldHandlePtr (ReflexiveContainer::*FieldIndexGetMethod )(
     UInt32) const;
 
-class Event;
-typedef boost::signals2::signal<void (Event* const            , UInt32)> BaseMethodType;
+class EventDetails;
+typedef boost::signals2::signal<void (EventDetails* const            , UInt32)> BaseEventType;
 
-class GetMethodHandle;
+class GetEventHandle;
 
-typedef boost::shared_ptr<GetMethodHandle > GetMethodHandlePtr;
+typedef boost::shared_ptr<GetEventHandle > GetEventHandlePtr;
 
 class Activity;
 
-typedef GetMethodHandlePtr(ReflexiveContainer::*MethodGetMethod)(void) const;
+typedef GetEventHandlePtr(ReflexiveContainer::*EventGetMethod)(void) const;
 
 namespace FCLocal
 {
