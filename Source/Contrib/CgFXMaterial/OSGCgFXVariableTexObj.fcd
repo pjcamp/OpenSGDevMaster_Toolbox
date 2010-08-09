@@ -21,4 +21,13 @@
 	 >
 	parameter value
   </Field>
+   <Field
+	 name="filePath"
+	 type="std::string"
+	 cardinality="single"
+	 visibility="external"
+	 access="public"
+	 >
+	filepath of this texture
+  </Field>
 </FieldContainer>
