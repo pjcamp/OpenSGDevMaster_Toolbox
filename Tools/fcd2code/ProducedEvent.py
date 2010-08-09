@@ -4,13 +4,13 @@ import logging;
 
 from FCDElement import FCDElement;
 
-class ProducedMethod(FCDElement):
-    """Represents a <ProducedMethod/> element from a .fcd file.
+class ProducedEvent(FCDElement):
+    """Represents a <ProducedEvent/> element from a .fcd file.
     """
     
     def __init__(self):
-        super(ProducedMethod, self).__init__();
-        self.m_log              = logging.getLogger("ProducedMethod");
+        super(ProducedEvent, self).__init__();
+        self.m_log              = logging.getLogger("ProducedEvent");
         self.m_fieldContainer   = None;
         self.initFCDDict();
     
@@ -18,8 +18,8 @@ class ProducedMethod(FCDElement):
         """Sets the fcd dictionary to default values.
         """
         self.setFCD("name",                           "",         True);
-        self.setFCD("type",                           "",         True);
-        self.setFCD("typeNamespace",                           "",         True);
+        self.setFCD("detailsType",                           "",         True);
+        self.setFCD("detailsTypeNamespace",                           "",         True);
         self.setFCD("consumable",                    "true",         True);
         self.setFCD("description",                    "",         True);
         self.setFCD("fieldHeader",                    "(AUTO)",   True);
@@ -43,11 +43,11 @@ class ProducedMethod(FCDElement):
         # Type and Namespace
         # -----------------------------------------------------------------
             
-        TypeRaw           = self.getFCD("type");
+        TypeRaw           = self.getFCD("detailsType");
         TypeRawCaps       = self._upcaseFirst(TypeRaw);
         
-        Type              = self.getFCD("type");
-        TypeNS            = self.getFCD("typeNamespace");
+        Type              = self.getFCD("detailsType");
+        TypeNS            = self.getFCD("detailsTypeNamespace");
         TypeCaps          = self._upcaseFirst(Type);
         
         if TypeNS != "" and not TypeNS.endswith("::"):
@@ -62,7 +62,7 @@ class ProducedMethod(FCDElement):
         self["TypeCaps"]      = TypeCaps;
         self["FullType"]      = TypeNS + Type;
         self["TypeRaw"]       = TypeRaw;
-        self["MethodEventType"]       = TypeRaw + "* const";
+        self["EventDetailsType"]       = TypeRaw + "* const";
 
         # -----------------------------------------------------------------
         # Name
@@ -76,8 +76,8 @@ class ProducedMethod(FCDElement):
         if self.getFCD("name") == "id":
             self.m_log.warning("finalize: invalid field name: >%s<", 
                                self.getFCD("name"))
-            self["Name"] = self["Name"] + "_invalidProducedMethodname"
-            self["DescName"] = self["DescName"] + "_invalidProducedMethodname"
+            self["Name"] = self["Name"] + "_invalidProducedEventname"
+            self["DescName"] = self["DescName"] + "_invalidProducedEventname"
 
                  
         if self.getFCD("description").strip() == "":
@@ -137,6 +137,6 @@ class ProducedMethod(FCDElement):
 
 
     def _dumpValues(self):
-        self.m_log.info("ProducedMethod dumpValues:");
-        super(ProducedMethod, self)._dumpValues(self.m_log);
+        self.m_log.info("ProducedEvent dumpValues:");
+        super(ProducedEvent, self)._dumpValues(self.m_log);
     

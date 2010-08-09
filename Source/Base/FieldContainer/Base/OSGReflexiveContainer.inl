@@ -217,25 +217,25 @@ GetFieldHandlePtr ReflexiveContainer::getField(const Char8 *fieldName) const
 }
 
 inline
-UInt32 ReflexiveContainer::getNumMethods(      void            ) const
+UInt32 ReflexiveContainer::getNumEvents(      void            ) const
 {
-    return getProducerType().getNumMethodDescs();
+    return getProducerType().getNumEventDescs();
 }
 
 inline
-GetMethodHandlePtr ReflexiveContainer::getMethod    (      UInt32 methodId  ) const
+GetEventHandlePtr ReflexiveContainer::getEvent    (      UInt32 eventId  ) const
 {
-    const MethodDescription *desc = getMethodDescription(methodId);
+    const EventDescription *desc = getEventDescription(eventId);
 
-    return (desc != NULL) ? desc->getMethod(*this) : invalidGetMethod();
+    return (desc != NULL) ? desc->getEvent(*this) : invalidGetEvent();
 }
 
 inline
-GetMethodHandlePtr ReflexiveContainer::getMethod    (const Char8 *methodName) const
+GetEventHandlePtr ReflexiveContainer::getEvent    (const Char8 *eventName) const
 {
-    const MethodDescription *desc = getMethodDescription(methodName);
+    const EventDescription *desc = getEventDescription(eventName);
 
-    return (desc != NULL) ? desc->getMethod(*this) : invalidGetMethod();
+    return (desc != NULL) ? desc->getEvent(*this) : invalidGetEvent();
 }
 
 inline
@@ -245,54 +245,54 @@ const EventProducerType &ReflexiveContainer::getProducerType(void) const
 }
 
 inline
-boost::signals2::connection ReflexiveContainer::connectMethod(UInt32 methodId, 
-                                                      const BaseMethodType::slot_type &listener,
+boost::signals2::connection ReflexiveContainer::connectEvent(UInt32 eventId, 
+                                                      const BaseEventType::slot_type &listener,
                                                       boost::signals2::connect_position at)
 {
     return boost::signals2::connection();
 }
                                               
 inline
-boost::signals2::connection ReflexiveContainer::connectMethod(UInt32 methodId, 
-                                                      const BaseMethodType::group_type &group,
-                                                      const BaseMethodType::slot_type &listener,
+boost::signals2::connection ReflexiveContainer::connectEvent(UInt32 eventId, 
+                                                      const BaseEventType::group_type &group,
+                                                      const BaseEventType::slot_type &listener,
                                                       boost::signals2::connect_position at)
 {
     return boost::signals2::connection();
 }
     
 inline
-void   ReflexiveContainer::disconnectMethod(UInt32 methodId, const BaseMethodType::group_type &group)
+void   ReflexiveContainer::disconnectEvent(UInt32 eventId, const BaseEventType::group_type &group)
 {
 }
 
 inline
-void   ReflexiveContainer::disconnectAllSlotsMethod(UInt32 methodId)
+void   ReflexiveContainer::disconnectAllSlotsEvent(UInt32 eventId)
 {
 }
 
 inline
-bool   ReflexiveContainer::isEmptyMethod(UInt32 methodId) const
+bool   ReflexiveContainer::isEmptyEvent(UInt32 eventId) const
 {
     return true;
 }
 
 inline
-UInt32 ReflexiveContainer::numSlotsMethod(UInt32 methodId) const
+UInt32 ReflexiveContainer::numSlotsEvent(UInt32 eventId) const
 {
     return 0;
 }
 
 inline
-MethodDescription const * ReflexiveContainer::getMethodDescription(      UInt32 methodId  ) const
+EventDescription const * ReflexiveContainer::getEventDescription(      UInt32 eventId  ) const
 {
-    return getProducerType().getMethodDescription(methodId);
+    return getProducerType().getEventDescription(eventId);
 }
     
 inline
-MethodDescription const * ReflexiveContainer::getMethodDescription(const Char8 *methodName) const
+EventDescription const * ReflexiveContainer::getEventDescription(const Char8 *eventName) const
 {
-    return getProducerType().findMethodDescription(methodName);
+    return getProducerType().findEventDescription(eventName);
 }
 
 #if 0
@@ -380,6 +380,12 @@ inline
 UInt32 ReflexiveContainer::getId(void) const
 {
     return (_uiContainerId & ContainerIdMask);
+}
+
+inline
+bool ReflexiveContainer::isEventProducer(void) const
+{
+    return getNumEvents() != 0;
 }
 
 OSG_END_NAMESPACE

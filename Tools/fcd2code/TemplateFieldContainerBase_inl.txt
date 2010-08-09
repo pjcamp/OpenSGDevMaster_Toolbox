@@ -52,6 +52,12 @@
  *****************************************************************************
 \*****************************************************************************/
 
+@@BeginProducedEventLoop@@
+    @@if producedEvent.needTypeInclude
+#include @!producedEvent.TypeInclude!@
+    @@endif // producedEvent.needTypeInclude
+@@EndProducedEventLoop@@
+
 OSG_BEGIN_NAMESPACE
 
 
@@ -68,7 +74,7 @@ OSG::UInt32 @!Classname!@Base::getClassTypeId(void)
 {
     return _type.getId();
 }
-@@if hasProducedMethods 
+@@if hasProducedEvents 
 //! access the producer type of the class
 inline
 const EventProducerType &@!Classname!@Base::getProducerClassType(void)
@@ -233,32 +239,25 @@ const Char8 *@!Classname!@Base::getClassname(void)
 {
     return "@!Classname!@";
 }
-@@if hasProducedMethods 
+@@if hasProducedEvents 
 @@if isRootProducer 
-
-inline
-boost::signals2::connection @!Classname!@Base::attachActivity(UInt32 methodId,
-                                                              Activity* TheActivity)
-{
-    return connectMethod(methodId, boost::bind(&Activity::eventProduced, TheActivity, _1, _2) );
-}
 
 inline
 UInt32 @!Classname!@Base::getNumProducedEvents(void) const
 {
-    return getProducerType().getNumMethodDescs();
+    return getProducerType().getNumEventDescs();
 }
 
 inline
-const MethodDescription *@!Classname!@Base::getProducedEventDescription(const std::string &ProducedEventName) const
+const EventDescription *@!Classname!@Base::getProducedEventDescription(const std::string &ProducedEventName) const
 {
-    return getProducerType().findMethodDescription(ProducedEventName);
+    return getProducerType().findEventDescription(ProducedEventName);
 }
 
 inline
-const MethodDescription *@!Classname!@Base::getProducedEventDescription(UInt32 ProducedEventId) const
+const EventDescription *@!Classname!@Base::getProducedEventDescription(UInt32 ProducedEventId) const
 {
-    return getProducerType().getMethodDescription(ProducedEventId);
+    return getProducerType().getEventDescription(ProducedEventId);
 }
 
 inline
@@ -268,53 +267,53 @@ UInt32 @!Classname!@Base::getProducedEventId(const std::string &ProducedEventNam
 }
 
 @@endif  // isRootProducer
-@@BeginProducedMethodLoop@@
+@@BeginProducedEventLoop@@
 inline
-boost::signals2::connection  @!Classname!@Base::connect@!producedMethod.Name!@(const @!producedMethod.Name!@MethodType::slot_type &listener, 
+boost::signals2::connection  @!Classname!@Base::connect@!producedEvent.Name!@(const @!producedEvent.Name!@EventType::slot_type &listener, 
                                                                                boost::signals2::connect_position at)
 {
-    return _@!producedMethod.Name!@Method.connect(listener, at);
+    return _@!producedEvent.Name!@Event.connect(listener, at);
 }
 
 inline
-boost::signals2::connection  @!Classname!@Base::connect@!producedMethod.Name!@(const @!producedMethod.Name!@MethodType::group_type &group,
-                                                    const @!producedMethod.Name!@MethodType::slot_type &listener, boost::signals2::connect_position at)
+boost::signals2::connection  @!Classname!@Base::connect@!producedEvent.Name!@(const @!producedEvent.Name!@EventType::group_type &group,
+                                                    const @!producedEvent.Name!@EventType::slot_type &listener, boost::signals2::connect_position at)
 {
-    return _@!producedMethod.Name!@Method.connect(group, listener, at);
+    return _@!producedEvent.Name!@Event.connect(group, listener, at);
 }
 
 inline
-void  @!Classname!@Base::disconnect@!producedMethod.Name!@(const @!producedMethod.Name!@MethodType::group_type &group)
+void  @!Classname!@Base::disconnect@!producedEvent.Name!@(const @!producedEvent.Name!@EventType::group_type &group)
 {
-    _@!producedMethod.Name!@Method.disconnect(group);
+    _@!producedEvent.Name!@Event.disconnect(group);
 }
 
 inline
-void  @!Classname!@Base::disconnectAllSlots@!producedMethod.Name!@(void)
+void  @!Classname!@Base::disconnectAllSlots@!producedEvent.Name!@(void)
 {
-    _@!producedMethod.Name!@Method.disconnect_all_slots();
+    _@!producedEvent.Name!@Event.disconnect_all_slots();
 }
 
 inline
-bool  @!Classname!@Base::isEmpty@!producedMethod.Name!@(void) const
+bool  @!Classname!@Base::isEmpty@!producedEvent.Name!@(void) const
 {
-    return _@!producedMethod.Name!@Method.empty();
+    return _@!producedEvent.Name!@Event.empty();
 }
 
 inline
-UInt32  @!Classname!@Base::numSlots@!producedMethod.Name!@(void) const
+UInt32  @!Classname!@Base::numSlots@!producedEvent.Name!@(void) const
 {
-    return _@!producedMethod.Name!@Method.num_slots();
+    return _@!producedEvent.Name!@Event.num_slots();
 }
 
 inline
-void @!Classname!@Base::produce@!producedMethod.Name!@(@!producedMethod.Name!@EventType* const e)
+void @!Classname!@Base::produce@!producedEvent.Name!@(@!producedEvent.Name!@EventDetailsType* const e)
 {
-    produceEvent(@!producedMethod.Name!@MethodId, e);
+    produceEvent(@!producedEvent.Name!@EventId, e);
 }
 
-@@EndProducedMethodLoop@@
-@@endif  // hasProducedMethods
+@@EndProducedEventLoop@@
+@@endif  // hasProducedEvents
 OSG_GEN_CONTAINERPTR(@!Classname!@);
 
 OSG_END_NAMESPACE
