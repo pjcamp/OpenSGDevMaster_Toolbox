@@ -89,6 +89,15 @@ OSG_BEGIN_NAMESPACE
     effect compiler options
 */
 
+/*! \var UInt8           CgFXMaterialBase::_sfParameterValueSource
+    Source to use for parameters when initializing the material.
+    DEFAULT: Uses the values that are read in from the .cgfx file or code string.
+    Will overwrite the current value for the corresponding 
+    ShaderProgramVariable if there is one.
+    CURRENT: Checks if the material already has a ShaderProgramVariable of the same
+    name, and if it does, it uses that value instead of the default value.
+*/
+
 /*! \var std::string     CgFXMaterialBase::_sfEffectFile
     cgfx file
 */
@@ -162,6 +171,23 @@ void CgFXMaterialBase::classDescInserter(TypeObject &oType)
         (Field::SFDefaultFlags | Field::FStdAccess),
         static_cast<FieldEditMethodSig>(&CgFXMaterial::editHandleTreatTechniquesAsVariants),
         static_cast<FieldGetMethodSig >(&CgFXMaterial::getHandleTreatTechniquesAsVariants));
+
+    oType.addInitialDesc(pDesc);
+
+    pDesc = new SFUInt8::Description(
+        SFUInt8::getClassType(),
+        "ParameterValueSource",
+        "Source to use for parameters when initializing the material.\n"
+        "DEFAULT: Uses the values that are read in from the .cgfx file or code string.\n"
+        "Will overwrite the current value for the corresponding \n"
+        "ShaderProgramVariable if there is one.\n"
+        "CURRENT: Checks if the material already has a ShaderProgramVariable of the same\n"
+        "name, and if it does, it uses that value instead of the default value.\n",
+        ParameterValueSourceFieldId, ParameterValueSourceFieldMask,
+        false,
+        (Field::SFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&CgFXMaterial::editHandleParameterValueSource),
+        static_cast<FieldGetMethodSig >(&CgFXMaterial::getHandleParameterValueSource));
 
     oType.addInitialDesc(pDesc);
 
@@ -310,6 +336,21 @@ CgFXMaterialBase::TypeObject CgFXMaterialBase::_type(
     "\t >\n"
     "\teffect compiler options\n"
     "  </Field>\n"
+    "    <Field\n"
+    "\t name=\"ParameterValueSource\"\n"
+    "\t type=\"UInt8\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "\t defaultValue=\"CgFXMaterial::DEFAULT\"\n"
+    "\t >\n"
+    "\tSource to use for parameters when initializing the material.\n"
+    "\tDEFAULT: Uses the values that are read in from the .cgfx file or code string.\n"
+    "\t\t Will overwrite the current value for the corresponding \n"
+    "\t\t ShaderProgramVariable if there is one.\n"
+    "\tCURRENT: Checks if the material already has a ShaderProgramVariable of the same\n"
+    "\t\t name, and if it does, it uses that value instead of the default value.\n"
+    "  </Field>\n"
     "  <Field\n"
     "\t name=\"effectFile\"\n"
     "\t type=\"std::string\"\n"
@@ -343,9 +384,9 @@ CgFXMaterialBase::TypeObject CgFXMaterialBase::_type(
     "\t cardinality=\"single\"\n"
     "\t visibility=\"external\"\n"
     "\t access=\"protected\"\n"
-    "     category=\"childpointer\"\n"
-    "     childParentType=\"FieldContainer\"\n"
-    "     linkParentField=\"Parents\"\n"
+    "\t category=\"childpointer\"\n"
+    "\t childParentType=\"FieldContainer\"\n"
+    "\t linkParentField=\"Parents\"\n"
     "\t >\n"
     "  </Field>\n"
     "  <Field\n"
@@ -373,14 +414,14 @@ CgFXMaterialBase::TypeObject CgFXMaterialBase::_type(
     "\t cardinality=\"multi\"\n"
     "\t visibility=\"internal\"\n"
     "\t access=\"protected\"\n"
-    "     category=\"pointer\"\n"
-    "     fieldFlags=\"FClusterLocal, FThreadLocal\"\n"
+    "\t category=\"pointer\"\n"
+    "\t fieldFlags=\"FClusterLocal, FThreadLocal\"\n"
     "\t >\n"
     "  </Field>\n"
     "  <Field\n"
     "\t name=\"textures\"\n"
     "\t type=\"TextureObjChunk\"\n"
-    "     category=\"pointer\"\n"
+    "\t category=\"pointer\"\n"
     "\t cardinality=\"multi\"\n"
     "\t visibility=\"external\"\n"
     "\t access=\"protected\"\n"
@@ -431,6 +472,19 @@ SFBool *CgFXMaterialBase::editSFTreatTechniquesAsVariants(void)
 const SFBool *CgFXMaterialBase::getSFTreatTechniquesAsVariants(void) const
 {
     return &_sfTreatTechniquesAsVariants;
+}
+
+
+SFUInt8 *CgFXMaterialBase::editSFParameterValueSource(void)
+{
+    editSField(ParameterValueSourceFieldMask);
+
+    return &_sfParameterValueSource;
+}
+
+const SFUInt8 *CgFXMaterialBase::getSFParameterValueSource(void) const
+{
+    return &_sfParameterValueSource;
 }
 
 
@@ -671,6 +725,10 @@ UInt32 CgFXMaterialBase::getBinSize(ConstFieldMaskArg whichField)
     {
         returnValue += _sfTreatTechniquesAsVariants.getBinSize();
     }
+    if(FieldBits::NoField != (ParameterValueSourceFieldMask & whichField))
+    {
+        returnValue += _sfParameterValueSource.getBinSize();
+    }
     if(FieldBits::NoField != (EffectFileFieldMask & whichField))
     {
         returnValue += _sfEffectFile.getBinSize();
@@ -720,6 +778,10 @@ void CgFXMaterialBase::copyToBin(BinaryDataHandler &pMem,
     {
         _sfTreatTechniquesAsVariants.copyToBin(pMem);
     }
+    if(FieldBits::NoField != (ParameterValueSourceFieldMask & whichField))
+    {
+        _sfParameterValueSource.copyToBin(pMem);
+    }
     if(FieldBits::NoField != (EffectFileFieldMask & whichField))
     {
         _sfEffectFile.copyToBin(pMem);
@@ -767,6 +829,10 @@ void CgFXMaterialBase::copyFromBin(BinaryDataHandler &pMem,
     {
         editSField(TreatTechniquesAsVariantsFieldMask);
         _sfTreatTechniquesAsVariants.copyFromBin(pMem);
+    }
+    if(FieldBits::NoField != (ParameterValueSourceFieldMask & whichField))
+    {
+        _sfParameterValueSource.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (EffectFileFieldMask & whichField))
     {
@@ -939,6 +1005,7 @@ FieldContainerTransitPtr CgFXMaterialBase::shallowCopy(void) const
 CgFXMaterialBase::CgFXMaterialBase(void) :
     Inherited(),
     _sfTreatTechniquesAsVariants(bool(false)),
+    _sfParameterValueSource   (UInt8(CgFXMaterial::DEFAULT)),
     _sfEffectFile             (),
     _sfEffectString           (),
     _mfCompilerOptions        (),
@@ -956,6 +1023,7 @@ CgFXMaterialBase::CgFXMaterialBase(void) :
 CgFXMaterialBase::CgFXMaterialBase(const CgFXMaterialBase &source) :
     Inherited(source),
     _sfTreatTechniquesAsVariants(source._sfTreatTechniquesAsVariants),
+    _sfParameterValueSource   (source._sfParameterValueSource   ),
     _sfEffectFile             (source._sfEffectFile             ),
     _sfEffectString           (source._sfEffectString           ),
     _mfCompilerOptions        (source._mfCompilerOptions        ),
@@ -1077,6 +1145,31 @@ EditFieldHandlePtr CgFXMaterialBase::editHandleTreatTechniquesAsVariants(void)
 
 
     editSField(TreatTechniquesAsVariantsFieldMask);
+
+    return returnValue;
+}
+
+GetFieldHandlePtr CgFXMaterialBase::getHandleParameterValueSource (void) const
+{
+    SFUInt8::GetHandlePtr returnValue(
+        new  SFUInt8::GetHandle(
+             &_sfParameterValueSource,
+             this->getType().getFieldDesc(ParameterValueSourceFieldId),
+             const_cast<CgFXMaterialBase *>(this)));
+
+    return returnValue;
+}
+
+EditFieldHandlePtr CgFXMaterialBase::editHandleParameterValueSource(void)
+{
+    SFUInt8::EditHandlePtr returnValue(
+        new  SFUInt8::EditHandle(
+             &_sfParameterValueSource,
+             this->getType().getFieldDesc(ParameterValueSourceFieldId),
+             this));
+
+
+    editSField(ParameterValueSourceFieldMask);
 
     return returnValue;
 }

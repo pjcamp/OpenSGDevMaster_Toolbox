@@ -245,7 +245,7 @@ void CgFXMaterial::changed(ConstFieldMaskArg whichField,
 
     if(0x0000 != (whichField & EffectStringFieldMask))
     {
-        Inherited::resolveLinks();
+        //Inherited::resolveLinks();
 
         this->processEffectString();
 
@@ -589,22 +589,12 @@ void CgFXMaterial::extractParameters( )
         std::string szParamSemantic = 
             cgGetParameterSemantic(pParam) ? cgGetParameterSemantic(pParam): "";
 
-#if 0
-        fprintf(stderr, "    %s | %s | %d %d : %d\n",
-                szParamName    .c_str(),
-                szParamSemantic.c_str(),
-                uiNumRows,
-                uiNumCols,
-                uiNumComponents);
-#endif
-
         if(szParamSemantic.empty() == false)
         {
             bool bFoundSemanticParam = false;
 
             if(osgStringCaseCmp(szParamSemantic.c_str(), "PROJECTION") == 0)
             {
-//                fprintf(stderr, "Use Projection\n");
                 editStateVariables() |= CgProjectionMask;
 
                 _vStateVarNames[CgProjection] = szParamName;
@@ -615,7 +605,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "WORLDVIEWPROJECTION"  ) == 0)
             {
-//                fprintf(stderr, "Use WorldViewProjection\n");
                 editStateVariables() |= CgModelViewProjectionMask;
 
                 _vStateVarNames[CgModelViewProjection] = szParamName;
@@ -625,7 +614,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "MODELVIEWPROJECTION"  ) == 0)
             {
-//                fprintf(stderr, "Use ModelViewProjection\n");
                 editStateVariables() |= CgModelViewProjectionMask;
 
                 _vStateVarNames[CgModelViewProjection] = szParamName;
@@ -639,7 +627,6 @@ void CgFXMaterial::extractParameters( )
             // -------------
             else if(osgStringCaseCmp(szParamSemantic.c_str(), "WORLD") == 0)
             {
-//                fprintf(stderr, "Use World\n");
                 editStateVariables() |= CgModelMask;
 
                 _vStateVarNames[CgModel] = szParamName;
@@ -648,7 +635,6 @@ void CgFXMaterial::extractParameters( )
             }
             else if(osgStringCaseCmp(szParamSemantic.c_str(), "WORLDI") == 0)
             {
-//                fprintf(stderr, "Use WorldI\n");
                 editStateVariables() |= CgModelIMask; 
 
                 _vStateVarNames[CgModelI] = szParamName;
@@ -658,7 +644,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "WORLDINVERSE") == 0   )
             {
-//                fprintf(stderr, "Use WorldInverse\n");
                 editStateVariables() |= CgModelIMask;
 
                 _vStateVarNames[CgModelI] = szParamName;
@@ -667,7 +652,6 @@ void CgFXMaterial::extractParameters( )
             }
             else if(osgStringCaseCmp(szParamSemantic.c_str(), "WORLDIT") == 0)
             {
-//                fprintf(stderr, "Use WorldIT\n");
                 editStateVariables() |= CgModelITMask;
 
                 _vStateVarNames[CgModelIT] = szParamName;
@@ -677,7 +661,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "WORLDINVERSETRANSPOSE") == 0)
             {
-//                fprintf(stderr, "Use WorldInverseTranspose\n");
                 editStateVariables() |= CgModelITMask;
 
                 _vStateVarNames[CgModelIT] = szParamName;
@@ -691,7 +674,6 @@ void CgFXMaterial::extractParameters( )
             // -------------
             else if(osgStringCaseCmp(szParamSemantic.c_str(), "MODEL") == 0)
             {
-//                fprintf(stderr, "Use Model\n");
                 editStateVariables() |= CgModelMask;
 
                 _vStateVarNames[CgModel] = szParamName;
@@ -700,7 +682,6 @@ void CgFXMaterial::extractParameters( )
             }
             else if(osgStringCaseCmp(szParamSemantic.c_str(), "MODELI") == 0)
             {
-//                fprintf(stderr, "Use ModelI\n");
                 editStateVariables() |= CgModelIMask; 
 
                 _vStateVarNames[CgModelI] = szParamName;
@@ -710,7 +691,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "MODELINVERSE"         ) == 0)
             {
-//                fprintf(stderr, "Use ModelInverse\n");
                 editStateVariables() |= CgModelIMask;
 
                 _vStateVarNames[CgModelI] = szParamName;
@@ -719,7 +699,6 @@ void CgFXMaterial::extractParameters( )
             }
             else if(osgStringCaseCmp(szParamSemantic.c_str(), "MODELIT") == 0)
             {
-//                fprintf(stderr, "Use ModelIT\n");
                 editStateVariables() |= CgModelITMask;
 
                 _vStateVarNames[CgModelIT] = szParamName;
@@ -729,7 +708,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "MODELINVERSERTRANSPOSE") == 0)
             {
-//                fprintf(stderr, "Use ModelInverseTranspose\n");
                 editStateVariables() |= CgModelITMask;
 
                 _vStateVarNames[CgModelIT] = szParamName;
@@ -743,7 +721,6 @@ void CgFXMaterial::extractParameters( )
             // -------------
             else if(osgStringCaseCmp(szParamSemantic.c_str(), "WORLDVIEW") == 0)
             {
-//                fprintf(stderr, "Use WorldView\n");
                 editStateVariables() |= CgModelViewMask; 
 
                 _vStateVarNames[CgModelView] = szParamName;
@@ -753,7 +730,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "WORLDVIEWI"           ) == 0)
             {
-//                fprintf(stderr, "Use WorldViewI\n");
                 editStateVariables() |= CgModelViewIMask;
 
                 _vStateVarNames[CgModelViewI] = szParamName;
@@ -763,7 +739,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "WORLDVIEWINVERSE"     ) == 0)
             {
-//                fprintf(stderr, "Use WorldViewInverse\n");
                 editStateVariables() |= CgModelViewIMask;
 
                 _vStateVarNames[CgModelViewI] = szParamName;
@@ -773,7 +748,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "WORLDVIEWIT"          ) == 0)
             {
-//                fprintf(stderr, "Use WorldViewIT\n");
                 editStateVariables() |= CgModelViewITMask;
 
                 _vStateVarNames[CgModelViewIT] = szParamName;
@@ -783,7 +757,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "WORLDVIEWINVERSETRANSPOSE") == 0)
             {
-//                fprintf(stderr, "Use WorldViewInverseTranspose\n");
                 editStateVariables() |= CgModelViewITMask;
 
                 _vStateVarNames[CgModelViewIT] = szParamName;
@@ -797,7 +770,6 @@ void CgFXMaterial::extractParameters( )
             // -------------
             else if(osgStringCaseCmp(szParamSemantic.c_str(), "MODELVIEW") == 0)
             {
-//                fprintf(stderr, "Use ModelView\n");
                 editStateVariables() |= CgModelViewMask; 
 
                 _vStateVarNames[CgModelView] = szParamName;
@@ -807,7 +779,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "ModelVIEWI"           ) == 0)
             {
-//                fprintf(stderr, "Use ModelViewI\n");
                 editStateVariables() |= CgModelViewIMask;
 
                 _vStateVarNames[CgModelViewI] = szParamName;
@@ -817,7 +788,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "MODELVIEWINVERSE"     ) == 0)
             {
-//                fprintf(stderr, "Use ModelViewInverse\n");
                 editStateVariables() |= CgModelViewIMask;
 
                 _vStateVarNames[CgModelViewI] = szParamName;
@@ -827,7 +797,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "MODELVIEWIT"          ) == 0)
             {
-//                fprintf(stderr, "Use ModelViewIT\n");
                 editStateVariables() |= CgModelViewITMask;
 
                 _vStateVarNames[CgModelViewIT] = szParamName;
@@ -837,7 +806,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "MODELVIEWINVERSETRANSPOSE") == 0)
             {
-//                fprintf(stderr, "Use ModelViewInverseTranspose\n");
                 editStateVariables() |= CgModelViewITMask;
 
                 _vStateVarNames[CgModelViewIT] = szParamName;
@@ -851,7 +819,6 @@ void CgFXMaterial::extractParameters( )
             // -------------
             else if(osgStringCaseCmp(szParamSemantic.c_str(), "VIEW") == 0)
             {
-//                fprintf(stderr, "Use View\n");
                 editStateVariables() |= CgViewMask;
 
                 _vStateVarNames[CgView] = szParamName;
@@ -860,7 +827,6 @@ void CgFXMaterial::extractParameters( )
             }
             else if(osgStringCaseCmp(szParamSemantic.c_str(), "VIEWI") == 0)
             {
-//                fprintf(stderr, "Use ViewI\n");
                 editStateVariables() |= CgViewIMask;
 
                 _vStateVarNames[CgViewI] = szParamName;
@@ -870,7 +836,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "VIEWINVERSE"          ) == 0)
             {
-//                fprintf(stderr, "Use ViewInverse\n");
                 editStateVariables() |= CgViewIMask;
 
                 _vStateVarNames[CgViewI] = szParamName;
@@ -879,7 +844,6 @@ void CgFXMaterial::extractParameters( )
             }
             else if(osgStringCaseCmp(szParamSemantic.c_str(), "VIEWIT") == 0)
             {
-//                fprintf(stderr, "Use ViewIT\n");
                 editStateVariables() |= CgViewITMask;
 
                 _vStateVarNames[CgViewIT] = szParamName;
@@ -889,7 +853,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "VIEWINVERSETRANSPOSE" ) == 0)
             {
-//                fprintf(stderr, "Use ViewInverseTranspose\n");
                 editStateVariables() |= CgViewITMask;
 
                 _vStateVarNames[CgViewIT] = szParamName;
@@ -900,7 +863,6 @@ void CgFXMaterial::extractParameters( )
             else if(osgStringCaseCmp(szParamSemantic.c_str(), 
                                      "VIEWPROJECTION"       ) == 0)
             {
-//                fprintf(stderr, "Use ViewProjection\n");
                 editStateVariables() |= CgViewProjectionMask;
 
                 _vStateVarNames[CgViewProjection] = szParamName;
@@ -936,12 +898,22 @@ void CgFXMaterial::extractParameters( )
 
                 if(cgGetParameterValueir(pParam, 1, &val) == 1)
                 {
-#if 0
-                    printf("adding default parameter: '%s' (%d)\n", 
-                           szParamName.c_str(), val);
-#endif
 
-                    this->addUniformVariable(szParamName.c_str(), (val > 0));
+					// check where what values we should be using
+					if(this->getParameterValueSource() == CURRENT)
+					{	// check if this is already a variable
+						Int32 tmp;
+						if(this->getUniformVariable(szParamName.c_str(),tmp) )
+						{	// if it is, set the variable to value we already have for it.
+							cgSetParameterValueir(pParam,uiNumComponents,&tmp);
+						} // otherwise use the default value
+						else this->addUniformVariable(szParamName.c_str(), (val > 0));
+
+					}
+					else // use default value from .cgfx file
+					{
+						this->addUniformVariable(szParamName.c_str(), (val > 0));
+					}
                 }
             }
             break;
@@ -952,12 +924,21 @@ void CgFXMaterial::extractParameters( )
 
                 if(cgGetParameterValueir(pParam, 1, &val) == 1)
                 {
-#if 0
-                    printf("adding default parameter: '%s' (%d)\n", 
-                           szParamName.c_str(), val);
-#endif
+					// check where what values we should be using
+					if(this->getParameterValueSource() == CURRENT)
+					{	// check if this is already a variable
+						Int32 tmp;
+						if(this->getUniformVariable(szParamName.c_str(),tmp) )
+						{	// if it is, set the variable to value we already have for it.
+							cgSetParameterValueir(pParam,uiNumComponents,&tmp);
+						} // otherwise use the default value
+						else this->addUniformVariable(szParamName.c_str(), val );
 
-                    this->addUniformVariable(szParamName.c_str(), val);
+					}
+					else // use default value from .cgfx file
+					{
+						this->addUniformVariable(szParamName.c_str(), val );
+					}
                 }
             }
             break;
@@ -976,12 +957,20 @@ void CgFXMaterial::extractParameters( )
 
                         if(cgGetParameterValuefr(pParam, 1, &val) == 1)
                         {
-#if 0
-                            printf("adding default parameter: '%s' (%f)\n", 
-                                   szParamName.c_str(), val);
-#endif
-
-                            this->addUniformVariable(szParamName.c_str(), val);
+							// check where what values we should be using
+							if(this->getParameterValueSource() == CURRENT)
+							{	// check if this is already a variable
+								Real32 tmp;
+								if(this->getUniformVariable(szParamName.c_str(),tmp) )
+								{	// if it is, set the variable to value we already have for it.
+									cgSetParameterValuefr(pParam,uiNumComponents,&tmp);
+								} // otherwise use the default value
+								else this->addUniformVariable(szParamName.c_str(), val );
+							}
+							else // use default value from .cgfx file
+							{
+								this->addUniformVariable(szParamName.c_str(), val );
+							}
                         }
                     }
                     break;
@@ -994,14 +983,20 @@ void CgFXMaterial::extractParameters( )
                                                  2, 
                                                  val.getValues()) == 2)
                         {
-#if 0
-                            printf("adding default parameter: '%s' (%f, %f)\n",
-                                   szParamName.c_str(), 
-                                   val[0], 
-                                   val[1]);
-#endif
-
-                            this->addUniformVariable(szParamName.c_str(), val);
+							// check where what values we should be using
+							if(this->getParameterValueSource() == CURRENT)
+							{	// check if this is already a variable
+								Vec2f tmp;
+								if(this->getUniformVariable(szParamName.c_str(),tmp) )
+								{	// if it is, set the variable to value we already have for it.
+									cgSetParameterValuefr(pParam,uiNumComponents,tmp.getValues());
+								} // otherwise use the default value
+								else this->addUniformVariable(szParamName.c_str(), val );
+							}
+							else // use default value from .cgfx file
+							{
+								this->addUniformVariable(szParamName.c_str(), val );
+							}
                         }
                     }
                     break;
@@ -1014,16 +1009,20 @@ void CgFXMaterial::extractParameters( )
                                                  3, 
                                                  val.getValues()) == 3)
                         {
-#if 0
-                            printf("adding default parameter: '%s' "
-                                   "(%f, %f, %f)\n", 
-                                   szParamName.c_str(), 
-                                   val[0], 
-                                   val[1], 
-                                   val[2]);
-#endif
-
-                            this->addUniformVariable(szParamName.c_str(), val);
+							// check where what values we should be using
+							if(this->getParameterValueSource() == CURRENT)
+							{	// check if this is already a variable
+								Vec3f tmp;
+								if(this->getUniformVariable(szParamName.c_str(),tmp) )
+								{	// if it is, set the variable to value we already have for it.
+									cgSetParameterValuefr(pParam,uiNumComponents,tmp.getValues());
+								} // otherwise use the default value
+								else this->addUniformVariable(szParamName.c_str(), val );
+							}
+							else // use default value from .cgfx file
+							{
+								this->addUniformVariable(szParamName.c_str(), val );
+							}
                         }
                     }
                     break;
@@ -1036,17 +1035,20 @@ void CgFXMaterial::extractParameters( )
                                                  4, 
                                                  val.getValues()) == 4)
                         {
-#if 0
-                            printf("adding default parameter: '%s' "
-                                   "(%f, %f, %f, %f)\n", 
-                                   szParamName.c_str(), 
-                                   val[0], 
-                                   val[1], 
-                                   val[2], 
-                                   val[3]);
-#endif
-
-                            this->addUniformVariable(szParamName.c_str(), val);
+							// check where what values we should be using
+							if(this->getParameterValueSource() == CURRENT)
+							{	// check if this is already a variable
+								Vec4f tmp;
+								if(this->getUniformVariable(szParamName.c_str(),tmp) )
+								{	// if it is, set the variable to value we already have for it.
+									cgSetParameterValuefr(pParam,uiNumComponents,tmp.getValues());
+								} // otherwise use the default value
+								else this->addUniformVariable(szParamName.c_str(), val );
+							}
+							else // use default value from .cgfx file
+							{
+								this->addUniformVariable(szParamName.c_str(), val );
+							}
                         }
                     }
                     break;
@@ -1060,21 +1062,21 @@ void CgFXMaterial::extractParameters( )
                                                  16, 
                                                  val.getValues()) == 16)
                         {
-#if 0
-                            printf("adding default parameter: "
-                                   "'%s' (%f, %f, %f, %f,  "
-                                   "%f, %f, %f, %f,  %f, %f, %f, %f,  "
-                                   "%f, %f, %f, %f)\n",
-                                   szParamName.c_str(), 
-                                   val[0][0], val[0][1], val[0][2], val[0][3],
-                                   val[1][0], val[1][1], val[1][2], val[1][3],
-                                   val[2][0], val[2][1], val[2][2], val[2][3],
-                                   val[3][0], val[3][1], val[3][2], val[3][3]);
-#endif
-                            
-                            val.transpose();
-
-                            this->addUniformVariable(szParamName.c_str(), val);
+							val.transpose();
+							// check where what values we should be using
+							if(this->getParameterValueSource() == CURRENT)
+							{	// check if this is already a variable
+								Vec4f tmp;
+								if(this->getUniformVariable(szParamName.c_str(),tmp) )
+								{	// if it is, set the variable to value we already have for it.
+									cgSetParameterValuefr(pParam,uiNumComponents,tmp.getValues());
+								} // otherwise use the default value
+								else this->addUniformVariable(szParamName.c_str(), val );
+							}
+							else // use default value from .cgfx file
+							{
+								this->addUniformVariable(szParamName.c_str(), val );
+							}
                         }
                     }
                     break;
@@ -1091,10 +1093,20 @@ void CgFXMaterial::extractParameters( )
             case CG_SAMPLERRECT:
             case CG_SAMPLERCUBE:
             {
-				if(!_mDelayTextureExtraction)
+				CgFXVariableTexObjUnrecPtr pVar; 
+				std::string  szFilename;
+				bool _varInitialized(false);
+				if(this->getParameterValueSource() == CURRENT)
 				{
-					std::string  szFilename;
+					if(this->getVariable(szParamName.c_str()) != NULL)
+					{	// use the specified texture
+						szFilename = dynamic_cast<const CgFXVariableTexObj *>(this->getVariable(szParamName.c_str()))->getFilePath();
+						_varInitialized = true;
+					}
+				}
 
+				if(szFilename.empty())
+				{
 					CGannotation pAnno = cgGetNamedParameterAnnotation(pParam, 
 																	   "File");
 					if(pAnno == NULL)
@@ -1107,80 +1119,73 @@ void CgFXMaterial::extractParameters( )
 					{
 						szFilename = cgGetStringAnnotationValue(pAnno);
 					}
+				}
 
-	#if 0
-					fprintf(stderr, "Got filename from sampler %s\n",
-							szFilename.c_str());
-	#endif
+				if(szFilename.empty())
+				{
+					CGstateassignment pSamplerState = 
+						cgGetFirstSamplerStateAssignment(pParam);
 
-					if(szFilename.empty())
+					if(pSamplerState != NULL)
 					{
-						CGstateassignment pSamplerState = 
-							cgGetFirstSamplerStateAssignment(pParam);
+						// cgGetSamplerStateAssignmentValue
+						CGparameter pTParam = 
+							cgGetTextureStateAssignmentValue(pSamplerState);
 
-						if(pSamplerState != NULL)
+						if(pTParam != NULL)
 						{
-							// cgGetSamplerStateAssignmentValue
-							CGparameter pTParam = 
-								cgGetTextureStateAssignmentValue(pSamplerState);
-
-							if(pTParam != NULL)
+							CGtype pTParamType = cgGetParameterType(pTParam);
+                        
+							// get tweakable parameters
+							if(cgGetFirstParameterAnnotation(pTParam) != NULL &&
+							   pTParamType == CG_TEXTURE                       )
 							{
-								CGtype pTParamType = cgGetParameterType(pTParam);
-	                        
-								// get tweakable parameters
-								if(cgGetFirstParameterAnnotation(pTParam) != NULL &&
-								   pTParamType == CG_TEXTURE                       )
+								CGannotation pAnno = 
+									cgGetNamedParameterAnnotation(pTParam, 
+																  "File");
+								if(pAnno == NULL)
 								{
-									CGannotation pAnno = 
-										cgGetNamedParameterAnnotation(pTParam, 
-																	  "File");
-									if(pAnno == NULL)
-									{
-										pAnno = 
-											cgGetNamedParameterAnnotation(
-												pTParam, 
-												"ResourceName");
-									}
-	                                
-									if(pAnno != NULL)
-									{
-										szFilename = 
-											cgGetStringAnnotationValue(pAnno);
-									}
+									pAnno = 
+										cgGetNamedParameterAnnotation(
+											pTParam, 
+											"ResourceName");
+								}
+                                
+								if(pAnno != NULL)
+								{
+									szFilename = 
+										cgGetStringAnnotationValue(pAnno);
 								}
 							}
 						}
 					}
-	                
-	#if 0
-					fprintf(stderr, "Got filename from sampler state %s\n",
-							szFilename.c_str());
-	#endif
+				}
 
-					Int32 uiSamplerId = -1;
+				Int32 uiSamplerId = -1;
 
-					ImageUnrecPtr pImg = 
-						ImageFileHandler::the()->read(szFilename.c_str());
+				ImageUnrecPtr pImg = 
+					ImageFileHandler::the()->read(szFilename.c_str());
 
-					if(pImg != NULL)
+				if(pImg != NULL)
+				{
+					TextureObjChunkUnrecPtr pTexO = TextureObjChunk::create();
+
+					setName(pTexO, szParamName);
+
+					pTexO->setImage(pImg);
+
+					if(!_varInitialized)
 					{
-						TextureObjChunkUnrecPtr pTexO = TextureObjChunk::create();
-
-						setName(pTexO, szParamName);
-
-						pTexO->setImage(pImg);
-
-						CgFXVariableTexObjUnrecPtr pVar = 
-							CgFXVariableTexObj::create();
+						pVar = CgFXVariableTexObj::create();
 
 						pVar->setName (szParamName);
-						pVar->setValue(uiSamplerId);
-
 						this->addVariable   (pVar );
-						this->pushToTextures(pTexO);
+						pVar->setValue(uiSamplerId);
 					}
+
+					this->pushToTextures(pTexO);
 				}
+				
             }
             break;
             
