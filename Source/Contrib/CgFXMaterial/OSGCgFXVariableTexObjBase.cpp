@@ -123,7 +123,7 @@ void CgFXVariableTexObjBase::classDescInserter(TypeObject &oType)
         "value",
         "parameter value\n",
         ValueFieldId, ValueFieldMask,
-        false,
+        true,
         (Field::SFDefaultFlags | Field::FStdAccess),
         static_cast<FieldEditMethodSig>(&CgFXVariableTexObj::editHandleValue),
         static_cast<FieldGetMethodSig >(&CgFXVariableTexObj::getHandleValue));
@@ -173,8 +173,9 @@ CgFXVariableTexObjBase::TypeObject CgFXVariableTexObjBase::_type(
     "\t name=\"value\"\n"
     "\t type=\"Int32\"\n"
     "\t cardinality=\"single\"\n"
-    "\t visibility=\"external\"\n"
+    "\t visibility=\"internal\"\n"
     "\t access=\"public\"\n"
+    "\t defaultValue=\"-1\"\n"
     "\t >\n"
     "\tparameter value\n"
     "  </Field>\n"
@@ -413,7 +414,7 @@ FieldContainerTransitPtr CgFXVariableTexObjBase::shallowCopy(void) const
 
 CgFXVariableTexObjBase::CgFXVariableTexObjBase(void) :
     Inherited(),
-    _sfValue                  (),
+    _sfValue                  (Int32(-1)),
     _sfFilePath               ()
 {
 }

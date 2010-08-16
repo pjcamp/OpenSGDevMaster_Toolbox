@@ -14,7 +14,7 @@
 #include <OSGGLUTWindow.h>
 #include <OSGSimpleSceneManager.h>
 #include <OSGContainerPtrFuncs.h>
-#include <OSGFCFileType.h>
+//#include <OSGFCFileType.h>
 
 #include <OSGAction.h>
 
@@ -42,10 +42,11 @@
 
 // The SimpleSceneManager to manage simple applications
 OSG::SimpleSceneManager *mgr;
+OSG::NodeRefPtr scene;
 
 // forward declaration so we can have the interesting stuff upfront
 int setupGLUT( int *argc, char *argv[] );
-OSG::Node *findRoot(OSG::FCFileType::FCPtrStore container);
+OSG::NodeRecPtr findRoot(OSG::FCFileType::FCPtrStore container);
 
 #ifdef OSG_BUILD_ACTIVE
 // helper class to find a named node
@@ -57,58 +58,12 @@ OSG::Node *findRoot(OSG::FCFileType::FCPtrStore container);
 #include <OpenSG/OSGNameAttachment.h>
 #endif
 
-// There are two convenience functions for name access: getName() and
-// setName(). For details about general attachment handling see the
-// attachments tutorial
-
-class NamedNodeFinder
-{
-  private:
-
-  public:
-
-    NamedNodeFinder(void) : _found(), _name() {}
-
-    OSG::Node *operator() (OSG::Node *root, const std::string &name)
-    {
-        _name  = name;
-        _found = NULL;
-
-        OSG::TraverseEnterFunctor enter =
-            boost::bind(&NamedNodeFinder::checkNode, this, _1);
-        OSG::traverse(root, enter);
-
-        return _found;
-    }
-
-    static OSG::Node *find(OSG::Node *root, const std::string &name)
-    {
-        NamedNodeFinder f;
-
-        return f(root, name);
-    }
-
-    // %$#%$#% OS X trashes check symbol so we need to use checkNode
-    OSG::Action::ResultE checkNode(OSG::Node *node)
-    {
-        if(OSG::getName(node) && _name == OSG::getName(node))
-        {
-            _found = node;
-            return OSG::Action::Quit;
-        }
-
-        return OSG::Action::Continue;
-    }
-
-    OSG::Node   *_found;
-    std::string  _name;
-};
-
 // Initialize GLUT & OpenSG and set up the scene
 int main(int argc, char **argv)
 {
 	// load necessary libs for reading files
 	OSG::preloadSharedObject("OSGFileIO");
+	OSG::preloadSharedObject("OSGTBFileIO");
     OSG::preloadSharedObject("OSGImageFileIO");
     // OSG init
     OSG::osgInit(argc,argv);
@@ -127,8 +82,6 @@ int main(int argc, char **argv)
     
         // load the scene
     
-        OSG::NodeRefPtr scene;
-    
         if(argc < 2)
         {
             FWARNING(("No file given!\n"));
@@ -136,7 +89,6 @@ int main(int argc, char **argv)
     
             std::list<const char*> suffixes;
             OSG::SceneFileHandler::the()->getSuffixList(suffixes);
-            //SceneFileHandler::the()->print();
     
             for(std::list<const char*>::iterator it  = suffixes.begin();
                                                 it != suffixes.end();
@@ -156,58 +108,32 @@ int main(int argc, char **argv)
 			  //Read FieldContainers from an XML file
 			OSG::FCFileType::FCPtrStore NewContainers;
 			NewContainers = OSG::FCFileHandler::the()->read(boost::filesystem::path(argv[1]));
+			OSG::commitChanges();
 			scene = findRoot(NewContainers);
-			
+
+			if(scene == NULL)
+			{
+				std::cout << "File " << argv[1] << " not found, or file was invalid." << std::endl;
+				scene = OSG::makeTorus(.5, 2, 16, 16);
+			}
         }
-    
-    
-        OSG::NodeRefPtr found;
-    
-        //NamedNodeFinder f;
-    
-        // Try to find the Scene object. As it hasn't been named yet,
-        // it's not expected to be found.
-        //found = f(scene, "Scene");
-        
-        // if(found == NULL)
-        //{
-            //SLOG << "Found no object named 'Scene'.\n";
-        // }
-        // else
-        //{
-        //    SLOG << "Found object " << found 
-        //         << " named 'Scene'. How did that happen?\n";
-        // }
-    
-        // Try to find the TF_DETAIL object. An object in Data/tie.wrl is called
-        // TF_DETAIL, so we might find it.
-        //found = NamedNodeFinder::find(scene, "TF_DETAIL");
-        //
-        //if(found == NULL)
-        //{
-        //    SLOG << "Found no object named 'TF_DETAIL' (did you load the tie?)."
-        //         << OSG::endLog;
-        //}
-        //else
-        //{
-        //    SLOG << "Found object " << found << " named 'TF_DETAIL'."
-        //         << OSG::endLog;
-        //}
-    
-		
+
         OSG::commitChanges();
     
-        // create the SimpleSceneManager helper
-        mgr = new OSG::SimpleSceneManager;
+
+		
+		// create the SimpleSceneManager helper
+		mgr = new OSG::SimpleSceneManager;
     
-        // tell the manager what to manage
-        mgr->setWindow(gwin );
-        mgr->setRoot  (scene);
+		// tell the manager what to manage
+		mgr->setWindow(gwin );
+		mgr->setRoot  (scene);
 		mgr->setHeadlight(true);
 		mgr->setStatistics(true);
+		//mgr->getRenderAction()->setVolumeDrawing(true);
 
-        // show the whole scene
-        mgr->showAll();
+		// show the whole scene
+		mgr->showAll();
 		
 		OSG::FCFileType::FCPtrStore Containers;
 		Containers.insert(scene);
@@ -216,7 +142,8 @@ int main(int argc, char **argv)
 		//IgnoreTypes.push_back(Node::getClassType().getId());
 	    
 		//Write the Field Containers to a xml file
-		//OSG::FCFileHandler::the()->write(Containers,OSG::BoostPath("./Output.xml"),IgnoreTypes);
+		OSG::FCFileHandler::the()->write(Containers,OSG::BoostPath("C:/Users/danielg/Desktop/10TestOut.xml"),IgnoreTypes);
+		
     }
 
     // GLUT main loop
@@ -315,12 +242,11 @@ int setupGLUT(int *argc, char *argv[])
     return winid;
 }
 
-OSG::Node *findRoot(OSG::FCFileType::FCPtrStore container)
+OSG::NodeRecPtr findRoot(OSG::FCFileType::FCPtrStore container)
 {
 	// just iterating through the container and finding a node without a parent
 	for(OSG::FCFileType::FCPtrStore::iterator it = container.begin(); it != container.end(); it++)
 	{
-		//(*it)->
 		OSG::Node *cur = OSG::dynamic_pointer_cast<OSG::Node>((*it));
 		if(cur != NULL)
 		{
