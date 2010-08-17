@@ -114,7 +114,7 @@ OSG_BEGIN_NAMESPACE
     
 */
 
-/*! \var std::string     CgFXMaterialBase::_mfVariableNames
+/*! \var std::string     CgFXMaterialBase::_sfSelectedTechnique
     
 */
 
@@ -239,15 +239,15 @@ void CgFXMaterialBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new MFString::Description(
-        MFString::getClassType(),
-        "variableNames",
+    pDesc = new SFString::Description(
+        SFString::getClassType(),
+        "selectedTechnique",
         "",
-        VariableNamesFieldId, VariableNamesFieldMask,
-        true,
-        (Field::MFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&CgFXMaterial::editHandleVariableNames),
-        static_cast<FieldGetMethodSig >(&CgFXMaterial::getHandleVariableNames));
+        SelectedTechniqueFieldId, SelectedTechniqueFieldMask,
+        false,
+        (Field::SFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&CgFXMaterial::editHandleSelectedTechnique),
+        static_cast<FieldGetMethodSig >(&CgFXMaterial::getHandleSelectedTechnique));
 
     oType.addInitialDesc(pDesc);
 
@@ -390,10 +390,10 @@ CgFXMaterialBase::TypeObject CgFXMaterialBase::_type(
     "\t >\n"
     "  </Field>\n"
     "  <Field\n"
-    "\t name=\"variableNames\"\n"
+    "\t name=\"selectedTechnique\"\n"
     "\t type=\"std::string\"\n"
-    "\t cardinality=\"multi\"\n"
-    "\t visibility=\"internal\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
     "\t access=\"protected\"\n"
     "\t >\n"
     "  </Field>\n"
@@ -540,16 +540,16 @@ SFUnrecChildShaderProgramVariablesPtr *CgFXMaterialBase::editSFVariables      (v
     return &_sfVariables;
 }
 
-MFString *CgFXMaterialBase::editMFVariableNames(void)
+SFString *CgFXMaterialBase::editSFSelectedTechnique(void)
 {
-    editMField(VariableNamesFieldMask, _mfVariableNames);
+    editSField(SelectedTechniqueFieldMask);
 
-    return &_mfVariableNames;
+    return &_sfSelectedTechnique;
 }
 
-const MFString *CgFXMaterialBase::getMFVariableNames(void) const
+const SFString *CgFXMaterialBase::getSFSelectedTechnique(void) const
 {
-    return &_mfVariableNames;
+    return &_sfSelectedTechnique;
 }
 
 
@@ -745,9 +745,9 @@ UInt32 CgFXMaterialBase::getBinSize(ConstFieldMaskArg whichField)
     {
         returnValue += _sfVariables.getBinSize();
     }
-    if(FieldBits::NoField != (VariableNamesFieldMask & whichField))
+    if(FieldBits::NoField != (SelectedTechniqueFieldMask & whichField))
     {
-        returnValue += _mfVariableNames.getBinSize();
+        returnValue += _sfSelectedTechnique.getBinSize();
     }
     if(FieldBits::NoField != (StateVariablesFieldMask & whichField))
     {
@@ -798,9 +798,9 @@ void CgFXMaterialBase::copyToBin(BinaryDataHandler &pMem,
     {
         _sfVariables.copyToBin(pMem);
     }
-    if(FieldBits::NoField != (VariableNamesFieldMask & whichField))
+    if(FieldBits::NoField != (SelectedTechniqueFieldMask & whichField))
     {
-        _mfVariableNames.copyToBin(pMem);
+        _sfSelectedTechnique.copyToBin(pMem);
     }
     if(FieldBits::NoField != (StateVariablesFieldMask & whichField))
     {
@@ -854,7 +854,7 @@ void CgFXMaterialBase::copyFromBin(BinaryDataHandler &pMem,
         editSField(VariablesFieldMask);
         _sfVariables.copyFromBin(pMem);
     }
-    if(FieldBits::NoField != (VariableNamesFieldMask & whichField))
+    if(FieldBits::NoField != (SelectedTechniqueFieldMask & whichField))
     {
         editMField(VariableNamesFieldMask, _mfVariableNames);
         _mfVariableNames.copyFromBin(pMem);
@@ -1012,7 +1012,7 @@ CgFXMaterialBase::CgFXMaterialBase(void) :
     _sfVariables              (this,
                           VariablesFieldId,
                           ShaderProgramVariables::ParentsFieldId),
-    _mfVariableNames          (),
+    _sfSelectedTechnique      (),
     _sfStateVariables         (UInt32(0)),
     _mfTechniques             (),
     _mfTextures               (),
@@ -1030,7 +1030,7 @@ CgFXMaterialBase::CgFXMaterialBase(const CgFXMaterialBase &source) :
     _sfVariables              (this,
                           VariablesFieldId,
                           ShaderProgramVariables::ParentsFieldId),
-    _mfVariableNames          (source._mfVariableNames          ),
+    _sfSelectedTechnique      (source._sfSelectedTechnique      ),
     _sfStateVariables         (source._sfStateVariables         ),
     _mfTechniques             (),
     _mfTextures               (),
@@ -1277,27 +1277,27 @@ EditFieldHandlePtr CgFXMaterialBase::editHandleVariables      (void)
     return returnValue;
 }
 
-GetFieldHandlePtr CgFXMaterialBase::getHandleVariableNames   (void) const
+GetFieldHandlePtr CgFXMaterialBase::getHandleSelectedTechnique (void) const
 {
-    MFString::GetHandlePtr returnValue(
-        new  MFString::GetHandle(
-             &_mfVariableNames,
-             this->getType().getFieldDesc(VariableNamesFieldId),
+    SFString::GetHandlePtr returnValue(
+        new  SFString::GetHandle(
+             &_sfSelectedTechnique,
+             this->getType().getFieldDesc(SelectedTechniqueFieldId),
              const_cast<CgFXMaterialBase *>(this)));
 
     return returnValue;
 }
 
-EditFieldHandlePtr CgFXMaterialBase::editHandleVariableNames  (void)
+EditFieldHandlePtr CgFXMaterialBase::editHandleSelectedTechnique(void)
 {
-    MFString::EditHandlePtr returnValue(
-        new  MFString::EditHandle(
-             &_mfVariableNames,
-             this->getType().getFieldDesc(VariableNamesFieldId),
+    SFString::EditHandlePtr returnValue(
+        new  SFString::EditHandle(
+             &_sfSelectedTechnique,
+             this->getType().getFieldDesc(SelectedTechniqueFieldId),
              this));
 
 
-    editMField(VariableNamesFieldMask, _mfVariableNames);
+    editSField(SelectedTechniqueFieldMask);
 
     return returnValue;
 }
@@ -1477,10 +1477,6 @@ void CgFXMaterialBase::resolveLinks(void)
 
 #ifdef OSG_MT_CPTR_ASPECT
     _mfCompilerOptions.terminateShare(Thread::getCurrentAspect(),
-                                      oOffsets);
-#endif
-#ifdef OSG_MT_CPTR_ASPECT
-    _mfVariableNames.terminateShare(Thread::getCurrentAspect(),
                                       oOffsets);
 #endif
 }

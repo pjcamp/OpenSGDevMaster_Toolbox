@@ -535,20 +535,20 @@ std::string SceneFileHandlerBase::initPathHandler(const Char8 *fileName)
     {
         // Set also a image path handler if not set.
 
-        if(ImageFileHandler::the()->getPathHandler() == NULL)
-        {
+       // if(ImageFileHandler::the()->getPathHandler() == NULL)
+       //  {
             ImageFileHandler::the()->setPathHandler(_pathHandler);
-        }
+       // }
 
         fullFilePath = _pathHandler->findFile(fileName);
     }
     else
     {
         // Set a default image path handler if not set.
-        if(ImageFileHandler::the()->getPathHandler() == NULL)
-        {
+        //if(ImageFileHandler::the()->getPathHandler() == NULL)
+        //{
             ImageFileHandler::the()->setPathHandler(&_defaultPathHandler);
-        }
+        //}
 
         _defaultPathHandler.clearPathList();
         _defaultPathHandler.clearBaseFile();

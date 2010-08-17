@@ -76,10 +76,10 @@
 	 >
   </Field>
   <Field
-	 name="variableNames"
+	 name="selectedTechnique"
 	 type="std::string"
-	 cardinality="multi"
-	 visibility="internal"
+	 cardinality="single"
+	 visibility="external"
 	 access="protected"
 	 >
   </Field>

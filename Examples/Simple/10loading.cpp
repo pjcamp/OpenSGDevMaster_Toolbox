@@ -14,6 +14,7 @@
 #include <OSGGLUTWindow.h>
 #include <OSGSimpleSceneManager.h>
 #include <OSGContainerPtrFuncs.h>
+#include <OSGCollisionMeshGraphOp.h>
 //#include <OSGFCFileType.h>
 
 #include <OSGAction.h>
@@ -120,7 +121,13 @@ int main(int argc, char **argv)
         OSG::commitChanges();
     
 
+		OSG::CollisionMeshGraphOpRefPtr colMeshGrOp = OSG::CollisionMeshGraphOp::create();
+		colMeshGrOp->setSearchString("_Col");
+		// default values for this graph op will do fine.
+		bool result = colMeshGrOp->traverse(scene);
 		
+		std::cout << "Number of nodes hidden: " << colMeshGrOp->getNumChanged() << std::endl;
+
 		// create the SimpleSceneManager helper
 		mgr = new OSG::SimpleSceneManager;
     

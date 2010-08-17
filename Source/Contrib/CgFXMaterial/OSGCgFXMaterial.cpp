@@ -516,10 +516,18 @@ void CgFXMaterial::processEffectString(void)
 
         pCGTech = cgGetNextTechnique(pCGTech);
     }
+
+	setActiveTechnique(getSelectedTechnique());
 }
 
 bool CgFXMaterial::setActiveTechnique(std::string techniqueName)
 {
+	// if we don't have a valid effect yet, store the string and try
+	// again after the effect is loaded up.
+	if(_pCGeffect == NULL)
+	{
+		editSelectedTechnique() = techniqueName;
+	}
 	// is this a valid technique name?
 	CGtechnique tech = cgGetNamedTechnique(_pCGeffect, techniqueName.c_str());
 	if(tech)
