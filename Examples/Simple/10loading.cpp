@@ -15,6 +15,7 @@
 #include <OSGSimpleSceneManager.h>
 #include <OSGContainerPtrFuncs.h>
 #include <OSGCollisionMeshGraphOp.h>
+#include <OSGLODSetupGraphOp.h>
 //#include <OSGFCFileType.h>
 
 #include <OSGAction.h>
@@ -121,12 +122,26 @@ int main(int argc, char **argv)
         OSG::commitChanges();
     
 
-		OSG::CollisionMeshGraphOpRefPtr colMeshGrOp = OSG::CollisionMeshGraphOp::create();
+		OSG::CollisionMeshGraphOpRefPtr colMeshGrOp = OSG::NodeNameTravMaskGraphOp::create();
 		colMeshGrOp->setSearchString("_Col");
 		// default values for this graph op will do fine.
 		bool result = colMeshGrOp->traverse(scene);
-		
+		//colMeshGrOp->setSearchString("_Mid");
+		// result = colMeshGrOp->traverse(scene);
+		//colMeshGrOp->setSearchString("_Low");
+		// result = colMeshGrOp->traverse(scene);
 		std::cout << "Number of nodes hidden: " << colMeshGrOp->getNumChanged() << std::endl;
+
+		OSG::LODSetupGraphOpRefPtr LODSetupGrOp = OSG::LODSetupGraphOp::create();
+		LODSetupGrOp->addLODInfo(0,100.0f,"_High");
+		LODSetupGrOp->addLODInfo(1,200.0f,"_Mid");
+		LODSetupGrOp->addLODInfo(2,200.0f,"_Med");
+		LODSetupGrOp->addLODInfo(3,290.0f,"_Low");
+
+		result = LODSetupGrOp->traverse(scene);
+
+		std::cout << "Number of LOD nodes set up: " << LODSetupGrOp->getNumLODSMade() << std::endl;
+
 
 		// create the SimpleSceneManager helper
 		mgr = new OSG::SimpleSceneManager;
