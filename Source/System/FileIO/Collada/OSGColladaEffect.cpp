@@ -1396,7 +1396,7 @@ ColladaEffect::createInstanceProfileCG(
 
                 pVar->setName (samplerParams[i]->getRef());
                 pVar->setValue(uiSamplerId);
-				pVar->setFilePath(szFilename);
+				pVar->setFilePath(fixFilepath(szFilename));
 
                 newCgFXmat->addVariable   (pVar );
 
