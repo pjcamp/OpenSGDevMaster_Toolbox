@@ -268,365 +268,365 @@ UInt32 WIN32Window::getKeyModifiers(void) const
 
     if(GetKeyState(VK_SHIFT)<0)
     {
-        Modifiers |= KeyEvent::KEY_MODIFIER_SHIFT;
+        Modifiers |= KeyEventDetails::KEY_MODIFIER_SHIFT;
     }
     if(GetKeyState(VK_CONTROL)<0)
     {
-        Modifiers |= KeyEvent::KEY_MODIFIER_CONTROL;
+        Modifiers |= KeyEventDetails::KEY_MODIFIER_CONTROL;
     }
     if(GetKeyState(VK_MENU)<0)
     {
-        Modifiers |= KeyEvent::KEY_MODIFIER_ALT;
+        Modifiers |= KeyEventDetails::KEY_MODIFIER_ALT;
     }
     if(GetKeyState(VK_CAPITAL)>0)
     {
-        Modifiers |= KeyEvent::KEY_MODIFIER_CAPS_LOCK;
+        Modifiers |= KeyEventDetails::KEY_MODIFIER_CAPS_LOCK;
     }
     if(GetKeyState(VK_NUMLOCK)>0)
     {
-        Modifiers |= KeyEvent::KEY_MODIFIER_NUM_LOCK;
+        Modifiers |= KeyEventDetails::KEY_MODIFIER_NUM_LOCK;
     }
     if(GetKeyState(VK_SCROLL)>0)
     {
-        Modifiers |= KeyEvent::KEY_MODIFIER_SCROLL_LOCK;
+        Modifiers |= KeyEventDetails::KEY_MODIFIER_SCROLL_LOCK;
     }
     return Modifiers;
 }
 
-KeyEvent::KeyState WIN32Window::getKeyState(KeyEvent::Key TheKey) const
+KeyEventDetails::KeyState WIN32Window::getKeyState(KeyEventDetails::Key TheKey) const
 {
     SHORT KeyState(0);
     switch(TheKey)
     {
         //Alphabet
-        case KeyEvent::KEY_A:
+        case KeyEventDetails::KEY_A:
             KeyState = GetAsyncKeyState('A');
             break;
-        case KeyEvent::KEY_B:
+        case KeyEventDetails::KEY_B:
             KeyState = GetAsyncKeyState('B');
             break;
-        case KeyEvent::KEY_C:
+        case KeyEventDetails::KEY_C:
             KeyState = GetAsyncKeyState('C');
             break;
-        case KeyEvent::KEY_D:
+        case KeyEventDetails::KEY_D:
             KeyState = GetAsyncKeyState('D');
             break;
-        case KeyEvent::KEY_E:
+        case KeyEventDetails::KEY_E:
             KeyState = GetAsyncKeyState('E');
             break;
-        case KeyEvent::KEY_F:
+        case KeyEventDetails::KEY_F:
             KeyState = GetAsyncKeyState('F');
             break;
-        case KeyEvent::KEY_G:
+        case KeyEventDetails::KEY_G:
             KeyState = GetAsyncKeyState('G');
             break;
-        case KeyEvent::KEY_H:
+        case KeyEventDetails::KEY_H:
             KeyState = GetAsyncKeyState('H');
             break;
-        case KeyEvent::KEY_I:
+        case KeyEventDetails::KEY_I:
             KeyState = GetAsyncKeyState('I');
             break;
-        case KeyEvent::KEY_J:
+        case KeyEventDetails::KEY_J:
             KeyState = GetAsyncKeyState('J');
             break;
-        case KeyEvent::KEY_K:
+        case KeyEventDetails::KEY_K:
             KeyState = GetAsyncKeyState('K');
             break;
-        case KeyEvent::KEY_L:
+        case KeyEventDetails::KEY_L:
             KeyState = GetAsyncKeyState('L');
             break;
-        case KeyEvent::KEY_M:
+        case KeyEventDetails::KEY_M:
             KeyState = GetAsyncKeyState('M');
             break;
-        case KeyEvent::KEY_N:
+        case KeyEventDetails::KEY_N:
             KeyState = GetAsyncKeyState('N');
             break;
-        case KeyEvent::KEY_O:
+        case KeyEventDetails::KEY_O:
             KeyState = GetAsyncKeyState('O');
             break;
-        case KeyEvent::KEY_P:
+        case KeyEventDetails::KEY_P:
             KeyState = GetAsyncKeyState('P');
             break;
-        case KeyEvent::KEY_Q:
+        case KeyEventDetails::KEY_Q:
             KeyState = GetAsyncKeyState('Q');
             break;
-        case KeyEvent::KEY_R:
+        case KeyEventDetails::KEY_R:
             KeyState = GetAsyncKeyState('R');
             break;
-        case KeyEvent::KEY_S:
+        case KeyEventDetails::KEY_S:
             KeyState = GetAsyncKeyState('S');
             break;
-        case KeyEvent::KEY_T:
+        case KeyEventDetails::KEY_T:
             KeyState = GetAsyncKeyState('T');
             break;
-        case KeyEvent::KEY_U:
+        case KeyEventDetails::KEY_U:
             KeyState = GetAsyncKeyState('U');
             break;
-        case KeyEvent::KEY_V:
+        case KeyEventDetails::KEY_V:
             KeyState = GetAsyncKeyState('V');
             break;
-        case KeyEvent::KEY_W:
+        case KeyEventDetails::KEY_W:
             KeyState = GetAsyncKeyState('W');
             break;
-        case KeyEvent::KEY_X:
+        case KeyEventDetails::KEY_X:
             KeyState = GetAsyncKeyState('X');
             break;
-        case KeyEvent::KEY_Y:
+        case KeyEventDetails::KEY_Y:
             KeyState = GetAsyncKeyState('Y');
             break;
-        case KeyEvent::KEY_Z:
+        case KeyEventDetails::KEY_Z:
             KeyState = GetAsyncKeyState('Z');
             break;
             //Numbers
-        case KeyEvent::KEY_0:
+        case KeyEventDetails::KEY_0:
             KeyState = GetAsyncKeyState('0');
             break;
-        case KeyEvent::KEY_1:
+        case KeyEventDetails::KEY_1:
             KeyState = GetAsyncKeyState('1');
             break;
-        case KeyEvent::KEY_2:
+        case KeyEventDetails::KEY_2:
             KeyState = GetAsyncKeyState('2');
             break;
-        case KeyEvent::KEY_3:
+        case KeyEventDetails::KEY_3:
             KeyState = GetAsyncKeyState('3');
             break;
-        case KeyEvent::KEY_4:
+        case KeyEventDetails::KEY_4:
             KeyState = GetAsyncKeyState('4');
             break;
-        case KeyEvent::KEY_5:
+        case KeyEventDetails::KEY_5:
             KeyState = GetAsyncKeyState('5');
             break;
-        case KeyEvent::KEY_6:
+        case KeyEventDetails::KEY_6:
             KeyState = GetAsyncKeyState('6');
             break;
-        case KeyEvent::KEY_7:
+        case KeyEventDetails::KEY_7:
             KeyState = GetAsyncKeyState('7');
             break;
-        case KeyEvent::KEY_8:
+        case KeyEventDetails::KEY_8:
             KeyState = GetAsyncKeyState('8');
             break;
-        case KeyEvent::KEY_9:
+        case KeyEventDetails::KEY_9:
             KeyState = GetAsyncKeyState('9');
             break;
 
             //Other
-        case KeyEvent::KEY_MINUS:
+        case KeyEventDetails::KEY_MINUS:
             KeyState = GetAsyncKeyState(VK_OEM_MINUS);
             break;
-        case KeyEvent::KEY_EQUALS:
+        case KeyEventDetails::KEY_EQUALS:
             KeyState = GetAsyncKeyState(VK_OEM_PLUS);
             break;
-        case KeyEvent::KEY_BACK_QUOTE:
+        case KeyEventDetails::KEY_BACK_QUOTE:
             KeyState = GetAsyncKeyState(VK_OEM_3);
             break;
-        case KeyEvent::KEY_TAB:
+        case KeyEventDetails::KEY_TAB:
             KeyState = GetAsyncKeyState(VK_TAB);
             break;
-        case KeyEvent::KEY_SPACE:
+        case KeyEventDetails::KEY_SPACE:
             KeyState = GetAsyncKeyState(VK_SPACE);
             break;
-        case KeyEvent::KEY_OPEN_BRACKET:
+        case KeyEventDetails::KEY_OPEN_BRACKET:
             KeyState = GetAsyncKeyState(VK_OEM_4);
             break;
-        case KeyEvent::KEY_CLOSE_BRACKET:
+        case KeyEventDetails::KEY_CLOSE_BRACKET:
             KeyState = GetAsyncKeyState(VK_OEM_6);
             break;
-        case KeyEvent::KEY_SEMICOLON:
+        case KeyEventDetails::KEY_SEMICOLON:
             KeyState = GetAsyncKeyState(VK_OEM_1);
             break;
-        case KeyEvent::KEY_COMMA:
+        case KeyEventDetails::KEY_COMMA:
             KeyState = GetAsyncKeyState(VK_OEM_COMMA);
             break;
-        case KeyEvent::KEY_PERIOD:
+        case KeyEventDetails::KEY_PERIOD:
             KeyState = GetAsyncKeyState(VK_OEM_PERIOD);
             break;
-        case KeyEvent::KEY_BACK_SLASH:
+        case KeyEventDetails::KEY_BACK_SLASH:
             KeyState = GetAsyncKeyState(VK_OEM_5);
             break;
-        case KeyEvent::KEY_APOSTROPHE:
+        case KeyEventDetails::KEY_APOSTROPHE:
             KeyState = GetAsyncKeyState(VK_OEM_7);
             break;
-        case KeyEvent::KEY_SLASH:
+        case KeyEventDetails::KEY_SLASH:
             KeyState = GetAsyncKeyState(VK_OEM_2);
             break;
 
             //Non-visible
-        case KeyEvent::KEY_ESCAPE:
+        case KeyEventDetails::KEY_ESCAPE:
             KeyState = GetAsyncKeyState(VK_ESCAPE);
             break;
-        case KeyEvent::KEY_SHIFT:
+        case KeyEventDetails::KEY_SHIFT:
             KeyState = GetAsyncKeyState(VK_SHIFT);
             break;
-        case KeyEvent::KEY_CONTROL:
+        case KeyEventDetails::KEY_CONTROL:
             KeyState = GetAsyncKeyState(VK_CONTROL);
             break;
-        case KeyEvent::KEY_ALT:
+        case KeyEventDetails::KEY_ALT:
             KeyState = GetAsyncKeyState(VK_MENU);
             break;
-        case KeyEvent::KEY_ENTER:
+        case KeyEventDetails::KEY_ENTER:
             KeyState = GetAsyncKeyState(VK_RETURN);
             break;
-        case KeyEvent::KEY_CANCEL:
+        case KeyEventDetails::KEY_CANCEL:
             KeyState = GetAsyncKeyState(VK_CANCEL);
             break;
-        case KeyEvent::KEY_CLEAR:
+        case KeyEventDetails::KEY_CLEAR:
             KeyState = GetAsyncKeyState(VK_CLEAR);
             break;
-        case KeyEvent::KEY_PAUSE:
+        case KeyEventDetails::KEY_PAUSE:
             KeyState = GetAsyncKeyState(VK_PAUSE);
             break;
-        case KeyEvent::KEY_CAPS_LOCK:
+        case KeyEventDetails::KEY_CAPS_LOCK:
             KeyState = GetAsyncKeyState(VK_CAPITAL);
             break;
-        case KeyEvent::KEY_END:
+        case KeyEventDetails::KEY_END:
             KeyState = GetAsyncKeyState(VK_END);
             break;
-        case KeyEvent::KEY_PAGE_UP:
+        case KeyEventDetails::KEY_PAGE_UP:
             KeyState = GetAsyncKeyState(VK_PRIOR);
             break;
-        case KeyEvent::KEY_PAGE_DOWN:
+        case KeyEventDetails::KEY_PAGE_DOWN:
             KeyState = GetAsyncKeyState(VK_NEXT);
             break;
-        case KeyEvent::KEY_HOME:
+        case KeyEventDetails::KEY_HOME:
             KeyState = GetAsyncKeyState(VK_HOME);
             break;
-        case KeyEvent::KEY_UP:
+        case KeyEventDetails::KEY_UP:
             KeyState = GetAsyncKeyState(VK_UP);
             break;
-        case KeyEvent::KEY_DOWN:
+        case KeyEventDetails::KEY_DOWN:
             KeyState = GetAsyncKeyState(VK_DOWN);
             break;
-        case KeyEvent::KEY_LEFT:
+        case KeyEventDetails::KEY_LEFT:
             KeyState = GetAsyncKeyState(VK_LEFT);
             break;
-        case KeyEvent::KEY_RIGHT:
+        case KeyEventDetails::KEY_RIGHT:
             KeyState = GetAsyncKeyState(VK_RIGHT);
             break;
-        case KeyEvent::KEY_PRINTSCREEN:
+        case KeyEventDetails::KEY_PRINTSCREEN:
             KeyState = GetAsyncKeyState(VK_SNAPSHOT);
             break;
-        case KeyEvent::KEY_INSERT:
+        case KeyEventDetails::KEY_INSERT:
             KeyState = GetAsyncKeyState(VK_INSERT);
             break;
-        case KeyEvent::KEY_DELETE:
+        case KeyEventDetails::KEY_DELETE:
             KeyState = GetAsyncKeyState(VK_DELETE);
             break;
-        case KeyEvent::KEY_HELP:
+        case KeyEventDetails::KEY_HELP:
             KeyState = GetAsyncKeyState(VK_HELP);
             break;
-        case KeyEvent::KEY_NUM_LOCK:
+        case KeyEventDetails::KEY_NUM_LOCK:
             KeyState = GetAsyncKeyState(VK_NUMLOCK);
             break;
-        case KeyEvent::KEY_SCROLL_LOCK:
+        case KeyEventDetails::KEY_SCROLL_LOCK:
             KeyState = GetAsyncKeyState(VK_SCROLL);
             break;
-        case KeyEvent::KEY_BACK_SPACE:
+        case KeyEventDetails::KEY_BACK_SPACE:
             KeyState = GetAsyncKeyState(VK_BACK);
             break;
 
             //Function Keys
-        case KeyEvent::KEY_F1:
+        case KeyEventDetails::KEY_F1:
             KeyState = GetAsyncKeyState(VK_F1);
             break;
-        case KeyEvent::KEY_F2:
+        case KeyEventDetails::KEY_F2:
             KeyState = GetAsyncKeyState(VK_F2);
             break;
-        case KeyEvent::KEY_F3:
+        case KeyEventDetails::KEY_F3:
             KeyState = GetAsyncKeyState(VK_F3);
             break;
-        case KeyEvent::KEY_F4:
+        case KeyEventDetails::KEY_F4:
             KeyState = GetAsyncKeyState(VK_F4);
             break;
-        case KeyEvent::KEY_F5:
+        case KeyEventDetails::KEY_F5:
             KeyState = GetAsyncKeyState(VK_F5);
             break;
-        case KeyEvent::KEY_F6:
+        case KeyEventDetails::KEY_F6:
             KeyState = GetAsyncKeyState(VK_F6);
             break;
-        case KeyEvent::KEY_F7:
+        case KeyEventDetails::KEY_F7:
             KeyState = GetAsyncKeyState(VK_F7);
             break;
-        case KeyEvent::KEY_F8:
+        case KeyEventDetails::KEY_F8:
             KeyState = GetAsyncKeyState(VK_F8);
             break;
-        case KeyEvent::KEY_F9:
+        case KeyEventDetails::KEY_F9:
             KeyState = GetAsyncKeyState(VK_F9);
             break;
-        case KeyEvent::KEY_F10:
+        case KeyEventDetails::KEY_F10:
             KeyState = GetAsyncKeyState(VK_F10);
             break;
-        case KeyEvent::KEY_F11:
+        case KeyEventDetails::KEY_F11:
             KeyState = GetAsyncKeyState(VK_F11);
             break;
-        case KeyEvent::KEY_F12:
+        case KeyEventDetails::KEY_F12:
             KeyState = GetAsyncKeyState(VK_F12);
             break;
-        case KeyEvent::KEY_F13:
+        case KeyEventDetails::KEY_F13:
             KeyState = GetAsyncKeyState(VK_F13);
             break;
-        case KeyEvent::KEY_F14:
+        case KeyEventDetails::KEY_F14:
             KeyState = GetAsyncKeyState(VK_F14);
             break;
-        case KeyEvent::KEY_F15:
+        case KeyEventDetails::KEY_F15:
             KeyState = GetAsyncKeyState(VK_F15);
             break;
-        case KeyEvent::KEY_F16:
+        case KeyEventDetails::KEY_F16:
             KeyState = GetAsyncKeyState(VK_F16);
             break;
-        case KeyEvent::KEY_F17:
+        case KeyEventDetails::KEY_F17:
             KeyState = GetAsyncKeyState(VK_F17);
             break;
-        case KeyEvent::KEY_F18:
+        case KeyEventDetails::KEY_F18:
             KeyState = GetAsyncKeyState(VK_F18);
             break;
-        case KeyEvent::KEY_F19:
+        case KeyEventDetails::KEY_F19:
             KeyState = GetAsyncKeyState(VK_F19);
             break;
-        case KeyEvent::KEY_F20:
+        case KeyEventDetails::KEY_F20:
             KeyState = GetAsyncKeyState(VK_F20);
             break;
-        case KeyEvent::KEY_F21:
+        case KeyEventDetails::KEY_F21:
             KeyState = GetAsyncKeyState(VK_F21);
             break;
-        case KeyEvent::KEY_F22:
+        case KeyEventDetails::KEY_F22:
             KeyState = GetAsyncKeyState(VK_F22);
             break;
-        case KeyEvent::KEY_F23:
+        case KeyEventDetails::KEY_F23:
             KeyState = GetAsyncKeyState(VK_F23);
             break;
-        case KeyEvent::KEY_F24:
+        case KeyEventDetails::KEY_F24:
             KeyState = GetAsyncKeyState(VK_F24);
             break;
 
             //Numpad Keys
-        case KeyEvent::KEY_NUMPAD_0:
+        case KeyEventDetails::KEY_NUMPAD_0:
             KeyState = GetAsyncKeyState(VK_NUMPAD0);
             break;
-        case KeyEvent::KEY_NUMPAD_1:
+        case KeyEventDetails::KEY_NUMPAD_1:
             KeyState = GetAsyncKeyState(VK_NUMPAD1);
             break;
-        case KeyEvent::KEY_NUMPAD_2:
+        case KeyEventDetails::KEY_NUMPAD_2:
             KeyState = GetAsyncKeyState(VK_NUMPAD2);
             break;
-        case KeyEvent::KEY_NUMPAD_3:
+        case KeyEventDetails::KEY_NUMPAD_3:
             KeyState = GetAsyncKeyState(VK_NUMPAD3);
             break;
-        case KeyEvent::KEY_NUMPAD_4:
+        case KeyEventDetails::KEY_NUMPAD_4:
             KeyState = GetAsyncKeyState(VK_NUMPAD4);
             break;
-        case KeyEvent::KEY_NUMPAD_5:
+        case KeyEventDetails::KEY_NUMPAD_5:
             KeyState = GetAsyncKeyState(VK_NUMPAD5);
             break;
-        case KeyEvent::KEY_NUMPAD_6:
+        case KeyEventDetails::KEY_NUMPAD_6:
             KeyState = GetAsyncKeyState(VK_NUMPAD6);
             break;
-        case KeyEvent::KEY_NUMPAD_7:
+        case KeyEventDetails::KEY_NUMPAD_7:
             KeyState = GetAsyncKeyState(VK_NUMPAD7);
             break;
-        case KeyEvent::KEY_NUMPAD_8:
+        case KeyEventDetails::KEY_NUMPAD_8:
             KeyState = GetAsyncKeyState(VK_NUMPAD8);
             break;
-        case KeyEvent::KEY_NUMPAD_9:
+        case KeyEventDetails::KEY_NUMPAD_9:
             KeyState = GetAsyncKeyState(VK_NUMPAD9);
             break;
     }
@@ -634,358 +634,358 @@ KeyEvent::KeyState WIN32Window::getKeyState(KeyEvent::Key TheKey) const
     {
         if(KeyState &0x0001)
         {
-            return KeyEvent::KEY_STATE_TOGGLED;
+            return KeyEventDetails::KEY_STATE_TOGGLED;
         }
         else
         {
-            return KeyEvent::KEY_STATE_DOWN;
+            return KeyEventDetails::KEY_STATE_DOWN;
         }
     }
     else
     {
-        return KeyEvent::KEY_STATE_UP;
+        return KeyEventDetails::KEY_STATE_UP;
     }
 }
 
-KeyEvent::Key WIN32Window::determineKey(WPARAM key)
+KeyEventDetails::Key WIN32Window::determineKey(WPARAM key)
 {
-    KeyEvent::Key OSGKey;
+    KeyEventDetails::Key OSGKey;
     switch(key)
     {
         //Alphabet
         case 'A':
-            OSGKey = KeyEvent::KEY_A;
+            OSGKey = KeyEventDetails::KEY_A;
             break;
         case 'B':
-            OSGKey = KeyEvent::KEY_B;
+            OSGKey = KeyEventDetails::KEY_B;
             break;
         case 'C':
-            OSGKey = KeyEvent::KEY_C;
+            OSGKey = KeyEventDetails::KEY_C;
             break;
         case 'D':
-            OSGKey = KeyEvent::KEY_D;
+            OSGKey = KeyEventDetails::KEY_D;
             break;
         case 'E':
-            OSGKey = KeyEvent::KEY_E;
+            OSGKey = KeyEventDetails::KEY_E;
             break;
         case 'F':
-            OSGKey = KeyEvent::KEY_F;
+            OSGKey = KeyEventDetails::KEY_F;
             break;
         case 'G':
-            OSGKey = KeyEvent::KEY_G;
+            OSGKey = KeyEventDetails::KEY_G;
             break;
         case 'H':
-            OSGKey = KeyEvent::KEY_H;
+            OSGKey = KeyEventDetails::KEY_H;
             break;
         case 'I':
-            OSGKey = KeyEvent::KEY_I;
+            OSGKey = KeyEventDetails::KEY_I;
             break;
         case 'J':
-            OSGKey = KeyEvent::KEY_J;
+            OSGKey = KeyEventDetails::KEY_J;
             break;
         case 'K':
-            OSGKey = KeyEvent::KEY_K;
+            OSGKey = KeyEventDetails::KEY_K;
             break;
         case 'L':
-            OSGKey = KeyEvent::KEY_L;
+            OSGKey = KeyEventDetails::KEY_L;
             break;
         case 'M':
-            OSGKey = KeyEvent::KEY_M;
+            OSGKey = KeyEventDetails::KEY_M;
             break;
         case 'N':
-            OSGKey = KeyEvent::KEY_N;
+            OSGKey = KeyEventDetails::KEY_N;
             break;
         case 'O':
-            OSGKey = KeyEvent::KEY_O;
+            OSGKey = KeyEventDetails::KEY_O;
             break;
         case 'P':
-            OSGKey = KeyEvent::KEY_P;
+            OSGKey = KeyEventDetails::KEY_P;
             break;
         case 'Q':
-            OSGKey = KeyEvent::KEY_Q;
+            OSGKey = KeyEventDetails::KEY_Q;
             break;
         case 'R':
-            OSGKey = KeyEvent::KEY_R;
+            OSGKey = KeyEventDetails::KEY_R;
             break;
         case 'S':
-            OSGKey = KeyEvent::KEY_S;
+            OSGKey = KeyEventDetails::KEY_S;
             break;
         case 'T':
-            OSGKey = KeyEvent::KEY_T;
+            OSGKey = KeyEventDetails::KEY_T;
             break;
         case 'U':
-            OSGKey = KeyEvent::KEY_U;
+            OSGKey = KeyEventDetails::KEY_U;
             break;
         case 'V':
-            OSGKey = KeyEvent::KEY_V;
+            OSGKey = KeyEventDetails::KEY_V;
             break;
         case 'W':
-            OSGKey = KeyEvent::KEY_W;
+            OSGKey = KeyEventDetails::KEY_W;
             break;
         case 'X':
-            OSGKey = KeyEvent::KEY_X;
+            OSGKey = KeyEventDetails::KEY_X;
             break;
         case 'Y':
-            OSGKey = KeyEvent::KEY_Y;
+            OSGKey = KeyEventDetails::KEY_Y;
             break;
         case 'Z':
-            OSGKey = KeyEvent::KEY_Z;
+            OSGKey = KeyEventDetails::KEY_Z;
             break;
             //Numbers
         case '0':
-            OSGKey = KeyEvent::KEY_0;
+            OSGKey = KeyEventDetails::KEY_0;
             break;
         case '1':
-            OSGKey = KeyEvent::KEY_1;
+            OSGKey = KeyEventDetails::KEY_1;
             break;
         case '2':
-            OSGKey = KeyEvent::KEY_2;
+            OSGKey = KeyEventDetails::KEY_2;
             break;
         case '3':
-            OSGKey = KeyEvent::KEY_3;
+            OSGKey = KeyEventDetails::KEY_3;
             break;
         case '4':
-            OSGKey = KeyEvent::KEY_4;
+            OSGKey = KeyEventDetails::KEY_4;
             break;
         case '5':
-            OSGKey = KeyEvent::KEY_5;
+            OSGKey = KeyEventDetails::KEY_5;
             break;
         case '6':
-            OSGKey = KeyEvent::KEY_6;
+            OSGKey = KeyEventDetails::KEY_6;
             break;
         case '7':
-            OSGKey = KeyEvent::KEY_7;
+            OSGKey = KeyEventDetails::KEY_7;
             break;
         case '8':
-            OSGKey = KeyEvent::KEY_8;
+            OSGKey = KeyEventDetails::KEY_8;
             break;
         case '9':
-            OSGKey = KeyEvent::KEY_9;
+            OSGKey = KeyEventDetails::KEY_9;
             break;
 
             //Other
         case VK_OEM_MINUS:
-            OSGKey = KeyEvent::KEY_MINUS;
+            OSGKey = KeyEventDetails::KEY_MINUS;
             break;
         case VK_OEM_PLUS:
-            OSGKey = KeyEvent::KEY_EQUALS;
+            OSGKey = KeyEventDetails::KEY_EQUALS;
             break;
         case VK_OEM_3:
-            OSGKey = KeyEvent::KEY_BACK_QUOTE;
+            OSGKey = KeyEventDetails::KEY_BACK_QUOTE;
             break;
         case VK_TAB:
-            OSGKey = KeyEvent::KEY_TAB;
+            OSGKey = KeyEventDetails::KEY_TAB;
             break;
         case VK_SPACE:
-            OSGKey = KeyEvent::KEY_SPACE;
+            OSGKey = KeyEventDetails::KEY_SPACE;
             break;
         case VK_OEM_4:
-            OSGKey = KeyEvent::KEY_OPEN_BRACKET;
+            OSGKey = KeyEventDetails::KEY_OPEN_BRACKET;
             break;
         case VK_OEM_6:
-            OSGKey = KeyEvent::KEY_CLOSE_BRACKET;
+            OSGKey = KeyEventDetails::KEY_CLOSE_BRACKET;
             break;
         case VK_OEM_1:
-            OSGKey = KeyEvent::KEY_SEMICOLON;
+            OSGKey = KeyEventDetails::KEY_SEMICOLON;
             break;
         case VK_OEM_COMMA:
-            OSGKey = KeyEvent::KEY_COMMA;
+            OSGKey = KeyEventDetails::KEY_COMMA;
             break;
         case VK_OEM_PERIOD:
-            OSGKey = KeyEvent::KEY_PERIOD;
+            OSGKey = KeyEventDetails::KEY_PERIOD;
             break;
         case VK_OEM_5:
-            OSGKey = KeyEvent::KEY_BACK_SLASH;
+            OSGKey = KeyEventDetails::KEY_BACK_SLASH;
             break;
         case VK_OEM_7:
-            OSGKey = KeyEvent::KEY_APOSTROPHE;
+            OSGKey = KeyEventDetails::KEY_APOSTROPHE;
             break;
         case VK_OEM_2:
-            OSGKey = KeyEvent::KEY_SLASH;
+            OSGKey = KeyEventDetails::KEY_SLASH;
             break;
 
             //Non-visible
         case VK_ESCAPE:
-            OSGKey = KeyEvent::KEY_ESCAPE;
+            OSGKey = KeyEventDetails::KEY_ESCAPE;
             break;
         case VK_SHIFT:
-            OSGKey = KeyEvent::KEY_SHIFT;
+            OSGKey = KeyEventDetails::KEY_SHIFT;
             break;
         case VK_CONTROL:
-            OSGKey = KeyEvent::KEY_CONTROL;
+            OSGKey = KeyEventDetails::KEY_CONTROL;
             break;
         case VK_MENU:
-            OSGKey = KeyEvent::KEY_ALT;
+            OSGKey = KeyEventDetails::KEY_ALT;
             break;
         case VK_RETURN:
-            OSGKey = KeyEvent::KEY_ENTER;
+            OSGKey = KeyEventDetails::KEY_ENTER;
             break;
         case VK_CANCEL:
-            OSGKey = KeyEvent::KEY_CANCEL;
+            OSGKey = KeyEventDetails::KEY_CANCEL;
             break;
         case VK_CLEAR:
-            OSGKey = KeyEvent::KEY_CLEAR;
+            OSGKey = KeyEventDetails::KEY_CLEAR;
             break;
         case VK_PAUSE:
-            OSGKey = KeyEvent::KEY_PAUSE;
+            OSGKey = KeyEventDetails::KEY_PAUSE;
             break;
         case VK_CAPITAL:
-            OSGKey = KeyEvent::KEY_CAPS_LOCK;
+            OSGKey = KeyEventDetails::KEY_CAPS_LOCK;
             break;
         case VK_END:
-            OSGKey = KeyEvent::KEY_END;
+            OSGKey = KeyEventDetails::KEY_END;
             break;
         case VK_PRIOR:
-            OSGKey = KeyEvent::KEY_PAGE_UP;
+            OSGKey = KeyEventDetails::KEY_PAGE_UP;
             break;
         case VK_NEXT:
-            OSGKey = KeyEvent::KEY_PAGE_DOWN;
+            OSGKey = KeyEventDetails::KEY_PAGE_DOWN;
             break;
         case VK_HOME:
-            OSGKey = KeyEvent::KEY_HOME;
+            OSGKey = KeyEventDetails::KEY_HOME;
             break;
         case VK_UP:
-            OSGKey = KeyEvent::KEY_UP;
+            OSGKey = KeyEventDetails::KEY_UP;
             break;
         case VK_DOWN:
-            OSGKey = KeyEvent::KEY_DOWN;
+            OSGKey = KeyEventDetails::KEY_DOWN;
             break;
         case VK_LEFT:
-            OSGKey = KeyEvent::KEY_LEFT;
+            OSGKey = KeyEventDetails::KEY_LEFT;
             break;
         case VK_RIGHT:
-            OSGKey = KeyEvent::KEY_RIGHT;
+            OSGKey = KeyEventDetails::KEY_RIGHT;
             break;
         case VK_SNAPSHOT:
-            OSGKey = KeyEvent::KEY_PRINTSCREEN;
+            OSGKey = KeyEventDetails::KEY_PRINTSCREEN;
             break;
         case VK_INSERT:
-            OSGKey = KeyEvent::KEY_INSERT;
+            OSGKey = KeyEventDetails::KEY_INSERT;
             break;
         case VK_DELETE:
-            OSGKey = KeyEvent::KEY_DELETE;
+            OSGKey = KeyEventDetails::KEY_DELETE;
             break;
         case VK_HELP:
-            OSGKey = KeyEvent::KEY_HELP;
+            OSGKey = KeyEventDetails::KEY_HELP;
             break;
         case VK_NUMLOCK:
-            OSGKey = KeyEvent::KEY_NUM_LOCK;
+            OSGKey = KeyEventDetails::KEY_NUM_LOCK;
             break;
         case VK_SCROLL:
-            OSGKey = KeyEvent::KEY_SCROLL_LOCK;
+            OSGKey = KeyEventDetails::KEY_SCROLL_LOCK;
             break;
         case VK_BACK:
-            OSGKey = KeyEvent::KEY_BACK_SPACE;
+            OSGKey = KeyEventDetails::KEY_BACK_SPACE;
             break;
 
             //Function Keys
         case VK_F1:
-            OSGKey = KeyEvent::KEY_F1;
+            OSGKey = KeyEventDetails::KEY_F1;
             break;
         case VK_F2:
-            OSGKey = KeyEvent::KEY_F2;
+            OSGKey = KeyEventDetails::KEY_F2;
             break;
         case VK_F3:
-            OSGKey = KeyEvent::KEY_F3;
+            OSGKey = KeyEventDetails::KEY_F3;
             break;
         case VK_F4:
-            OSGKey = KeyEvent::KEY_F4;
+            OSGKey = KeyEventDetails::KEY_F4;
             break;
         case VK_F5:
-            OSGKey = KeyEvent::KEY_F5;
+            OSGKey = KeyEventDetails::KEY_F5;
             break;
         case VK_F6:
-            OSGKey = KeyEvent::KEY_F6;
+            OSGKey = KeyEventDetails::KEY_F6;
             break;
         case VK_F7:
-            OSGKey = KeyEvent::KEY_F7;
+            OSGKey = KeyEventDetails::KEY_F7;
             break;
         case VK_F8:
-            OSGKey = KeyEvent::KEY_F8;
+            OSGKey = KeyEventDetails::KEY_F8;
             break;
         case VK_F9:
-            OSGKey = KeyEvent::KEY_F9;
+            OSGKey = KeyEventDetails::KEY_F9;
             break;
         case VK_F10:
-            OSGKey = KeyEvent::KEY_F10;
+            OSGKey = KeyEventDetails::KEY_F10;
             break;
         case VK_F11:
-            OSGKey = KeyEvent::KEY_F11;
+            OSGKey = KeyEventDetails::KEY_F11;
             break;
         case VK_F12:
-            OSGKey = KeyEvent::KEY_F12;
+            OSGKey = KeyEventDetails::KEY_F12;
             break;
         case VK_F13:
-            OSGKey = KeyEvent::KEY_F13;
+            OSGKey = KeyEventDetails::KEY_F13;
             break;
         case VK_F14:
-            OSGKey = KeyEvent::KEY_F14;
+            OSGKey = KeyEventDetails::KEY_F14;
             break;
         case VK_F15:
-            OSGKey = KeyEvent::KEY_F15;
+            OSGKey = KeyEventDetails::KEY_F15;
             break;
         case VK_F16:
-            OSGKey = KeyEvent::KEY_F16;
+            OSGKey = KeyEventDetails::KEY_F16;
             break;
         case VK_F17:
-            OSGKey = KeyEvent::KEY_F17;
+            OSGKey = KeyEventDetails::KEY_F17;
             break;
         case VK_F18:
-            OSGKey = KeyEvent::KEY_F18;
+            OSGKey = KeyEventDetails::KEY_F18;
             break;
         case VK_F19:
-            OSGKey = KeyEvent::KEY_F19;
+            OSGKey = KeyEventDetails::KEY_F19;
             break;
         case VK_F20:
-            OSGKey = KeyEvent::KEY_F20;
+            OSGKey = KeyEventDetails::KEY_F20;
             break;
         case VK_F21:
-            OSGKey = KeyEvent::KEY_F21;
+            OSGKey = KeyEventDetails::KEY_F21;
             break;
         case VK_F22:
-            OSGKey = KeyEvent::KEY_F22;
+            OSGKey = KeyEventDetails::KEY_F22;
             break;
         case VK_F23:
-            OSGKey = KeyEvent::KEY_F23;
+            OSGKey = KeyEventDetails::KEY_F23;
             break;
         case VK_F24:
-            OSGKey = KeyEvent::KEY_F24;
+            OSGKey = KeyEventDetails::KEY_F24;
             break;
 
             //Numpad Keys
         case VK_NUMPAD0:
-            OSGKey = KeyEvent::KEY_NUMPAD_0;
+            OSGKey = KeyEventDetails::KEY_NUMPAD_0;
             break;
         case VK_NUMPAD1:
-            OSGKey = KeyEvent::KEY_NUMPAD_1;
+            OSGKey = KeyEventDetails::KEY_NUMPAD_1;
             break;
         case VK_NUMPAD2:
-            OSGKey = KeyEvent::KEY_NUMPAD_2;
+            OSGKey = KeyEventDetails::KEY_NUMPAD_2;
             break;
         case VK_NUMPAD3:
-            OSGKey = KeyEvent::KEY_NUMPAD_3;
+            OSGKey = KeyEventDetails::KEY_NUMPAD_3;
             break;
         case VK_NUMPAD4:
-            OSGKey = KeyEvent::KEY_NUMPAD_4;
+            OSGKey = KeyEventDetails::KEY_NUMPAD_4;
             break;
         case VK_NUMPAD5:
-            OSGKey = KeyEvent::KEY_NUMPAD_5;
+            OSGKey = KeyEventDetails::KEY_NUMPAD_5;
             break;
         case VK_NUMPAD6:
-            OSGKey = KeyEvent::KEY_NUMPAD_6;
+            OSGKey = KeyEventDetails::KEY_NUMPAD_6;
             break;
         case VK_NUMPAD7:
-            OSGKey = KeyEvent::KEY_NUMPAD_7;
+            OSGKey = KeyEventDetails::KEY_NUMPAD_7;
             break;
         case VK_NUMPAD8:
-            OSGKey = KeyEvent::KEY_NUMPAD_8;
+            OSGKey = KeyEventDetails::KEY_NUMPAD_8;
             break;
         case VK_NUMPAD9:
-            OSGKey = KeyEvent::KEY_NUMPAD_9;
+            OSGKey = KeyEventDetails::KEY_NUMPAD_9;
             break;
 
         default:
-            OSGKey = KeyEvent::KEY_UNKNOWN;
+            OSGKey = KeyEventDetails::KEY_UNKNOWN;
             break;
     }
     return OSGKey;
@@ -1365,7 +1365,7 @@ bool WIN32Window::attachWindow(void)
         return false;
     }
     
-    _WIN32HWNDToProducerMap[getHwnd()] = WIN32WindowRefPtr(this);
+    _WIN32HWNDToProducerMap[getHwnd()] = this;
     
     return true;
 }
@@ -1376,27 +1376,27 @@ LRESULT WIN32Window::WndProc(HWND hwnd, UINT uMsg,
     switch(uMsg)
     {       
         case WM_LBUTTONDOWN:
-            produceMousePressed(MouseEvent::BUTTON1, Pnt2f(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+            produceMousePressed(MouseEventDetails::BUTTON1, Pnt2f(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
             SetCapture(hwnd);
             break;
         case WM_MBUTTONDOWN:
-            produceMousePressed(MouseEvent::BUTTON2, Pnt2f(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+            produceMousePressed(MouseEventDetails::BUTTON2, Pnt2f(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
             SetCapture(hwnd);
             break;
         case WM_RBUTTONDOWN:
-            produceMousePressed(MouseEvent::BUTTON3, Pnt2f(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+            produceMousePressed(MouseEventDetails::BUTTON3, Pnt2f(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
             SetCapture(hwnd);
             break;   
         case WM_LBUTTONUP:
-            produceMouseReleased(MouseEvent::BUTTON1, Pnt2f(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+            produceMouseReleased(MouseEventDetails::BUTTON1, Pnt2f(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
             ReleaseCapture();
             break;              
         case WM_MBUTTONUP:
-            produceMouseReleased(MouseEvent::BUTTON2, Pnt2f(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+            produceMouseReleased(MouseEventDetails::BUTTON2, Pnt2f(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
             ReleaseCapture();
             break;
         case WM_RBUTTONUP:
-            produceMouseReleased(MouseEvent::BUTTON3, Pnt2f(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+            produceMouseReleased(MouseEventDetails::BUTTON3, Pnt2f(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
             ReleaseCapture();
             break;
         case WM_MOUSEWHEEL:
@@ -1435,15 +1435,15 @@ LRESULT WIN32Window::WndProc(HWND hwnd, UINT uMsg,
                 }
 			    if(wParam & MK_LBUTTON)
 			    {
-				    produceMouseDragged(MouseEvent::BUTTON1,Position, MouseDelta);
+				    produceMouseDragged(MouseEventDetails::BUTTON1,Position, MouseDelta);
 			    }
 			    if(wParam & MK_MBUTTON)
 			    {
-				    produceMouseDragged(MouseEvent::BUTTON2,Position, MouseDelta);
+				    produceMouseDragged(MouseEventDetails::BUTTON2,Position, MouseDelta);
 			    }
 			    if(wParam & MK_RBUTTON)
 			    {
-				    produceMouseDragged(MouseEvent::BUTTON3,Position, MouseDelta);
+				    produceMouseDragged(MouseEventDetails::BUTTON3,Position, MouseDelta);
 			    }
 			    produceMouseMoved(Position, MouseDelta);
 

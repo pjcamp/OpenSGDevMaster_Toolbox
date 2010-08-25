@@ -129,6 +129,4 @@ OSG_END_NAMESPACE
 #include "OSGFatBorderChunkBase.inl"
 #include "OSGFatBorderChunk.inl"
 
-#define OSGFATBORDERCHUNK_HEADER_CVSID "@(#)$Id: $"
-
 #endif /* _OSGFATBORDERCHUNK_H_ */

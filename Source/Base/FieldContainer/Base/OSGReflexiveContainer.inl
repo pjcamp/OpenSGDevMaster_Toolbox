@@ -216,6 +216,85 @@ GetFieldHandlePtr ReflexiveContainer::getField(const Char8 *fieldName) const
     return (desc != NULL) ? desc->getField(*this) : GetFieldHandlePtr();
 }
 
+inline
+UInt32 ReflexiveContainer::getNumEvents(      void            ) const
+{
+    return getProducerType().getNumEventDescs();
+}
+
+inline
+GetEventHandlePtr ReflexiveContainer::getEvent    (      UInt32 eventId  ) const
+{
+    const EventDescription *desc = getEventDescription(eventId);
+
+    return (desc != NULL) ? desc->getEvent(*this) : invalidGetEvent();
+}
+
+inline
+GetEventHandlePtr ReflexiveContainer::getEvent    (const Char8 *eventName) const
+{
+    const EventDescription *desc = getEventDescription(eventName);
+
+    return (desc != NULL) ? desc->getEvent(*this) : invalidGetEvent();
+}
+
+inline
+const EventProducerType &ReflexiveContainer::getProducerType(void) const
+{
+    return _producerType;
+}
+
+inline
+boost::signals2::connection ReflexiveContainer::connectEvent(UInt32 eventId, 
+                                                      const BaseEventType::slot_type &listener,
+                                                      boost::signals2::connect_position at)
+{
+    return boost::signals2::connection();
+}
+                                              
+inline
+boost::signals2::connection ReflexiveContainer::connectEvent(UInt32 eventId, 
+                                                      const BaseEventType::group_type &group,
+                                                      const BaseEventType::slot_type &listener,
+                                                      boost::signals2::connect_position at)
+{
+    return boost::signals2::connection();
+}
+    
+inline
+void   ReflexiveContainer::disconnectEvent(UInt32 eventId, const BaseEventType::group_type &group)
+{
+}
+
+inline
+void   ReflexiveContainer::disconnectAllSlotsEvent(UInt32 eventId)
+{
+}
+
+inline
+bool   ReflexiveContainer::isEmptyEvent(UInt32 eventId) const
+{
+    return true;
+}
+
+inline
+UInt32 ReflexiveContainer::numSlotsEvent(UInt32 eventId) const
+{
+    return 0;
+}
+
+inline
+EventDescription const * ReflexiveContainer::getEventDescription(      UInt32 eventId  ) const
+{
+    return getProducerType().getEventDescription(eventId);
+}
+    
+inline
+EventDescription const * ReflexiveContainer::getEventDescription(const Char8 *eventName) const
+{
+    return getProducerType().findEventDescription(eventName);
+}
+
 #if 0
 inline
 EditFieldHandle ReflexiveContainer::editHandledField(UInt32 fieldId)
@@ -301,6 +380,12 @@ inline
 UInt32 ReflexiveContainer::getId(void) const
 {
     return (_uiContainerId & ContainerIdMask);
+}
+
+inline
+bool ReflexiveContainer::isEventProducer(void) const
+{
+    return getNumEvents() != 0;
 }
 
 OSG_END_NAMESPACE

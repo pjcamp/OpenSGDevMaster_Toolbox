@@ -171,7 +171,7 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
     virtual void setCursorPos(Vec2f Pos);
 
     virtual UInt32 getKeyModifiers(void) const;
-    virtual KeyEvent::KeyState getKeyState(KeyEvent::Key TheKey) const;
+    virtual KeyEventDetails::KeyState getKeyState(KeyEventDetails::Key TheKey) const;
     virtual Pnt2f getMousePosition(void) const;
 
     virtual std::string getClipboard(void) const;
@@ -236,7 +236,7 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
     LRESULT WndProc(HWND hwnd, UINT uMsg,
                            WPARAM wParam, LPARAM lParam);
 
-    static KeyEvent::Key determineKey(WPARAM key);
+    static KeyEventDetails::Key determineKey(WPARAM key);
     /*---------------------------------------------------------------------*/
     /*! \name                MT Construction                               */
     /*! \{                                                                 */
