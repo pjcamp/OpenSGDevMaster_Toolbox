@@ -16,9 +16,19 @@
 	 name="value"
 	 type="Int32"
 	 cardinality="single"
+	 visibility="internal"
+	 access="public"
+	 defaultValue="-1"
+	 >
+	parameter value
+  </Field>
+   <Field
+	 name="filePath"
+	 type="std::string"
+	 cardinality="single"
 	 visibility="external"
 	 access="public"
 	 >
-	parameter value
+	filepath of this texture
   </Field>
 </FieldContainer>

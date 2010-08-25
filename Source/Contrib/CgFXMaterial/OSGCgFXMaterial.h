@@ -90,6 +90,8 @@ class OSG_CONTRIBCGFX_DLLMAPPING CgFXMaterial : public CgFXMaterialBase
 		CgTime				   = 0x000C
     };
 
+	enum ParamValueSource { DEFAULT, CURRENT };
+
     static const UInt32 CgProjectionMask          = 0x0001 << CgProjection;
     static const UInt32 CgModelViewProjectionMask = 
         0x0001 << CgModelViewProjection;
