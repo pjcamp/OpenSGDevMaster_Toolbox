@@ -105,294 +105,292 @@ UInt32 XWindow::determineKeyModifiers(const unsigned int state)
 
    if(state & ShiftMask)
    {
-      Modifiers |= KeyEvent::KEY_MODIFIER_SHIFT;
+      Modifiers |= KeyEventDetails::KEY_MODIFIER_SHIFT;
    }
    if(state & ControlMask)
    {
-      Modifiers |= KeyEvent::KEY_MODIFIER_CONTROL;
+      Modifiers |= KeyEventDetails::KEY_MODIFIER_CONTROL;
    }
    if(state & Mod1Mask)
    {
-      Modifiers |= KeyEvent::KEY_MODIFIER_ALT;
+      Modifiers |= KeyEventDetails::KEY_MODIFIER_ALT;
    }
    if(state & LockMask)
    {
-      Modifiers |= KeyEvent::KEY_MODIFIER_CAPS_LOCK;
+      Modifiers |= KeyEventDetails::KEY_MODIFIER_CAPS_LOCK;
    }
    if(state & Mod2Mask)
    {
-      Modifiers |= KeyEvent::KEY_MODIFIER_NUM_LOCK;
+      Modifiers |= KeyEventDetails::KEY_MODIFIER_NUM_LOCK;
    }
    //if(state & )
    //{
-   //   Modifiers |= KeyEvent::KEY_MODIFIER_SCROLL_LOCK;
+   //   Modifiers |= KeyEventDetails::KEY_MODIFIER_SCROLL_LOCK;
    //}
    return Modifiers;
 }
 
-KeyEvent::Key XWindow::determineKey(const KeySym& XKeySym)
+KeyEventDetails::Key XWindow::determineKey(const KeySym& XKeySym)
 {
     switch(XKeySym)
     {
         //Alphabet
         case XK_a:
-            return KeyEvent::KEY_A;
+            return KeyEventDetails::KEY_A;
         case XK_b:
-            return KeyEvent::KEY_B;
+            return KeyEventDetails::KEY_B;
         case XK_c:
-            return KeyEvent::KEY_C;
+            return KeyEventDetails::KEY_C;
         case XK_d:
-            return KeyEvent::KEY_D;
+            return KeyEventDetails::KEY_D;
         case XK_e:
-            return KeyEvent::KEY_E;
+            return KeyEventDetails::KEY_E;
         case XK_f:
-            return KeyEvent::KEY_F;
+            return KeyEventDetails::KEY_F;
         case XK_g:
-            return KeyEvent::KEY_G;
+            return KeyEventDetails::KEY_G;
         case XK_h:
-            return KeyEvent::KEY_H;
+            return KeyEventDetails::KEY_H;
         case XK_i:
-            return KeyEvent::KEY_I;
+            return KeyEventDetails::KEY_I;
         case XK_j:
-            return KeyEvent::KEY_J;
+            return KeyEventDetails::KEY_J;
         case XK_k:
-            return KeyEvent::KEY_K;
+            return KeyEventDetails::KEY_K;
         case XK_l:
-            return KeyEvent::KEY_L;
+            return KeyEventDetails::KEY_L;
         case XK_m:
-            return KeyEvent::KEY_M;
+            return KeyEventDetails::KEY_M;
         case XK_n:
-            return KeyEvent::KEY_N;
+            return KeyEventDetails::KEY_N;
         case XK_o:
-            return KeyEvent::KEY_O;
+            return KeyEventDetails::KEY_O;
         case XK_p:
-            return KeyEvent::KEY_P;
+            return KeyEventDetails::KEY_P;
         case XK_q:
-            return KeyEvent::KEY_Q;
+            return KeyEventDetails::KEY_Q;
         case XK_r:
-            return KeyEvent::KEY_R;
+            return KeyEventDetails::KEY_R;
         case XK_s:
-            return KeyEvent::KEY_S;
+            return KeyEventDetails::KEY_S;
         case XK_t:
-            return KeyEvent::KEY_T;
+            return KeyEventDetails::KEY_T;
         case XK_u:
-            return KeyEvent::KEY_U;
+            return KeyEventDetails::KEY_U;
         case XK_v:
-            return KeyEvent::KEY_V;
+            return KeyEventDetails::KEY_V;
         case XK_w:
-            return KeyEvent::KEY_W;
+            return KeyEventDetails::KEY_W;
         case XK_x:
-            return KeyEvent::KEY_X;
+            return KeyEventDetails::KEY_X;
         case XK_y:
-            return KeyEvent::KEY_Y;
+            return KeyEventDetails::KEY_Y;
         case XK_z:
-            return KeyEvent::KEY_Z;
+            return KeyEventDetails::KEY_Z;
         //Numbers
         case XK_0:
-            return KeyEvent::KEY_0;
+            return KeyEventDetails::KEY_0;
         case XK_1:
-            return KeyEvent::KEY_1;
+            return KeyEventDetails::KEY_1;
         case XK_2:
-            return KeyEvent::KEY_2;
+            return KeyEventDetails::KEY_2;
         case XK_3:
-            return KeyEvent::KEY_3;
+            return KeyEventDetails::KEY_3;
         case XK_4:
-            return KeyEvent::KEY_4;
+            return KeyEventDetails::KEY_4;
         case XK_5:
-            return KeyEvent::KEY_5;
+            return KeyEventDetails::KEY_5;
         case XK_6:
-            return KeyEvent::KEY_6;
+            return KeyEventDetails::KEY_6;
         case XK_7:
-            return KeyEvent::KEY_7;
+            return KeyEventDetails::KEY_7;
         case XK_8:
-            return KeyEvent::KEY_8;
+            return KeyEventDetails::KEY_8;
         case XK_9:
-            return KeyEvent::KEY_9;
+            return KeyEventDetails::KEY_9;
 
         //Other
         case XK_minus:
-            return KeyEvent::KEY_MINUS;
+            return KeyEventDetails::KEY_MINUS;
         case XK_equal:
-            return KeyEvent::KEY_EQUALS;
+            return KeyEventDetails::KEY_EQUALS;
         case XK_grave:
-            return KeyEvent::KEY_BACK_QUOTE;
+            return KeyEventDetails::KEY_BACK_QUOTE;
         case XK_Tab:
-            return KeyEvent::KEY_TAB;
+            return KeyEventDetails::KEY_TAB;
         case XK_space:
-            return KeyEvent::KEY_SPACE;
+            return KeyEventDetails::KEY_SPACE;
         case XK_bracketleft:
-            return KeyEvent::KEY_OPEN_BRACKET;
+            return KeyEventDetails::KEY_OPEN_BRACKET;
         case XK_bracketright:
-            return KeyEvent::KEY_CLOSE_BRACKET;
+            return KeyEventDetails::KEY_CLOSE_BRACKET;
         case XK_semicolon:
-            return KeyEvent::KEY_SEMICOLON;
+            return KeyEventDetails::KEY_SEMICOLON;
         case XK_comma:
-            return KeyEvent::KEY_COMMA;
+            return KeyEventDetails::KEY_COMMA;
         case XK_period:
-            return KeyEvent::KEY_PERIOD;
+            return KeyEventDetails::KEY_PERIOD;
         case XK_backslash:
-            return KeyEvent::KEY_BACK_SLASH;
+            return KeyEventDetails::KEY_BACK_SLASH;
         case XK_apostrophe:
-            return KeyEvent::KEY_APOSTROPHE;
+            return KeyEventDetails::KEY_APOSTROPHE;
         case XK_slash:
-            return KeyEvent::KEY_SLASH;
+            return KeyEventDetails::KEY_SLASH;
 
         //Non-visible
         case XK_Escape:
-            return KeyEvent::KEY_ESCAPE;
+            return KeyEventDetails::KEY_ESCAPE;
         case XK_Shift_L:
         case XK_Shift_R:
-            return KeyEvent::KEY_SHIFT;
+            return KeyEventDetails::KEY_SHIFT;
         case XK_Control_L:
         case XK_Control_R:
-            return KeyEvent::KEY_CONTROL;
+            return KeyEventDetails::KEY_CONTROL;
         case XK_Super_L:
         case XK_Super_R:
-            return KeyEvent::KEY_META;
+            return KeyEventDetails::KEY_META;
         case XK_Alt_L:
         case XK_Alt_R:
-            return KeyEvent::KEY_ALT;
+            return KeyEventDetails::KEY_ALT;
         case XK_Return:
-            return KeyEvent::KEY_ENTER;
+            return KeyEventDetails::KEY_ENTER;
         case XK_Cancel:
-            return KeyEvent::KEY_CANCEL;
+            return KeyEventDetails::KEY_CANCEL;
         case XK_Clear:
-            return KeyEvent::KEY_CLEAR;
+            return KeyEventDetails::KEY_CLEAR;
         case XK_Pause:
-            return KeyEvent::KEY_PAUSE;
+            return KeyEventDetails::KEY_PAUSE;
         case XK_Caps_Lock:
-            return KeyEvent::KEY_CAPS_LOCK;
+            return KeyEventDetails::KEY_CAPS_LOCK;
         case XK_End:
-            return KeyEvent::KEY_END;
+            return KeyEventDetails::KEY_END;
         case XK_Menu:
-            return KeyEvent::KEY_MENU;
+            return KeyEventDetails::KEY_MENU;
         case XK_Home:
-            return KeyEvent::KEY_HOME;
+            return KeyEventDetails::KEY_HOME;
         case XK_Up:
-            return KeyEvent::KEY_UP;
+            return KeyEventDetails::KEY_UP;
         case XK_Down:
-            return KeyEvent::KEY_DOWN;
+            return KeyEventDetails::KEY_DOWN;
         case XK_Left:
-            return KeyEvent::KEY_LEFT;
+            return KeyEventDetails::KEY_LEFT;
         case XK_Right:
-            return KeyEvent::KEY_RIGHT;
+            return KeyEventDetails::KEY_RIGHT;
         case XK_Print:
-            return KeyEvent::KEY_PRINTSCREEN;
+            return KeyEventDetails::KEY_PRINTSCREEN;
         case XK_Insert:
-            return KeyEvent::KEY_INSERT;
+            return KeyEventDetails::KEY_INSERT;
         case XK_Delete:
-            return KeyEvent::KEY_DELETE;
+            return KeyEventDetails::KEY_DELETE;
         case XK_Help:
-            return KeyEvent::KEY_HELP;
+            return KeyEventDetails::KEY_HELP;
         case XK_Num_Lock:
-            return KeyEvent::KEY_NUM_LOCK;
+            return KeyEventDetails::KEY_NUM_LOCK;
         case XK_Scroll_Lock:
-            return KeyEvent::KEY_SCROLL_LOCK;
+            return KeyEventDetails::KEY_SCROLL_LOCK;
         case XK_BackSpace:
-            return KeyEvent::KEY_BACK_SPACE;
+            return KeyEventDetails::KEY_BACK_SPACE;
         case XK_Page_Up:
-            return KeyEvent::KEY_PAGE_UP;
+            return KeyEventDetails::KEY_PAGE_UP;
         case XK_Page_Down:
-            return KeyEvent::KEY_PAGE_DOWN;
+            return KeyEventDetails::KEY_PAGE_DOWN;
 
         //Function Keys
         case XK_F1:
-            return KeyEvent::KEY_F1;
+            return KeyEventDetails::KEY_F1;
         case XK_F2:
-            return KeyEvent::KEY_F2;
+            return KeyEventDetails::KEY_F2;
         case XK_F3:
-            return KeyEvent::KEY_F3;
+            return KeyEventDetails::KEY_F3;
         case XK_F4:
-            return KeyEvent::KEY_F4;
+            return KeyEventDetails::KEY_F4;
         case XK_F5:
-            return KeyEvent::KEY_F5;
+            return KeyEventDetails::KEY_F5;
         case XK_F6:
-            return KeyEvent::KEY_F6;
+            return KeyEventDetails::KEY_F6;
         case XK_F7:
-            return KeyEvent::KEY_F7;
+            return KeyEventDetails::KEY_F7;
         case XK_F8:
-            return KeyEvent::KEY_F8;
+            return KeyEventDetails::KEY_F8;
         case XK_F9:
-            return KeyEvent::KEY_F9;
+            return KeyEventDetails::KEY_F9;
         case XK_F10:
-            return KeyEvent::KEY_F10;
+            return KeyEventDetails::KEY_F10;
         case XK_F11:
-            return KeyEvent::KEY_F11;
+            return KeyEventDetails::KEY_F11;
         case XK_F12:
-            return KeyEvent::KEY_F12;
+            return KeyEventDetails::KEY_F12;
         case XK_F13:
-            return KeyEvent::KEY_F13;
+            return KeyEventDetails::KEY_F13;
         case XK_F14:
-            return KeyEvent::KEY_F14;
+            return KeyEventDetails::KEY_F14;
         case XK_F15:
-            return KeyEvent::KEY_F15;
+            return KeyEventDetails::KEY_F15;
         case XK_F16:
-            return KeyEvent::KEY_F16;
+            return KeyEventDetails::KEY_F16;
         case XK_F17:
-            return KeyEvent::KEY_F17;
+            return KeyEventDetails::KEY_F17;
         case XK_F18:
-            return KeyEvent::KEY_F18;
+            return KeyEventDetails::KEY_F18;
         case XK_F19:
-            return KeyEvent::KEY_F19;
+            return KeyEventDetails::KEY_F19;
         case XK_F20:
-            return KeyEvent::KEY_F20;
+            return KeyEventDetails::KEY_F20;
         case XK_F21:
-            return KeyEvent::KEY_F21;
+            return KeyEventDetails::KEY_F21;
         case XK_F22:
-            return KeyEvent::KEY_F22;
+            return KeyEventDetails::KEY_F22;
         case XK_F23:
-            return KeyEvent::KEY_F23;
+            return KeyEventDetails::KEY_F23;
         case XK_F24:
-            return KeyEvent::KEY_F24;
+            return KeyEventDetails::KEY_F24;
 
         //Numpad 
         case XK_KP_Enter:
-            return KeyEvent::KEY_ENTER;
+            return KeyEventDetails::KEY_ENTER;
         case XK_KP_Add:
-            return KeyEvent::KEY_ADD;
+            return KeyEventDetails::KEY_ADD;
         case XK_KP_Subtract:
-            return KeyEvent::KEY_MINUS;
+            return KeyEventDetails::KEY_MINUS;
         case XK_KP_Multiply:
-            return KeyEvent::KEY_MULTIPLY;
+            return KeyEventDetails::KEY_MULTIPLY;
         case XK_KP_Divide:
-            return KeyEvent::KEY_DIVIDE;
+            return KeyEventDetails::KEY_DIVIDE;
         case XK_KP_Delete:
-            return KeyEvent::KEY_DECIMAL;
+            return KeyEventDetails::KEY_DECIMAL;
         case XK_KP_Insert:
-            return KeyEvent::KEY_NUMPAD_0;
+            return KeyEventDetails::KEY_NUMPAD_0;
         case XK_KP_End:
-            return KeyEvent::KEY_NUMPAD_1;
+            return KeyEventDetails::KEY_NUMPAD_1;
         case XK_KP_Down:
-            return KeyEvent::KEY_NUMPAD_2;
+            return KeyEventDetails::KEY_NUMPAD_2;
         case XK_KP_Next:
-            return KeyEvent::KEY_NUMPAD_3;
+            return KeyEventDetails::KEY_NUMPAD_3;
         case XK_KP_Left:
-            return KeyEvent::KEY_NUMPAD_4;
+            return KeyEventDetails::KEY_NUMPAD_4;
         case XK_KP_Begin:
-            return KeyEvent::KEY_NUMPAD_5;
+            return KeyEventDetails::KEY_NUMPAD_5;
         case XK_KP_Right:
-            return KeyEvent::KEY_NUMPAD_6;
+            return KeyEventDetails::KEY_NUMPAD_6;
         case XK_KP_Home:
-            return KeyEvent::KEY_NUMPAD_7;
+            return KeyEventDetails::KEY_NUMPAD_7;
         case XK_KP_Up:
-            return KeyEvent::KEY_NUMPAD_8;
+            return KeyEventDetails::KEY_NUMPAD_8;
         case XK_KP_Prior:
-            return KeyEvent::KEY_NUMPAD_9;
+            return KeyEventDetails::KEY_NUMPAD_9;
 
         default:
-            return KeyEvent::KEY_UNKNOWN;
+            return KeyEventDetails::KEY_UNKNOWN;
     }
-    return KeyEvent::KEY_UNKNOWN;
+    return KeyEventDetails::KEY_UNKNOWN;
 }
 
 /***************************************************************************\
  *                           Instance methods                              *
 \***************************************************************************/
 
-Window* XWindow::initWindow(void)
+::OSG::Window* XWindow::initWindow(void)
 {
-	WindowPtr MyWindow = Inherited::initWindow();
-	
     DisplayP      dpy;
     X11Window     hwin;
 
@@ -466,13 +464,12 @@ Window* XWindow::initWindow(void)
                           
     XFree(vi);
 
-    beginEditCP(this, XWindow::DisplayFieldMask | XWindow::WindowFieldMask);
-        this->setDisplay ( dpy );
-        this->setWindow ( hwin );
-    endEditCP(this, XWindow::DisplayFieldMask | XWindow::WindowFieldMask);
+   setDisplay ( dpy );
+   setWindow ( hwin );
     
-    return MyWindow;
+    return this;
 }
+
 void XWindow::setPosition(Pnt2f Pos)
 {
     XMoveWindow(this->getDisplay(),this->getWindow(),Pos.x(), Pos.y());
@@ -672,9 +669,7 @@ void XWindow::update(void)
     {
         produceUpdate(ElapsedTime);
     }
-    beginEditCP(XWindowPtr(this), LastUpdateTimeFieldMask);
-        setLastUpdateTime(Now);
-    endEditCP(XWindowPtr(this), LastUpdateTimeFieldMask);
+    setLastUpdateTime(Now);
 }
 
 void XWindow::openWindow(const Pnt2f& ScreenPosition,
@@ -733,23 +728,23 @@ void XWindow::handleEvent(XEvent& Event)
                 _LastMousePosition.setValues(Event.xbutton.x, Event.xbutton.y);
                 if(Event.xmotion.state & Button1MotionMask)
                 {
-                    produceMouseDragged(MouseEvent::BUTTON1,Pnt2f(Event.xmotion.x, Event.xmotion.y), Vec2f(0.0f,0.0f));
+                    produceMouseDragged(MouseEventDetails::BUTTON1,Pnt2f(Event.xmotion.x, Event.xmotion.y), Vec2f(0.0f,0.0f));
                 }
                 if(Event.xmotion.state & Button2MotionMask)
                 {
-                    produceMouseDragged(MouseEvent::BUTTON2,Pnt2f(Event.xmotion.x, Event.xmotion.y), Vec2f(0.0f,0.0f));
+                    produceMouseDragged(MouseEventDetails::BUTTON2,Pnt2f(Event.xmotion.x, Event.xmotion.y), Vec2f(0.0f,0.0f));
                 }
                 if(Event.xmotion.state & Button3MotionMask)
                 {
-                    produceMouseDragged(MouseEvent::BUTTON3,Pnt2f(Event.xmotion.x, Event.xmotion.y), Vec2f(0.0f,0.0f));
+                    produceMouseDragged(MouseEventDetails::BUTTON3,Pnt2f(Event.xmotion.x, Event.xmotion.y), Vec2f(0.0f,0.0f));
                 }
                 if(Event.xmotion.state & Button4MotionMask)
                 {
-                    produceMouseDragged(MouseEvent::BUTTON4,Pnt2f(Event.xmotion.x, Event.xmotion.y), Vec2f(0.0f,0.0f));
+                    produceMouseDragged(MouseEventDetails::BUTTON4,Pnt2f(Event.xmotion.x, Event.xmotion.y), Vec2f(0.0f,0.0f));
                 }
                 if(Event.xmotion.state & Button5MotionMask)
                 {
-                    produceMouseDragged(MouseEvent::BUTTON5,Pnt2f(Event.xmotion.x, Event.xmotion.y), Vec2f(0.0f,0.0f));
+                    produceMouseDragged(MouseEventDetails::BUTTON5,Pnt2f(Event.xmotion.x, Event.xmotion.y), Vec2f(0.0f,0.0f));
                 }
                 
                 produceMouseMoved(Pnt2f(Event.xmotion.x, Event.xmotion.y), Vec2f(0.0f,0.0f));
@@ -759,17 +754,17 @@ void XWindow::handleEvent(XEvent& Event)
             {
                 _LastKeyboardMouseButtonMask = Event.xbutton.state;
                _LastMousePosition.setValues(Event.xbutton.x, Event.xbutton.y);
-               MouseEvent::MouseButton OSGButton(MouseEvent::NO_BUTTON);
+               MouseEventDetails::MouseButton OSGButton(MouseEventDetails::NO_BUTTON);
                switch(Event.xbutton.button)
                {
                case  1:
-                  OSGButton = MouseEvent::BUTTON1;
+                  OSGButton = MouseEventDetails::BUTTON1;
                   break;
                case  2:
-                  OSGButton = MouseEvent::BUTTON2;
+                  OSGButton = MouseEventDetails::BUTTON2;
                   break;
                case  3:
-                  OSGButton = MouseEvent::BUTTON3;
+                  OSGButton = MouseEventDetails::BUTTON3;
                   break;
                case   4:
 				  produceMouseWheelMoved(1, Pnt2f(Event.xbutton.x, Event.xbutton.y));
@@ -778,25 +773,25 @@ void XWindow::handleEvent(XEvent& Event)
 				  produceMouseWheelMoved(-1, Pnt2f(Event.xbutton.x, Event.xbutton.y));
                   break;
                case   6:
-                  OSGButton = MouseEvent::BUTTON6;
+                  OSGButton = MouseEventDetails::BUTTON6;
                   break;
                case   7:
-                  OSGButton = MouseEvent::BUTTON7;
+                  OSGButton = MouseEventDetails::BUTTON7;
                   break;
                case   8:
-                  OSGButton = MouseEvent::BUTTON8;
+                  OSGButton = MouseEventDetails::BUTTON8;
                   break;
                case   9:
-                  OSGButton = MouseEvent::BUTTON9;
+                  OSGButton = MouseEventDetails::BUTTON9;
                   break;
                case   10:
-                  OSGButton = MouseEvent::BUTTON10;
+                  OSGButton = MouseEventDetails::BUTTON10;
                   break;
                default:
-                  OSGButton = MouseEvent::NO_BUTTON;
+                  OSGButton = MouseEventDetails::NO_BUTTON;
                   break;
                }
-               if(OSGButton != MouseEvent::NO_BUTTON)
+               if(OSGButton != MouseEventDetails::NO_BUTTON)
                {
                    produceMousePressed(OSGButton, Pnt2f(Event.xbutton.x, Event.xbutton.y));
                }
@@ -807,37 +802,37 @@ void XWindow::handleEvent(XEvent& Event)
             {
                _LastKeyboardMouseButtonMask = Event.xbutton.state;
                _LastMousePosition.setValues(Event.xbutton.x, Event.xbutton.y);
-               MouseEvent::MouseButton OSGButton(MouseEvent::NO_BUTTON);
+               MouseEventDetails::MouseButton OSGButton(MouseEventDetails::NO_BUTTON);
               switch(Event.xbutton.button)
               {
               case  1:
-                 OSGButton = MouseEvent::BUTTON1;
+                 OSGButton = MouseEventDetails::BUTTON1;
                  break;
               case  2:
-                 OSGButton = MouseEvent::BUTTON2;
+                 OSGButton = MouseEventDetails::BUTTON2;
                  break;
                case  3:
-                  OSGButton = MouseEvent::BUTTON3;
+                  OSGButton = MouseEventDetails::BUTTON3;
                   break;
                case   6:
-                  OSGButton = MouseEvent::BUTTON6;
+                  OSGButton = MouseEventDetails::BUTTON6;
                   break;
                case   7:
-                  OSGButton = MouseEvent::BUTTON7;
+                  OSGButton = MouseEventDetails::BUTTON7;
                   break;
                case   8:
-                  OSGButton = MouseEvent::BUTTON8;
+                  OSGButton = MouseEventDetails::BUTTON8;
                   break;
                case   9:
-                  OSGButton = MouseEvent::BUTTON9;
+                  OSGButton = MouseEventDetails::BUTTON9;
                   break;
                case   10:
-                  OSGButton = MouseEvent::BUTTON10;
+                  OSGButton = MouseEventDetails::BUTTON10;
                   break;
               default:
                  break;
               }
-               if(OSGButton != MouseEvent::NO_BUTTON)
+               if(OSGButton != MouseEventDetails::NO_BUTTON)
                {
                    produceMouseReleased(OSGButton, Pnt2f(Event.xbutton.x, Event.xbutton.y));
                }
@@ -921,11 +916,12 @@ BoostPath XWindow::saveFileDialog(const std::string& DialogTitle,
     return Result;
 }
 
-KeyEvent::KeyState XWindow::getKeyState(KeyEvent::Key TheKey) const
+KeyEventDetails::KeyState XWindow::getKeyState(KeyEventDetails::Key TheKey) const
 {
     //TODO: Implement
-    return KeyEvent::KEY_STATE_UP;
+    return KeyEventDetails::KEY_STATE_UP;
 }
+
 /*----------------------- constructors & destructors ----------------------*/
 
 //! Constructor

@@ -93,16 +93,16 @@ class OSG_WINDOWX_DLLMAPPING XWindow : public XWindowBase
                       const BitVector  bvFlags  = 0) const;
 
     /*! \}                                                                 */
-	virtual Window* initWindow(void);
+    virtual Window* initWindow(void);
 
     virtual bool attachWindow(void);
 
     virtual void openWindow(const Pnt2f& ScreenPosition,
-                       const Vec2f& Size,
-                       const std::string& WindowName);
-    
+            const Vec2f& Size,
+            const std::string& WindowName);
+
     virtual void closeWindow(void);
-	
+
     virtual void mainLoop(void);
 
     //Set the Window Position
@@ -114,7 +114,7 @@ class OSG_WINDOWX_DLLMAPPING XWindow : public XWindowBase
     virtual void setSize(Vec2us Size);
 
     void setSize        (UInt16 width,
-                         UInt16 height) 
+            UInt16 height) 
     {
         Window::setSize(width, height);
     }
@@ -151,9 +151,9 @@ class OSG_WINDOWX_DLLMAPPING XWindow : public XWindowBase
     virtual void setShowCursor(bool showCursor);
 
     virtual bool getShowCursor(void) const;
-	
+
     virtual void setAttachMouseToCursor(bool attach);
-    
+
     virtual bool getAttachMouseToCursor(void) const;
 
     //Set the text on the Title bar of the window
@@ -173,42 +173,42 @@ class OSG_WINDOWX_DLLMAPPING XWindow : public XWindowBase
 
     //Get wether or not the window is drawing a border
     virtual bool getDrawBorder(void);
-    
-	 virtual UInt32 getKeyModifiers(void) const;
-     
-	virtual KeyEvent::KeyState getKeyState(KeyEvent::Key TheKey) const;
-    
-	 virtual Pnt2f getMousePosition(void) const;
-    
-	 virtual std::string getClipboard(void) const;
 
-	 virtual void putClipboard(const std::string Value);
-    
+    virtual UInt32 getKeyModifiers(void) const;
+
+    virtual KeyEventDetails::KeyState getKeyState(KeyEventDetails::Key TheKey) const;
+
+    virtual Pnt2f getMousePosition(void) const;
+
+    virtual std::string getClipboard(void) const;
+
+    virtual void putClipboard(const std::string Value);
+
     void handleEvent(XEvent& Event);
-    
-    
+
+
     virtual void draw(void);
     virtual void update(void);
-    
+
     virtual Vec2f getDesktopSize(void) const;
 
-	virtual std::vector<BoostPath> openFileDialog(const std::string& WindowTitle,
-		const std::vector<FileDialogFilter>& Filters,
-		const BoostPath& InitialDir,
-		bool AllowMultiSelect);
+    virtual std::vector<BoostPath> openFileDialog(const std::string& WindowTitle,
+            const std::vector<FileDialogFilter>& Filters,
+            const BoostPath& InitialDir,
+            bool AllowMultiSelect);
 
     virtual BoostPath saveFileDialog(const std::string& DialogTitle,
-                    const std::vector<FileDialogFilter>& Filters,
-                    const std::string& InitialFile,
-                    const BoostPath& InitialDirectory,
-                    bool PromptForOverwrite
-                    );
+            const std::vector<FileDialogFilter>& Filters,
+            const std::string& InitialFile,
+            const BoostPath& InitialDirectory,
+            bool PromptForOverwrite
+            );
     /*=========================  PROTECTED  ===============================*/
 
   protected:
 
     static int wait_for_map_notify(Display *, XEvent *event, char *arg);
-    static KeyEvent::Key determineKey(const KeySym& XKeySym);
+    static KeyEventDetails::Key determineKey(const KeySym& XKeySym);
     
     static UInt32 determineKeyModifiers(const unsigned int state);
 
