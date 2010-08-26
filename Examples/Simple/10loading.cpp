@@ -14,6 +14,8 @@
 #include <OSGGLUTWindow.h>
 #include <OSGSimpleSceneManager.h>
 #include <OSGContainerPtrFuncs.h>
+#include <OSGTravMaskGraphOp.h>
+#include <OSGLODSetupGraphOp.h>
 //#include <OSGFCFileType.h>
 
 #include <OSGAction.h>
@@ -121,7 +123,26 @@ int main(int argc, char **argv)
         OSG::commitChanges();
     
 
-		
+		OSG::TravMaskGraphOpRefPtr colMeshGrOp = OSG::TravMaskGraphOp::create();
+		colMeshGrOp->setSearchString("_Col");
+		// default values for this graph op will do fine.
+		bool result = colMeshGrOp->traverse(scene);
+		//colMeshGrOp->setSearchString("_Mid");
+		// result = colMeshGrOp->traverse(scene);
+		//colMeshGrOp->setSearchString("_Low");
+		// result = colMeshGrOp->traverse(scene);
+		std::cout << "Number of nodes hidden: " << colMeshGrOp->getNumChanged() << std::endl;
+
+		OSG::LODSetupGraphOpRefPtr LODSetupGrOp = OSG::LODSetupGraphOp::create();
+		LODSetupGrOp->addLODInfo(0,20.0f,"_High");
+		LODSetupGrOp->addLODInfo(1,50.0f,"_Mid");
+		LODSetupGrOp->addLODInfo(3,100.0f,"_Low");
+
+		result = LODSetupGrOp->traverse(scene);
+
+		std::cout << "Number of LOD nodes set up: " << LODSetupGrOp->getNumLODSMade() << std::endl;
+
+
 		// create the SimpleSceneManager helper
 		mgr = new OSG::SimpleSceneManager;
     
@@ -130,6 +151,8 @@ int main(int argc, char **argv)
 		mgr->setRoot  (scene);
 		mgr->setHeadlight(true);
 		mgr->setStatistics(true);
+		mgr->getCamera()->setNear(1.0f);
+		mgr->getCamera()->setFar(1000.0f);
 		//mgr->getRenderAction()->setVolumeDrawing(true);
 
 		// show the whole scene
@@ -139,7 +162,7 @@ int main(int argc, char **argv)
 		Containers.insert(scene);
 		//Use an empty Ignore types vector
 		OSG::FCFileType::FCTypeVector IgnoreTypes;
-		//IgnoreTypes.push_back(Node::getClassType().getId());
+		//IgnoreTypes.push_back(Node::getClassType().getId()); 
 	    
 		//Write the Field Containers to a xml file
 		OSG::FCFileHandler::the()->write(Containers,OSG::BoostPath("C:/Users/danielg/Desktop/10TestOut.xml"),IgnoreTypes);
