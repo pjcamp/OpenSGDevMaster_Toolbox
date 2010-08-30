@@ -142,6 +142,13 @@ void VisitSubTree::adjustVolume(Volume &volume)
     {
         getSubTreeRoot()->updateVolume();
 
+        //The transform of the parent of the subTreeRoot needs to be removed from the volume transform
+        if(getSubTreeRoot()->getParent() != NULL)
+        {
+            Matrixr InvParentMat(getSubTreeRoot()->getParent()->getToWorld());
+            InvParentMat.invert();
+            volume.transform(InvParentMat);
+        }
         volume.extendBy(getSubTreeRoot()->getVolume());
     }
 }
@@ -171,6 +178,7 @@ ActionBase::ResultE VisitSubTree::renderEnter(Action *action)
         default:
             break;
     }
+    a->setTravMask(_sfSubTreeTravMask.getValue());
 
     if(this->getSubTreeRoot() != NULL && a->isVisible(this->getSubTreeRoot()))
     {
