@@ -87,6 +87,8 @@ class OSG_GROUP_DLLMAPPING VisitSubTreeBase : public Group
     typedef TypeObject::InitPhase InitPhase;
 
     OSG_GEN_INTERNALPTR(VisitSubTree);
+    
+    
 
     /*==========================  PUBLIC  =================================*/
 

@@ -70,6 +70,11 @@ void VisitSubTree::changed(ConstFieldMaskArg whichField,
                            BitVector         details)
 {
     Inherited::changed(whichField, origin, details);
+
+    if(whichField & SubTreeRootFieldMask)
+    {
+        invalidateVolume();
+    }
 }
 
 //! Set the value of the VisitSubTree::_sfSubTreeRoot field.
@@ -145,7 +150,7 @@ void VisitSubTree::adjustVolume(Volume &volume)
         //The transform of the parent of the subTreeRoot needs to be removed from the volume transform
         if(getSubTreeRoot()->getParent() != NULL)
         {
-            Matrixr InvParentMat(getSubTreeRoot()->getParent()->getToWorld());
+            Matrix InvParentMat(getSubTreeRoot()->getParent()->getToWorld());
             InvParentMat.invert();
             volume.transform(InvParentMat);
         }

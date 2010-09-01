@@ -425,7 +425,6 @@ VisitSubTree *VisitSubTreeBase::createEmpty(void)
     return returnValue;
 }
 
-
 FieldContainerTransitPtr VisitSubTreeBase::shallowCopyLocal(
     BitVector bFlags) const
 {
@@ -468,7 +467,6 @@ FieldContainerTransitPtr VisitSubTreeBase::shallowCopy(void) const
 
     return returnValue;
 }
-
 
 
 
@@ -586,6 +584,7 @@ EditFieldHandlePtr VisitSubTreeBase::editHandleTravMaskMode   (void)
 
     return returnValue;
 }
+
 
 
 #ifdef OSG_MT_CPTR_ASPECT
