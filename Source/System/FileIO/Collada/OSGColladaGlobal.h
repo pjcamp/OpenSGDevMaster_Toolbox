@@ -57,6 +57,7 @@
 #include "OSGColladaOptions.h"
 #include "OSGStatElemTypes.h"
 #include "OSGStatCollector.h"
+#include "OSGFCFileType.h"
 
 // collada dom includes
 #include <dae.h>
@@ -75,7 +76,7 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
   public:
     /*---------------------------------------------------------------------*/
     /*! \name Types                                                        */
-	typedef std::set<FieldContainerUnrecPtr> FCPtrStore;
+	typedef FCFileType::FCPtrStore FCPtrStore;
     /*! \{                                                                 */
 
     typedef MemoryObject   Inherited;
