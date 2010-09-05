@@ -424,7 +424,7 @@ FUNCTION(OSG_ADD_DIRECTORY DIRNAME)
     SET(_OSG_ADD_SRC_LOOKUP)
     SET(_OSG_ADD_HDR_LOOKUP)
     SET(_OSG_ADD_INL_LOOKUP)
-
+    
     IF(EXISTS "${CMAKE_SOURCE_DIR}/${DIRNAME}")
         SET(_OSG_CURR_DIRNAME "${CMAKE_SOURCE_DIR}/${DIRNAME}")
 
@@ -597,7 +597,7 @@ FUNCTION(OSG_ADD_DIRECTORY DIRNAME)
       #Strip the path down to a relative one
       IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${DIRNAME}")
         FILE(RELATIVE_PATH THE_SOURCE_GROUP
-                           ${CMAKE_CURRENT_SOURCE_DIR}/Source
+                           ${CMAKE_CURRENT_SOURCE_DIR}
                            ${CMAKE_CURRENT_SOURCE_DIR}/${DIRNAME})
       ELSEIF(EXISTS "${CMAKE_SOURCE_DIR}/${DIRNAME}")
         FILE(RELATIVE_PATH THE_SOURCE_GROUP
@@ -605,8 +605,8 @@ FUNCTION(OSG_ADD_DIRECTORY DIRNAME)
                            ${CMAKE_SOURCE_DIR}/${DIRNAME})
       ELSE()
         FILE(RELATIVE_PATH THE_SOURCE_GROUP
-                           ${CMAKE_SOURCE_DIR}/Source
-                           ${CMAKE_SOURCE_DIR}/${DIRNAME})
+                           ${CMAKE_CURRENT_SOURCE_DIR}
+                           ${DIRNAME})
       ENDIF()
     ELSE()
         FILE(RELATIVE_PATH THE_SOURCE_GROUP
@@ -616,32 +616,26 @@ FUNCTION(OSG_ADD_DIRECTORY DIRNAME)
 
     IF(THE_SOURCE_GROUP)
          STRING(REPLACE "/" "\\" THE_SOURCE_GROUP ${THE_SOURCE_GROUP})
-    ELSE(THE_SOURCE_GROUP)
-         SET(THE_SOURCE_GROUP "Source")
+
+        LIST(APPEND ${PROJECT_NAME}_SOURCE_GROUPS ${THE_SOURCE_GROUP})
+        SET(${PROJECT_NAME}_SOURCE_GROUPS ${${PROJECT_NAME}_SOURCE_GROUPS}
+                                          CACHE INTERNAL "" FORCE)
+    
+        STRING(REPLACE "\\" "_" THE_SOURCE_GROUP ${THE_SOURCE_GROUP})
+        LIST(APPEND ${PROJECT_NAME}_SOURCE_GROUP_${THE_SOURCE_GROUP}
+                    ${LOCAL_SRC}
+                    ${LOCAL_HDR}
+                    ${LOCAL_INL}
+                    ${LOCAL_INS}
+                    ${LOCAL_FCD}
+                    ${LOCAL_LL}
+                    ${LOCAL_YY}
+                    ${LOCAL_MOC})
+    
+        SET(${PROJECT_NAME}_SOURCE_GROUP_${THE_SOURCE_GROUP}
+              ${${PROJECT_NAME}_SOURCE_GROUP_${THE_SOURCE_GROUP}}
+              CACHE INTERNAL "" FORCE)
     ENDIF(THE_SOURCE_GROUP)
-
-    IF(${THE_SOURCE_GROUP} STREQUAL "\\")
-         SET(THE_SOURCE_GROUP "Source")
-    ENDIF()
-
-    LIST(APPEND ${PROJECT_NAME}_SOURCE_GROUPS ${THE_SOURCE_GROUP})
-    SET(${PROJECT_NAME}_SOURCE_GROUPS ${${PROJECT_NAME}_SOURCE_GROUPS}
-                                      CACHE INTERNAL "" FORCE)
-
-    STRING(REPLACE "\\" "_" THE_SOURCE_GROUP ${THE_SOURCE_GROUP})
-    LIST(APPEND ${PROJECT_NAME}_SOURCE_GROUP_${THE_SOURCE_GROUP}
-                ${LOCAL_SRC}
-                ${LOCAL_HDR}
-                ${LOCAL_INL}
-                ${LOCAL_INS}
-                ${LOCAL_FCD}
-                ${LOCAL_LL}
-                ${LOCAL_YY}
-                ${LOCAL_MOC})
-
-    SET(${PROJECT_NAME}_SOURCE_GROUP_${THE_SOURCE_GROUP}
-          ${${PROJECT_NAME}_SOURCE_GROUP_${THE_SOURCE_GROUP}}
-          CACHE INTERNAL "" FORCE)
 
     # unittests
     IF(LOCAL_UNITTEST_SRC)
