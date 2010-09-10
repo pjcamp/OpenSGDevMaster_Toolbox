@@ -144,6 +144,8 @@ class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
     NodeUnrecPtr _bottomN;
 
     ColladaVisualScene* _visualScene;
+
+	FieldAnimation * _animation;
 };
 
 OSG_GEN_MEMOBJPTR(ColladaNode);

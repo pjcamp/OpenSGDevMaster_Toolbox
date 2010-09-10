@@ -177,8 +177,8 @@ ColladaGlobal::read(DAE *dae, const std::string &fileName)
 /*! Read the file \a fileName using a new DAE database. This
 	method differs from the other read method in that it will 
 	also read in other elements not directly associated with 
-	the scene heirarchy (e.g. <library_animations>, etc.)
-	based on the options set.
+	the scene hierarchy (e.g. <library_animations>, etc.)
+	if the options to do so are set.
 
     Useful if multiple documents are stored in one DAE database or
     if an application needs to access the DAE itself to extract
@@ -201,16 +201,14 @@ ColladaGlobal::readAll( std::istream &is, const std::string &fileName)
     _dae = new DAE;
     _dae->open(fileName.c_str());
 
-    rootN = doRead();
-	_FCStore.insert(rootN);
-
-	/*
 	if(getOptions()->getReadAnimations())
 	{ // read animations here
 		FCPtrStore animations = readAnimations();
 		_FCStore.insert(animations.begin(), animations.end());
 	}
-	*/
+
+    rootN = doRead();
+	_FCStore.insert(rootN);
 
     _docPath. clear();
     _dae    ->clear();
@@ -428,6 +426,12 @@ ColladaGlobal::NodeToNodeMap &
 ColladaGlobal::editNodeToNodeMap(void)
 {
 	return _nodeMap;
+}
+
+ColladaGlobal::AnimationMap &
+ColladaGlobal::editAnimationMap(void)
+{
+	return _animMap;
 }
 
 
