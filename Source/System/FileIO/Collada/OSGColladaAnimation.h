@@ -66,6 +66,7 @@
 OSG_BEGIN_NAMESPACE
 
 // forward decls
+class TransformAnimator;
 class ColladaInstanceAnimation;
 OSG_GEN_MEMOBJPTR(ColladaInstanceAnimation);
 
@@ -123,15 +124,27 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 	static ColladaElementRegistrationHelper _regHelper;
 
 	// used to determine which type of keyframe sequence we need
-	enum SequenceType {	REAL,REAL2,REAL3,REAL4,INT,INT2,INT3,INT4,BOOL,BOOL2,
-						BOOL3,BOOL4,COLOR3,COLOR4,QUATX,QUATY,QUATZ,INVALID};
+	enum SequenceType {	REAL,REAL2,REAL3,REAL4, // 
+						INT,INT2,INT3,INT4, // not used?
+						BOOL,BOOL2,BOOL3,BOOL4, // probably not used
+						COLOR3,COLOR4, // definitely used
+						QUATX,QUATY,QUATZ, // rotations
+						TRANSX,TRANSY,TRANSZ, // translations in 1 axis
+						SCALEX,SCALEY,SCALEZ, // scales in 1 axis
+						TRANSLATE,SCALE, // translation/scaling in all 3 axis
+						INVALID // unable to determine type
+					  };
 
 	void buildKeyframeSequence(domAnimationRef anim);
+	void buildAnimator(domAnimationRef anim);
+	void buildAnimation(Animator * animator);
 	void buildFloatSequence(domAnimationRef animation, domAccessorRef accessor, std::vector<Real32> timeKeys);
 	void buildIntSequence(domAnimationRef animation, domAccessorRef accessor, std::vector<Real32> timeKeys);
 	void buildBoolSequence(domAnimationRef animation, domAccessorRef accessor, std::vector<Real32> timeKeys);
 	void readSamplers(domAnimationRef anim);
 	void getInterpolationType();
+	bool isTransformAttribute(daeElement * target);
+	TransformAnimator* getTransformAnimator();
 
 	
 	//  map from a <source> name to its corresponding OpenSG keyframe sequence
@@ -143,20 +156,21 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 	//SourceMap _samplerMap;
 	std::string _animationTarget;
 	KeyframeSequenceUnrecPtr _keyframeSequence;
+	SequenceType _seqTy;
 	AnimatorUnrecPtr _animator;
-	AnimationUnrecPtr _animation;
+	FieldAnimationUnrecPtr _animation;
 	Animator::InterpolationType _interpolationType;
+	daeElement * _animTarget;
 	domSourceRef _inputSource;
 	domSourceRef _outputSource;
 	domSourceRef _interpolationSource;
 	
+	bool _reusingAnimator;
 };
 
 OSG_GEN_MEMOBJPTR(ColladaAnimation);
 
 OSG_END_NAMESPACE
-
-// #include "OSGColladaGeometry.inl"
 
 #endif // OSG_WITH_COLLADA
 

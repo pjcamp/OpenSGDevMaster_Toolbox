@@ -18,7 +18,7 @@ LIST(REMOVE_ITEM SRCFILES "${PROJECT_SOURCE_DIR}/shader.cpp")
 # get dependencies
 
 SET(OSG_COMPONENTS OSGBase OSGCluster OSGDrawable OSGFileIO OSGGroup OSGState
-                   OSGSystem OSGUtil OSGWindow OSGWindowGLUT)
+                   OSGSystem OSGUtil OSGWindow OSGWindowGLUT OSGTBAnimation OSGDynamics)
 
 IF(UNIX)
     IF(APPLE)

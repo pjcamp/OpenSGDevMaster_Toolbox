@@ -172,7 +172,11 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
 	typedef std::map<domNode* ,Node*>	NodeToNodeMap;
 	typedef NodeToNodeMap::iterator		NTNMapIt;
 
+	typedef std::map<daeElement *, FieldAnimation *> AnimationMap;
+	typedef AnimationMap::iterator AnimMapIt;
+
 	NodeToNodeMap			&editNodeToNodeMap			(void);
+	AnimationMap			&editAnimationMap			(void);
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
@@ -211,6 +215,7 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
 	FCPtrStore			  _FCStore;
 
 	std::vector<ColladaInstanceController *> _instControllers;
+	AnimationMap _animMap;
 
 	NodeToNodeMap		  _nodeMap;
 

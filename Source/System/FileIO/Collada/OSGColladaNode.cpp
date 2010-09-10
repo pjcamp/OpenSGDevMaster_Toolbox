@@ -53,6 +53,7 @@
 #include "OSGColladaVisualScene.h"
 #include "OSGTransform.h"
 #include "OSGNameAttachment.h"
+#include "OSGFieldAnimation.h"
 
 #include <dom/domLookat.h>
 #include <dom/domMatrix.h>
@@ -89,6 +90,19 @@ ColladaNode::read(void)
     domNodeRef                node     = getDOMElementAs<domNode>();
     const daeElementRefArray &contents = node->getContents();
 
+	// here we check if there is a transform animation on this 
+	// field.
+	ColladaGlobal::AnimMapIt amIt = getGlobal()->editAnimationMap().find(node);
+	ColladaGlobal::AnimMapIt amEnd = getGlobal()->editAnimationMap().end();
+	if(amIt != amEnd)
+	{
+		_animation = amIt->second;
+	} 
+	else
+	{
+		_animation = NULL;
+	}
+
     // handle "transform" child elements in the order
     // they occur in the document
 	if(node->getType() ==  NODETYPE_JOINT)
@@ -99,6 +113,7 @@ ColladaNode::read(void)
 	{
 		for(UInt32 i = 0; i < contents.getCount(); ++i)
 		{
+
 			switch(contents[i]->getElementType())
 			{
 			case COLLADA_TYPE::LOOKAT:
@@ -125,6 +140,8 @@ ColladaNode::read(void)
 				handleTranslate(daeSafeCast<domTranslate>(contents[i]));
 			break;
 			}
+
+		
 		}
 	}
     // handle <node> child elements
@@ -687,15 +704,30 @@ ColladaNode::appendXForm(Node *xformN)
                 Transform* _bottomTrans = dynamic_cast<Transform*>(_bottomN->getCore());
 
                 _bottomTrans->editMatrix().mult(dynamic_cast<Transform*>(xformN->getCore())->getMatrix());
+
+				if(_animation != NULL) 
+				{
+					_animation->setAnimatedField(_bottomTrans,std::string("matrix"));
+				}
             }
             else
             {
                 _bottomN->addChild(xformN);
+
+				if(_animation != NULL) 
+				{
+					_animation->setAnimatedField(xformN->getCore(),std::string("matrix"));
+				}
             }
         }
         else
         {
             _bottomN = xformN;
+
+			if(_animation != NULL) 
+			{
+				_animation->setAnimatedField(xformN->getCore(),std::string("matrix"));
+			}
         }
     }
     else
@@ -706,6 +738,11 @@ ColladaNode::appendXForm(Node *xformN)
         }
 
         _bottomN = xformN;
+
+		if(_animation != NULL) 
+		{
+			_animation->setAnimatedField(xformN->getCore(),std::string("matrix"));
+		}
     }
 }
 
