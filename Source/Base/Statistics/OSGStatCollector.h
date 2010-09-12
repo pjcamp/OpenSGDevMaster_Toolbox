@@ -76,6 +76,23 @@ class OSG_BASE_DLLMAPPING StatCollector : public MemoryObject
     OSG_GEN_INTERNAL_MEMOBJPTR(StatCollector);
 
     /*---------------------------------------------------------------------*/
+    /*! \name              Global Stat Collector                           */
+    /*! \{                                                                 */
+    static StatCollector* getGlobalCollector(void);
+    static void setGlobalCollector(StatCollector* const collector);
+
+    static StatElem *getGlobalElem(Int32             elemId,
+                                   bool              create = false);
+
+    static StatElem *getGlobalElem(StatElemDescBase &desc,
+                                   bool              create = false);
+
+    template <class T>
+    static T        *getGlobalElem(StatElemDesc<T>  &desc,
+                                   bool              create = false);
+    /*! \}                                                                 */
+
+    /*---------------------------------------------------------------------*/
     /*! \name                     Instance                                 */
     /*! \{                                                                 */
 
@@ -171,6 +188,8 @@ class OSG_BASE_DLLMAPPING StatCollector : public MemoryObject
     typedef StatElemStore::const_iterator StatElemStoreConstIt;
 
     StatElemStore _elemVec;
+
+    static StatCollector* _pGlobalCollector;
 };
 
 typedef StatCollector *       StatCollectorP;

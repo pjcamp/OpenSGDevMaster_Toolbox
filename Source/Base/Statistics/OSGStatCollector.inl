@@ -161,4 +161,58 @@ T *StatCollector::getElem(StatElemDesc<T> &desc, bool create)
     return reinterpret_cast<T*>(getElem(desc.getID(), create));
 }
 
+inline
+StatCollector* StatCollector::getGlobalCollector(void)
+{
+    return _pGlobalCollector;
+}
+
+inline
+void StatCollector::setGlobalCollector(StatCollector* const collector)
+{
+    _pGlobalCollector = collector;
+}
+
+inline
+StatElem *StatCollector::getGlobalElem(Int32 elemId,  bool create)
+{
+    if(getGlobalCollector())
+    {
+        return getGlobalCollector()->getElem(elemId, create);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+
+inline
+StatElem *StatCollector::getGlobalElem(StatElemDescBase &desc,  bool create)
+{
+    if(getGlobalCollector())
+    {
+        return getGlobalCollector()->getElem(desc, create);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+
+
+template<class T> inline
+T *StatCollector::getGlobalElem(StatElemDesc<T>  &desc,  bool create)
+{
+    if(getGlobalCollector())
+    {
+        return getGlobalCollector()->getElem(desc, create);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
 OSG_END_NAMESPACE
