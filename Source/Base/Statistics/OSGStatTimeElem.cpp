@@ -71,7 +71,8 @@ OSG_USING_NAMESPACE
 
 StatTimeElem::StatTimeElem(StatElemDescBase *desc) :
      StatElem(desc),
-    _time    (   0)
+    _lastStartTime(   0),
+    _accumTime    (   0)
 {
 }
 
@@ -96,7 +97,7 @@ void StatTimeElem::putToString(
 
         Char8 temp[64];
 
-        sprintf(temp, "%f", _time);
+        sprintf(temp, "%f", _accumTime);
 
         str.assign(temp);
     }
@@ -104,7 +105,7 @@ void StatTimeElem::putToString(
     {
         std::string            formatCopy = format;
         std::string::size_type pos        = formatCopy.find("%");
-        Time                   val        = _time;
+        Time                   val        = _accumTime;
         
         if(pos != std::string::npos)
         {
@@ -145,23 +146,23 @@ void StatTimeElem::putToString(
                 std::string fcopy(format);
                 fcopy.erase((proc - format) + 1, 2);
                 fcopy.insert((proc - format) + 1,".2f");
-                sprintf(temp, fcopy.c_str(), (double(_time))*1000.);
+                sprintf(temp, fcopy.c_str(), (double(_accumTime))*1000.);
             }
             else if(! strncmp(proc, "%r", 2))
             {
                 std::string fcopy(format);
                 fcopy.erase((proc - format) + 1, 1);
-                sprintf(temp, fcopy.c_str(), 1./double(_time));
+                sprintf(temp, fcopy.c_str(), 1./double(_accumTime));
             }
             else
             {
-                sprintf(temp, format, double(_time));
+                sprintf(temp, format, double(_accumTime));
             }
            
         }
         else
         {
-            sprintf(temp, format, double(_time));
+            sprintf(temp, format, double(_accumTime));
         }
         
         str = temp;
@@ -172,7 +173,7 @@ void StatTimeElem::putToString(
 
 bool StatTimeElem::getFromCString(const Char8 *&inVal)
 {
-    return FieldTraits<Time, 1>::getFromCString(_time, inVal);
+    return FieldTraits<Time, 1>::getFromCString(_accumTime, inVal);
 }
 
 Real64 StatTimeElem::getValue(void) const
@@ -182,7 +183,7 @@ Real64 StatTimeElem::getValue(void) const
 
 void StatTimeElem::reset(void) 
 { 
-    // Time elements need to be started and stopped and can't be reset
+    _accumTime = 0;
 }
 
 /*-------------------------- assignment -----------------------------------*/
@@ -192,7 +193,8 @@ StatTimeElem& StatTimeElem::operator = (const StatTimeElem &source)
     if (this == &source)
         return *this;
 
-    _time = source._time;
+    _lastStartTime = source._lastStartTime;
+    _accumTime = source._accumTime;
     
     return *this;
 }
@@ -201,7 +203,7 @@ StatTimeElem& StatTimeElem::operator = (const StatTimeElem &source)
 
 bool StatTimeElem::operator < (const StatTimeElem &other) const
 {
-    return _time < other._time;
+    return _accumTime < other._accumTime;
 }
 
 /*--------------------------- creation ------------------------------------*/
@@ -221,7 +223,7 @@ StatElem &StatTimeElem::operator += (const StatElem &other)
 {
     const StatTimeElem *o = dynamic_cast<const StatTimeElem *>(&other);
     
-    _time += o->_time;
+    _accumTime += o->_accumTime;
     
     return *this;
 }
