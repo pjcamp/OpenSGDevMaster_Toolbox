@@ -229,6 +229,18 @@ bool RenderActionBase::getUseGLFinish(void)
     return _bUseGLFinish;
 }
 
+inline
+bool RenderActionBase::getManageStatReset(void) const
+{
+    return _bManageStatReset;
+}
+
+inline
+void RenderActionBase::setManageStatReset(bool value)
+{
+    _bManageStatReset = value;
+}
+
 /*-------------------------------------------------------------------------*\
  -  protected                                                              -
 \*-------------------------------------------------------------------------*/
