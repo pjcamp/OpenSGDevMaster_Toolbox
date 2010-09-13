@@ -196,6 +196,9 @@ class OSG_FILEIO_DLLMAPPING ColladaGlobal : public MemoryObject
     NodeTransitPtr	doRead				(void);
 	FCPtrStore		readAnimations		(void);
 	void			resolveControllers	(void);
+	void parseJointNodes(domNodeRef colDomNode, 
+						 std::vector<domNodeRef> &domNodes,
+						 std::map<std::string, NodeRecPtr> &joints);
 
 
     /*! \}                                                                 */

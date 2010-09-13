@@ -300,12 +300,21 @@ ColladaAnimation::buildFloatSequence(domAnimationRef	 animation,
 									 std::vector<Real32> timeKeys)
 {
 	_seqTy = INVALID;
-	domParam_Array & params = accessor->getParam_array();
+	
 	
 	UInt32 stride = accessor->getStride();
 	
-	std::string pName(params[0]->getName());
-	
+	std::string pName;
+	domParam_Array & params = accessor->getParam_array();
+	if(params.getCount() > 0 && (params[0]->getName() != NULL))
+	{
+		pName = params[0]->getName();
+	} 
+	else 
+	{
+		pName = "";
+	}
+
 	if(stride == 1)
 	{
 		if(pName.compare("ANGLE") == 0)
@@ -386,6 +395,8 @@ ColladaAnimation::buildFloatSequence(domAnimationRef	 animation,
 		{
 			_seqTy = COLOR4;
 		}
+		else
+			_seqTy = REAL4;
 	}
 
 	domListOfFloats & floats = _outputSource->getFloat_array()->getValue();
