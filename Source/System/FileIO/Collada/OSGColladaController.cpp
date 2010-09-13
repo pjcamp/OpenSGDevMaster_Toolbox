@@ -112,7 +112,7 @@ ColladaController::read(void)
 	}
 	else
 	{
-		SWARNING << "ColladaController::read: No <skin>" << std::endl;
+		SWARNING << "ColladaController::read: No <skin> or <morph>" << std::endl;
 	}
 
     return;

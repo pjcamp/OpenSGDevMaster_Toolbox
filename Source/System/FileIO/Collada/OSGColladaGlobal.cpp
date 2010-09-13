@@ -344,43 +344,9 @@ ColladaGlobal::resolveControllers(void)
 			for(UInt32 j = 0; j < skelArr.getCount(); j++)
 			{
 				domNodeRef colDomNode = daeSafeCast<domNode>(skelArr[j]->getValue().getElement());
-
-				std::string nodeName = colDomNode->getSid();
-				domNodes.push_back(colDomNode);
-
-				NodeRecPtr jointNode = _nodeMap[colDomNode];
-				joints[nodeName] = jointNode;
-
+				parseJointNodes(colDomNode,domNodes,joints);
 			}
 
-			/* 
-				The heirarchy of the skeleton structure must be created from the 
-				visual scene node heirarchy.  But, since we don't want to have two
-				instances of the heirarchy, we just save the IDs of the nodes to a map, and 
-				link up the joints after the visual scene is finished reading.
-			*/
-
-			/* // shouldn't be needed, nodes should already be created
-			for(i = 0; i < domNodes.size(); i++)
-			{
-				domNodeRef parent = daeSafeCast<domNode>(domNodes[i]->getParent());
-				if(parent != NULL && parent->getType() == NODETYPE_JOINT)
-				{
-					for(j = 0; j < domNodes.size(); j++)
-					{
-						std::string parentSID(parent->getSid());
-						std::string childSID(domNodes[j]->getSid());
-						if(parentSID.compare(childSID) == 0)
-						{	
-							osgNodes[j]->addChild(osgNodes[i]);
-						}
-					}
-				} else
-				{
-					skelNode->addChild(osgNodes[i]);
-				}
-			}
-			*/
 			UInt32 j(0);
 			SkeletonBlendedGeometry *skeleton = _instControllers[i]->getSkeleton();
 			for(j = 0; j < skin.jointSIDs.size() && j < skin.inverseBindPoseMatrices.size(); j++)
@@ -415,6 +381,30 @@ ColladaGlobal::resolveControllers(void)
 	}
 
 	return;
+}
+
+void ColladaGlobal::parseJointNodes(domNodeRef colDomNode, 
+					 std::vector<domNodeRef> &domNodes,
+					 std::map<std::string, NodeRecPtr> &joints)
+{
+	// check the type of the node
+	if(colDomNode->getType() == NODETYPE_JOINT)
+	{	// add all joints found to the map
+		if(colDomNode->getSid() != NULL)
+		{
+			std::string nodeName = colDomNode->getSid();
+			domNodes.push_back(colDomNode);
+			
+			NodeRecPtr jointNode = _nodeMap[colDomNode];
+			joints[nodeName] = jointNode;
+			// recursively add child joints to the map.
+			const domNode_Array &nodes = colDomNode->getNode_array();
+			for(UInt32 i(0); i < nodes.getCount(); i++)
+			{
+				parseJointNodes(nodes[i], domNodes, joints);
+			}
+		}
+	}
 }
 
 void ColladaGlobal::addInstanceController( ColladaInstanceController * const contr)

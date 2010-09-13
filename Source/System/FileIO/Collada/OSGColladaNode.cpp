@@ -681,6 +681,11 @@ void ColladaNode::handleJointNode(domNode *node)
 
 	getGlobal()->editNodeToNodeMap()[node] = jointN;
 
+	if(_animation != NULL) 
+	{
+		_animation->setAnimatedField(newJoint,std::string("matrix"));
+	}
+
 }
 
 
