@@ -164,7 +164,7 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 	domSourceRef _inputSource;
 	domSourceRef _outputSource;
 	domSourceRef _interpolationSource;
-	
+	UInt32 _animLength;
 	bool _reusingAnimator;
 };
 

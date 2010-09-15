@@ -225,12 +225,12 @@ void ColladaAnimation::buildKeyframeSequence(domAnimationRef anim)
 				// the counts should be the same, but if the number of 
 				// one is less than the other, we will
 				// still make an animation out of what we can
-				UInt32 numKeys = OSG::osgMin<UInt32>(inputAccessor->getCount(),outputAccessor->getCount());
+				_animLength = OSG::osgMin<UInt32>(inputAccessor->getCount(),outputAccessor->getCount());
 				domListOfFloats & arr = _inputSource->getFloat_array()->getValue();
 				if(arr.getCount() > 0 && inputAccessor->getStride() == 1)
 				{
 					std::vector<Real32> inputKeys;
-					for(UInt32 i(0); i < numKeys; i++)
+					for(UInt32 i(0); i < _animLength; i++)
 					{
 						inputKeys.push_back(arr[i]);
 					}
@@ -532,26 +532,8 @@ void ColladaAnimation::buildIntSequence(domAnimationRef		animation,
 		}
 		_keyframeSequence = seq;
 	}
-	/*  ---- No integer vector types or keyframe sequences for them -----
-	
-	else if(seqTy == INT2)
-	{
-		KeyframeVectorSequenceVec2iUnrecPtr seq = KeyframeVectorSequenceVec2i::create();
-		for(UInt32 i(0),j(0); i < timeKeys.size();i++)
-		{
-			seq->addKeyframe(Vec2f(floats[j++],floats[j++]),timeKeys[i]);
-		}
-		_keyframeSequence = seq;
-	}
-	else if(seqTy == INT3)
-	{
-		
-	}
-	else if(seqTy == INT4)
-	{
-		
-	} */
-	
+	/*  ---- No integer vector types or keyframe sequences for them ----- */
+
 }
 
 // probably won't be needed....
@@ -598,9 +580,14 @@ void ColladaAnimation::getInterpolationType()
 			{
 				std::string type;
 				domListOfNames & names = _interpolationSource->getName_array()->getValue();
+				
 				if(names[0] != NULL) type = names[0];
 				// we just pick the closest interpolation possible
-				if(type.compare("BEZIER") == 0)
+				if(_animLength < 3) 
+				{
+					_interpolationType = Animator::LINEAR_INTERPOLATION;
+				}
+				else if(type.compare("BEZIER") == 0)
 				{
 					_interpolationType = Animator::CUBIC_INTERPOLATION;
 				}
@@ -620,8 +607,8 @@ void ColladaAnimation::getInterpolationType()
 			}
 		}	
 	}
-	// default to cubic interpolation
-	_interpolationType = Animator::CUBIC_INTERPOLATION;
+	// default to linear interpolation
+	_interpolationType = Animator::LINEAR_INTERPOLATION;
 } // end getInterpolationType()
 
 bool ColladaAnimation::isTransformAttribute(daeElement * target)
