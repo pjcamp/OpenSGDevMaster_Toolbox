@@ -381,6 +381,7 @@ void ChangeList::doCommitChanges(void)
     if(_workStore.empty() == false)
     {
         fprintf(stderr, "warning non empty workstore found\n");
+        return;
     }
 
 
