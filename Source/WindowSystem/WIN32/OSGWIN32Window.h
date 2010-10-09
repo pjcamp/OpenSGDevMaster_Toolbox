@@ -276,6 +276,7 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
     Pnt2f _PreviousCursorPos;
 
     bool _RunMainLoop;
+    bool _Active;
     /*==========================  PRIVATE  ================================*/
 
   private:

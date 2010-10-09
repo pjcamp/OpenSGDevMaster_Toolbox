@@ -49,6 +49,8 @@
 
 #include "Windowsx.h"
 #include <boost/algorithm/string.hpp>
+#include <algorithm>
+#include <boost/bind.hpp>
 
 
 OSG_BEGIN_NAMESPACE
@@ -136,17 +138,46 @@ void  WIN32Window::mainLoop(void)
     WIN32HWNDToProducerMap::iterator MapItor;
     //while ( GetMessage(&msg, NULL, 0, 0) > 0 )
     _RunMainLoop = true;
+    _Active = true;
+    StatTimeStampElem *LoopTimeStatElem;
     while (_RunMainLoop)
     {
-        if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
+        if(!_Active)
         {
-            DispatchMessage(&msg);
+            WaitMessage();
+            while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+            {
+                DispatchMessage(&msg);
+            }
         }
-        //WaitMessage();
-        for( MapItor = _WIN32HWNDToProducerMap.begin(); MapItor != _WIN32HWNDToProducerMap.end(); ++MapItor)
+        else
         {
-            MapItor->second->update();
-            MapItor->second->draw();
+            LoopTimeStatElem = StatCollector::getGlobalElem(WindowEventProducer::statWindowLoopTime);
+            if(LoopTimeStatElem)
+            {
+                LoopTimeStatElem->start();
+            }
+
+            for( MapItor = _WIN32HWNDToProducerMap.begin(); MapItor != _WIN32HWNDToProducerMap.end(); ++MapItor)
+            {
+                MapItor->second->update();
+            }
+
+            while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+            {
+                DispatchMessage(&msg);
+            }
+
+            for( MapItor = _WIN32HWNDToProducerMap.begin(); MapItor != _WIN32HWNDToProducerMap.end(); ++MapItor)
+            {
+                MapItor->second->draw();
+            }
+
+            LoopTimeStatElem = StatCollector::getGlobalElem(WindowEventProducer::statWindowLoopTime);
+            if(LoopTimeStatElem)
+            {
+                LoopTimeStatElem->stop();
+            }
         }
     }
 
@@ -1210,12 +1241,21 @@ Vec2f WIN32Window::getDesktopSize(void) const
 
 void WIN32Window::draw(void)
 {
-    SendMessage(getHwnd(),WIN32_DRAW_MESSAGE,0,0);
+    //SendMessage(getHwnd(),WIN32_DRAW_MESSAGE,0,0);
+    internalDraw();
 }
 
 void WIN32Window::update(void)
 {
-    SendMessage(getHwnd(),WIN32_UPDATE_MESSAGE,0,0);
+    //SendMessage(getHwnd(),WIN32_UPDATE_MESSAGE,0,0);
+    //Updating
+    Time Now(getSystemTime());
+    Time ElapsedTime(Now - getLastUpdateTime());
+    if(ElapsedTime > 0.0 && ElapsedTime < 10.0)
+    {
+        produceUpdate(ElapsedTime);
+    }
+    setLastUpdateTime(Now);
 }
 
 Window* WIN32Window::initWindow(void)
@@ -1254,8 +1294,8 @@ Window* WIN32Window::initWindow(void)
 	WindowRect.bottom=20;						// Set Bottom Value To Requested Height
 
     //Fullscreen
-    //bool fullscreen(_IsFullscreen);
-    bool fullscreen(false);
+    bool fullscreen(_IsFullscreen);
+    //bool fullscreen(false);
     if(fullscreen)
     {
         DEVMODE dmScreenSettings;					// Device Mode
@@ -1349,8 +1389,16 @@ void WIN32Window::openWindow(const Pnt2f& ScreenPosition,
 
     
     //Open the Window and enter the main event loop
-    setPosition(ScreenPosition);
-    setSize(Vec2us(Size.x(),Size.y()));
+    if(_IsFullscreen)
+    {
+        setPosition(Pnt2f(0.0f,0.0f));
+        setSize(Vec2us(getDesktopSize().x(),getDesktopSize().y()));
+    }
+    else
+    {
+        setPosition(ScreenPosition);
+        setSize(Vec2us(Size.x(),Size.y()));
+    }
     setTitle(WindowName);
 	ShowWindow( getHwnd(), SW_SHOWNORMAL );
     SetForegroundWindow(getHwnd());
@@ -1448,43 +1496,6 @@ LRESULT WIN32Window::WndProc(HWND hwnd, UINT uMsg,
 			    produceMouseMoved(Position, MouseDelta);
 
 
-                //If the Mouse has been disassociated from the cursor
-                //then recenter the cursor in the window
-                //if(!_IsMouseCursorAssociated)
-                //{
-                //    _HandleNextMouseMove = false;
-                //    setCursorPos(getPosition() + (0.5f * getSize()));
-                //}
-                
-                /*POINT point;
-                RECT rect;
-
-                GetCursorPos(&point);
-                GetWindowRect(hwnd, &rect);
-
-                if(PtInRect(&rect, point))
-                {
-                    if(hwnd != GetCapture())
-                    {
-                        SetCapture(hwnd);
-                    }
-                    if(!_MouseOverWindow)
-                    {
-                        _MouseOverWindow = true;
-                        produceWindowEntered();
-                    }
-                }
-                else
-                {
-                    ReleaseCapture();
-                    // Calling ReleaseCapture in Win95 also causes WM_CAPTURECHANGED
-                    // to be sent.  Be sure to account for that.
-                    if(_MouseOverWindow)
-                    {
-                        _MouseOverWindow = false;
-                        produceWindowExited();
-                    }
-                }*/
                 break;
             }
                                     
@@ -1530,11 +1541,13 @@ LRESULT WIN32Window::WndProc(HWND hwnd, UINT uMsg,
         case WM_ACTIVATE:
             if(LOWORD(wParam) == WA_ACTIVE || LOWORD(wParam) == WA_CLICKACTIVE)
             {
-               produceWindowActivated();
+                _Active = true;
+                produceWindowActivated();
             }
             else
             {
-               produceWindowDeactivated();
+                _Active = false;
+                produceWindowDeactivated();
             }
             return DefWindowProc(hwnd,uMsg,wParam,lParam);
             break;
