@@ -71,6 +71,7 @@ OSG_USING_NAMESPACE
 
 StatTimeStampElem::StatTimeStampElem(StatElemDescBase *desc) :
      Inherited(desc), 
+    _lastStartTime(0),
     _time     (   0)
 {
 }

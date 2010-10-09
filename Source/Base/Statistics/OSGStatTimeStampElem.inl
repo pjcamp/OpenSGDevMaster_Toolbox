@@ -41,13 +41,13 @@ OSG_BEGIN_NAMESPACE
 inline 
 const TimeStamp &StatTimeStampElem::start(void) 
 { 
-    return (_time = getTimeStamp()); 
+    return (_lastStartTime = getTimeStamp()); 
 }
     
 inline 
 const TimeStamp &StatTimeStampElem::stop(void)
 { 
-    return (_time = (getTimeStamp() - _time)); 
+    return (_time = (getTimeStamp() - _lastStartTime)); 
 }
  
 inline 
