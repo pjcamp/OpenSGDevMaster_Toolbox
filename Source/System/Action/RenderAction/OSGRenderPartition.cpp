@@ -753,11 +753,11 @@ void RenderPartition::dropFunctor(DrawFunctor &drawFunc,
 
     st->validate();
 
-    if(_oDrawEnv.getStatCollector() != NULL)
+    /*if(_oDrawEnv.getStatCollector() != NULL)
     {
         _oDrawEnv.getStatCollector()->getElem(
             RenderAction::statNTriangles)->add(st->getTriangles());
-    }
+    }*/
 
     _uiNumTriangles += st->getTriangles();
 
