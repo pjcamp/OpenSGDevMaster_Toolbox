@@ -185,6 +185,14 @@ OSG_BASE_DLLMAPPING void setViewMatEyePos       (      Matrix &Result,
 /*! \} 
  */
 
+/*! \ingroup GrpBaseBaseMathMatrixFn
+    \relatesalso TransformationMatrix
+ */
+OSG_BASE_DLLMAPPING void MatrixSkew               (      Matrix &Result,
+                                                 const Vec3f  &RotationAxis,
+                                                 const Vec3f  &TranslationAxis,
+                                                 Real32 AngleInRadians);
+
 OSG_END_NAMESPACE
 
 #endif /* _OSGMATRIXUTILITY_H_ */
