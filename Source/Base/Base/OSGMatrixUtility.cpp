@@ -481,6 +481,62 @@ void setViewMatEyePos(Matrix &Result,const Pnt3f &P)
     Result[3][2] = -TempP.dot(N);
 }
 
+void MatrixSkew(Matrix &Result, const Vec3f  &RotationAxis, const Vec3f  &TranslationAxis, Real32 AngleInRadians)
+{
+	/* 
+	 * Implemented in accordance with the RenderMan specification.
+	 * See http://www.koders.com/cpp/fidA08C276050F880D11C2E49280DD9997478DC5BA1.aspx for
+	 * the implementation that this was copied from.
+	 * (If the url is invalid, this implementation was copied from the GNU GMAN project,
+	 * in the gmanmatrix4.cpp file.)
+	 *
+	 */
+    Result.setIdentity();
+
+	Real32 an1,an2,rx,ry,alpha;
+	Vec3f a1,a2,n1,n2;
+
+	Vec3f a(RotationAxis), b(TranslationAxis);
+	b.normalize();
+	a1 = b * a.dot(b);
+	a2 = a - a1;
+	a2.normalize();
+
+	an1 = a.dot(a2);
+	an2 = a.dot(b);
+
+	rx = an1*osgCos(AngleInRadians) - an2*osgSin(AngleInRadians);
+	ry = an1*osgSin(AngleInRadians) + an2*osgCos(AngleInRadians);
+
+	if(rx <= 0.0f)
+	{  // skew AngleInRadians too large, and we can't calculate the skew matrix
+		SWARNING << "ColladaNode::handleSkew: Skew Angle too large! ( rx = " << rx << " )" << std::endl;
+		return; 
+	}
+
+	// are A and B parallel?
+	if(OSG::osgAbs(an1) < 0.000001)
+    {
+		alpha = 0.0f;
+    }
+	else
+    {
+		alpha = ry/rx - an2/an1;
+    }
+
+	Result[0][0] = a2.x() * b.x() * alpha + 1.0f;
+	Result[1][0] = a2.y() * b.x() * alpha;
+	Result[2][0] = a2.z() * b.x() * alpha;
+
+	Result[0][1] = a2.x() * b.y() * alpha;
+	Result[1][1] = a2.y() * b.y() * alpha + 1.0f;
+	Result[2][1] = a2.z() * b.y() * alpha;
+
+	Result[0][2] = a2.x() * b.z() * alpha;
+	Result[1][2] = a2.y() * b.z() * alpha;
+	Result[2][2] = a2.z() * b.z() * alpha + 1.0f;
+}
+
 OSG_END_NAMESPACE
 
 
