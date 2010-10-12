@@ -46,6 +46,7 @@
 #include "OSGColladaInstantiableElement.h"
 #include "OSGColladaElementFactoryHelper.h"
 #include "OSGNode.h"
+#include "OSGTransformationElementFields.h"
 
 // forward decl
 class domLookat;
@@ -58,7 +59,6 @@ class domNode;
 class domInstance_node;
 class domInstance_geometry;
 class domInstance_controller;
-class Joint;
 
 
 OSG_BEGIN_NAMESPACE
@@ -136,8 +136,8 @@ class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
     void handleInstanceGeometry  (domInstance_geometry   *instGeo       );
     void handleInstanceController(domInstance_controller *instController);
     void handleInstanceLight     (domInstance_light      *instLight);
-	void handleJointNode		 (domNode *node);
 
+    void appendStackedXForm(TransformationElement *transformElement, domNodeRef node);
     void appendXForm(Node *xformN);
     void appendChild(Node *childN);
 

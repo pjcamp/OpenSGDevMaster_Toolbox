@@ -54,6 +54,15 @@
 #include "OSGTransform.h"
 #include "OSGNameAttachment.h"
 #include "OSGFieldAnimation.h"
+#include "OSGMatrixUtility.h"
+
+#include "OSGStackedTransform.h"
+#include "OSGLookAtTransformationElement.h"
+#include "OSGMatrixTransformationElement.h"
+#include "OSGRotationTransformationElement.h"
+#include "OSGScaleTransformationElement.h"
+#include "OSGSkewTransformationElement.h"
+#include "OSGTranslationTransformationElement.h"
 
 #include <dom/domLookat.h>
 #include <dom/domMatrix.h>
@@ -105,45 +114,41 @@ ColladaNode::read(void)
 
     // handle "transform" child elements in the order
     // they occur in the document
-	if(node->getType() ==  NODETYPE_JOINT)
+	for(UInt32 i = 0; i < contents.getCount(); ++i)
 	{
-		handleJointNode(node);
-	}
-	else
-	{
-		for(UInt32 i = 0; i < contents.getCount(); ++i)
+
+		switch(contents[i]->getElementType())
 		{
-
-			switch(contents[i]->getElementType())
-			{
-			case COLLADA_TYPE::LOOKAT:
-				handleLookAt(daeSafeCast<domLookat>(contents[i]));
-				break;
-	            
-			case COLLADA_TYPE::MATRIX:
-				handleMatrix(daeSafeCast<domMatrix>(contents[i]));
+		case COLLADA_TYPE::LOOKAT:
+			handleLookAt(daeSafeCast<domLookat>(contents[i]));
 			break;
-	        
-			case COLLADA_TYPE::ROTATE:
-				handleRotate(daeSafeCast<domRotate>(contents[i]));
-			break;
-	        
-			case COLLADA_TYPE::SCALE:
-				handleScale(daeSafeCast<domScale>(contents[i]));
-			break;
-	        
-			case COLLADA_TYPE::SKEW:
-				handleSkew(daeSafeCast<domSkew>(contents[i]));
-			break;
-	        
-			case COLLADA_TYPE::TRANSLATE:
-				handleTranslate(daeSafeCast<domTranslate>(contents[i]));
-			break;
-			}
-
-		
+            
+		case COLLADA_TYPE::MATRIX:
+			handleMatrix(daeSafeCast<domMatrix>(contents[i]));
+		break;
+        
+		case COLLADA_TYPE::ROTATE:
+			handleRotate(daeSafeCast<domRotate>(contents[i]));
+		break;
+        
+		case COLLADA_TYPE::SCALE:
+			handleScale(daeSafeCast<domScale>(contents[i]));
+		break;
+        
+		case COLLADA_TYPE::SKEW:
+			handleSkew(daeSafeCast<domSkew>(contents[i]));
+		break;
+        
+		case COLLADA_TYPE::TRANSLATE:
+			handleTranslate(daeSafeCast<domTranslate>(contents[i]));
+		break;
 		}
 	}
+	if(node->getType() ==  NODETYPE_JOINT)
+	{
+		getGlobal()->editNodeToNodeMap()[node] = _bottomN;
+	}
+
     // handle <node> child elements
     const domNode_Array &nodes = node->getNode_array();
     
@@ -252,8 +257,50 @@ ColladaNode::handleLookAt(domLookat *lookat)
 {
     if(lookat == NULL)
         return;
+	
+    domNodeRef        node   = getDOMElementAs<domNode>();
+    Pnt3f eyePosition(lookat->getValue()[0],lookat->getValue()[1],lookat->getValue()[2]), 
+          lookAtPoint(lookat->getValue()[3],lookat->getValue()[4],lookat->getValue()[5]);
+    Vec3f upDirection(lookat->getValue()[7],lookat->getValue()[8],lookat->getValue()[9]);
 
-    SWARNING << "ColladaNode::handleLookAt: NIY" << std::endl;
+    if(getGlobal()->getOptions()->getFlattenNodeXForms())
+    {
+        LookAtTransformationElementUnrecPtr LookAtElement = LookAtTransformationElement::create();
+        LookAtElement->setEyePosition(eyePosition);
+        LookAtElement->setLookAtPosition(lookAtPoint);
+        LookAtElement->setUpDirection(upDirection);
+        setName(LookAtElement, lookat->getSid());
+
+        appendStackedXForm(LookAtElement, node);
+    }
+    else
+    {
+
+        TransformUnrecPtr xform = Transform::create();
+	    NodeUnrecPtr      xformN = makeNodeFor(xform);
+
+        Matrix lookAtMatrix;
+        MatrixLookAt(lookAtMatrix,eyePosition, lookAtPoint, upDirection);
+
+	    xform->setMatrix(lookAtMatrix);
+
+	     if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
+           node->getName()                                       != NULL   )
+        {
+            std::string nodeName = node->getName();
+
+            if(lookat->getSid() != NULL && 
+			    getGlobal()->getOptions()->getFlattenNodeXForms() == false)
+            {
+                nodeName.append("."                );
+                nodeName.append(lookat->getSid());
+            }
+
+            setName(xformN, nodeName);
+        }
+
+        appendXForm(xformN);
+    }
 }
 
 void
@@ -263,10 +310,6 @@ ColladaNode::handleMatrix(domMatrix *matrix)
         return;
 
     domNodeRef        node   = getDOMElementAs<domNode>();
-
-    TransformUnrecPtr xform = Transform::create();
-
-    NodeUnrecPtr      xformN = makeNodeFor(xform);
 
     Matrix m(matrix->getValue()[0],      // rVal00
              matrix->getValue()[1],      // rVal10
@@ -284,25 +327,40 @@ ColladaNode::handleMatrix(domMatrix *matrix)
              matrix->getValue()[13],     // rVal13
              matrix->getValue()[14],     // rVal23
              matrix->getValue()[15] );   // rVal33
-    
-    xform->setMatrix(m);
 
-    if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
-       node->getName()                                       != NULL   )
+    if(getGlobal()->getOptions()->getFlattenNodeXForms())
     {
-        std::string nodeName = node->getName();
+        MatrixTransformationElementUnrecPtr MatrixElement = MatrixTransformationElement::create();
+        MatrixElement->setMatrix(m);
+        setName(MatrixElement, matrix->getSid());
 
-        if(matrix->getSid() != NULL&& 
-			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
+        appendStackedXForm(MatrixElement, node);
+    }
+    else
+    {
+        TransformUnrecPtr xform = Transform::create();
+
+        NodeUnrecPtr      xformN = makeNodeFor(xform);
+        
+        xform->setMatrix(m);
+
+        if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
+           node->getName()                                       != NULL   )
         {
-            nodeName.append("."             );
-            nodeName.append(matrix->getSid());
+            std::string nodeName = node->getName();
+
+            if(matrix->getSid() != NULL&& 
+			    getGlobal()->getOptions()->getFlattenNodeXForms() == false)
+            {
+                nodeName.append("."             );
+                nodeName.append(matrix->getSid());
+            }
+
+            setName(xformN, nodeName);
         }
 
-        setName(xformN, nodeName);
+        appendXForm(xformN);
     }
-
-    appendXForm(xformN);
 }
 
 void
@@ -313,33 +371,44 @@ ColladaNode::handleRotate(domRotate *rotate)
 
     domNodeRef        node   = getDOMElementAs<domNode>();
 
-    TransformUnrecPtr xform = Transform::create();
-    NodeUnrecPtr      xformN = makeNodeFor(xform);
-
     Quaternion q;
     q.setValueAsAxisDeg(rotate->getValue()[0],
                         rotate->getValue()[1],
                         rotate->getValue()[2],
                         rotate->getValue()[3] );
-    
-    xform->editMatrix().setRotate(q);
 
-    if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
-       node->getName()                                       != NULL   )
+    if(getGlobal()->getOptions()->getFlattenNodeXForms())
     {
-        std::string nodeName = node->getName();
+        RotationTransformationElementUnrecPtr RotationElement = RotationTransformationElement::create();
+        RotationElement->setRotation(q);
+        setName(RotationElement, rotate->getSid());
 
-        if(rotate->getSid() != NULL&& 
-			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
+        appendStackedXForm(RotationElement, node);
+    }
+    else
+    {
+        TransformUnrecPtr xform = Transform::create();
+        NodeUnrecPtr      xformN = makeNodeFor(xform);
+        
+        xform->editMatrix().setRotate(q);
+
+        if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
+           node->getName()                                       != NULL   )
         {
-            nodeName.append("."             );
-            nodeName.append(rotate->getSid());
+            std::string nodeName = node->getName();
+
+            if(rotate->getSid() != NULL&& 
+			    getGlobal()->getOptions()->getFlattenNodeXForms() == false)
+            {
+                nodeName.append("."             );
+                nodeName.append(rotate->getSid());
+            }
+
+            setName(xformN, nodeName);
         }
 
-        setName(xformN, nodeName);
+        appendXForm(xformN);
     }
-
-    appendXForm(xformN);
 }
 
 void
@@ -349,114 +418,91 @@ ColladaNode::handleScale(domScale *scale)
         return;
 
     domNodeRef        node   = getDOMElementAs<domNode>();
+    Vec3f Scale(scale->getValue()[0], scale->getValue()[1], scale->getValue()[2]);
 
-    TransformUnrecPtr xform = Transform::create();
-    NodeUnrecPtr      xformN = makeNodeFor(xform);
-
-    xform->editMatrix().setScale(scale->getValue()[0],
-                                 scale->getValue()[1],
-                                 scale->getValue()[2] );
-
-    if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
-       node->getName()                                       != NULL   )
+    if(getGlobal()->getOptions()->getFlattenNodeXForms())
     {
-        std::string nodeName = node->getName();
+        ScaleTransformationElementUnrecPtr ScaleElement = ScaleTransformationElement::create();
+        ScaleElement->setScale(Scale);
+        setName(ScaleElement, scale->getSid());
 
-        if(scale->getSid() != NULL&& 
-			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
+        appendStackedXForm(ScaleElement, node);
+    }
+    else
+    {
+        TransformUnrecPtr xform = Transform::create();
+        NodeUnrecPtr      xformN = makeNodeFor(xform);
+
+        xform->editMatrix().setScale(Scale);
+
+        if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
+           node->getName()                                       != NULL   )
         {
-            nodeName.append("."            );
-            nodeName.append(scale->getSid());
+            std::string nodeName = node->getName();
+
+            if(scale->getSid() != NULL&& 
+			    getGlobal()->getOptions()->getFlattenNodeXForms() == false)
+            {
+                nodeName.append("."            );
+                nodeName.append(scale->getSid());
+            }
+
+            setName(xformN, nodeName);
         }
 
-        setName(xformN, nodeName);
+        appendXForm(xformN);
     }
-
-    appendXForm(xformN);
 }
 
 void
 ColladaNode::handleSkew(domSkew *skew)
 {
-	/* 
-	 * Implemented in accordance with the RenderMan specification.
-	 * See http://www.koders.com/cpp/fidA08C276050F880D11C2E49280DD9997478DC5BA1.aspx for
-	 * the implementation that this was copied from.
-	 * (If the url is invalid, this implementation was copied from the GNU GMAN project,
-	 * in the gmanmatrix4.cpp file.)
-	 *
-	 */
     if(skew == NULL)
         return;
 	
-   // SWARNING << "ColladaNode::handleSkew: NIY" << std::endl;
-	Real32 angle,an1,an2,rx,ry,alpha;
-	Matrix m;
-	Vec3f a1,a2,n1,n2;
+    domNodeRef        node   = getDOMElementAs<domNode>();
+    Vec3f rotationAxis(skew->getValue()[1],skew->getValue()[2],skew->getValue()[3]), 
+          translationAxis(skew->getValue()[4],skew->getValue()[5],skew->getValue()[6]);
+    Real32 angle(skew->getValue()[0]);
 
-	domFloat7 elems = skew->getValue();
-	angle = elems[0];
-	Vec3f a(elems[1],elems[2],elems[3]), b(elems[4],elems[5],elems[6]);
-	b.normalize();
-	a1 = b * a.dot(b);
-	a2 = a - a1;
-	a2.normalize();
-
-	an1 = a.dot(a2);
-	an2 = a.dot(b);
-
-	angle = osgDegree2Rad(angle);
-	rx = an1*osgCos(angle) - an2*osgSin(angle);
-	ry = an1*osgSin(angle) + an2*osgCos(angle);
-
-	if(rx <= 0.0f)
-	{  // skew angle too large, and we can't calculate the skew matrix
-		SWARNING << "ColladaNode::handleSkew: Skew Angle too large! ( rx = " 
-				 << rx << " )" << std::endl;
-		return; 
-	}
-
-	// are A and B parallel?
-	if(OSG::osgAbs(an1) < 0.000001) 
-		alpha = 0.0f;
-	else 
-		alpha = ry/rx - an2/an1;
-	
-	m[0][0] = a2.x() * b.x() * alpha + 1.0f;
-	m[1][0] = a2.y() * b.x() * alpha;
-	m[2][0] = a2.z() * b.x() * alpha;
-
-	m[0][1] = a2.x() * b.y() * alpha;
-	m[1][1] = a2.y() * b.y() * alpha + 1.0f;
-	m[2][1] = a2.z() * b.y() * alpha;
-
-	m[0][2] = a2.x() * b.z() * alpha;
-	m[1][2] = a2.y() * b.z() * alpha;
-	m[2][2] = a2.z() * b.z() * alpha + 1.0f;
-
-	domNodeRef        node   = getDOMElementAs<domNode>();
-
-    TransformUnrecPtr xform = Transform::create();
-	NodeUnrecPtr      xformN = makeNodeFor(xform);
-
-	xform->setMatrix(m);
-
-	 if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
-       node->getName()                                       != NULL   )
+    if(getGlobal()->getOptions()->getFlattenNodeXForms())
     {
-        std::string nodeName = node->getName();
+        SkewTransformationElementUnrecPtr SkewElement = SkewTransformationElement::create();
+        SkewElement->setRotationAxis(rotationAxis);
+        SkewElement->setTranslationAxis(translationAxis);
+        SkewElement->setAngle(angle);
+        setName(SkewElement, skew->getSid());
 
-        if(skew->getSid() != NULL && 
-			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
+        appendStackedXForm(SkewElement, node);
+    }
+    else
+    {
+
+        TransformUnrecPtr xform = Transform::create();
+	    NodeUnrecPtr      xformN = makeNodeFor(xform);
+
+        Matrix skewMatrix;
+        MatrixSkew(skewMatrix,rotationAxis, translationAxis, angle);
+
+	    xform->setMatrix(skewMatrix);
+
+	     if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
+           node->getName()                                       != NULL   )
         {
-            nodeName.append("."                );
-            nodeName.append(skew->getSid());
+            std::string nodeName = node->getName();
+
+            if(skew->getSid() != NULL && 
+			    getGlobal()->getOptions()->getFlattenNodeXForms() == false)
+            {
+                nodeName.append("."                );
+                nodeName.append(skew->getSid());
+            }
+
+            setName(xformN, nodeName);
         }
 
-        setName(xformN, nodeName);
+        appendXForm(xformN);
     }
-
-    appendXForm(xformN);
 
 }
 
@@ -467,30 +513,41 @@ ColladaNode::handleTranslate(domTranslate *translate)
         return;
 
     domNodeRef        node   = getDOMElementAs<domNode>();
+    Vec3f translation(translate->getValue()[0], translate->getValue()[1], translate->getValue()[2]);
 
-    TransformUnrecPtr xform = Transform::create();
-    NodeUnrecPtr      xformN = makeNodeFor(xform);
-
-    xform->editMatrix().setTranslate(translate->getValue()[0],
-                                     translate->getValue()[1],
-                                     translate->getValue()[2] );
-
-    if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
-       node->getName()                                       != NULL   )
+    if(getGlobal()->getOptions()->getFlattenNodeXForms())
     {
-        std::string nodeName = node->getName();
+        TranslationTransformationElementUnrecPtr TranslateElement = TranslationTransformationElement::create();
+        TranslateElement->setTranslation(translation);
+        setName(TranslateElement, translate->getSid());
 
-        if(translate->getSid() != NULL && 
-			getGlobal()->getOptions()->getFlattenNodeXForms() == false)
+        appendStackedXForm(TranslateElement, node);
+    }
+    else
+    {
+
+        TransformUnrecPtr xform = Transform::create();
+        NodeUnrecPtr      xformN = makeNodeFor(xform);
+
+        xform->editMatrix().setTranslate(translation);
+
+        if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
+           node->getName()                                       != NULL   )
         {
-            nodeName.append("."                );
-            nodeName.append(translate->getSid());
+            std::string nodeName = node->getName();
+
+            if(translate->getSid() != NULL && 
+			    getGlobal()->getOptions()->getFlattenNodeXForms() == false)
+            {
+                nodeName.append("."                );
+                nodeName.append(translate->getSid());
+            }
+
+            setName(xformN, nodeName);
         }
 
-        setName(xformN, nodeName);
+        appendXForm(xformN);
     }
-
-    appendXForm(xformN);
 }
 
 void
@@ -618,137 +675,80 @@ ColladaNode::handleInstanceController(domInstance_controller *instController)
 
 }
 
-/*! Creates a joint, and sets its transformations based on the transformation
-	of the domNode.
-*/
-void ColladaNode::handleJointNode(domNode *node)
+
+/*! Add a transform node to the OpenSG tree representing
+    this <node>. Also finalizes transform animations.
+ */
+void
+ColladaNode::appendXForm(Node *xformN)
 {
-	TransformRecPtr newJoint = Transform::create();
-	Matrix baseXform,jointXform,tmp;
+    OSG_ASSERT(!getGlobal()->getOptions()->getFlattenNodeXForms());
 
-	domTranslate_Array translations = node->getTranslate_array();
-	domRotate_Array rotations = node->getRotate_array();
-	domScale_Array scalings = node->getScale_array();
-
-	UInt32 i(0);
-	for(i = 0; i < translations.getCount(); i++)
-	{	
-		Vec3f translate(translations[i]->getValue()[0],
-						translations[i]->getValue()[1],
-						translations[i]->getValue()[2]);
-		tmp.setTranslate(translate);
-
-		newJoint->editMatrix().mult(tmp);
-		
-	}
-	tmp.setIdentity(); // reset tmp matrix
-	for(i = 0; i < rotations.getCount(); i++)
-	{	
-		
-		Quaternion quat;
-		
-		quat.setValueAsAxisDeg( rotations[i]->getValue()[0],
-								rotations[i]->getValue()[1],
-								rotations[i]->getValue()[2],
-								rotations[i]->getValue()[3]);
-		tmp.setRotate(quat);
-
-		newJoint->editMatrix().mult(tmp);
-		
-	}
-	tmp.setIdentity(); // reset tmp matrix
-	for(i = 0; i < scalings.getCount(); i++)
-	{	
-		Vec3f scale(scalings[i]->getValue()[0],
-					scalings[i]->getValue()[1],
-					scalings[i]->getValue()[2]);
-		tmp.setScale(scale);
-		
-		newJoint->editMatrix().mult(tmp);
-
-	}
-
-    NodeRecPtr      jointN = makeNodeFor(newJoint);
-
-	_bottomN = jointN;
-
-	if(_topN == NULL)
+    if(_topN == NULL)
     {
-        _topN = _bottomN;
+        _topN = xformN;
     }
 
-	setName(_bottomN, node->getID());
+    if(_bottomN != NULL)
+    {
+        _bottomN->addChild(xformN);
+    }
 
-	getGlobal()->editNodeToNodeMap()[node] = jointN;
+    _bottomN = xformN;
 
 	if(_animation != NULL) 
 	{
-		_animation->setAnimatedField(newJoint,std::string("matrix"));
+		_animation->setAnimatedField(xformN->getCore(),std::string("matrix"));
 	}
-
 }
-
 
 /*! Add a transform node to the OpenSG tree representing
     this &lt;node&gt;.
  */
 void
-ColladaNode::appendXForm(Node *xformN)
+ColladaNode::appendStackedXForm(TransformationElement *transformElement, domNodeRef node)
 {
-    if(_topN == NULL)
+    OSG_ASSERT(getGlobal()->getOptions()->getFlattenNodeXForms());
+
+    StackedTransformUnrecPtr bottomTrans(NULL);
+
+    if(_bottomN != NULL)
     {
-        _topN = xformN;
-    }
-    
-    if(getGlobal()->getOptions()->getFlattenNodeXForms())
-    {
-        if(_bottomN != NULL)
+        if(_bottomN->getCore()->getType().isDerivedFrom(StackedTransform::getClassType()))
         {
-            if(_bottomN->getCore()->getType().isDerivedFrom(Transform::getClassType()))
-            {
-                Transform* _bottomTrans = dynamic_cast<Transform*>(_bottomN->getCore());
-
-                _bottomTrans->editMatrix().mult(dynamic_cast<Transform*>(xformN->getCore())->getMatrix());
-
-				if(_animation != NULL) 
-				{
-					_animation->setAnimatedField(_bottomTrans,std::string("matrix"));
-				}
-            }
-            else
-            {
-                _bottomN->addChild(xformN);
-
-				if(_animation != NULL) 
-				{
-					_animation->setAnimatedField(xformN->getCore(),std::string("matrix"));
-				}
-            }
+            bottomTrans = dynamic_cast<StackedTransform*>(_bottomN->getCore());
         }
         else
         {
-            _bottomN = xformN;
+            bottomTrans = StackedTransform::create();
 
-			if(_animation != NULL) 
-			{
-				_animation->setAnimatedField(xformN->getCore(),std::string("matrix"));
-			}
+            NodeUnrecPtr      xformN = makeNodeFor(bottomTrans);
+
+            setName(xformN, node->getName());
+
+            _bottomN->addChild(xformN);
         }
     }
     else
     {
-        if(_bottomN != NULL)
-        {
-            _bottomN->addChild(xformN);
-        }
+        bottomTrans = StackedTransform::create();
 
-        _bottomN = xformN;
+        _bottomN =  makeNodeFor(bottomTrans);
 
-		if(_animation != NULL) 
-		{
-			_animation->setAnimatedField(xformN->getCore(),std::string("matrix"));
-		}
+        setName(_bottomN, node->getName());
     }
+    bottomTrans->pushToTransformElements(transformElement);
+    
+    if(_topN == NULL)
+    {
+        _topN = _bottomN;
+    }
+
+	if(_animation != NULL) 
+	{
+        //TODO: Implement animations for stacked transforms
+		//_animation->setAnimatedField(xformN->getCore(),std::string("matrix"));
+	}
 }
 
 /*! Add a child node to the OpenSG tree representing
