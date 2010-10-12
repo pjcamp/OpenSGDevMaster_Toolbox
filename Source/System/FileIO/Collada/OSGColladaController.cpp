@@ -334,21 +334,6 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
     std::map<std::string, NodeRecPtr> joints;
 	std::vector<NodeRecPtr> osgNodes;
 	std::vector<domNodeRef> domNodes;
-	// create the joints/nodes and fetch the nodes
-	UInt32 i(0),j(0);
-	for(i = 0; i < skelArr.getCount(); i++)
-	{
-		domNodeRef colDomNode = daeSafeCast<domNode>(skelArr[i]->getValue().getElement());
-
-		std::string nodeName = colDomNode->getSid();
-		domNodes.push_back(colDomNode);
-
-		NodeRecPtr jointNode = createJointFromNode(colDomNode);
-		joints[nodeName] = jointNode;
-
-		setName(jointNode,colDomNode->getSid());
-		osgNodes.push_back(jointNode);
-	}
 
 	/* 
 		The heirarchy of the skeleton structure must be created from the 
@@ -444,60 +429,6 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
     editInstStore().push_back(theNode);
 	return theNode;
 	
-}
-
-/*! Creates a joint, and sets its transformations based on the transformation
-	of the domNode.
-*/
-NodeTransitPtr ColladaController::createJointFromNode(domNode *node)
-{
-	TransformRecPtr newJoint = Transform::create();
-	Matrix baseXform,jointXform,tmp;
-
-	domTranslate_Array translations = node->getTranslate_array();
-	domRotate_Array rotations = node->getRotate_array();
-	domScale_Array scalings = node->getScale_array();
-
-	UInt32 i(0);
-	for(i = 0; i < translations.getCount(); i++)
-	{	
-		Vec3f translate(translations[i]->getValue()[0],
-						translations[i]->getValue()[1],
-						translations[i]->getValue()[2]);
-		tmp.setTranslate(translate);
-
-		newJoint->editMatrix().mult(tmp);
-		
-	}
-	tmp.setIdentity(); // reset tmp matrix
-	for(i = 0; i < rotations.getCount(); i++)
-	{	
-		
-		Quaternion quat;
-		
-		quat.setValueAsAxisDeg( rotations[i]->getValue()[0],
-								rotations[i]->getValue()[1],
-								rotations[i]->getValue()[2],
-								rotations[i]->getValue()[3]);
-		tmp.setRotate(quat);
-
-		newJoint->editMatrix().mult(tmp);
-		
-	}
-	tmp.setIdentity(); // reset tmp matrix
-	for(i = 0; i < scalings.getCount(); i++)
-	{	
-		Vec3f scale(scalings[i]->getValue()[0],
-					scalings[i]->getValue()[1],
-					scalings[i]->getValue()[2]);
-		tmp.setScale(scale);
-		
-		newJoint->editMatrix().mult(tmp);
-
-	}
-
-    NodeUnrecPtr      jointNode = makeNodeFor(newJoint);
-	return NodeTransitPtr(jointNode);
 }
 
 void
