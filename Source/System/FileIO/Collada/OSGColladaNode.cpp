@@ -371,26 +371,30 @@ ColladaNode::handleRotate(domRotate *rotate)
 
     domNodeRef        node   = getDOMElementAs<domNode>();
 
-    Quaternion q;
-    q.setValueAsAxisDeg(rotate->getValue()[0],
-                        rotate->getValue()[1],
-                        rotate->getValue()[2],
-                        rotate->getValue()[3] );
+    Vec3f axis(rotate->getValue()[0], rotate->getValue()[1], rotate->getValue()[2]);
+    Real32 angle(rotate->getValue()[3]);
 
     if(getGlobal()->getOptions()->getFlattenNodeXForms())
     {
         RotationTransformationElementUnrecPtr RotationElement = RotationTransformationElement::create();
-        RotationElement->setRotation(q);
+        RotationElement->setAxis(axis);
+        RotationElement->setAngle(angle);
         setName(RotationElement, rotate->getSid());
 
         appendStackedXForm(RotationElement, node);
+
+	    if(getGlobal()->editAnimationMap()[rotate] != NULL) 
+	    {
+            SLOG << "Found Rotation Animation" << std::endl;
+		    getGlobal()->editAnimationMap()[rotate]->setAnimatedField(RotationElement,std::string("Rotation"));
+	    }
     }
     else
     {
         TransformUnrecPtr xform = Transform::create();
         NodeUnrecPtr      xformN = makeNodeFor(xform);
         
-        xform->editMatrix().setRotate(q);
+        xform->editMatrix().setRotate(Quaternion(axis, osgDegree2Rad(angle)));
 
         if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
            node->getName()                                       != NULL   )
@@ -522,6 +526,12 @@ ColladaNode::handleTranslate(domTranslate *translate)
         setName(TranslateElement, translate->getSid());
 
         appendStackedXForm(TranslateElement, node);
+
+	    if(getGlobal()->editAnimationMap()[translate] != NULL) 
+	    {
+            SLOG << "Found Translation Animation" << std::endl;
+		    getGlobal()->editAnimationMap()[translate]->setAnimatedField(TranslateElement,std::string("Translation"));
+	    }
     }
     else
     {
@@ -743,12 +753,6 @@ ColladaNode::appendStackedXForm(TransformationElement *transformElement, domNode
     {
         _topN = _bottomN;
     }
-
-	if(_animation != NULL) 
-	{
-        //TODO: Implement animations for stacked transforms
-		//_animation->setAnimatedField(xformN->getCore(),std::string("matrix"));
-	}
 }
 
 /*! Add a child node to the OpenSG tree representing
