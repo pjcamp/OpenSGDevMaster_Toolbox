@@ -112,6 +112,9 @@ class OSG_FILEIO_DLLMAPPING ColladaGeometry : public ColladaInstantiableElement
     virtual void  read          (void                            );
     virtual Node *createInstance(ColladaInstanceElement *instElem);
 
+	virtual Geometry *createGeometryInstance(ColladaInstanceElement *instElem);
+	
+
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
   protected:
@@ -213,6 +216,9 @@ class OSG_FILEIO_DLLMAPPING ColladaGeometry : public ColladaInstantiableElement
     void   handleBindMaterial(const GeoInfo           &geoInfo,
                               Geometry                *geo,
                               ColladaInstanceGeometry *colInstGeo);
+
+	void   bindGeoProperties( const GeoInfo &geoInfo, 
+							  Geometry			*geo); 
 
     const BindInfo       *findBind      (const BindStore       &store,
                                          const std::string     &semantic,

@@ -78,6 +78,7 @@
 
 #include "OSGSkeletonBlendedGeometry.h"
 #include "OSGSkeletonDrawable.h"
+#include "OSGMorphGeometry.h"
 
 
 OSG_BEGIN_NAMESPACE
@@ -231,8 +232,41 @@ ColladaController::readSkin(domSkin *skin)
 void ColladaController::readMorph(domMorph *morph)
 {
 	_hasMorph = true;
+	// get the source mesh
+	_mMorph.source = daeSafeCast<domGeometry>(morph->getSource().getElement());
+	// get the target meshes and their weights
+	domInputLocal_Array locals = morph->getTargets()->getInput_array();
 
-	return; // for now
+	domSourceRef targets, weights;
+	std::string targetToken("MORPH_TARGET"),weightToken("MORPH_WEIGHT");
+	// match up targets and weights
+	for(UInt32 i(0); i < locals.getCount(); i++)
+	{	
+		std::string semantic(locals[i]->getSemantic());
+		if(targetToken.compare(semantic) == 0 )
+			targets = daeSafeCast<domSource>(locals[i]->getSource().getElement());
+		else if(weightToken.compare(semantic) == 0)
+			weights = daeSafeCast<domSource>(locals[i]->getSource().getElement());
+	}
+	
+	// check that the arrays are valid
+	if( targets != NULL && weights != NULL )
+	{
+		xsIDREFS ids = targets->getIDREF_array()->getValue();
+		domListOfFloats wts = weights->getFloat_array()->getValue();
+
+		for(UInt32 i(0); ( wts.getCount() == ids.getCount()) && i < ids.getCount(); i++)
+		{
+			domGeometry * targetGeom = daeSafeCast<domGeometry>(ids.get(i).getElement());
+			if(targetGeom != NULL)
+			{
+				_mMorph.weights.push_back(wts.get(i));
+				_mMorph.targets.push_back(targetGeom);
+			}
+		}
+	}
+
+	return;
 }
 
 Node *
@@ -243,10 +277,6 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 
 	domControllerRef controller  = getDOMElementAs<domController>();
 
-    typedef ColladaInstanceController::MaterialMap        MaterialMap;
-    typedef ColladaInstanceController::MaterialMapConstIt MaterialMapConstIt;
-
-	
     domGeometryRef  geometry; 
 	if(_hasSkin)
 	{
@@ -257,376 +287,214 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 		geometry = daeSafeCast<domGeometry>(controller->getMorph()->getSource().getElement());
 	}
 
-    const MaterialMap &matMap = colInstCont->getMaterialMap();
+	GeometryRefPtr geo;
 
-    // iterate over all parts of geometry
-	ColladaGeometry::GeoStoreIt         gsIt   = _sourceColGeo->_geoStore.begin();
-    ColladaGeometry::GeoStoreIt         gsEnd  = _sourceColGeo->_geoStore.end  ();
+	if(geometry != NULL)
+	{	
+		geo = handleGeometry(geometry,colInstCont);
+	}
 
-	GeometryRefPtr   geo      = NULL;
-
-    for(; gsIt != gsEnd; ++gsIt)
-    {
-        OSG_ASSERT(gsIt->_propStore.size() == gsIt->_indexStore.size());
-
-        // find the material associated with the geometry's material symbol
-        MaterialMapConstIt mmIt       = matMap.find(gsIt->_matSymbol);
-        std::string        matTarget;
-
-        if(mmIt != matMap.end())
-        {
-            matTarget = mmIt->second->getTarget();
-        }
-
-        // check if the geometry was already used with that material
-
-        
-        ColladaGeometry::InstanceMapConstIt instIt   = gsIt->_instMap.find(matTarget);
-
-        if(instIt != gsIt->_instMap.end())
-        {
-            // reuse geometry
-
-            geo = dynamic_pointer_cast<Geometry>(
-                getInstStore()[instIt->second]);
-
-            getGlobal()->getStatCollector()->getElem(
-                ColladaGlobal::statNGeometryUsed)->inc();
-        }
-        else
-        {
-            // create new geometry
-
-            geo = Geometry::create();
-
-            getGlobal()->getStatCollector()->getElem(
-                ColladaGlobal::statNGeometryCreated)->inc();
-
-            geo->setLengths(gsIt->_lengths);
-            geo->setTypes  (gsIt->_types  );
-
-            handleBindMaterial(*gsIt, geo, colInstCont);
-
-            // record the instantiation of the geometry with the
-            // material for reuse
-            gsIt->_instMap.insert(
-                ColladaGeometry::InstanceMap::value_type(matTarget, getInstStore().size()));
-
-            editInstStore().push_back(geo);
-        }
-        
-        if(geo != NULL) break;
-    }
-
-	if(++gsIt != gsEnd) SWARNING << "ColladaController::createInstance: Geometry parially ignored!" << std::endl;
 	if(geo == NULL) return NULL; // can't do anything without the geometry!
 
-	// create the skeleton.  Joints won't be fully resolved until later (see ColladaGlobal)
-	SkeletonBlendedGeometryRecPtr skeleton = SkeletonBlendedGeometry::create();	
-	skeleton->setBaseGeometry(geo);
-	skeleton->setBindTransformation(_mSkin.bindShapeMatrix);
-
-	NodeRecPtr skelNode = makeNodeFor(skeleton);
-
-	skeleton->setWeights(_mSkin.weights);
-	// get skeleton joints
-	domInstance_controller::domSkeleton_Array skelArr = colInstCont->getJoints();
-    std::map<std::string, NodeRecPtr> joints;
-	std::vector<NodeRecPtr> osgNodes;
-	std::vector<domNodeRef> domNodes;
-
-	/* 
-		The heirarchy of the skeleton structure must be created from the 
-		visual scene node heirarchy.  But, since we don't want to have two
-		instances of the heirarchy, we just save the IDs of the nodes to a map, and 
-		link up the joints after the visual scene is finished reading.
-	*/
-
-	/*
-	for(i = 0; i < domNodes.size(); i++)
+	handleBindMaterial(geo, colInstCont);
+	
+	if(_hasSkin)
 	{
-		domNodeRef parent = daeSafeCast<domNode>(domNodes[i]->getParent());
-		if(parent != NULL && parent->getType() == NODETYPE_JOINT)
+		// create the skeleton.  Joints won't be fully resolved until later (see ColladaGlobal)
+		SkeletonBlendedGeometryRecPtr skeleton = SkeletonBlendedGeometry::create();	
+		skeleton->setBaseGeometry(geo);
+		skeleton->setBindTransformation(_mSkin.bindShapeMatrix);
+
+		NodeRecPtr skelNode = makeNodeFor(skeleton);
+
+		skeleton->setWeights(_mSkin.weights);
+		// get skeleton joints
+		domInstance_controller::domSkeleton_Array skelArr = colInstCont->getJoints();
+		std::map<std::string, NodeRecPtr> joints;
+		std::vector<NodeRecPtr> osgNodes;
+		std::vector<domNodeRef> domNodes;
+		// create the joints/nodes and fetch the nodes
+		UInt32 i(0),j(0);
+		for(i = 0; i < skelArr.getCount(); i++)
 		{
-			for(j = 0; j < domNodes.size(); j++)
+			domNodeRef colDomNode = daeSafeCast<domNode>(skelArr[i]->getValue().getElement());
+
+			std::string nodeName = colDomNode->getSid();
+			domNodes.push_back(colDomNode);
+
+			NodeRecPtr jointNode = createJointFromNode(colDomNode);
+			joints[nodeName] = jointNode;
+
+			setName(jointNode,colDomNode->getSid());
+			osgNodes.push_back(jointNode);
+		}
+
+		/* 
+			The heirarchy of the skeleton structure must be created from the 
+			visual scene node heirarchy.  But, since we don't want to have two
+			instances of the heirarchy, we just save the IDs of the nodes to a map, and 
+			link up the joints after the visual scene is finished reading.
+		*/
+		
+		// the code below is added to draw the bones of the skeletons
+
+		 //SkeletonDrawer System Material
+		LineChunkRecPtr ExampleLineChunk = LineChunk::create();
+		ExampleLineChunk->setWidth(2.0f);
+		ExampleLineChunk->setSmooth(true);
+
+		BlendChunkRecPtr ExampleBlendChunk = BlendChunk::create();
+		ExampleBlendChunk->setSrcFactor(GL_SRC_ALPHA);
+		ExampleBlendChunk->setDestFactor(GL_ONE_MINUS_SRC_ALPHA);
+
+		ChunkMaterialRecPtr ExampleMaterial = ChunkMaterial::create();
+		ExampleMaterial->addChunk(ExampleLineChunk);
+		ExampleMaterial->addChunk(ExampleBlendChunk);
+
+		SkeletonDrawableRecPtr skelDraw = SkeletonDrawable::create();
+		skelDraw->setSkeleton(skeleton);
+		skelDraw->setMaterial(ExampleMaterial);
+		skelDraw->setDrawBindPose(true);
+		skelDraw->setDrawPose(true);   
+		skelDraw->setBindPoseColor(Color4f(0.0, 1.0, 0.0, 1.0));  //When the skeleton's bind pose is rendered, it will be green
+		skelDraw->setPoseColor(Color4f(0.0, 0.0, 1.0, 1.0));  //The skeleton's current pose is rendered in blue
+
+		NodeRecPtr skelDrawNode = makeNodeFor(skelDraw);
+
+		NodeRecPtr theNode = makeNodeFor(OSG::Group::create());
+
+		colInstCont->setSkeleton(skeleton);
+		theNode->addChild(skelDrawNode);
+		theNode->addChild(skelNode);
+		editInstStore().push_back(skelNode);
+		editInstStore().push_back(skelDrawNode);
+		editInstStore().push_back(theNode);
+		
+		return theNode;
+	} // end if(_hasSkin)
+	else// if(_hasMorph) // it will either have a morph or a skin
+	{
+		// do things make work
+		MorphGeometryRefPtr newMorphGeo = MorphGeometry::create();
+		newMorphGeo->setBaseGeometry(geo);
+		for(UInt32 i(0); i < _mMorph.targets.size(); i++)
+		{
+			GeometryRefPtr target = handleGeometry(_mMorph.targets[i], colInstElem);
+			if(target != NULL)
 			{
-				std::string parentSID(parent->getSid());
-				std::string childSID(domNodes[j]->getSid());
-				if(parentSID.compare(childSID) == 0)
-				{	
-					osgNodes[j]->addChild(osgNodes[i]);
-				}
-			}
-		} else
-		{
-			skelNode->addChild(osgNodes[i]);
-		}
-	}
-
-	
-
-    for(j = 0; j < _mSkin.jointSIDs.size() && j < _mSkin.inverseBindPoseMatrices.size(); j++)
-    {
-        // now we need to match up the SID of this domNode to the joint
-        for(i = 0; i < domNodes.size(); i++)
-        {
-			if(_mSkin.jointSIDs[j].compare(domNodes[i]->getSid()) == 0)
-			{	// this is a match, so push it to the skeleton
-                
-				skeleton->pushToJoints(joints[_mSkin.jointSIDs[j]],_mSkin.inverseBindPoseMatrices[j]);
-			    break;
+				newMorphGeo->addMorphTarget(target,_mMorph.weights[i]);
 			}
 		}
+		
+		NodeRecPtr newNode = makeNodeFor(newMorphGeo);
+		editInstStore().push_back(newNode);
+		return newNode;
 	}
 	
-	int k(0);
-	for(i = 0; i < _mSkin.vCount.size(); i++)
-	{
-		for(j = 0; j < _mSkin.vCount[i]; j++, k += 2)
-		{
-			skeleton->addJointBlending(i,_mSkin.v[k],_mSkin.v[k+1]);
-		}
+}
+
+GeometryTransitPtr ColladaController::handleGeometry(domGeometryRef geometry, ColladaInstanceElement *colInstElem )
+{
+	ColladaInstanceControllerRefPtr colInstCont =
+			dynamic_cast<ColladaInstanceController *>(colInstElem);
+
+	// error here
+	ColladaGeometryRefPtr colGeo = dynamic_pointer_cast<ColladaGeometry>(
+												ColladaElementFactory::the()->create(
+											    geometry, getGlobal()));
+
+	colGeo->read();
+
+	Geometry * geo = colGeo->createGeometryInstance(colInstElem);
+
+	return GeometryTransitPtr(geo);
+}
+
+/*! Creates a joint, and sets its transformations based on the transformation
+	of the domNode.
+*/
+NodeTransitPtr ColladaController::createJointFromNode(domNode *node)
+{
+	TransformRecPtr newJoint = Transform::create();
+	Matrix baseXform,jointXform,tmp;
+
+	domTranslate_Array translations = node->getTranslate_array();
+	domRotate_Array rotations = node->getRotate_array();
+	domScale_Array scalings = node->getScale_array();
+
+	UInt32 i(0);
+	for(i = 0; i < translations.getCount(); i++)
+	{	
+		Vec3f translate(translations[i]->getValue()[0],
+						translations[i]->getValue()[1],
+						translations[i]->getValue()[2]);
+		tmp.setTranslate(translate);
+
+		newJoint->editMatrix().mult(tmp);
+		
 	}
-	
-	colInstCont->setSkeleton(skeleton);
-	editInstStore().push_back(skelNode);
 
-	return skelNode; 
-	*/
-	
-	// the code below is added to draw the bones of the skeletons
+	tmp.setIdentity(); // reset tmp matrix
+	for(i = 0; i < rotations.getCount(); i++)
+	{	
+		
+		Quaternion quat;
+		
+		quat.setValueAsAxisDeg( rotations[i]->getValue()[0],
+								rotations[i]->getValue()[1],
+								rotations[i]->getValue()[2],
+								rotations[i]->getValue()[3]);
+		tmp.setRotate(quat);
 
-	 //SkeletonDrawer System Material
-    LineChunkRecPtr ExampleLineChunk = LineChunk::create();
-    ExampleLineChunk->setWidth(2.0f);
-    ExampleLineChunk->setSmooth(true);
+		newJoint->editMatrix().mult(tmp);	
+	}
 
-    BlendChunkRecPtr ExampleBlendChunk = BlendChunk::create();
-    ExampleBlendChunk->setSrcFactor(GL_SRC_ALPHA);
-    ExampleBlendChunk->setDestFactor(GL_ONE_MINUS_SRC_ALPHA);
+	tmp.setIdentity(); // reset tmp matrix
+	for(i = 0; i < scalings.getCount(); i++)
+	{	
+		Vec3f scale(scalings[i]->getValue()[0],
+					scalings[i]->getValue()[1],
+					scalings[i]->getValue()[2]);
+		tmp.setScale(scale);
+		
+		newJoint->editMatrix().mult(tmp);
+	}
 
-    ChunkMaterialRecPtr ExampleMaterial = ChunkMaterial::create();
-    ExampleMaterial->addChunk(ExampleLineChunk);
-    ExampleMaterial->addChunk(ExampleBlendChunk);
-
-	SkeletonDrawableRecPtr skelDraw = SkeletonDrawable::create();
-	skelDraw->setSkeleton(skeleton);
-	skelDraw->setMaterial(ExampleMaterial);
-	skelDraw->setDrawBindPose(true);
-	skelDraw->setDrawPose(true);   
-    skelDraw->setBindPoseColor(Color4f(0.0, 1.0, 0.0, 1.0));  //When the skeleton's bind pose is rendered, it will be green
-    skelDraw->setPoseColor(Color4f(0.0, 0.0, 1.0, 1.0));  //The skeleton's current pose is rendered in blue
-
-	NodeRecPtr skelDrawNode = makeNodeFor(skelDraw);
-
-	NodeRecPtr theNode = makeNodeFor(OSG::Group::create());
-
-	colInstCont->setSkeleton(skeleton);
-	theNode->addChild(skelDrawNode);
-	theNode->addChild(skelNode);
-    editInstStore().push_back(skelNode);
-    editInstStore().push_back(skelDrawNode);
-    editInstStore().push_back(theNode);
-	return theNode;
-	
+    NodeUnrecPtr      jointNode = makeNodeFor(newJoint);
+	return NodeTransitPtr(jointNode);
 }
 
 void
-ColladaController::handleBindMaterial(  const ColladaGeometry::GeoInfo &geoInfo, 
-										Geometry *geo, 
-										ColladaInstanceController *colInstCont)
-{
-    typedef ColladaInstanceGeometry::MaterialMap        MaterialMap;
-    typedef ColladaInstanceGeometry::MaterialMapConstIt MaterialMapConstIt;
+ColladaController::handleBindMaterial(  Geometry *geo, 
+										ColladaInstanceController *colInstCont	)
+{	
+	domInstance_controllerRef instCont = colInstCont->getDOMElementAs<domInstance_controller>();
+	
+	if(instCont != NULL)
+	{
+		domInstance_material_Array &colInstMatArr 
+			= instCont->getBind_material()->getTechnique_common()->getInstance_material_array();
+		std::string matSymbol;
+		// there may be more than one material, but we just use the first one
+		if(colInstMatArr.getCount() > 0)
+		{
+			matSymbol = colInstMatArr.get(0)->getSymbol();
+		}
 
-    const MaterialMap       &matMap        = colInstCont->getMaterialMap();
-    MaterialMapConstIt       mmIt          = matMap.find(geoInfo._matSymbol);
-    Material                *material      = NULL;
-    ColladaInstanceMaterial *colInstMat    = NULL;
-    ColladaInstanceEffect   *colInstEffect = NULL;
+		ColladaInstanceController::MaterialMap matMap = colInstCont->getMaterialMap();
+		ColladaInstanceMaterialRefPtr instMat;
 
-    if(mmIt != matMap.end())
-    {
-        colInstMat    = mmIt      ->second;
-        material      = colInstMat->process          (NULL);
-        colInstEffect = colInstMat->getInstanceEffect(    );
-    }
-    else
-    {
-        SWARNING << "ColladaController::handleBindMaterial: No material found "
-                 << "for symbol [" << geoInfo._matSymbol << "]."
-                 << std::endl;
-        return;
-    }
+		instMat = matMap[matSymbol];
 
-    const ColladaGeometry::BindStore       &bindStore       = colInstMat->getBindStore      ();
-    const ColladaGeometry::BindVertexStore &bindVertexStore = colInstMat->getBindVertexStore();
-
-    ColladaGeometry::PropStoreConstIt       psIt     = geoInfo._propStore .begin();
-    ColladaGeometry::PropStoreConstIt       psEnd    = geoInfo._propStore .end  ();
-    ColladaGeometry::IndexStoreConstIt      isIt     = geoInfo._indexStore.begin();
-    ColladaGeometry::IndexStoreConstIt      isEnd    = geoInfo._indexStore.end  ();
-
-    // for every property in geoInfo we need to check if it gets remapped by a
-    // <bind> or <bind_vertex_input>
-
-    for(UInt32 i = 0; psIt != psEnd && isIt != isEnd; ++psIt, ++isIt, ++i)
-    {
-        if(psIt->_prop == NULL || *isIt == NULL)
-            continue;
-
-        bool   handledProperty  = false;
-        UInt32 bindOffset       = 0;
-        UInt32 bindVertexOffset = 0;
-
-        const ColladaGeometry::BindInfo       *bi  = findBind      (bindStore,
-                                                   psIt->_semantic, bindOffset );
-        const ColladaGeometry::BindVertexInfo *bvi = findBindVertex(bindVertexStore,
-                                                   psIt->_semantic, psIt->_set,
-                                                   bindVertexOffset            );
-
-        // there may be multiple consumers for a property, keep looping
-        // until no more consumers are found
-        while(bi != NULL || bvi != NULL)
-        {
-            UInt32 mappedProp = i;
-
-            if(bi != NULL)
-            {
-                if(colInstEffect->findTC(bi->target, mappedProp) == true)
-                {
-                    OSG_COLLADA_LOG(("ColladaController::handleBindMaterial: "
-                                     "Resolved <bind> semantic [%s] "
-                                     "target [%s] to property [%d]\n",
-                                     bi->semantic.c_str(), bi->target.c_str(),
-                                     mappedProp));
-
-                    geo->setProperty( psIt->_prop, mappedProp);
-                    geo->setIndex   (*isIt,        mappedProp);
-
-                    handledProperty = true;
-                }
-                else
-                {
-                    SWARNING << "ColladaController::handleBindMaterial: "
-                             << "Failed to resolve <bind> semantic ["
-                             << bi->semantic << "] target [" << bi->target
-                             << "]." << std::endl;
-                }
-            }
-            else if(bvi != NULL)
-            {
-                if(colInstEffect->findTC(bvi->semantic, mappedProp) == true)
-                {
-                    OSG_COLLADA_LOG(("ColladaController::handleBindMaterial: "
-                                     "Resolved <bind_vertex_input> "
-                                     "inSemantic [%s] inSet [%d] semantic [%s] "
-                                     "to property [%d]\n",
-                                     bvi->inSemantic.c_str(), bvi->inSet,
-                                     bvi->semantic.c_str(), mappedProp));
-
-                    geo->setProperty( psIt->_prop, mappedProp);
-                    geo->setIndex   (*isIt,        mappedProp);
-                    
-                    handledProperty = true;
-                }
-                else
-                {
-                    SWARNING << "ColladaController::handleBindMaterial: "
-                             << "Failed to resolve <bind_vertex_input> "
-                             << "inSemantic ["
-                             << bvi->inSemantic << "] inSet [" << bvi->inSet
-                             << "] semantic [" << bvi->semantic
-                             << "]." << std::endl;
-                }
-            }
-
-            // find next consumers if any
-            ++bindOffset;
-            ++bindVertexOffset;
-
-            bi  = findBind      (bindStore,       psIt->_semantic,
-                                 bindOffset                       );
-            bvi = findBindVertex(bindVertexStore, psIt->_semantic,
-                                 psIt->_set,      bindVertexOffset);
-        }
-
-        // if the property is not remapped by <bind> or <bind_vertex_input>
-        // we just put it at the location it received at read time
-        // this is for properties that are not of interest to the material
-        // directly (e.g. positions, normals)
-        if(handledProperty == false)
-        {
-            OSG_COLLADA_LOG(("ColladaController::handleBindMaterial: "
-                             "Setting property [%d] without "
-                             "<bind>/<bind_vertex_input> mapping.\n", i));
-
-            geo->setProperty( psIt->_prop, i);
-            geo->setIndex   (*isIt,        i);
-        }
-    }
-
-    if(material != NULL)
-    {
-        geo->setMaterial(material);
-    }
-    else
-    {
-        SWARNING << "ColladaController::handleBindMaterial: No material created "
-                 << "for symbol [" << geoInfo._matSymbol << "]."
-                 << std::endl;
-    }
-}
-
-/*! Returns a <bind> (actually a BindInfo built from a <bind>) that has
-    the given \a semantic. The search starts at the given \a offset to
-    allow multiple <bind> with the same semantic to be found.
- */
-const ColladaGeometry::BindInfo *
-	ColladaController::findBind( const ColladaGeometry::BindStore &store, 
-								 const std::string &semantic, 
-								 UInt32 &offset)
-{
-    const ColladaGeometry::BindInfo *retVal = NULL;
-
-    for(UInt32 i = offset; i < store.size(); ++i)
-    {
-        if(store[i].semantic == semantic)
-        {
-            retVal = &store[i];
-            offset = i;
-            break;
-        }
-    }
-
-    return retVal;
-}
-
-/*! Returns a <bind_vertex_input> (actually a BindVertexInfo built from
-    a <bind_vertex_input>) that has the given \a inSemantic and \a inSet.
-    The search starts at the given \a offset to allow
-    multiple <bind_vertex_input> with the same inSemantic/inSet to be found.
- */
-const ColladaGeometry::BindVertexInfo *
-	ColladaController::findBindVertex(  const ColladaGeometry::BindVertexStore &store, 
-										const std::string	  &inSemantic,
-										UInt32                inSet, 
-										UInt32				  &offset     )
-{
-    const ColladaGeometry::BindVertexInfo *retVal = NULL;
-
-    for(UInt32 i = offset; i < store.size(); ++i)
-    {
-        if(store[i].inSemantic == inSemantic &&
-           store[i].inSet      == inSet        )
-        {
-            retVal = &store[i];
-            offset = i;
-            break;
-        }
-    }
-
-    return retVal;
+		if(instMat != NULL)
+		{
+			geo->setMaterial(instMat->process(colInstCont));
+		}
+		else
+		{
+			SWARNING << "ColladaController::handleBindMaterial: No material found. Material will be NULL!\n";
+		}
+	}
 }
 
 const ColladaController::SkinInfo &ColladaController::getSkinInfo		(void)

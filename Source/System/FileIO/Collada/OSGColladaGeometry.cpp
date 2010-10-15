@@ -48,6 +48,7 @@
 #include "OSGColladaGlobal.h"
 #include "OSGColladaSource.h"
 #include "OSGColladaInstanceGeometry.h"
+#include "OSGColladaInstanceController.h"
 #include "OSGColladaInstanceEffect.h"
 #include "OSGGroup.h"
 #include "OSGTypedGeoVectorProperty.h"
@@ -179,6 +180,106 @@ ColladaGeometry::createInstance(ColladaInstanceElement *colInstElem)
 
     return groupN;
 }
+
+// Used for collada controllers.  Instantiates geometry if needed, otherwise it re-uses geometry
+// Material binding (if needed) is handled in ColladaController
+Geometry* ColladaGeometry::createGeometryInstance(ColladaInstanceElement *instElem )
+{
+	typedef ColladaInstanceController::MaterialMap        MaterialMap;
+    typedef ColladaInstanceController::MaterialMapConstIt MaterialMapConstIt;
+
+    domGeometryRef                geometry   = getDOMElementAs<domGeometry>();
+
+    ColladaInstanceControllerRefPtr colInstCont =
+        dynamic_cast<ColladaInstanceController *>(instElem);
+
+    const MaterialMap &matMap = colInstCont->getMaterialMap();
+  
+    // iterate over all parts of geometry
+    GeoStoreIt         gsIt   = _geoStore.begin();
+    GeoStoreIt         gsEnd  = _geoStore.end  ();
+
+    for(; gsIt != gsEnd; ++gsIt)
+    {
+        OSG_ASSERT(gsIt->_propStore.size() == gsIt->_indexStore.size());
+
+        // find the material associated with the geometry's material symbol
+        MaterialMapConstIt mmIt       = matMap.find(gsIt->_matSymbol);
+        std::string        matTarget;
+
+        if(mmIt != matMap.end())
+        {
+            matTarget = mmIt->second->getTarget();
+        }
+
+        // check if the geometry was already used with that material
+
+        GeometryUnrecPtr   geo      = NULL;
+        InstanceMapConstIt instIt   = gsIt->_instMap.find(matTarget);
+
+        if(instIt != gsIt->_instMap.end())
+        {
+            // reuse geometry
+
+            geo = dynamic_pointer_cast<Geometry>(
+                getInstStore()[instIt->second]);
+
+            getGlobal()->getStatCollector()->getElem(
+                ColladaGlobal::statNGeometryUsed)->inc();
+        }
+        else
+        {
+            // create new geometry
+
+            geo = Geometry::create();
+
+            getGlobal()->getStatCollector()->getElem(
+                ColladaGlobal::statNGeometryCreated)->inc();
+
+            geo->setLengths(gsIt->_lengths);
+            geo->setTypes  (gsIt->_types  );
+
+			bindGeoProperties(*gsIt,geo);
+
+            // record the instantiation of the geometry with the
+            // material for reuse
+            gsIt->_instMap.insert(
+                InstanceMap::value_type(matTarget, getInstStore().size()));
+
+            editInstStore().push_back(geo);
+        }
+
+		if(geo != NULL)
+		{
+			// we assume there will be only one geometry
+			// if there is more than one, it will be ignored.
+			return geo;
+		}
+    }
+
+	return NULL;
+}
+
+void  ColladaGeometry::bindGeoProperties( const GeoInfo &geoInfo, Geometry *geo)
+{
+    ColladaGeometry::PropStoreConstIt       psIt     = geoInfo._propStore .begin();
+    ColladaGeometry::PropStoreConstIt       psEnd    = geoInfo._propStore .end  ();
+    ColladaGeometry::IndexStoreConstIt      isIt     = geoInfo._indexStore.begin();
+    ColladaGeometry::IndexStoreConstIt      isEnd    = geoInfo._indexStore.end  ();
+
+    // for every property in geoInfo we need to check if it gets remapped by a
+    // <bind> or <bind_vertex_input>
+
+    for(UInt32 i = 0; psIt != psEnd && isIt != isEnd; ++psIt, ++isIt, ++i)
+    {
+        if(psIt->_prop == NULL || *isIt == NULL)
+            continue;
+
+        geo->setProperty( psIt->_prop, i);
+        geo->setIndex   (*isIt,        i);
+    }
+}
+
 
 ColladaGeometry::ColladaGeometry(daeElement *elem, ColladaGlobal *global)
     : Inherited (elem, global)

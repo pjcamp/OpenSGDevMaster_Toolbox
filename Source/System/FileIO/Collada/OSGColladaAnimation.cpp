@@ -649,6 +649,7 @@ void ColladaAnimation::buildAnimation(Animator * animator)
 		_animation->setAnimator(_animator);
 		_animation->setCycling(-1);
 		_animation->setInterpolationType(_interpolationType);
+		_animation->setReplacementPolicy(FieldAnimation::OVERWRITE);
 	}
 }
 

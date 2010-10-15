@@ -63,7 +63,13 @@ void initializeAnimations(FCFileType::FCPtrStore container, WindowEventProducerR
 void display(SimpleSceneManager *mgr);
 void reshape(Vec2f Size, SimpleSceneManager *mgr);
 
-
+void keyPressed(KeyEventDetails* const details, WindowEventProducer* const win)
+{
+	if(details->getKey() == KeyEventDetails::KEY_Q && details->getModifiers() & KeyEventDetails::KEY_MODIFIER_COMMAND)
+	{
+		win->closeWindow();
+	}
+}
 void mousePressed(MouseEventDetails* const details, SimpleSceneManager *mgr)
 {
 	mgr->mouseButtonPress(details->getButton(), details->getLocation().x(), details->getLocation().y());
@@ -125,6 +131,7 @@ int main(int argc, char **argv)
 		TutorialWindow->connectMouseReleased(boost::bind(mouseReleased, _1, mgr));
 		TutorialWindow->connectMouseMoved(boost::bind(mouseMoved, _1, mgr));
 		TutorialWindow->connectMouseDragged(boost::bind(mouseDragged, _1, mgr));
+		TutorialWindow->connectKeyPressed(boost::bind(keyPressed,_1, TutorialWindow.get()));
 
         // load the scene
     
