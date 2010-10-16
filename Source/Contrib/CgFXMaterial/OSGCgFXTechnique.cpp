@@ -134,7 +134,7 @@ bool CgFXTechnique::isTransparent(void) const
     return true;
 }
 
-UInt32 CgFXTechnique::getNPasses(void) const
+UInt32 CgFXTechnique::getNPasses(void)
 {
     return _mfRenderPassStates.size();
 }
