@@ -73,6 +73,8 @@ OSG_BEGIN_NAMESPACE
  *                           Class variables                               *
 \***************************************************************************/
 CGcontext CgFXMaterial::_pCGcontext = NULL;
+const std::string CgFXMaterial::FALBACK_MATERIAL_TECHNIQUE_NAME = std::string("FALBACK_MATERIAL");
+
 /***************************************************************************\
  *                           Class methods                                 *
 \***************************************************************************/
@@ -102,7 +104,8 @@ CgFXMaterial::CgFXMaterial(void) :
     //_pCGcontext(NULL),
     _pCGeffect (NULL),
 	_pTechIdx(0),
-	_mDelayTextureExtraction(false)
+	_mDelayTextureExtraction(false),
+    _ForceUseFallback(false)
 {
     this->markFieldsThreadLocal ((Self::MapCacheFieldMask        | 
                                   Self::FallbackMaterialFieldMask));
@@ -115,7 +118,8 @@ CgFXMaterial::CgFXMaterial(const CgFXMaterial &source) :
    // _pCGcontext(NULL  ),
     _pCGeffect (NULL  ),
 	_pTechIdx(source._pTechIdx),
-	_mDelayTextureExtraction(source._mDelayTextureExtraction)
+	_mDelayTextureExtraction(source._mDelayTextureExtraction),
+    _ForceUseFallback(source._ForceUseFallback)
 {
     this->markFieldsThreadLocal ((Self::MapCacheFieldMask        | 
                                   Self::FallbackMaterialFieldMask));
@@ -242,6 +246,10 @@ void CgFXMaterial::changed(ConstFieldMaskArg whichField,
     {
         this->readEffectFile();
     }
+	if(0x0000 != (whichField & SelectedTechniqueFieldMask))
+    {
+        this->setActiveTechnique(getSelectedTechnique());
+    }
 
     if(0x0000 != (whichField & EffectStringFieldMask))
     {
@@ -273,6 +281,25 @@ void CgFXMaterial::changed(ConstFieldMaskArg whichField,
         }
     }
 
+    if(0x0000 != (whichField & (TreatTechniquesAsVariantsFieldMask | TechniquesFieldMask)))
+    {
+        Inherited::clearElements();
+        if(getTreatTechniquesAsVariants())
+        {
+            
+            Inherited::addElement(getFallbackMaterial(), RenderPropertiesPool::the()->getDefault());
+
+            MaterialMapKey TechniqueKey;
+            std::vector<std::string> TechNames(getAvailableTechniques());
+
+            for(UInt32 i(0) ; i<TechNames.size() ; ++i)
+            {
+                TechniqueKey = RenderPropertiesPool::the()->getFrom1(TechNames[i].c_str());
+                Inherited::addElement(getTechnique(TechNames[i]), TechniqueKey);
+            }
+        }
+    }
+
     Inherited::changed(whichField, origin, detail);
 }
 
@@ -285,10 +312,13 @@ void CgFXMaterial::dump(      UInt32    ,
 PrimeMaterial *CgFXMaterial::finalize(MaterialMapKey  oKey,
                                       Window         *pWin)
 {
-    PrimeMaterial *returnValue = NULL;
+    PrimeMaterial *returnValue(NULL);
 
     if(pWin == NULL)
         return returnValue;
+
+    if(_ForceUseFallback)
+        return getFallbackMaterial();
 
     DrawEnv oEnv;
 
@@ -296,26 +326,34 @@ PrimeMaterial *CgFXMaterial::finalize(MaterialMapKey  oKey,
 
     pWin->validateGLObject(getGLId(), &oEnv);
 
-    if(_sfTreatTechniquesAsVariants.getValue() == true)
+    if(getTreatTechniquesAsVariants())
     {
-		if(_mfTechniques[_pTechIdx]->validate(this, &oEnv) == true)
-		{	
-			returnValue = _mfTechniques[_pTechIdx];
-		}
+        returnValue = Inherited::finalize(oKey,pWin);
+
+        if((dynamic_cast<CgFXTechnique*>(returnValue) == NULL) ||
+           (dynamic_cast<CgFXTechnique*>(returnValue)->validate(this, &oEnv)))
+        {
+		    return returnValue;
+	    }
     }
     else
     {
-        MFTechniquesType::const_iterator tIt  = _mfTechniques.begin();
-        MFTechniquesType::const_iterator tEnd = _mfTechniques.end  ();
-       
-        for(; tIt != tEnd; ++tIt)
-        {
-            if((*tIt)->validate(this, &oEnv) == true)
-            {
-                returnValue = *tIt;
+		if(_mfTechniques[_pTechIdx]->validate(this, &oEnv))
+		{	
+			return _mfTechniques[_pTechIdx];
+		}
+    }
 
-                break;
-            }
+    MFTechniquesType::const_iterator tIt  = _mfTechniques.begin();
+    MFTechniquesType::const_iterator tEnd = _mfTechniques.end  ();
+   
+    for(; tIt != tEnd; ++tIt)
+    {
+        if((*tIt)->validate(this, &oEnv) == true)
+        {
+            returnValue = *tIt;
+
+            break;
         }
     }
 
@@ -533,7 +571,23 @@ void CgFXMaterial::processEffectString(void)
 	setActiveTechnique(getSelectedTechnique());
 }
 
-bool CgFXMaterial::setActiveTechnique(std::string techniqueName)
+CgFXTechnique* CgFXMaterial::getTechnique(const std::string& techniqueName) const
+{
+	CGtechnique tech = cgGetNamedTechnique(_pCGeffect, techniqueName.c_str());
+	if(tech)
+	{
+        for(UInt32 i = 0; i < _mfTechniques.size(); ++i)
+        {
+            if(tech == getTechniques(i)->_pCGTechnique)
+            {
+				return getTechniques(i);
+			}
+        }
+	}
+    return NULL;
+}
+
+bool CgFXMaterial::setActiveTechnique(const std::string& techniqueName)
 {
 	// if we don't have a valid effect yet, store the string and try
 	// again after the effect is loaded up.
@@ -550,22 +604,32 @@ bool CgFXMaterial::setActiveTechnique(std::string techniqueName)
         {
             if(tech == _mfTechniques[_pTechIdx]->_pCGTechnique)
             {
-       			setTreatTechniquesAsVariants(true);
+                _ForceUseFallback = false;
 				return true;
 			}
         }
 	}
-	// if the technique name wasn't valid, we just use
-	// the default behavior (use the first valid technique)
-	setTreatTechniquesAsVariants(false);
-	return false;
+    else if(techniqueName.compare(FALBACK_MATERIAL_TECHNIQUE_NAME) == 0)
+    {
+	    //Special case: if the Technique is the Fallback material technique name
+        //Then disable CgFX and use the fallback material
+        _ForceUseFallback = true;
+	    return false;
+    }
+    else
+    {
+	    // if the technique name wasn't valid, we just use
+	    // the default behavior (use the first valid technique)
+        _ForceUseFallback = false;
+	    return false;
+    }
 }
 
 /**
 *	Function to get the names of all of the available techniques for this material.
 *
 */
-std::vector<std::string> CgFXMaterial::getAvailableTechniques()
+std::vector<std::string> CgFXMaterial::getAvailableTechniques(void) const
 {
 	std::vector<std::string> techNames;
 	for(UInt32 i(0); i < _mfTechniques.size(); i++)
