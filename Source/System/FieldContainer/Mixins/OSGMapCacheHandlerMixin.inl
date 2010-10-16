@@ -146,6 +146,15 @@ void MapCacheHandlerMixin<Desc>::addElement (
 }
 
 template <class Desc> inline
+void MapCacheHandlerMixin<Desc>::clearElements (void)
+{
+    while(_fMapCache.getValue().size() != 0)
+    {
+        subElement(_fMapCache.getValue().begin()->first);
+    }
+}
+
+template <class Desc> inline
 void MapCacheHandlerMixin<Desc>::subElement(MapCacheKey key)
 {
     if(key == MapKeyPool::the()->getDefault())
