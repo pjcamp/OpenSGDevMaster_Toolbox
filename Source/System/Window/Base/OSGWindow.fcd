@@ -133,7 +133,7 @@ init(void), activate(void), deactivate(void) and swap(void).
 	   name="renderOptions"
 	   type="RenderOptionsPtr"
 	   cardinality="single"
-	   visibility="internal"
+	   visibility="external"
 	   access="public"
        defaultValue="NULL"
 	>

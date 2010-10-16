@@ -165,7 +165,7 @@ all the different ClusterWindows!
 	   name="renderOptions"
 	   type="RenderOptionsPtr"
 	   cardinality="single"
-	   visibility="internal"
+	   visibility="external"
 	   access="public"
        defaultValue="NULL"
 	   >
