@@ -51,6 +51,7 @@
 #include "OSGColladaInstanceLight.h"
 #include "OSGColladaInstanceController.h"
 #include "OSGColladaVisualScene.h"
+#include "OSGColladaAnimation.h"
 #include "OSGTransform.h"
 #include "OSGNameAttachment.h"
 #include "OSGFieldAnimation.h"
@@ -99,24 +100,10 @@ ColladaNode::read(void)
     domNodeRef                node     = getDOMElementAs<domNode>();
     const daeElementRefArray &contents = node->getContents();
 
-	// here we check if there is a transform animation on this 
-	// field.
-	ColladaGlobal::AnimMapIt amIt = getGlobal()->editAnimationMap().find(node);
-	ColladaGlobal::AnimMapIt amEnd = getGlobal()->editAnimationMap().end();
-	if(amIt != amEnd)
-	{
-		_animation = amIt->second;
-	} 
-	else
-	{
-		_animation = NULL;
-	}
-
     // handle "transform" child elements in the order
     // they occur in the document
 	for(UInt32 i = 0; i < contents.getCount(); ++i)
 	{
-
 		switch(contents[i]->getElementType())
 		{
 		case COLLADA_TYPE::LOOKAT:
@@ -386,7 +373,7 @@ ColladaNode::handleRotate(domRotate *rotate)
 	    if(getGlobal()->editAnimationMap()[rotate] != NULL) 
 	    {
             SLOG << "Found Rotation Animation" << std::endl;
-		    getGlobal()->editAnimationMap()[rotate]->setAnimatedField(RotationElement,std::string("Rotation"));
+		    getGlobal()->editAnimationMap()[rotate]->getAnimation()->setAnimatedField(RotationElement,std::string("Angle"));
 	    }
     }
     else
@@ -431,6 +418,12 @@ ColladaNode::handleScale(domScale *scale)
         setName(ScaleElement, scale->getSid());
 
         appendStackedXForm(ScaleElement, node);
+
+		 if(getGlobal()->editAnimationMap()[scale] != NULL) 
+	    {
+            SLOG << "Found Scale Animation" << std::endl;
+		    getGlobal()->editAnimationMap()[scale]->getAnimation()->setAnimatedField(ScaleElement,std::string("Scale"));
+	    }
     }
     else
     {
@@ -530,7 +523,7 @@ ColladaNode::handleTranslate(domTranslate *translate)
 	    if(getGlobal()->editAnimationMap()[translate] != NULL) 
 	    {
             SLOG << "Found Translation Animation" << std::endl;
-		    getGlobal()->editAnimationMap()[translate]->setAnimatedField(TranslateElement,std::string("Translation"));
+		    getGlobal()->editAnimationMap()[translate]->getAnimation()->setAnimatedField(TranslateElement,std::string("Translation"));
 	    }
     }
     else
@@ -706,10 +699,10 @@ ColladaNode::appendXForm(Node *xformN)
 
     _bottomN = xformN;
 
-	if(_animation != NULL) 
+	/*if(_animation != NULL) 
 	{
-		_animation->setAnimatedField(xformN->getCore(),std::string("matrix"));
-	}
+		_animation->getAnimation()->setAnimatedField(xformN->getCore(),std::string("matrix"));
+	}*/
 }
 
 /*! Add a transform node to the OpenSG tree representing

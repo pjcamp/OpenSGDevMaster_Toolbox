@@ -104,7 +104,22 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 
 	virtual FieldContainer *createInstance(ColladaInstanceElement *colInstElem);
 
-	
+	// used to determine which type of keyframe sequence used
+	enum SequenceType {	REAL,REAL2,REAL3,REAL4, // 
+						INT,INT2,INT3,INT4, // not used?
+						BOOL,BOOL2,BOOL3,BOOL4, // probably not used
+						COLOR3,COLOR4, // definitely used
+						QUATX,QUATY,QUATZ, // rotations
+						TRANSX,TRANSY,TRANSZ, // translations in 1 axis
+						SCALEX,SCALEY,SCALEZ, // scales in 1 axis
+						TRANSLATE,SCALE, // translation/scaling in all 3 axis
+						INVALID // unable to determine type
+					  };
+	// getters for this class.  These are used to get data from the ColladaAnimaiton
+	// when finalizing animated fields when setting up a scene in ColladNode.cpp
+	ColladaAnimation::SequenceType getSequenceType();
+	FieldAnimation* getAnimation();
+
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
   protected:
@@ -123,17 +138,7 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
     /*---------------------------------------------------------------------*/
 	static ColladaElementRegistrationHelper _regHelper;
 
-	// used to determine which type of keyframe sequence we need
-	enum SequenceType {	REAL,REAL2,REAL3,REAL4, // 
-						INT,INT2,INT3,INT4, // not used?
-						BOOL,BOOL2,BOOL3,BOOL4, // probably not used
-						COLOR3,COLOR4, // definitely used
-						QUATX,QUATY,QUATZ, // rotations
-						TRANSX,TRANSY,TRANSZ, // translations in 1 axis
-						SCALEX,SCALEY,SCALEZ, // scales in 1 axis
-						TRANSLATE,SCALE, // translation/scaling in all 3 axis
-						INVALID // unable to determine type
-					  };
+
 
 	void buildKeyframeSequence(domAnimationRef anim);
 	void buildAnimator(domAnimationRef anim);
@@ -145,6 +150,7 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 	void getInterpolationType();
 	bool isTransformAttribute(daeElement * target);
 	TransformAnimator* getTransformAnimator();
+	KeyframeAnimator*   getKeyframeAnimator();
 
 	
 	//  map from a <source> name to its corresponding OpenSG keyframe sequence
