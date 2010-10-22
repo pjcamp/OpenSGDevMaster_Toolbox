@@ -16,7 +16,7 @@
 	 type="State"
 	 category="pointer"
 	 cardinality="multi"
-	 visibility="external"
+	 visibility="internal"
 	 access="protected"
 	 pushToFieldAs="addPassState"
 	 insertIntoMFieldAs="insertPassState"

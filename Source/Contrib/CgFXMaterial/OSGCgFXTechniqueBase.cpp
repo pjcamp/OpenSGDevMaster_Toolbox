@@ -120,7 +120,7 @@ void CgFXTechniqueBase::classDescInserter(TypeObject &oType)
         "renderPassStates",
         "",
         RenderPassStatesFieldId, RenderPassStatesFieldMask,
-        false,
+        true,
         (Field::MFDefaultFlags | Field::FNullCheckAccess),
         static_cast<FieldEditMethodSig>(&CgFXTechnique::editHandleRenderPassStates),
         static_cast<FieldGetMethodSig >(&CgFXTechnique::getHandleRenderPassStates));
