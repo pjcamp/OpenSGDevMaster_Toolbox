@@ -142,7 +142,7 @@ void  WIN32Window::mainLoop(void)
     StatTimeStampElem *LoopTimeStatElem;
     while (_RunMainLoop)
     {
-        if(!_Active)
+        /*if(!_Active)
         {
             WaitMessage();
             while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -151,7 +151,7 @@ void  WIN32Window::mainLoop(void)
             }
         }
         else
-        {
+        {*/
             LoopTimeStatElem = StatCollector::getGlobalElem(WindowEventProducer::statWindowLoopTime);
             if(LoopTimeStatElem)
             {
@@ -178,7 +178,7 @@ void  WIN32Window::mainLoop(void)
             {
                 LoopTimeStatElem->stop();
             }
-        }
+        //}
     }
 
     if (getFullscreen())								// Are We In Fullscreen Mode?
