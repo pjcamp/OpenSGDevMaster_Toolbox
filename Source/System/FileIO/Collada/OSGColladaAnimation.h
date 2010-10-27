@@ -119,6 +119,8 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 	// when finalizing animated fields when setting up a scene in ColladNode.cpp
 	ColladaAnimation::SequenceType getSequenceType();
 	FieldAnimation* getAnimation();
+	bool isIndexed();
+	UInt32 getTargetIndex();
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
@@ -139,7 +141,7 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 	static ColladaElementRegistrationHelper _regHelper;
 
 
-
+	// internal functions
 	void buildKeyframeSequence(domAnimationRef anim);
 	void buildAnimator(domAnimationRef anim);
 	void buildAnimation(Animator * animator);
@@ -148,22 +150,14 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 	void buildBoolSequence(domAnimationRef animation, domAccessorRef accessor, std::vector<Real32> timeKeys);
 	void readSamplers(domAnimationRef anim);
 	void getInterpolationType();
+	void extractIndex();
 	bool isTransformAttribute(daeElement * target);
-	TransformAnimator* getTransformAnimator();
-	KeyframeAnimator*   getKeyframeAnimator();
 
-	
-	//  map from a <source> name to its corresponding OpenSG keyframe sequence
-	//  typedef std::map<std::string, KeyframeInfoPtr>	SourceMap;
-	//  typedef SourceMap::iterator								SourceMapIt;
-	//	typedef SourceMap::const_iterator						SourceMapConstIt;
-
-	//SourceMap _sourceMap;
-	//SourceMap _samplerMap;
-	std::string _animationTarget;
+	// members
+	std::string _animationTargetName;
 	KeyframeSequenceUnrecPtr _keyframeSequence;
 	SequenceType _seqTy;
-	AnimatorUnrecPtr _animator;
+	KeyframeAnimatorUnrecPtr _animator;
 	FieldAnimationUnrecPtr _animation;
 	Animator::InterpolationType _interpolationType;
 	daeElement * _animTarget;
@@ -172,6 +166,8 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 	domSourceRef _interpolationSource;
 	UInt32 _animLength;
 	bool _reusingAnimator;
+	UInt32 _targetIndex;
+	bool _isIndexed;
 };
 
 OSG_GEN_MEMOBJPTR(ColladaAnimation);

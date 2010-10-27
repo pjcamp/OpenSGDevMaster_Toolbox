@@ -51,12 +51,17 @@
 #include "OSGColladaGeometry.h"
 #include "OSGColladaInstanceGeometry.h"
 #include "OSGColladaInstanceEffect.h"
+#include "OSGColladaAnimation.h"
 
 #include "OSGGroup.h"
 #include "OSGTransform.h"
 #include "OSGTypedGeoVectorProperty.h"
 #include "OSGTypedGeoIntegralProperty.h"
 #include "OSGNameAttachment.h"
+
+#include "OSGSkeletonBlendedGeometry.h"
+#include "OSGSkeletonDrawable.h"
+#include "OSGMorphGeometry.h"
 
 #include <dom/domGeometry.h>
 #include <dom/domMesh.h>
@@ -68,17 +73,6 @@
 #include <dom/domTriangles.h>
 #include <dom/domTrifans.h>
 #include <dom/domTristrips.h>
-
-
-// skeleton drawable material includes...
-#include "OSGLineChunk.h"
-#include "OSGBlendChunk.h"
-#include "OSGChunkMaterial.h"
-#include "OSGMaterialChunk.h"
-
-#include "OSGSkeletonBlendedGeometry.h"
-#include "OSGSkeletonDrawable.h"
-#include "OSGMorphGeometry.h"
 
 
 OSG_BEGIN_NAMESPACE
@@ -248,10 +242,22 @@ void ColladaController::readMorph(domMorph *morph)
 		else if(weightToken.compare(semantic) == 0)
 			weights = daeSafeCast<domSource>(locals[i]->getSource().getElement());
 	}
+	// check if this morph has an animation on it
+
 	
-	// check that the arrays are valid
+
+	// extract values from the arrays
 	if( targets != NULL && weights != NULL )
 	{
+		if(getGlobal()->editAnimationMap()[weights] != NULL)
+		{
+			_animation = getGlobal()->editAnimationMap()[weights];
+		}
+		else
+		{
+			_animation = NULL;
+		}
+
 		xsIDREFS ids = targets->getIDREF_array()->getValue();
 		domListOfFloats wts = weights->getFloat_array()->getValue();
 
@@ -308,73 +314,15 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 		NodeRecPtr skelNode = makeNodeFor(skeleton);
 
 		skeleton->setWeights(_mSkin.weights);
-		// get skeleton joints
-		domInstance_controller::domSkeleton_Array skelArr = colInstCont->getJoints();
-		std::map<std::string, NodeRecPtr> joints;
-		std::vector<NodeRecPtr> osgNodes;
-		std::vector<domNodeRef> domNodes;
-		// create the joints/nodes and fetch the nodes
-		UInt32 i(0),j(0);
-		for(i = 0; i < skelArr.getCount(); i++)
-		{
-			domNodeRef colDomNode = daeSafeCast<domNode>(skelArr[i]->getValue().getElement());
-
-			std::string nodeName = colDomNode->getSid();
-			domNodes.push_back(colDomNode);
-
-			NodeRecPtr jointNode = createJointFromNode(colDomNode);
-			joints[nodeName] = jointNode;
-
-			setName(jointNode,colDomNode->getSid());
-			osgNodes.push_back(jointNode);
-		}
-
-		/* 
-			The heirarchy of the skeleton structure must be created from the 
-			visual scene node heirarchy.  But, since we don't want to have two
-			instances of the heirarchy, we just save the IDs of the nodes to a map, and 
-			link up the joints after the visual scene is finished reading.
-		*/
-		
-		// the code below is added to draw the bones of the skeletons
-
-		 //SkeletonDrawer System Material
-		LineChunkRecPtr ExampleLineChunk = LineChunk::create();
-		ExampleLineChunk->setWidth(2.0f);
-		ExampleLineChunk->setSmooth(true);
-
-		BlendChunkRecPtr ExampleBlendChunk = BlendChunk::create();
-		ExampleBlendChunk->setSrcFactor(GL_SRC_ALPHA);
-		ExampleBlendChunk->setDestFactor(GL_ONE_MINUS_SRC_ALPHA);
-
-		ChunkMaterialRecPtr ExampleMaterial = ChunkMaterial::create();
-		ExampleMaterial->addChunk(ExampleLineChunk);
-		ExampleMaterial->addChunk(ExampleBlendChunk);
-
-		SkeletonDrawableRecPtr skelDraw = SkeletonDrawable::create();
-		skelDraw->setSkeleton(skeleton);
-		skelDraw->setMaterial(ExampleMaterial);
-		skelDraw->setDrawBindPose(true);
-		skelDraw->setDrawPose(true);   
-		skelDraw->setBindPoseColor(Color4f(0.0, 1.0, 0.0, 1.0));  //When the skeleton's bind pose is rendered, it will be green
-		skelDraw->setPoseColor(Color4f(0.0, 0.0, 1.0, 1.0));  //The skeleton's current pose is rendered in blue
-
-		NodeRecPtr skelDrawNode = makeNodeFor(skelDraw);
-
-		NodeRecPtr theNode = makeNodeFor(OSG::Group::create());
-
+	
 		colInstCont->setSkeleton(skeleton);
-		theNode->addChild(skelDrawNode);
-		theNode->addChild(skelNode);
+
 		editInstStore().push_back(skelNode);
-		editInstStore().push_back(skelDrawNode);
-		editInstStore().push_back(theNode);
-		
-		return theNode;
+
+		return skelNode;
 	} // end if(_hasSkin)
 	else// if(_hasMorph) // it will either have a morph or a skin
-	{
-		// do things make work
+	{ 
 		MorphGeometryRefPtr newMorphGeo = MorphGeometry::create();
 		newMorphGeo->setBaseGeometry(geo);
 		for(UInt32 i(0); i < _mMorph.targets.size(); i++)
@@ -388,6 +336,39 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 		
 		NodeRecPtr newNode = makeNodeFor(newMorphGeo);
 		editInstStore().push_back(newNode);
+		// finish the animation setup
+		if(_animation != NULL )
+		{
+			// workaround for dealing with typing of the sequence required to animate blend weights
+			KeyframeAnimator * animator = dynamic_cast<KeyframeAnimator *>(_animation->getAnimation()->getAnimator());
+			if(animator != NULL)
+			{
+				KeyframeNumberSequenceReal32 * kfSeq = dynamic_cast<KeyframeNumberSequenceReal32 *>(animator->getKeyframeSequence());
+				KeyframeVectorSequenceVec1fRecPtr newKfSeq = KeyframeVectorSequenceVec1f::create();
+
+				MFReal32 keys = kfSeq->getKeys();
+				MFReal32 values = kfSeq->editField();
+				// fill in the new keyframe sequence
+				for(UInt32 i(0); i < keys.size(); i++)
+				{
+					newKfSeq->addKeyframe(values[i],keys[i]);
+				}
+
+				animator->setKeyframeSequence(newKfSeq);
+				_animation->getAnimation()->setAnimator(animator);
+
+				// set the animated field.  Some animations will be on a particular index of a multi-field...
+				if(_animation->isIndexed())
+				{
+					_animation->getAnimation()->setAnimatedMultiField(newMorphGeo->getWeights(),"values",_animation->getTargetIndex());
+				}
+				else if(_animation != NULL)
+				{
+					_animation->getAnimation()->setAnimatedMultiField(newMorphGeo->getWeights(),"values",0);
+				}
+			}
+		}
+
 		return newNode;
 	}
 	

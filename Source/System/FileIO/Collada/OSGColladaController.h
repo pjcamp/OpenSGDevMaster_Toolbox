@@ -58,6 +58,7 @@ OSG_BEGIN_NAMESPACE
 // forward decl
 class domInstanceController;
 class ColladaInstanceController;
+class ColladaAnimation;
 class daeGeometry;
 
 OSG_GEN_MEMOBJPTR(ColladaInstanceController);
@@ -150,12 +151,14 @@ class OSG_FILEIO_DLLMAPPING ColladaController : public ColladaInstantiableElemen
 
 	bool _hasSkin;
 	bool _hasMorph;
+
 	SkinInfo _mSkin;
 	MorphInfo _mMorph;
     GeometryRefPtr _sourceMesh;
 	ColladaGeometryRefPtr _sourceColGeo;
 
-    
+    ColladaAnimation *_animation;
+
 	static ColladaElementRegistrationHelper _regHelper;
 
 };

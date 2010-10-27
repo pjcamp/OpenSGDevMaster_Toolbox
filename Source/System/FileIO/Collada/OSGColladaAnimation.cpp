@@ -4,6 +4,10 @@
 #include "OSGTransformAnimator.h"
 #include "OSGColladaGlobal.h"
 
+
+#include <boost/xpressive/xpressive_static.hpp>
+#include <boost/lexical_cast.hpp>
+
 OSG_BEGIN_NAMESPACE
 
 ColladaElementRegistrationHelper ColladaAnimation::_regHelper(
@@ -24,11 +28,15 @@ void  ColladaAnimation::read(void)
 	domChannel_Array channel = anim->getChannel_array();
 	for(UInt32 i(0); i < channel.getCount(); i++)
 	{
-		_animationTarget = channel[i]->getTarget();
+		_animationTargetName = channel[i]->getTarget();
 	}
 	// find the target daeElement that is being animated.
-	daeSidRef sidRef(_animationTarget,channel[0]);
+	daeSidRef sidRef(_animationTargetName,channel[0]);
 	_animTarget = sidRef.resolve().elt;
+	
+
+	// get the index of the animation target (if there is one)
+	extractIndex();
 
 	// if we can't find the animation target, we can't make an animation.
 	if(_animTarget == NULL) return;
@@ -38,7 +46,6 @@ void  ColladaAnimation::read(void)
 
 	// this is where the animator/animation is set up
 	buildAnimator(anim);
-
 
 	if(_animation != NULL) 
 	{
@@ -53,7 +60,7 @@ void  ColladaAnimation::read(void)
 FieldContainer *
 ColladaAnimation::createInstance(ColladaInstanceElement *colInstElem)
 {
-	// NIY - Collada doesn't support it yet 
+	// NIY - Collada doesn't support it in v1.4
 	return NULL;
 }
 
@@ -62,23 +69,9 @@ ColladaAnimation::createInstance(ColladaInstanceElement *colInstElem)
 */
 void ColladaAnimation::buildAnimator(domAnimationRef anim)
 { 
-	_reusingAnimator  = false;
-	// check and see if this target aleady has an animation.
-	ColladaGlobal::AnimMapIt amIt = getGlobal()->editAnimationMap().find(_animTarget);
-	ColladaGlobal::AnimMapIt amEnd = getGlobal()->editAnimationMap().end();
-	if(amIt != amEnd)
-	{
-		_animation = dynamic_cast<FieldAnimation *>(amIt->second);
+	_animator =  OSG::KeyframeAnimator::create();
+	_animator->setKeyframeSequence(_keyframeSequence);
 
-		_animator = _animation->getAnimator();
-		if(_animator != NULL)
-		{
-			_reusingAnimator = true;
-		}
-	}
-
-	OSG::KeyframeAnimator * kfAnim = getKeyframeAnimator();
-	kfAnim->setKeyframeSequence(_keyframeSequence);
 
 	if(_animation == NULL)
 	{
@@ -100,7 +93,6 @@ void ColladaAnimation::buildAnimator(domAnimationRef anim)
 */
 void ColladaAnimation::buildKeyframeSequence(domAnimationRef anim)
 {
-	
     // get interpolation type
 	getInterpolationType();
 
@@ -214,29 +206,31 @@ ColladaAnimation::buildFloatSequence(domAnimationRef	 animation,
 	{
 		if(pName.compare("ANGLE") == 0)
 		{ // we have a quaternion, need to determine which axis is it around
-			if(_animationTarget.find("/rotateZ") != std::string::npos) 
+			if(_animationTargetName.find("/rotateZ") != std::string::npos) 
 				_seqTy = QUATZ;
-			else if(_animationTarget.find("/rotateY") != std::string::npos)
+			else if(_animationTargetName.find("/rotateY") != std::string::npos)
 				_seqTy = QUATY;
-			else if(_animationTarget.find("/rotateX") != std::string::npos)
+			else if(_animationTargetName.find("/rotateX") != std::string::npos)
 				_seqTy = QUATX;
 		} 
 		else if(	pName.compare("X") == 0 ||
 					pName.compare("Y") == 0 ||
 					pName.compare("Z") == 0	)
 		{
-			if(_animationTarget.find("/scale.X") != std::string::npos) 
+			if(_animationTargetName.find("/scale.X") != std::string::npos) 
 				_seqTy = SCALEX;
-			else if(_animationTarget.find("/scale.Y") != std::string::npos)
+			else if(_animationTargetName.find("/scale.Y") != std::string::npos)
 				_seqTy = SCALEY;
-			else if(_animationTarget.find("/scale.Z") != std::string::npos)
+			else if(_animationTargetName.find("/scale.Z") != std::string::npos)
 				_seqTy = SCALEZ;
-			else if(_animationTarget.find("/translate.X") != std::string::npos)
+			else if(_animationTargetName.find("/translate.X") != std::string::npos)
 				_seqTy = TRANSX;
-			else if(_animationTarget.find("/translate.Y") != std::string::npos)
+			else if(_animationTargetName.find("/translate.Y") != std::string::npos)
 				_seqTy = TRANSY;
-			else if(_animationTarget.find("/translate.Z") != std::string::npos)
+			else if(_animationTargetName.find("/translate.Z") != std::string::npos)
 				_seqTy = TRANSZ;
+			else 
+				_seqTy = REAL;
 		} 
 		else
 			_seqTy = REAL;
@@ -250,11 +244,11 @@ ColladaAnimation::buildFloatSequence(domAnimationRef	 animation,
 			pName.compare("Y") == 0 ||
 			pName.compare("Z") == 0	)
 		{
-			if(_animationTarget.find("/scale") != std::string::npos)
+			if(_animationTargetName.find("/scale") != std::string::npos)
 			{
 				_seqTy = SCALE;
 			}
-			else if(_animationTarget.find("/translate") != std::string::npos)
+			else if(_animationTargetName.find("/translate") != std::string::npos)
 			{
 				_seqTy = TRANSLATE;
 			}
@@ -300,7 +294,13 @@ ColladaAnimation::buildFloatSequence(domAnimationRef	 animation,
 	switch(_seqTy)
 	{
 	case REAL:
-		{   //NIY
+		{   
+			KeyframeNumberSequenceReal32UnrecPtr seq = KeyframeNumberSequenceReal32::create();
+			for(UInt32 i(0); i < timeKeys.size() && i < arrSize;i++)
+			{	
+				seq->addKeyframe(floats[i],timeKeys[i]);
+			}
+			_keyframeSequence = seq;
 			break;
 		}
 		// because animations are defined for all three axis in the stacked xform core, 
@@ -310,7 +310,7 @@ ColladaAnimation::buildFloatSequence(domAnimationRef	 animation,
 	case TRANSX:
 		{	
 			KeyframeVectorSequenceVec3fUnrecPtr seq = KeyframeVectorSequenceVec3f::create();
-
+		
 			for(UInt32 i(0); i < timeKeys.size() && i < arrSize ; i++)
 			{
 				seq->addKeyframe(Vec3f(floats[i],0.0f,0.0f),timeKeys[i]);
@@ -570,27 +570,6 @@ void ColladaAnimation::getInterpolationType()
 	_interpolationType = Animator::LINEAR_INTERPOLATION;
 } // end getInterpolationType()
 
-TransformAnimator * ColladaAnimation::getTransformAnimator()
-{
-	if(!_reusingAnimator)
-	{
-		OSG::TransformAnimatorRecPtr anim = OSG::TransformAnimator::create();
-		_animator = anim;
-		return anim;
-	} 
-	else return dynamic_pointer_cast<TransformAnimator>(_animator); 
-}
-
-KeyframeAnimator*  ColladaAnimation::getKeyframeAnimator()
-{
-	if(!_reusingAnimator)
-	{
-		OSG::KeyframeAnimatorRecPtr anim = OSG::KeyframeAnimator::create();
-		_animator = anim;
-		return anim;
-	} 
-	else return dynamic_pointer_cast<KeyframeAnimator>(_animator); 
-}
 
 void ColladaAnimation::buildAnimation(Animator * animator)
 {
@@ -611,6 +590,35 @@ void ColladaAnimation::buildAnimation(Animator * animator)
 	}
 }
 
+UInt32 ColladaAnimation::getTargetIndex()
+{
+	return _targetIndex;
+}
+
+bool ColladaAnimation::isIndexed()
+{
+	return _isIndexed;
+}
+
+void ColladaAnimation::extractIndex()
+{
+	_targetIndex = 0;
+	_isIndexed = false;
+	using namespace boost::xpressive;
+
+	// this regex matches any number of digits between two parenthesis 
+	sregex regex = after('(') >> -+_d >> before(')');
+
+	smatch result;
+
+	// we are only worried about the first match, which will be the index we want
+	if(regex_search(_animationTargetName, result, regex))
+	{	// only concerned with first index
+		_targetIndex = boost::lexical_cast<int, std::string>(result[0].str());
+		_isIndexed = true;
+	}
+}
+
 ColladaAnimation::SequenceType ColladaAnimation::getSequenceType()
 {
 	return _seqTy;
@@ -624,7 +632,7 @@ FieldAnimation* ColladaAnimation::getAnimation()
 
 /***********************Ctors & Dtors*******************************/
 ColladaAnimation::ColladaAnimation(daeElement *elem, ColladaGlobal *global)
-    : Inherited (elem, global)
+    : Inherited (elem, global),_targetIndex(0),_isIndexed(false)
 {
 }
 
