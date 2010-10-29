@@ -49,6 +49,10 @@
 #include "OSGBaseFunctions.h"
 #include "OSGSimpleMaterial.h"
 #include "OSGTransform.h"
+#include "OSGStackedTransform.h"
+#include "OSGTranslationTransformationElement.h"
+#include "OSGRotationTransformationElement.h"
+#include "OSGScaleTransformationElement.h"
 #include "OSGGeometry.h"
 #include "OSGSimpleGeometry.h"
 #include "OSGWindow.h"
@@ -110,13 +114,7 @@ void Manipulator::startManip(Node *subHandle)
 
         _isManipulating = true;
 
-        // get transformation of beacon
-        Transform *t = dynamic_cast<Transform *>(getTarget()->getCore());
-
-        if( t != NULL )
-        {
-            _initialXForm = t->getMatrix();
-        }
+        getTransformation(_initialXForm);
     }
 }
 
@@ -126,13 +124,7 @@ void Manipulator::cancelManip(void)
     {
         _isManipulating = false;
 
-        //reset the initial transformation of beacon
-        Transform *t = dynamic_cast<Transform *>(getTarget()->getCore());
-
-        if( t != NULL )
-        {
-            t->setMatrix(_initialXForm);
-        }
+        setTransformation(_initialXForm);
     }
 }
 
@@ -154,7 +146,6 @@ void Manipulator::reverseTransform()
 {
     if ( getTarget() != NULL )
     {
-        Transform *t = dynamic_cast<Transform *>(getTarget()->getCore());
         Matrix     m,n,o;
 
         Vec3f      translation;
@@ -162,7 +153,7 @@ void Manipulator::reverseTransform()
         Vec3f      scaleFactor;
         Quaternion scaleOrientation;
 
-        m = t->getMatrix();
+        getTransformation(m);
         m.getTransform(translation, rotation, scaleFactor, scaleOrientation);
 
         if( false == o.invertFrom(m) )
@@ -246,10 +237,7 @@ void Manipulator::mouseMove(const Int16 x,
     // get the beacon's core (must be ComponentTransform) and it's center
     if( getTarget() != NULL )
     {
-        // get transformation of beacon
-        Transform *t = dynamic_cast<Transform *>(getTarget()->getCore());
-
-        if( t != NULL )
+        if( getTarget()->getCore() != NULL )
         {
             UInt16     coord(0);          // active coordinate: X=0, Y=1, Z=2
 
@@ -272,7 +260,8 @@ void Manipulator::mouseMove(const Int16 x,
             OSG_ASSERT(coord != NO_AXES_HANDLE);
 
             // set the vector resulting from user mouse movement and calc its length
-            t->getMatrix().getTransform(translation, rotation, scaleFactor,
+            
+            getTransformation(translation, rotation, scaleFactor,
                                         scaleOrientation);
 
 
@@ -298,7 +287,7 @@ void Manipulator::mouseMove(const Int16 x,
                 value = s  * 0.01f;
             }
 
-            doMovement(t, coord, value, translation,
+            doMovement(coord, value, translation,
                        rotation, scaleFactor, scaleOrientation);
         }
         else
@@ -575,6 +564,110 @@ void Manipulator::resolveLinks(void)
     Inherited::resolveLinks();
 
     _activeParent  = NULL;
+}
+
+void Manipulator::getTransformation(Vec3f        &translation,
+                                    Quaternion   &rotation,
+                                    Vec3f        &scaleFactor,
+                                    Quaternion   &scaleOrientation) const
+{
+    Matrix     m;
+    getTransformation(m);
+    m.getTransform(translation, rotation, scaleFactor, scaleOrientation);
+}
+    
+void Manipulator::getTransformation(Matrix        &mat) const
+{
+    if(getTarget()->getCore()->getType() == Transform::getClassType())
+    {
+        Transform *t = dynamic_cast<Transform *>(getTarget()->getCore());
+        mat = t->getMatrix();
+    }
+    else if(getTarget()->getCore()->getType() == StackedTransform::getClassType())
+    {
+        mat.setIdentity();
+        StackedTransform *t = dynamic_cast<StackedTransform *>(getTarget()->getCore());
+        t->accumulateMatrix(mat);
+    }
+}
+
+void Manipulator::setTransformation(const Matrix        &mat)
+{
+    Vec3f      translation;
+    Quaternion rotation;
+    Vec3f      scaleFactor;
+    Quaternion scaleOrientation;
+
+    mat.getTransform(translation,rotation,scaleFactor,scaleOrientation);
+    setTransformation(translation,rotation,scaleFactor,scaleOrientation);
+}
+
+void Manipulator::setTransformation(const Vec3f        &translation,
+                                    const Quaternion   &rotation,
+                                    const Vec3f        &scaleFactor,
+                                    const Quaternion   &scaleOrientation)
+{
+    if(getTarget()->getCore()->getType() == Transform::getClassType())
+    {
+        Transform *t = dynamic_cast<Transform *>(getTarget()->getCore());
+        Matrix m;
+        m.setTransform(translation, rotation, scaleFactor, scaleOrientation);
+        t->setMatrix(m);
+    }
+    else if(getTarget()->getCore()->getType() == StackedTransform::getClassType())
+    {
+        Vec3f EulerRot;
+        rotation.getEulerAngleDeg(EulerRot);
+        StackedTransform *StackTrans = dynamic_cast<StackedTransform *>(getTarget()->getCore());
+
+
+        //Translate
+        TranslationTransformationElementRecPtr Trans = StackTrans->getElement<TranslationTransformationElement>(StackedTransform::TranslateName);
+        if(Trans == NULL)
+        {
+            Trans = TranslationTransformationElement::create();
+            StackTrans->insertIntoNamedTransformElements(0, Trans, StackedTransform::TranslateName);
+        }
+        Trans->setTranslation(translation);
+
+        //Rotate
+        RotationTransformationElementRecPtr RotZ = StackTrans->getElement<RotationTransformationElement>(StackedTransform::RotateZName);
+        if(RotZ == NULL)
+        {
+            RotZ = RotationTransformationElement::create();
+            StackTrans->insertIntoNamedTransformElements(1, RotZ, StackedTransform::RotateZName);
+            RotZ->setAxis(Vec3f(0.0f,0.0f,1.0f));
+        }
+        RotZ->setAngle(EulerRot.z());
+
+        RotationTransformationElementRecPtr RotY = StackTrans->getElement<RotationTransformationElement>(StackedTransform::RotateYName);
+        if(RotY == NULL)
+        {
+            RotY = RotationTransformationElement::create();
+            StackTrans->insertIntoNamedTransformElements(2, RotY, StackedTransform::RotateYName);
+            RotY->setAxis(Vec3f(0.0f,1.0f,0.0f));
+        }
+        RotY->setAngle(EulerRot.y());
+
+        RotationTransformationElementRecPtr RotX = StackTrans->getElement<RotationTransformationElement>(StackedTransform::RotateXName);
+        if(RotX == NULL)
+        {
+            RotX = RotationTransformationElement::create();
+            StackTrans->insertIntoNamedTransformElements(3, RotX, StackedTransform::RotateXName);
+            RotX->setAxis(Vec3f(1.0f,0.0f,0.0f));
+        }
+        RotX->setAngle(EulerRot.x());
+
+        //Scale Orientation
+        //Scale Factor
+        ScaleTransformationElementRecPtr Scale = StackTrans->getElement<ScaleTransformationElement>(StackedTransform::ScaleName);
+        if(Scale == NULL)
+        {
+            Scale = ScaleTransformationElement::create();
+            StackTrans->pushToNamedTransformElements(Scale, StackedTransform::ScaleName);
+        }
+        Scale->setScale(scaleFactor);
+    }
 }
 
 /*----------------------- constructors & destructors ----------------------*/

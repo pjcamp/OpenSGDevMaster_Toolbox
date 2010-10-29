@@ -154,8 +154,7 @@ class OSG_CONTRIBGUI_DLLMAPPING Manipulator : public ManipulatorBase
     virtual void           updateLength(void);
     void                   updateParent(void);
 
-    virtual void    doMovement(      Transform   *t,
-                               const Int32        coord,
+    virtual void    doMovement(const Int32        coord,
                                const Real32       value,
                                const Vec3f        &translation,
                                const Quaternion   &rotation,
@@ -165,7 +164,21 @@ class OSG_CONTRIBGUI_DLLMAPPING Manipulator : public ManipulatorBase
     Pnt2f calcScreenProjection(const Pnt3f    &,
                                      Viewport * const port);
 
-    NodeRefPtr              _activeParent;
+    void getTransformation(Vec3f        &translation,
+                           Quaternion   &rotation,
+                           Vec3f        &scaleFactor,
+                           Quaternion   &scaleOrientation) const;
+
+    void getTransformation(Matrix        &mat) const;
+
+    void setTransformation(const Vec3f        &translation,
+                           const Quaternion   &rotation,
+                           const Vec3f        &scaleFactor,
+                           const Quaternion   &scaleOrientation);
+
+    void setTransformation(const Matrix   &mat);
+
+    NodeUnrecPtr            _activeParent;
     ExternalUpdateHandler*  _externalUpdateHandler;
     bool                    _isManipulating;
     Matrix                  _initialXForm;

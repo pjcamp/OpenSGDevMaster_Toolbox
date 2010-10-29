@@ -141,8 +141,7 @@ NodeTransitPtr MoveManipulator::makeHandleGeo()
     return makeCone(0.6f, 0.15f, 12, true, true);
 }
 
-void MoveManipulator::doMovement(      Transform    *t,
-                                 const Int32         coord,
+void MoveManipulator::doMovement(const Int32         coord,
                                  const Real32        value,
                                  const Vec3f        &translation,
                                  const Quaternion   &rotation,
@@ -158,7 +157,7 @@ void MoveManipulator::doMovement(      Transform    *t,
     Matrix Result(_initialXForm);
     Result.mult(translateMat);
 
-    t->setMatrix(Result);
+    setTransformation(Result);
 
-    commitChanges();
+    //commitChanges();
 }

@@ -102,8 +102,7 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulator : public ScaleManipulatorBase
     virtual UInt16 getActiveHandle(void) const;
 
     virtual NodeTransitPtr makeHandleGeo();
-    virtual void           doMovement(      Transform    *t,
-                                      const Int32         coord,
+    virtual void           doMovement(const Int32         coord,
                                       const Real32        value,
                                       const Vec3f        &translation,
                                       const Quaternion   &rotation,
