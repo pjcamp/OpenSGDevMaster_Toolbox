@@ -300,10 +300,14 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 		geo = handleGeometry(geometry,colInstCont);
 	}
 
-	if(geo == NULL) return NULL; // can't do anything without the geometry!
+	if(geo == NULL) 
+		return NULL; // can't do anything without the geometry!
 
+	// bind the material associated with this controller
 	handleBindMaterial(geo, colInstCont);
 	
+	// There are two types of controllers: Skeletons and Morphs.  Controllers can 
+	// be one or the other, but not both.
 	if(_hasSkin)
 	{
 		// create the skeleton.  Joints won't be fully resolved until later (see ColladaGlobal)
@@ -340,6 +344,7 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 		if(_animation != NULL )
 		{
 			// workaround for dealing with typing of the sequence required to animate blend weights
+			// We are just converting the keyframe sequence from a Real32 to a Vec1f type
 			KeyframeAnimator * animator = dynamic_cast<KeyframeAnimator *>(_animation->getAnimation()->getAnimator());
 			if(animator != NULL)
 			{
@@ -379,7 +384,6 @@ GeometryTransitPtr ColladaController::handleGeometry(domGeometryRef geometry, Co
 	ColladaInstanceControllerRefPtr colInstCont =
 			dynamic_cast<ColladaInstanceController *>(colInstElem);
 
-	// error here
 	ColladaGeometryRefPtr colGeo = dynamic_pointer_cast<ColladaGeometry>(
 												ColladaElementFactory::the()->create(
 											    geometry, getGlobal()));

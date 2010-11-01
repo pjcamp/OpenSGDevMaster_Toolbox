@@ -6,7 +6,7 @@
  *                                                                           *
  *                            www.opensg.org                                 *
  *                                                                           *
- *                 contact: dan.guilliams@gmail.com			     *
+ *            contact: Dan Guilliams <dan.guilliams@gmail.com>	             *
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*\
@@ -115,8 +115,9 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 						TRANSLATE,SCALE, // translation/scaling in all 3 axis
 						INVALID // unable to determine type
 					  };
+
 	// getters for this class.  These are used to get data from the ColladaAnimaiton
-	// when finalizing animated fields when setting up a scene in ColladNode.cpp
+	// when finalizing animations when setting up a scene in ColladNode.cpp
 	ColladaAnimation::SequenceType getSequenceType();
 	FieldAnimation* getAnimation();
 	bool isIndexed();
@@ -152,6 +153,11 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 	void getInterpolationType();
 	void extractIndex();
 	bool isTransformAttribute(daeElement * target);
+
+	void buildSingleAxisKeyframes( KeyframeVectorSequenceVec3f * kfSeq, Vec3f defaultValue, UInt32 animatedAxis, 
+							   domListOfFloats animVals, std::vector<Real32> timeKeys);
+
+	Vec3f getVec3fAnimTargetValue();
 
 	// members
 	std::string _animationTargetName;

@@ -522,8 +522,8 @@ ColladaNode::handleTranslate(domTranslate *translate)
 
 	    if(getGlobal()->editAnimationMap()[translate] != NULL) 
 	    {
-            SLOG << "Found Translation Animation" << std::endl;
-		    getGlobal()->editAnimationMap()[translate]->getAnimation()->setAnimatedField(TranslateElement,std::string("Translation"));
+				SLOG << "Found Translation Animation" << std::endl;
+				getGlobal()->editAnimationMap()[translate]->getAnimation()->setAnimatedField(TranslateElement,std::string("Translation")) ;
 	    }
     }
     else
