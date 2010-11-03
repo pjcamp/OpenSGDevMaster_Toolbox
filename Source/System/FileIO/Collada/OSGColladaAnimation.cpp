@@ -138,8 +138,8 @@ void ColladaAnimation::buildKeyframeSequence(domAnimationRef anim)
 	// now we make sure that the number of input and output values is the same 
 	if(_inputSource != NULL && _outputSource != NULL)
 	{
-		domSource::domTechnique_commonRef inputTech = _inputSource->getTechnique_common();
-		domSource::domTechnique_commonRef outputTech = _outputSource->getTechnique_common();
+		inputTech = _inputSource->getTechnique_common();
+		outputTech = _outputSource->getTechnique_common();
 	}
 
 	if(inputTech != NULL && outputTech != NULL)
