@@ -1262,26 +1262,27 @@ Window* WIN32Window::initWindow(void)
 {
 	WindowRefPtr MyWindow = Inherited::initWindow();
     //Create the Win32 Window
-    WNDCLASS  wndClass;
-    HWND           hwnd;
-
-    // Win32 Init
-    memset(&wndClass, 0, sizeof(wndClass));
+    WNDCLASSEX  wndClass;
     
     std::string ClassName("OpenSG Window");
+    wndClass.cbSize = sizeof(WNDCLASSEX);
     wndClass.style		= CS_HREDRAW | CS_VREDRAW | CS_OWNDC;		// Redraw On Move, And Own DC For Window
 	wndClass.lpfnWndProc		= (WNDPROC) WIN32Window::staticWndProc;				// WndProc Handles Messages
 	wndClass.cbClsExtra		= 0;						// No Extra Window Data
 	wndClass.cbWndExtra		= 0;						// No Extra Window Data
 	wndClass.hInstance		= GetModuleHandle(NULL);					// Set The Instance
-	wndClass.hIcon		= LoadIcon(NULL, IDI_WINLOGO);			// Load The Default Icon
-	//wndClass.hCursor		= LoadCursor(NULL, IDC_ARROW);			// Load The Arrow Pointer
+	wndClass.hIcon		    = LoadIcon(wndClass.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));			// Load The Default Icon
+	wndClass.hCursor		= NULL;//LoadCursor(NULL, IDC_ARROW);			// Load The Arrow Pointer
 	wndClass.hbrBackground	= NULL;						// No Background Required For GL
 	wndClass.lpszMenuName		= NULL;						// We Don't Want A Menu
 	wndClass.lpszClassName	= ClassName.c_str();
+    wndClass.hIconSm        = LoadIcon(wndClass.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
 
-    if (!RegisterClass(&wndClass)) 
+
+    if (!RegisterClassEx(&wndClass)) 
     {
+        DWORD Error = GetLastError();
+        SFATAL << "Failed To Register The Window Class: " << Error << std::endl;
         MessageBox(NULL,"Failed To Register The Window Class.","ERROR",MB_OK|MB_ICONEXCLAMATION);
         return NULL;
     }
@@ -1343,6 +1344,7 @@ Window* WIN32Window::initWindow(void)
     //ShowCursor(true);						// Show/Hide Mouse Pointer
 
     // Create a Window
+    HWND           hwnd;
     hwnd = CreateWindowEx(	dwExStyle,				// Extended Style For The Window
 				ClassName.c_str(),				// Class Name
 				"Temp",					// Window Title

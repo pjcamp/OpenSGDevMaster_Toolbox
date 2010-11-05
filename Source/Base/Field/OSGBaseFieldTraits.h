@@ -260,9 +260,7 @@ struct FieldTraits<std::string> : public FieldTraitsTemplateBase<std::string>
     static void putToStream(const std::string &val,
                                   OutStream   &outStr)
     {
-        outStr << "\"";
         outStr << val;
-        outStr << "\"";
     }
 
     static bool      getFromCString(      std::string  &outVal,
@@ -417,6 +415,16 @@ struct FieldTraits<BoxVolume> :
         
         Int32 iState;
 
+#ifdef WIN32
+        Int16 count = sscanf_s(str, "%d %f %f %f %f %f %f",
+                             &iState,
+                             &valStore[0], 
+                             &valStore[1], 
+                             &valStore[2],
+                             &valStore[3], 
+                             &valStore[4], 
+                             &valStore[5]);
+#else
         Int16 count = sscanf(str, "%d %f %f %f %f %f %f",
                              &iState,
                              &valStore[0], 
@@ -425,6 +433,7 @@ struct FieldTraits<BoxVolume> :
                              &valStore[3], 
                              &valStore[4], 
                              &valStore[5]);
+#endif
         
         if(count == 7)
         {

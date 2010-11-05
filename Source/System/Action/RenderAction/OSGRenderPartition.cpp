@@ -519,6 +519,12 @@ void RenderPartition::doExecution   (void)
         glMatrixMode(GL_MODELVIEW);
     }
 
+    //Draw the foregrounds
+    for(UInt16 i=0; i < _vpForegrounds.size(); ++i)
+    {
+        _vpForegrounds[i]->draw(&_oDrawEnv);
+    }
+
     // We always push/pop so stages with callback can modify the values
     // as needed
 
