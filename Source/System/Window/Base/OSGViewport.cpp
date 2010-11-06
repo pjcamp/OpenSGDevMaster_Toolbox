@@ -337,7 +337,7 @@ void Viewport::render(RenderActionBase *action)
 {
     _pTravValidator->incEventCounter();
  
-    if(this->getTravMask() == 0x0000)
+    if( getTravMask() == 0x0000 || !getEnabled())
         return;
 
     if(getCamera() == NULL)
@@ -363,7 +363,6 @@ void Viewport::render(RenderActionBase *action)
     action->setCamera    (getCamera    ());
     action->setBackground(getBackground());
     action->setViewport  (this           );
-    action->setTravMask  (getTravMask()  );
     action->setTravMask  (getTravMask()  );
 
     action->apply(getRoot());

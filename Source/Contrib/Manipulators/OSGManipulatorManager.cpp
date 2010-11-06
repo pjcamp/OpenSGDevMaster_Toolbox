@@ -109,6 +109,11 @@ void ManipulatorManager::setUniformScale(bool value)
     _uniformScale = value;
 }
 
+ManipulatorManager::ManipulatorType ManipulatorManager::getManipulatorType(void) const
+{
+    return _currentType;
+}
+
 // TODO: 
 void ManipulatorManager::changeManipulator(const ManipulatorType type)
 {

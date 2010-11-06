@@ -2254,13 +2254,13 @@ void OSG::Window::renderAllViewports(RenderActionBase *action)
 
 void OSG::Window::doRenderAllViewports(RenderActionBase *action)
 {
-    MFUnrecChildViewportPtr::const_iterator portIt  = getMFPort()->begin();
-    MFUnrecChildViewportPtr::const_iterator portEnd = getMFPort()->end();
-    Int32                                   iVPId   = 0;
-
     if(action != NULL)
     {
         commitChanges();
+
+        MFUnrecChildViewportPtr::const_iterator portIt  = getMFPort()->begin();
+        MFUnrecChildViewportPtr::const_iterator portEnd = getMFPort()->end();
+        Int32                                   iVPId   = 0;
 
         action->setWindow(this);
         

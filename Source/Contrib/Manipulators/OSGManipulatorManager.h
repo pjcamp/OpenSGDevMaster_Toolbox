@@ -55,9 +55,10 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorManager
  public:
     enum    ManipulatorType { ROTATE, SCALE, TRANSLATE };
 
-    NodeTransitPtr createManipulator(const ManipulatorType  type);
-    void           changeManipulator(const ManipulatorType  type);
-    Manipulator*   getManipulator   (void                       ) const;
+    NodeTransitPtr  createManipulator(const ManipulatorType  type);
+    void            changeManipulator(const ManipulatorType  type);
+    ManipulatorType getManipulatorType(void) const;
+    Manipulator*    getManipulator   (void                       ) const;
     
     void           setTarget        (      Node     * const value);
     Node*          getTarget        (void                        ) const;
