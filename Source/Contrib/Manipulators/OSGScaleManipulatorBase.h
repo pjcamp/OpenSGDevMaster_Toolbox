@@ -66,7 +66,8 @@
 #include "OSGManipulator.h" // Parent
 
 #include "OSGSysFields.h"               // Uniform type
-#include "OSGNodeFields.h"              // HandleUniformNode type
+#include "OSGGeometryFields.h"          // UniformGeometries type
+#include "OSGNodeFields.h"              // TransUniformNode type
 #include "OSGMaterialFields.h"          // MaterialUniform type
 
 #include "OSGScaleManipulatorFields.h"
@@ -88,6 +89,8 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
     typedef TypeObject::InitPhase InitPhase;
 
     OSG_GEN_INTERNALPTR(ScaleManipulator);
+    
+    
 
     /*==========================  PUBLIC  =================================*/
 
@@ -96,16 +99,16 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
     enum
     {
         UniformFieldId = Inherited::NextFieldId,
-        HandleUniformNodeFieldId = UniformFieldId + 1,
-        TransUniformNodeFieldId = HandleUniformNodeFieldId + 1,
+        UniformGeometriesFieldId = UniformFieldId + 1,
+        TransUniformNodeFieldId = UniformGeometriesFieldId + 1,
         MaterialUniformFieldId = TransUniformNodeFieldId + 1,
         NextFieldId = MaterialUniformFieldId + 1
     };
 
     static const OSG::BitVector UniformFieldMask =
         (TypeTraits<BitVector>::One << UniformFieldId);
-    static const OSG::BitVector HandleUniformNodeFieldMask =
-        (TypeTraits<BitVector>::One << HandleUniformNodeFieldId);
+    static const OSG::BitVector UniformGeometriesFieldMask =
+        (TypeTraits<BitVector>::One << UniformGeometriesFieldId);
     static const OSG::BitVector TransUniformNodeFieldMask =
         (TypeTraits<BitVector>::One << TransUniformNodeFieldId);
     static const OSG::BitVector MaterialUniformFieldMask =
@@ -114,7 +117,7 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
         (TypeTraits<BitVector>::One << NextFieldId);
         
     typedef SFBool            SFUniformType;
-    typedef SFUnrecNodePtr    SFHandleUniformNodeType;
+    typedef MFUnrecGeometryPtr MFUniformGeometriesType;
     typedef SFUnrecNodePtr    SFTransUniformNodeType;
     typedef SFUnrecMaterialPtr SFMaterialUniformType;
 
@@ -144,8 +147,6 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
 
                   SFBool              *editSFUniform        (void);
             const SFBool              *getSFUniform         (void) const;
-            const SFUnrecNodePtr      *getSFHandleUniformNode(void) const;
-                  SFUnrecNodePtr      *editSFHandleUniformNode(void);
             const SFUnrecNodePtr      *getSFTransUniformNode(void) const;
                   SFUnrecNodePtr      *editSFTransUniformNode(void);
             const SFUnrecMaterialPtr  *getSFMaterialUniform(void) const;
@@ -154,8 +155,6 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
 
                   bool                &editUniform        (void);
                   bool                 getUniform         (void) const;
-
-                  Node * getHandleUniformNode(void) const;
 
                   Node * getTransUniformNode(void) const;
 
@@ -167,7 +166,6 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
     /*! \{                                                                 */
 
             void setUniform        (const bool value);
-            void setHandleUniformNode(Node * const value);
             void setTransUniformNode(Node * const value);
             void setMaterialUniform(Material * const value);
 
@@ -235,7 +233,7 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
     /*! \{                                                                 */
 
     SFBool            _sfUniform;
-    SFUnrecNodePtr    _sfHandleUniformNode;
+    MFUnrecGeometryPtr _mfUniformGeometries;
     SFUnrecNodePtr    _sfTransUniformNode;
     SFUnrecMaterialPtr _sfMaterialUniform;
 
@@ -268,12 +266,40 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulatorBase : public Manipulator
 
     GetFieldHandlePtr  getHandleUniform         (void) const;
     EditFieldHandlePtr editHandleUniform        (void);
-    GetFieldHandlePtr  getHandleHandleUniformNode (void) const;
-    EditFieldHandlePtr editHandleHandleUniformNode(void);
+    GetFieldHandlePtr  getHandleUniformGeometries (void) const;
+    EditFieldHandlePtr editHandleUniformGeometries(void);
     GetFieldHandlePtr  getHandleTransUniformNode (void) const;
     EditFieldHandlePtr editHandleTransUniformNode(void);
     GetFieldHandlePtr  getHandleMaterialUniform (void) const;
     EditFieldHandlePtr editHandleMaterialUniform(void);
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                    Field Get                                 */
+    /*! \{                                                                 */
+
+            const MFUnrecGeometryPtr  *getMFUniformGeometries (void) const;
+                  MFUnrecGeometryPtr  *editMFUniformGeometries(void);
+
+
+                  Geometry * getUniformGeometries(const UInt32 index) const;
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                    Field Set                                 */
+    /*! \{                                                                 */
+
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                Ptr MField Set                                */
+    /*! \{                                                                 */
+
+    void pushToUniformGeometries           (Geometry * const value   );
+    void assignUniformGeometries           (const MFUnrecGeometryPtr &value);
+    void removeFromUniformGeometries (UInt32                uiIndex );
+    void removeObjFromUniformGeometries(Geometry * const value   );
+    void clearUniformGeometries            (void                          );
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

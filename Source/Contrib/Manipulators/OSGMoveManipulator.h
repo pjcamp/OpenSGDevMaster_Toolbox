@@ -74,6 +74,17 @@ class OSG_CONTRIBGUI_DLLMAPPING MoveManipulator : public MoveManipulatorBase
                       const BitVector  bvFlags  = 0) const;
 
     /*! \}                                                                 */
+
+    virtual void mouseMove(Int16        x,
+                           Int16        y);
+
+    virtual void mouseButtonPress(UInt16        button,
+                                   Int16        x,
+                                   Int16        y     );
+
+    virtual void mouseButtonRelease(UInt16      button,
+                                     Int16      x,
+                                     Int16      y     );
     /*=========================  PROTECTED  ===============================*/
   protected:
 
@@ -96,13 +107,10 @@ class OSG_CONTRIBGUI_DLLMAPPING MoveManipulator : public MoveManipulatorBase
 
     /*! \}                                                                 */
 
-    virtual NodeTransitPtr makeHandleGeo();
-    virtual void           doMovement(const Int32         coord,
-                                      const Real32        value,
-                                      const Vec3f        &translation,
-                                      const Quaternion   &rotation,
-                                      const Vec3f        &scaleFactor,
-                                      const Quaternion   &scaleOrientation);
+    virtual NodeTransitPtr makeHandleGeo(Real32 radius, UInt16 axis);
+
+    Pnt3f _TargetInitialOrigin;
+    Pnt3f _StartManipInitialPosition;
 
     /*==========================  PRIVATE  ================================*/
 private:

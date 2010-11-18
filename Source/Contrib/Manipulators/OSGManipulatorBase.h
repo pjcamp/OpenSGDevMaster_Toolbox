@@ -66,9 +66,10 @@
 #include "OSGTransform.h" // Parent
 
 #include "OSGNodeFields.h"              // Target type
+#include "OSGSysFields.h"               // ActiveHandle type
 #include "OSGVecFields.h"               // StartMousePos type
 #include "OSGViewportFields.h"          // Viewport type
-#include "OSGSysFields.h"               // Active type
+#include "OSGGeometryFields.h"          // XGeometries type
 #include "OSGMaterialFields.h"          // MaterialX type
 
 #include "OSGManipulatorFields.h"
@@ -90,6 +91,8 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
     typedef TypeObject::InitPhase InitPhase;
 
     OSG_GEN_INTERNALPTR(Manipulator);
+    
+    
 
     /*==========================  PUBLIC  =================================*/
 
@@ -98,75 +101,79 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
     enum
     {
         TargetFieldId = Inherited::NextFieldId,
-        ActiveSubHandleFieldId = TargetFieldId + 1,
-        StartMousePosFieldId = ActiveSubHandleFieldId + 1,
+        ActiveHandleFieldId = TargetFieldId + 1,
+        RolloverHandleFieldId = ActiveHandleFieldId + 1,
+        StartMousePosFieldId = RolloverHandleFieldId + 1,
         ViewportFieldId = StartMousePosFieldId + 1,
-        ActiveFieldId = ViewportFieldId + 1,
-        LengthFieldId = ActiveFieldId + 1,
-        HandleXNodeFieldId = LengthFieldId + 1,
-        HandleYNodeFieldId = HandleXNodeFieldId + 1,
-        HandleZNodeFieldId = HandleYNodeFieldId + 1,
-        TransXNodeFieldId = HandleZNodeFieldId + 1,
-        TransYNodeFieldId = TransXNodeFieldId + 1,
-        TransZNodeFieldId = TransYNodeFieldId + 1,
-        MaterialXFieldId = TransZNodeFieldId + 1,
+        MaintainScreenSizeFieldId = ViewportFieldId + 1,
+        ManipulatorScreenDepthFieldId = MaintainScreenSizeFieldId + 1,
+        LengthFieldId = ManipulatorScreenDepthFieldId + 1,
+        WidthFieldId = LengthFieldId + 1,
+        XGeometriesFieldId = WidthFieldId + 1,
+        YGeometriesFieldId = XGeometriesFieldId + 1,
+        ZGeometriesFieldId = YGeometriesFieldId + 1,
+        MaterialXFieldId = ZGeometriesFieldId + 1,
         MaterialYFieldId = MaterialXFieldId + 1,
         MaterialZFieldId = MaterialYFieldId + 1,
-        AxisLinesNFieldId = MaterialZFieldId + 1,
-        NextFieldId = AxisLinesNFieldId + 1
+        MaterialSelectedFieldId = MaterialZFieldId + 1,
+        MaterialRolloverFieldId = MaterialSelectedFieldId + 1,
+        NextFieldId = MaterialRolloverFieldId + 1
     };
 
     static const OSG::BitVector TargetFieldMask =
         (TypeTraits<BitVector>::One << TargetFieldId);
-    static const OSG::BitVector ActiveSubHandleFieldMask =
-        (TypeTraits<BitVector>::One << ActiveSubHandleFieldId);
+    static const OSG::BitVector ActiveHandleFieldMask =
+        (TypeTraits<BitVector>::One << ActiveHandleFieldId);
+    static const OSG::BitVector RolloverHandleFieldMask =
+        (TypeTraits<BitVector>::One << RolloverHandleFieldId);
     static const OSG::BitVector StartMousePosFieldMask =
         (TypeTraits<BitVector>::One << StartMousePosFieldId);
     static const OSG::BitVector ViewportFieldMask =
         (TypeTraits<BitVector>::One << ViewportFieldId);
-    static const OSG::BitVector ActiveFieldMask =
-        (TypeTraits<BitVector>::One << ActiveFieldId);
+    static const OSG::BitVector MaintainScreenSizeFieldMask =
+        (TypeTraits<BitVector>::One << MaintainScreenSizeFieldId);
+    static const OSG::BitVector ManipulatorScreenDepthFieldMask =
+        (TypeTraits<BitVector>::One << ManipulatorScreenDepthFieldId);
     static const OSG::BitVector LengthFieldMask =
         (TypeTraits<BitVector>::One << LengthFieldId);
-    static const OSG::BitVector HandleXNodeFieldMask =
-        (TypeTraits<BitVector>::One << HandleXNodeFieldId);
-    static const OSG::BitVector HandleYNodeFieldMask =
-        (TypeTraits<BitVector>::One << HandleYNodeFieldId);
-    static const OSG::BitVector HandleZNodeFieldMask =
-        (TypeTraits<BitVector>::One << HandleZNodeFieldId);
-    static const OSG::BitVector TransXNodeFieldMask =
-        (TypeTraits<BitVector>::One << TransXNodeFieldId);
-    static const OSG::BitVector TransYNodeFieldMask =
-        (TypeTraits<BitVector>::One << TransYNodeFieldId);
-    static const OSG::BitVector TransZNodeFieldMask =
-        (TypeTraits<BitVector>::One << TransZNodeFieldId);
+    static const OSG::BitVector WidthFieldMask =
+        (TypeTraits<BitVector>::One << WidthFieldId);
+    static const OSG::BitVector XGeometriesFieldMask =
+        (TypeTraits<BitVector>::One << XGeometriesFieldId);
+    static const OSG::BitVector YGeometriesFieldMask =
+        (TypeTraits<BitVector>::One << YGeometriesFieldId);
+    static const OSG::BitVector ZGeometriesFieldMask =
+        (TypeTraits<BitVector>::One << ZGeometriesFieldId);
     static const OSG::BitVector MaterialXFieldMask =
         (TypeTraits<BitVector>::One << MaterialXFieldId);
     static const OSG::BitVector MaterialYFieldMask =
         (TypeTraits<BitVector>::One << MaterialYFieldId);
     static const OSG::BitVector MaterialZFieldMask =
         (TypeTraits<BitVector>::One << MaterialZFieldId);
-    static const OSG::BitVector AxisLinesNFieldMask =
-        (TypeTraits<BitVector>::One << AxisLinesNFieldId);
+    static const OSG::BitVector MaterialSelectedFieldMask =
+        (TypeTraits<BitVector>::One << MaterialSelectedFieldId);
+    static const OSG::BitVector MaterialRolloverFieldMask =
+        (TypeTraits<BitVector>::One << MaterialRolloverFieldId);
     static const OSG::BitVector NextFieldMask =
         (TypeTraits<BitVector>::One << NextFieldId);
         
     typedef SFUnrecNodePtr    SFTargetType;
-    typedef SFUnrecNodePtr    SFActiveSubHandleType;
+    typedef SFUInt16          SFActiveHandleType;
+    typedef SFUInt16          SFRolloverHandleType;
     typedef SFPnt2f           SFStartMousePosType;
     typedef SFUnrecViewportPtr SFViewportType;
-    typedef SFBool            SFActiveType;
+    typedef SFBool            SFMaintainScreenSizeType;
+    typedef SFReal32          SFManipulatorScreenDepthType;
     typedef SFVec3f           SFLengthType;
-    typedef SFUnrecNodePtr    SFHandleXNodeType;
-    typedef SFUnrecNodePtr    SFHandleYNodeType;
-    typedef SFUnrecNodePtr    SFHandleZNodeType;
-    typedef SFUnrecNodePtr    SFTransXNodeType;
-    typedef SFUnrecNodePtr    SFTransYNodeType;
-    typedef SFUnrecNodePtr    SFTransZNodeType;
+    typedef SFVec3f           SFWidthType;
+    typedef MFUnrecGeometryPtr MFXGeometriesType;
+    typedef MFUnrecGeometryPtr MFYGeometriesType;
+    typedef MFUnrecGeometryPtr MFZGeometriesType;
     typedef SFUnrecMaterialPtr SFMaterialXType;
     typedef SFUnrecMaterialPtr SFMaterialYType;
     typedef SFUnrecMaterialPtr SFMaterialZType;
-    typedef SFUnrecNodePtr    SFAxisLinesNType;
+    typedef SFUnrecMaterialPtr SFMaterialSelectedType;
+    typedef SFUnrecMaterialPtr SFMaterialRolloverType;
 
     /*---------------------------------------------------------------------*/
     /*! \name                    Class Get                                 */
@@ -193,61 +200,59 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
 
             const SFUnrecNodePtr      *getSFTarget         (void) const;
                   SFUnrecNodePtr      *editSFTarget         (void);
-            const SFUnrecNodePtr      *getSFActiveSubHandle(void) const;
-                  SFUnrecNodePtr      *editSFActiveSubHandle(void);
+
+                  SFUInt16            *editSFActiveHandle   (void);
+            const SFUInt16            *getSFActiveHandle    (void) const;
+
+                  SFUInt16            *editSFRolloverHandle (void);
+            const SFUInt16            *getSFRolloverHandle  (void) const;
             const SFUnrecViewportPtr  *getSFViewport       (void) const;
                   SFUnrecViewportPtr  *editSFViewport       (void);
 
-                  SFBool              *editSFActive         (void);
-            const SFBool              *getSFActive          (void) const;
+                  SFBool              *editSFMaintainScreenSize(void);
+            const SFBool              *getSFMaintainScreenSize (void) const;
+
+                  SFReal32            *editSFManipulatorScreenDepth(void);
+            const SFReal32            *getSFManipulatorScreenDepth (void) const;
 
                   SFVec3f             *editSFLength         (void);
             const SFVec3f             *getSFLength          (void) const;
-            const SFUnrecNodePtr      *getSFHandleXNode    (void) const;
-                  SFUnrecNodePtr      *editSFHandleXNode    (void);
-            const SFUnrecNodePtr      *getSFHandleYNode    (void) const;
-                  SFUnrecNodePtr      *editSFHandleYNode    (void);
-            const SFUnrecNodePtr      *getSFHandleZNode    (void) const;
-                  SFUnrecNodePtr      *editSFHandleZNode    (void);
-            const SFUnrecNodePtr      *getSFTransXNode     (void) const;
-                  SFUnrecNodePtr      *editSFTransXNode     (void);
-            const SFUnrecNodePtr      *getSFTransYNode     (void) const;
-                  SFUnrecNodePtr      *editSFTransYNode     (void);
-            const SFUnrecNodePtr      *getSFTransZNode     (void) const;
-                  SFUnrecNodePtr      *editSFTransZNode     (void);
+
+                  SFVec3f             *editSFWidth          (void);
+            const SFVec3f             *getSFWidth           (void) const;
             const SFUnrecMaterialPtr  *getSFMaterialX      (void) const;
                   SFUnrecMaterialPtr  *editSFMaterialX      (void);
             const SFUnrecMaterialPtr  *getSFMaterialY      (void) const;
                   SFUnrecMaterialPtr  *editSFMaterialY      (void);
             const SFUnrecMaterialPtr  *getSFMaterialZ      (void) const;
                   SFUnrecMaterialPtr  *editSFMaterialZ      (void);
-            const SFUnrecNodePtr      *getSFAxisLinesN     (void) const;
-                  SFUnrecNodePtr      *editSFAxisLinesN     (void);
+            const SFUnrecMaterialPtr  *getSFMaterialSelected(void) const;
+                  SFUnrecMaterialPtr  *editSFMaterialSelected(void);
+            const SFUnrecMaterialPtr  *getSFMaterialRollover(void) const;
+                  SFUnrecMaterialPtr  *editSFMaterialRollover(void);
 
 
                   Node * getTarget         (void) const;
 
-                  Node * getActiveSubHandle(void) const;
+                  UInt16              &editActiveHandle   (void);
+                  UInt16               getActiveHandle    (void) const;
+
+                  UInt16              &editRolloverHandle (void);
+                  UInt16               getRolloverHandle  (void) const;
 
                   Viewport * getViewport       (void) const;
 
-                  bool                &editActive         (void);
-                  bool                 getActive          (void) const;
+                  bool                &editMaintainScreenSize(void);
+                  bool                 getMaintainScreenSize (void) const;
+
+                  Real32              &editManipulatorScreenDepth(void);
+                  Real32               getManipulatorScreenDepth (void) const;
 
                   Vec3f               &editLength         (void);
             const Vec3f               &getLength          (void) const;
 
-                  Node * getHandleXNode    (void) const;
-
-                  Node * getHandleYNode    (void) const;
-
-                  Node * getHandleZNode    (void) const;
-
-                  Node * getTransXNode     (void) const;
-
-                  Node * getTransYNode     (void) const;
-
-                  Node * getTransZNode     (void) const;
+                  Vec3f               &editWidth          (void);
+            const Vec3f               &getWidth           (void) const;
 
                   Material * getMaterialX      (void) const;
 
@@ -255,7 +260,9 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
 
                   Material * getMaterialZ      (void) const;
 
-                  Node * getAxisLinesN     (void) const;
+                  Material * getMaterialSelected(void) const;
+
+                  Material * getMaterialRollover(void) const;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -263,20 +270,18 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
     /*! \{                                                                 */
 
             void setTarget         (Node * const value);
-            void setActiveSubHandle(Node * const value);
+            void setActiveHandle   (const UInt16 value);
+            void setRolloverHandle (const UInt16 value);
             void setViewport       (Viewport * const value);
-            void setActive         (const bool value);
+            void setMaintainScreenSize(const bool value);
+            void setManipulatorScreenDepth(const Real32 value);
             void setLength         (const Vec3f &value);
-            void setHandleXNode    (Node * const value);
-            void setHandleYNode    (Node * const value);
-            void setHandleZNode    (Node * const value);
-            void setTransXNode     (Node * const value);
-            void setTransYNode     (Node * const value);
-            void setTransZNode     (Node * const value);
+            void setWidth          (const Vec3f &value);
             void setMaterialX      (Material * const value);
             void setMaterialY      (Material * const value);
             void setMaterialZ      (Material * const value);
-            void setAxisLinesN     (Node * const value);
+            void setMaterialSelected(Material * const value);
+            void setMaterialRollover(Material * const value);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -315,21 +320,22 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
     /*! \{                                                                 */
 
     SFUnrecNodePtr    _sfTarget;
-    SFUnrecNodePtr    _sfActiveSubHandle;
+    SFUInt16          _sfActiveHandle;
+    SFUInt16          _sfRolloverHandle;
     SFPnt2f           _sfStartMousePos;
     SFUnrecViewportPtr _sfViewport;
-    SFBool            _sfActive;
+    SFBool            _sfMaintainScreenSize;
+    SFReal32          _sfManipulatorScreenDepth;
     SFVec3f           _sfLength;
-    SFUnrecNodePtr    _sfHandleXNode;
-    SFUnrecNodePtr    _sfHandleYNode;
-    SFUnrecNodePtr    _sfHandleZNode;
-    SFUnrecNodePtr    _sfTransXNode;
-    SFUnrecNodePtr    _sfTransYNode;
-    SFUnrecNodePtr    _sfTransZNode;
+    SFVec3f           _sfWidth;
+    MFUnrecGeometryPtr _mfXGeometries;
+    MFUnrecGeometryPtr _mfYGeometries;
+    MFUnrecGeometryPtr _mfZGeometries;
     SFUnrecMaterialPtr _sfMaterialX;
     SFUnrecMaterialPtr _sfMaterialY;
     SFUnrecMaterialPtr _sfMaterialZ;
-    SFUnrecNodePtr    _sfAxisLinesN;
+    SFUnrecMaterialPtr _sfMaterialSelected;
+    SFUnrecMaterialPtr _sfMaterialRollover;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -360,36 +366,38 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
 
     GetFieldHandlePtr  getHandleTarget          (void) const;
     EditFieldHandlePtr editHandleTarget         (void);
-    GetFieldHandlePtr  getHandleActiveSubHandle (void) const;
-    EditFieldHandlePtr editHandleActiveSubHandle(void);
+    GetFieldHandlePtr  getHandleActiveHandle    (void) const;
+    EditFieldHandlePtr editHandleActiveHandle   (void);
+    GetFieldHandlePtr  getHandleRolloverHandle  (void) const;
+    EditFieldHandlePtr editHandleRolloverHandle (void);
     GetFieldHandlePtr  getHandleStartMousePos   (void) const;
     EditFieldHandlePtr editHandleStartMousePos  (void);
     GetFieldHandlePtr  getHandleViewport        (void) const;
     EditFieldHandlePtr editHandleViewport       (void);
-    GetFieldHandlePtr  getHandleActive          (void) const;
-    EditFieldHandlePtr editHandleActive         (void);
+    GetFieldHandlePtr  getHandleMaintainScreenSize (void) const;
+    EditFieldHandlePtr editHandleMaintainScreenSize(void);
+    GetFieldHandlePtr  getHandleManipulatorScreenDepth (void) const;
+    EditFieldHandlePtr editHandleManipulatorScreenDepth(void);
     GetFieldHandlePtr  getHandleLength          (void) const;
     EditFieldHandlePtr editHandleLength         (void);
-    GetFieldHandlePtr  getHandleHandleXNode     (void) const;
-    EditFieldHandlePtr editHandleHandleXNode    (void);
-    GetFieldHandlePtr  getHandleHandleYNode     (void) const;
-    EditFieldHandlePtr editHandleHandleYNode    (void);
-    GetFieldHandlePtr  getHandleHandleZNode     (void) const;
-    EditFieldHandlePtr editHandleHandleZNode    (void);
-    GetFieldHandlePtr  getHandleTransXNode      (void) const;
-    EditFieldHandlePtr editHandleTransXNode     (void);
-    GetFieldHandlePtr  getHandleTransYNode      (void) const;
-    EditFieldHandlePtr editHandleTransYNode     (void);
-    GetFieldHandlePtr  getHandleTransZNode      (void) const;
-    EditFieldHandlePtr editHandleTransZNode     (void);
+    GetFieldHandlePtr  getHandleWidth           (void) const;
+    EditFieldHandlePtr editHandleWidth          (void);
+    GetFieldHandlePtr  getHandleXGeometries     (void) const;
+    EditFieldHandlePtr editHandleXGeometries    (void);
+    GetFieldHandlePtr  getHandleYGeometries     (void) const;
+    EditFieldHandlePtr editHandleYGeometries    (void);
+    GetFieldHandlePtr  getHandleZGeometries     (void) const;
+    EditFieldHandlePtr editHandleZGeometries    (void);
     GetFieldHandlePtr  getHandleMaterialX       (void) const;
     EditFieldHandlePtr editHandleMaterialX      (void);
     GetFieldHandlePtr  getHandleMaterialY       (void) const;
     EditFieldHandlePtr editHandleMaterialY      (void);
     GetFieldHandlePtr  getHandleMaterialZ       (void) const;
     EditFieldHandlePtr editHandleMaterialZ      (void);
-    GetFieldHandlePtr  getHandleAxisLinesN      (void) const;
-    EditFieldHandlePtr editHandleAxisLinesN     (void);
+    GetFieldHandlePtr  getHandleMaterialSelected (void) const;
+    EditFieldHandlePtr editHandleMaterialSelected(void);
+    GetFieldHandlePtr  getHandleMaterialRollover (void) const;
+    EditFieldHandlePtr editHandleMaterialRollover(void);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -399,10 +407,22 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
 
                   SFPnt2f             *editSFStartMousePos  (void);
             const SFPnt2f             *getSFStartMousePos   (void) const;
+            const MFUnrecGeometryPtr  *getMFXGeometries     (void) const;
+                  MFUnrecGeometryPtr  *editMFXGeometries    (void);
+            const MFUnrecGeometryPtr  *getMFYGeometries     (void) const;
+                  MFUnrecGeometryPtr  *editMFYGeometries    (void);
+            const MFUnrecGeometryPtr  *getMFZGeometries     (void) const;
+                  MFUnrecGeometryPtr  *editMFZGeometries    (void);
 
 
                   Pnt2f               &editStartMousePos  (void);
             const Pnt2f               &getStartMousePos   (void) const;
+
+                  Geometry * getXGeometries    (const UInt32 index) const;
+
+                  Geometry * getYGeometries    (const UInt32 index) const;
+
+                  Geometry * getZGeometries    (const UInt32 index) const;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -415,6 +435,24 @@ class OSG_CONTRIBGUI_DLLMAPPING ManipulatorBase : public Transform
     /*---------------------------------------------------------------------*/
     /*! \name                Ptr MField Set                                */
     /*! \{                                                                 */
+
+    void pushToXGeometries           (Geometry * const value   );
+    void assignXGeometries           (const MFUnrecGeometryPtr &value);
+    void removeFromXGeometries (UInt32                uiIndex );
+    void removeObjFromXGeometries(Geometry * const value   );
+    void clearXGeometries            (void                          );
+
+    void pushToYGeometries           (Geometry * const value   );
+    void assignYGeometries           (const MFUnrecGeometryPtr &value);
+    void removeFromYGeometries (UInt32                uiIndex );
+    void removeObjFromYGeometries(Geometry * const value   );
+    void clearYGeometries            (void                          );
+
+    void pushToZGeometries           (Geometry * const value   );
+    void assignZGeometries           (const MFUnrecGeometryPtr &value);
+    void removeFromZGeometries (UInt32                uiIndex );
+    void removeObjFromZGeometries(Geometry * const value   );
+    void clearZGeometries            (void                          );
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

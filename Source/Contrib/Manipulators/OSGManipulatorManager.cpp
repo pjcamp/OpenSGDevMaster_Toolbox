@@ -41,7 +41,10 @@
 //---------------------------------------------------------------------------
 
 #include "OSGConfig.h"
+#include "OSGBaseTypes.h"
+
 #include "OSGManipulatorManager.h"
+#include "OSGIntersectAction.h"
 
 OSG_BEGIN_NAMESPACE
 
@@ -49,44 +52,31 @@ OSG_BEGIN_NAMESPACE
 // Manipulators. Damit besteht ein Problem mit Multi-Parents, das nicht waere,
 // wenn der ManipulatorManager sich den Node merken wuerde!?!
 
-ManipulatorManager::ManipulatorManager()
-    : _maniN      (),
-      _currentType(),
-      _target     (),
-      _viewport   ()
+NodeTransitPtr ManipulatorManager::createManipulator(const ManipulatorType type)
 {
-}
-
-ManipulatorManager::~ManipulatorManager()
-{
-    _maniN    = NULL;
-    _target   = NULL;
-    _viewport = NULL;
-}
-
-Node* ManipulatorManager::createManipulator(const ManipulatorType type)
-{
-    ManipulatorUnrecPtr mani;
-  
+    NodeTransitPtr maniN = Node::create();
+    
     switch (type)
     {
         case ROTATE:
-            mani = RotateManipulator::create();
+            _maniC = RotateManipulator::create();
+            _maniC->setManipulatorScreenDepth(_depth);  
             break;
         case SCALE:
-            mani = ScaleManipulator::create();
+            _maniC = ScaleManipulator::create();
+            _maniC->setManipulatorScreenDepth(_depth);  
             break;
         case TRANSLATE:
-            mani = MoveManipulator::create();    
+            _maniC = MoveManipulator::create();  
+            _maniC->setManipulatorScreenDepth(_depth);  
             break;
     }
     
     _currentType = type;
 
-    _maniN = makeNodeFor(mani);
-    commitChanges();
+    maniN->setCore(_maniC);
 
-    return _maniN;
+    return maniN;
 }
 
 Manipulator* ManipulatorManager::getManipulator(void) const
@@ -108,6 +98,19 @@ void ManipulatorManager::setUniformScale(bool value)
 {
     _uniformScale = value;
 }
+void   ManipulatorManager::setManipulatorScreenDepth   (Real32 depth)
+{
+    _depth = depth;
+    if(_maniC != NULL)
+    {
+        _maniC->setManipulatorScreenDepth(_depth);
+    }
+}
+
+Real32 ManipulatorManager::getManipulatorScreenDepth   (void        ) const
+{
+    return _depth;
+}
 
 ManipulatorManager::ManipulatorType ManipulatorManager::getManipulatorType(void) const
 {
@@ -117,11 +120,9 @@ ManipulatorManager::ManipulatorType ManipulatorManager::getManipulatorType(void)
 // TODO: 
 void ManipulatorManager::changeManipulator(const ManipulatorType type)
 {
-    if(type != _currentType)
+    if (type != _currentType)
     {
-        ManipulatorUnrecPtr mani;
-  
-        switch (type)
+        if ( ! _maniC->getParents().empty() )
         {
             Node *maniN = dynamic_cast<Node *>(_maniC->getParents()[0]);
             Vec3f len(1.0f,1.0f,1.0f);
@@ -137,14 +138,17 @@ void ManipulatorManager::changeManipulator(const ManipulatorType type)
                 case TRANSLATE:
                     _maniC = MoveManipulator::create();
                     _maniC->setLength(len);
+                    _maniC->setManipulatorScreenDepth(_depth);
                     break;
                 case ROTATE:
                     _maniC = RotateManipulator::create();
                     _maniC->setLength(len);
+                    _maniC->setManipulatorScreenDepth(_depth);
                     break;
                 case SCALE:
                     _maniC = ScaleManipulator::create();
                     _maniC->setLength(len);
+                    _maniC->setManipulatorScreenDepth(_depth);
                     dynamic_pointer_cast<ScaleManipulator>(_maniC)->setUniform(_uniformScale);
                     break;
             }
@@ -162,115 +166,66 @@ void ManipulatorManager::changeManipulator(const ManipulatorType type)
 
             commitChanges();
         }
-
-        _currentType = type;
-
-        _maniN->setCore(mani);
-
-        commitChanges();
-
-        mani->setTarget  (_target  );
-        mani->setViewport(_viewport);
     }
-}
-
-ManipulatorManager::ManipulatorType
-ManipulatorManager::getCurrentType() const
-{
-    return _currentType;
 }
 
 void ManipulatorManager::setTarget(Node * const value)
 {
-    Manipulator* mani = _maniN->getCore<Manipulator>();
-
-    if(mani != NULL)
-    {
-        mani->setTarget(value);
-        _target = value;
-    }
-    else
-    {
-        SWARNING << "ManipulatorManager::setTarget: No active manipulator."
-                 << std::endl;
-    }
+    _maniC->setTarget(value);
+    _target = value;
 }
 
 void ManipulatorManager::setViewport(Viewport * const value)
 {
-    Manipulator* mani = _maniN->getCore<Manipulator>();
-
-    if(mani != NULL)
-    {
-        mani->setViewport(value);
-        _viewport = value;
-    }
-    else
-    {
-        SWARNING << "ManipulatorManager::setViewport: No active manipulator."
-                 << std::endl;
-    }
-}
-
-bool ManipulatorManager::isActive()
-{
-    bool         retVal = false;
-    Manipulator* mani   = _maniN->getCore<Manipulator>();
-
-    if(mani != NULL)
-        retVal = mani->getActive();
-
-    return retVal;
+    _maniC->setViewport(value);
+    _viewport = value;
 }
 
 void ManipulatorManager::mouseMove(const Int16 x,
                                    const Int16 y)
 {
-    Manipulator* mani = _maniN->getCore<Manipulator>();
+    if(getTarget() == NULL) return;
 
-    mani->mouseMove(x, y);
+    _maniC->mouseMove(x, y);
 }
 
 void ManipulatorManager::mouseButtonPress(const UInt16 uiButton,
                                           const Int16 x,
                                           const Int16 y      )
 {
-    Manipulator* mani = _maniN->getCore<Manipulator>();
+    if(getTarget() == NULL) return;
 
-    mani->mouseButtonPress(uiButton, x, y);
+    _maniC->mouseButtonPress(uiButton, x, y);
 }
 
 void ManipulatorManager::mouseButtonRelease(const UInt16 uiButton,
                                             const Int16 x,
                                             const Int16 y      )
 {
-    Manipulator* mani = _maniN->getCore<Manipulator>();
+    if(getTarget() == NULL) return;
 
-    mani->mouseButtonRelease(uiButton, x, y);
+    _maniC->mouseButtonRelease(uiButton, x, y);
 }
 
 bool ManipulatorManager::startManip(Node *n)
 {
-    Manipulator* mani = _maniN->getCore<Manipulator>();
+    if(getTarget() == NULL) return false;
 
-    if(mani->hasSubHandle(n) )
-    {
-        _maniC->startManip(n);
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    _maniC->startManip(n);
+    return _maniC->isManipulating();
 }
 
 void ManipulatorManager::cancelManip(void)
 {
+    if(getTarget() == NULL) return;
+
     _maniC->cancelManip();
 }
 
 void ManipulatorManager::endManip(void)
 {
+    if(getTarget() == NULL) return;
+
     _maniC->endManip();
 }
 
@@ -282,6 +237,59 @@ bool ManipulatorManager::isManipulating(void) const
 void ManipulatorManager::setLength(const Vec3f& len)
 {
     _maniC->setLength(len);
+}
+    
+void ManipulatorManager::handleMouseMoveTest(const Int16  x,
+                                             const Int16  y)
+{
+    if(getTarget() == NULL) return;
+
+    if(isManipulating())
+    {
+        return;
+    }
+
+    Line l;
+
+    getManipulator()->getViewport()->getCamera()->calcViewRay(l, x, y, *getManipulator()->getViewport());
+
+    boost::scoped_ptr<IntersectAction> act(IntersectAction::create());
+
+    act->setLine( l );
+    act->apply( dynamic_cast<Node*>(_maniC->getParents().front()) );
+    act->setTravMask(Manipulator::ALL_AXIS_TRAV_MASK);
+
+    if (act->didHit())
+    {
+        getManipulator()->rolloverHandle(act->getHitObject());
+    }
+    else if(getManipulator()->isRolledOver())
+    {
+        getManipulator()->exitHandle();
+    }
+
+}
+
+void ManipulatorManager::handleMouseSelectionTest(const UInt16 uiButton,
+                                                  const Int16 x,
+                                                  const Int16 y      )
+{
+    if(getTarget() == NULL) return;
+
+    Line l;
+
+    getManipulator()->getViewport()->getCamera()->calcViewRay(l, x, y, *getManipulator()->getViewport());
+
+    boost::scoped_ptr<IntersectAction> act(IntersectAction::create());
+
+    act->setLine( l );
+    act->apply( dynamic_cast<Node*>(_maniC->getParents().front()) );
+    act->setTravMask(Manipulator::ALL_AXIS_TRAV_MASK);
+
+    if ( (act->didHit()) && (startManip( act->getHitObject()) ) )
+    {
+        mouseButtonPress(uiButton, x, y);
+    }
 }
 
 

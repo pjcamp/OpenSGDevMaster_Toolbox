@@ -136,28 +136,133 @@ void MoveManipulator::dump(      UInt32    uiIndent,
     Inherited::dump(uiIndent, bvFlags);
 }
 
-NodeTransitPtr MoveManipulator::makeHandleGeo()
+NodeTransitPtr MoveManipulator::makeHandleGeo(Real32 radius,
+                                              UInt16 axis)
 {
-    return makeCone(0.6f, 0.15f, 12, true, true);
+    //Make Rendered geometry
+    GeometryRecPtr ConeGeo = makeConeGeo(radius*4.0f, radius, 12, true, true);
+    editAxisGeometries(axis)->push_back(ConeGeo);
+
+    ConeGeo->setMaterial(getAxisMaterial(axis));
+
+    NodeRecPtr ConeRenderedNode = makeNodeFor(ConeGeo);
+    ConeRenderedNode->setTravMask(NONCOLLIDE_RENDERED_TRAV_MASK);
+
+    //Make collidable geometry
+    GeometryRecPtr ConeCollisionGeo = makeConeGeo(radius*8.0f, radius*2.0f, 8, true, true);
+
+    NodeRecPtr ConeCollisionNode = makeNodeFor(ConeCollisionGeo);
+    ConeCollisionNode->setTravMask(getAxisCollisionTravMask(axis));
+
+    //Handle Node
+    ComponentTransformUnrecPtr TransHandleXC = ComponentTransform::create();
+
+    Vec3f Direction(0.0f,0.0f,0.0f);
+    Direction[axis] = 1.0f;
+    TransHandleXC->setTranslation(Direction * (1.0f + radius*2.0f));
+    TransHandleXC->setRotation   (Quaternion(Vec3f(0.0f,1.0f,0.0f),Direction));
+
+    NodeRecPtr HandleNode = makeNodeFor(TransHandleXC);
+    HandleNode->addChild(ConeRenderedNode);
+    HandleNode->addChild(ConeCollisionNode);
+
+    return NodeTransitPtr(HandleNode);
 }
 
-void MoveManipulator::doMovement(const Int32         coord,
-                                 const Real32        value,
-                                 const Vec3f        &translation,
-                                 const Quaternion   &rotation,
-                                 const Vec3f        &scaleFactor,
-                                 const Quaternion   &scaleOrientation)
+/*! The mouseMove is called by the viewer when the mouse is moved in the
+    viewer and this handle is the active one.
+
+    \param x the x-pos of the mouse (pixel)
+    \param y the y-pos of the mouse (pixel)
+ */
+void MoveManipulator::mouseMove(const Int16 x,
+                            const Int16 y)
 {
-    Vec3f trans(0.0f, 0.0f, 0.0f);
-    trans[coord] = value * getLength()[coord];
+    if(isManipulating())
+    {
+        Inherited::mouseMove(x,y);
 
-    Matrix translateMat;
-    translateMat.setTranslate(trans);
+        // get the beacon's core (must be ComponentTransform) and it's center
+        if( getTarget() != NULL )
+        {
+            if( getTarget()->getCore() != NULL )
+            {
+                //Get the line defined by the screen location of the mouse shooting into the screen
+                Line MouseRay;
+                getViewport()->getCamera()->calcViewRay(MouseRay, x, y, *getViewport());
 
-    Matrix Result(_initialXForm);
-    Result.mult(translateMat);
+                //Get the line defined by the currently selected axis
+                Vec3f HandleDirection(0.0f,0.0f,0.0f);
+                HandleDirection[getActiveHandle()] = 1.0f;
+                Line HandleRay(_TargetInitialOrigin, getTarget()->getToWorld() * HandleDirection);
 
-    setTransformation(Result);
+                //Find the closest point between the two lines
+                Pnt3f ClosestMouseLinePosition;
+                Pnt3f ClosestHandleLinePosition;
+                MouseRay.getClosestPoints(HandleRay, ClosestMouseLinePosition, ClosestHandleLinePosition);
 
-    //commitChanges();
+                Vec3f      translation;       // for matrix decomposition
+                Quaternion rotation;
+                Vec3f      scaleFactor;
+                Quaternion scaleOrientation;
+                getTransformation(translation, rotation, scaleFactor, scaleOrientation);
+
+                translation = _TargetInitialOrigin.subZero() + (ClosestHandleLinePosition - _StartManipInitialPosition);
+
+                setTransformation(translation, rotation, scaleFactor, Quaternion());
+            }
+            else
+            {
+                SWARNING << "handled object has no parent transform!\n";
+            }
+            callExternalUpdateHandler();
+        }
+        else
+        {
+            SWARNING << "Handle has no target.\n";
+        }
+    }
+}
+
+/*! The mouseButtonPress is called by the viewer when the mouse is
+    pressed in the viewer above a subhandle of this handle.
+
+    \param button the button pressed
+    \param x the x-pos of the mouse (pixel)
+    \param y the y-pos of the mouse (pixel)
+ */
+
+void MoveManipulator::mouseButtonPress(const UInt16 button,
+                                   const Int16  x,
+                                   const Int16  y     )
+{
+    Inherited::mouseButtonPress(button,x,y);
+
+    //get the active handle
+    if(isManipulating())
+    {
+        //Get the origin of the target
+        _TargetInitialOrigin = getTarget()->getToWorld() * Pnt3f(0.0f,0.0f,0.0f);           // center of beacon
+
+        
+        //Get the line defined by the screen location of the mouse shooting into the screen
+        Line MouseRay;
+        getViewport()->getCamera()->calcViewRay(MouseRay, x, y, *getViewport());
+
+        //Get the line defined by the currently selected axis
+        Vec3f HandleDirection(0.0f,0.0f,0.0f);
+        HandleDirection[getActiveHandle()] = 1.0f;
+        Line HandleRay(_TargetInitialOrigin, getTarget()->getToWorld() * HandleDirection);
+
+        //Find the closest point between the two lines
+        Pnt3f ClosestMouseLinePosition;
+        MouseRay.getClosestPoints(HandleRay, ClosestMouseLinePosition, _StartManipInitialPosition);
+    }
+}
+
+void MoveManipulator::mouseButtonRelease(const UInt16 button,
+                                     const Int16  x,
+                                     const Int16  y     )
+{
+    Inherited::mouseButtonRelease(button,x,y);
 }

@@ -14,24 +14,39 @@
 Baseclass for all Manipulators
 	<Field
 		name="target"
-		type="NodePtr"
+		type="Node"
+		category="pointer"
 		cardinality="single"
 		visibility="external"
 		access="public"
 	>
 	</Field>
 	<Field
-		name="activeSubHandle"
-		type="NodePtr"
+		name="activeHandle"
+		type="UInt16"
+		category="data"
 		cardinality="single"
 		visibility="internal"
 		access="public"
+		defaultValue="Manipulator::NO_AXES_HANDLE"
+	>
+	the active sub handle
+	</Field>
+	<Field
+		name="rolloverHandle"
+		type="UInt16"
+		category="data"
+		cardinality="single"
+		visibility="internal"
+		access="public"
+		defaultValue="Manipulator::NO_AXES_HANDLE"
 	>
 	the active sub handle
 	</Field>
 	<Field
 		name="startMousePos"
 		type="Pnt2f"
+		category="data"
 		cardinality="single"
 		visibility="external"
 		access="protected"
@@ -40,7 +55,8 @@ Baseclass for all Manipulators
 	</Field>
 	<Field
 		name="viewport"
-		type="ViewportPtr"
+		type="Viewport"
+		category="pointer"
 		cardinality="single"
 		visibility="internal"
 		defaultValue="NULL"
@@ -48,110 +64,127 @@ Baseclass for all Manipulators
 	>
 	</Field>
 	<Field
-		name="active"
+		name="maintainScreenSize"
 		type="bool"
+		category="data"
 		cardinality="single"
 		visibility="external"
+		defaultValue="true"
 		access="public"
 	>
+	If MaintainScreenSize is true then the manipulator will be drawn the same size on the screen regardless of the distance of the manipulor target from the camera.
+	</Field>
+	<Field
+		name="manipulatorScreenDepth"
+		type="Real32"
+		category="data"
+		cardinality="single"
+		visibility="external"
+		defaultValue="10.0f"
+		access="public"
+	>
+	The distance from the screen that the manipulator is drawn.
 	</Field>
 	<Field
 		name="length"
 		type="Vec3f"
+		category="data"
 		cardinality="single"
 		visibility="external"
-		defaultValue="1,1,1"
+		defaultValue="1.0f,1.0f,1.0f"
 		access="public"
 	>
 	The length of the three axes in one vector
 	</Field>
 	<Field
-		name="handleXNode"
-		type="NodePtr"
+		name="width"
+		type="Vec3f"
+		category="data"
 		cardinality="single"
-		visibility="internal"
+		visibility="external"
+		defaultValue="0.025f,0.025f,0.025f"
 		access="public"
+	>
+	The width of the three axes in one vector
+	</Field>
+	<Field
+		name="XGeometries"
+		type="Geometry"
+		category="pointer"
+		cardinality="multi"
+		visibility="internal"
+		access="protected"
 	>
 	The node for the x-handle geometry
 	</Field>
 	<Field
-		name="handleYNode"
-		type="NodePtr"
-		cardinality="single"
+		name="YGeometries"
+		type="Geometry"
+		category="pointer"
+		cardinality="multi"
 		visibility="internal"
-		access="public"
+		access="protected"
 	>
 	The node for the y-handle geometry
 	</Field>
 	<Field
-		name="handleZNode"
-		type="NodePtr"
-		cardinality="single"
+		name="ZGeometries"
+		type="Geometry"
+		category="pointer"
+		cardinality="multi"
 		visibility="internal"
-		access="public"
+		access="protected"
 	>
 	The node for the z-handle geometry
 	</Field>
 	<Field
-		name="transXNode"
-		type="NodePtr"
-		cardinality="single"
-		visibility="internal"
-		access="public"
-	>
-	The node for the x-handle transform
-	</Field>
-	<Field
-		name="transYNode"
-		type="NodePtr"
-		cardinality="single"
-		visibility="internal"
-		access="public"
-	>
-	The node for the y-handle transform
-	</Field>
-	<Field
-		name="transZNode"
-		type="NodePtr"
-		cardinality="single"
-		visibility="internal"
-		access="public"
-	>
-	The node for the z-handle transform
-	</Field>
-	<Field
 		name="materialX"
-		type="MaterialPtr"
+		type="Material"
+		category="pointer"
 		cardinality="single"
-		visibility="internal"
+		visibility="external"
 		access="public"
 	>
 	material for the x-axis geometry
 	</Field>
 	<Field
 		name="materialY"
-		type="MaterialPtr"
+		type="Material"
+		category="pointer"
 		cardinality="single"
-		visibility="internal"
+		visibility="external"
 		access="public"
 	>
 	material for the y-axis geometry
 	</Field>
 	<Field
 		name="materialZ"
-		type="MaterialPtr"
+		type="Material"
+		category="pointer"
 		cardinality="single"
-		visibility="internal"
+		visibility="external"
 		access="public"
 	>
 	material for the z-axis geometry
 	</Field>
 	<Field
-		name="axisLinesN"
-		type="NodePtr"
+		name="materialSelected"
+		type="Material"
+		category="pointer"
 		cardinality="single"
-		visibility="internal"
+		visibility="external"
 		access="public"
 	>
+	material for the axis geometry while selected
+	</Field>
+	<Field
+		name="materialRollover"
+		type="Material"
+		category="pointer"
+		cardinality="single"
+		visibility="external"
+		access="public"
+	>
+	material for the axis geometry while rolled over
 	</Field>
 </FieldContainer>

@@ -65,8 +65,23 @@ class OSG_CONTRIBGUI_DLLMAPPING Manipulator : public ManipulatorBase
         Y_AXIS_HANDLE   = 1,
         Z_AXIS_HANDLE   = 2,
         ALL_AXES_HANDLE = 3,
-        NO_AXES_HANDLE  = 4
+        XY_AXES_HANDLE  = 4,
+        XZ_AXES_HANDLE  = 5,
+        YZ_AXES_HANDLE  = 6,
+        NO_AXES_HANDLE  = 7
+    };
 
+    enum ManipCollideTravmask
+    {
+        NONE_TRAV_MASK   = 0,
+        NONCOLLIDE_RENDERED_TRAV_MASK   = 1,
+        X_AXIS_TRAV_MASK   = 2,
+        Y_AXIS_TRAV_MASK   = 4,
+        Z_AXIS_TRAV_MASK   = 8,
+        XY_AXES_TRAV_MASK  = 6,
+        XZ_AXES_TRAV_MASK  = 10,
+        YZ_AXES_TRAV_MASK  = 12,
+        ALL_AXIS_TRAV_MASK   = 14
     };
 
     /*---------------------------------------------------------------------*/
@@ -96,8 +111,6 @@ class OSG_CONTRIBGUI_DLLMAPPING Manipulator : public ManipulatorBase
                                      Int16      x,
                                      Int16      y     );
 
-    virtual bool hasSubHandle(Node * const n);
-
     void setExternalUpdateHandler(ExternalUpdateHandler* h);
 
     void callExternalUpdateHandler();
@@ -107,6 +120,10 @@ class OSG_CONTRIBGUI_DLLMAPPING Manipulator : public ManipulatorBase
     virtual void endManip      (void);
             bool isManipulating(void) const;
     const Matrix& getInitialXForm(void) const;
+
+    virtual void rolloverHandle(Node *subHandle);
+    virtual void exitHandle(void);
+            bool isRolledOver(void) const;
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
@@ -146,20 +163,13 @@ class OSG_CONTRIBGUI_DLLMAPPING Manipulator : public ManipulatorBase
 
     /*! \}                                                                 */
 
-    virtual NodeTransitPtr makeHandleGeo() = 0;
+    virtual NodeTransitPtr makeHandleGeo(Real32 radius, UInt16 Axis) = 0;
     virtual void           addHandleGeo(Node * n);
     virtual void           subHandleGeo(Node * n);
-    virtual UInt16         getActiveHandle(void) const;
     void                   reverseTransform();
     virtual void           updateLength(void);
+    virtual void           updateWidth (void);
     void                   updateParent(void);
-
-    virtual void    doMovement(const Int32        coord,
-                               const Real32       value,
-                               const Vec3f        &translation,
-                               const Quaternion   &rotation,
-                               const Vec3f        &scaleFactor,
-                               const Quaternion   &scaleOrientation) = 0;
 
     Pnt2f calcScreenProjection(const Pnt3f    &,
                                      Viewport * const port);
@@ -178,12 +188,25 @@ class OSG_CONTRIBGUI_DLLMAPPING Manipulator : public ManipulatorBase
 
     void setTransformation(const Matrix   &mat);
 
+    UInt16 getNodeHandle(Node* const HandleNode) const;
+
+    virtual NodeTransitPtr createXAxisManipulator(void);
+    virtual NodeTransitPtr createYAxisManipulator(void);
+    virtual NodeTransitPtr createZAxisManipulator(void);
+    virtual NodeTransitPtr createAxisManipulator(UInt16 Axis);
+
     NodeUnrecPtr            _activeParent;
+    NodeUnrecPtr            _root;
     ExternalUpdateHandler*  _externalUpdateHandler;
-    bool                    _isManipulating;
     Matrix                  _initialXForm;
-    Pnt2f                   _startMouseProj;
-    Vec2f                   _handleScreenDir;
+
+    virtual UInt32 getAxisCollisionTravMask(UInt16 Axis) const;
+    virtual Material* getAxisMaterial(UInt16 Axis) const;
+    virtual MFUnrecGeometryPtr* editAxisGeometries(UInt16 Axis);
+    virtual void createMaterials(void);
+    
+    void applyStateMaterial(UInt16 Axis);
+    virtual Material* getCurStateAxisMaterial(UInt16 Axis) const;
 
     /*==========================  PRIVATE  ================================*/
   private:

@@ -48,6 +48,7 @@
  *****************************************************************************
 \*****************************************************************************/
 
+
 OSG_BEGIN_NAMESPACE
 
 
@@ -89,21 +90,55 @@ void ManipulatorBase::setTarget(Node * const value)
 
     _sfTarget.setValue(value);
 }
+//! Get the value of the Manipulator::_sfActiveHandle field.
 
-//! Get the value of the Manipulator::_sfActiveSubHandle field.
 inline
-Node * ManipulatorBase::getActiveSubHandle(void) const
+UInt16 &ManipulatorBase::editActiveHandle(void)
 {
-    return _sfActiveSubHandle.getValue();
+    editSField(ActiveHandleFieldMask);
+
+    return _sfActiveHandle.getValue();
 }
 
-//! Set the value of the Manipulator::_sfActiveSubHandle field.
+//! Get the value of the Manipulator::_sfActiveHandle field.
 inline
-void ManipulatorBase::setActiveSubHandle(Node * const value)
+      UInt16  ManipulatorBase::getActiveHandle(void) const
 {
-    editSField(ActiveSubHandleFieldMask);
+    return _sfActiveHandle.getValue();
+}
 
-    _sfActiveSubHandle.setValue(value);
+//! Set the value of the Manipulator::_sfActiveHandle field.
+inline
+void ManipulatorBase::setActiveHandle(const UInt16 value)
+{
+    editSField(ActiveHandleFieldMask);
+
+    _sfActiveHandle.setValue(value);
+}
+//! Get the value of the Manipulator::_sfRolloverHandle field.
+
+inline
+UInt16 &ManipulatorBase::editRolloverHandle(void)
+{
+    editSField(RolloverHandleFieldMask);
+
+    return _sfRolloverHandle.getValue();
+}
+
+//! Get the value of the Manipulator::_sfRolloverHandle field.
+inline
+      UInt16  ManipulatorBase::getRolloverHandle(void) const
+{
+    return _sfRolloverHandle.getValue();
+}
+
+//! Set the value of the Manipulator::_sfRolloverHandle field.
+inline
+void ManipulatorBase::setRolloverHandle(const UInt16 value)
+{
+    editSField(RolloverHandleFieldMask);
+
+    _sfRolloverHandle.setValue(value);
 }
 //! Get the value of the Manipulator::_sfStartMousePos field.
 
@@ -146,30 +181,55 @@ void ManipulatorBase::setViewport(Viewport * const value)
 
     _sfViewport.setValue(value);
 }
-//! Get the value of the Manipulator::_sfActive field.
+//! Get the value of the Manipulator::_sfMaintainScreenSize field.
 
 inline
-bool &ManipulatorBase::editActive(void)
+bool &ManipulatorBase::editMaintainScreenSize(void)
 {
-    editSField(ActiveFieldMask);
+    editSField(MaintainScreenSizeFieldMask);
 
-    return _sfActive.getValue();
+    return _sfMaintainScreenSize.getValue();
 }
 
-//! Get the value of the Manipulator::_sfActive field.
+//! Get the value of the Manipulator::_sfMaintainScreenSize field.
 inline
-      bool  ManipulatorBase::getActive(void) const
+      bool  ManipulatorBase::getMaintainScreenSize(void) const
 {
-    return _sfActive.getValue();
+    return _sfMaintainScreenSize.getValue();
 }
 
-//! Set the value of the Manipulator::_sfActive field.
+//! Set the value of the Manipulator::_sfMaintainScreenSize field.
 inline
-void ManipulatorBase::setActive(const bool value)
+void ManipulatorBase::setMaintainScreenSize(const bool value)
 {
-    editSField(ActiveFieldMask);
+    editSField(MaintainScreenSizeFieldMask);
 
-    _sfActive.setValue(value);
+    _sfMaintainScreenSize.setValue(value);
+}
+//! Get the value of the Manipulator::_sfManipulatorScreenDepth field.
+
+inline
+Real32 &ManipulatorBase::editManipulatorScreenDepth(void)
+{
+    editSField(ManipulatorScreenDepthFieldMask);
+
+    return _sfManipulatorScreenDepth.getValue();
+}
+
+//! Get the value of the Manipulator::_sfManipulatorScreenDepth field.
+inline
+      Real32  ManipulatorBase::getManipulatorScreenDepth(void) const
+{
+    return _sfManipulatorScreenDepth.getValue();
+}
+
+//! Set the value of the Manipulator::_sfManipulatorScreenDepth field.
+inline
+void ManipulatorBase::setManipulatorScreenDepth(const Real32 value)
+{
+    editSField(ManipulatorScreenDepthFieldMask);
+
+    _sfManipulatorScreenDepth.setValue(value);
 }
 //! Get the value of the Manipulator::_sfLength field.
 
@@ -196,101 +256,30 @@ void ManipulatorBase::setLength(const Vec3f &value)
 
     _sfLength.setValue(value);
 }
+//! Get the value of the Manipulator::_sfWidth field.
 
-//! Get the value of the Manipulator::_sfHandleXNode field.
 inline
-Node * ManipulatorBase::getHandleXNode(void) const
+Vec3f &ManipulatorBase::editWidth(void)
 {
-    return _sfHandleXNode.getValue();
+    editSField(WidthFieldMask);
+
+    return _sfWidth.getValue();
 }
 
-//! Set the value of the Manipulator::_sfHandleXNode field.
+//! Get the value of the Manipulator::_sfWidth field.
 inline
-void ManipulatorBase::setHandleXNode(Node * const value)
+const Vec3f &ManipulatorBase::getWidth(void) const
 {
-    editSField(HandleXNodeFieldMask);
-
-    _sfHandleXNode.setValue(value);
+    return _sfWidth.getValue();
 }
 
-//! Get the value of the Manipulator::_sfHandleYNode field.
+//! Set the value of the Manipulator::_sfWidth field.
 inline
-Node * ManipulatorBase::getHandleYNode(void) const
+void ManipulatorBase::setWidth(const Vec3f &value)
 {
-    return _sfHandleYNode.getValue();
-}
+    editSField(WidthFieldMask);
 
-//! Set the value of the Manipulator::_sfHandleYNode field.
-inline
-void ManipulatorBase::setHandleYNode(Node * const value)
-{
-    editSField(HandleYNodeFieldMask);
-
-    _sfHandleYNode.setValue(value);
-}
-
-//! Get the value of the Manipulator::_sfHandleZNode field.
-inline
-Node * ManipulatorBase::getHandleZNode(void) const
-{
-    return _sfHandleZNode.getValue();
-}
-
-//! Set the value of the Manipulator::_sfHandleZNode field.
-inline
-void ManipulatorBase::setHandleZNode(Node * const value)
-{
-    editSField(HandleZNodeFieldMask);
-
-    _sfHandleZNode.setValue(value);
-}
-
-//! Get the value of the Manipulator::_sfTransXNode field.
-inline
-Node * ManipulatorBase::getTransXNode(void) const
-{
-    return _sfTransXNode.getValue();
-}
-
-//! Set the value of the Manipulator::_sfTransXNode field.
-inline
-void ManipulatorBase::setTransXNode(Node * const value)
-{
-    editSField(TransXNodeFieldMask);
-
-    _sfTransXNode.setValue(value);
-}
-
-//! Get the value of the Manipulator::_sfTransYNode field.
-inline
-Node * ManipulatorBase::getTransYNode(void) const
-{
-    return _sfTransYNode.getValue();
-}
-
-//! Set the value of the Manipulator::_sfTransYNode field.
-inline
-void ManipulatorBase::setTransYNode(Node * const value)
-{
-    editSField(TransYNodeFieldMask);
-
-    _sfTransYNode.setValue(value);
-}
-
-//! Get the value of the Manipulator::_sfTransZNode field.
-inline
-Node * ManipulatorBase::getTransZNode(void) const
-{
-    return _sfTransZNode.getValue();
-}
-
-//! Set the value of the Manipulator::_sfTransZNode field.
-inline
-void ManipulatorBase::setTransZNode(Node * const value)
-{
-    editSField(TransZNodeFieldMask);
-
-    _sfTransZNode.setValue(value);
+    _sfWidth.setValue(value);
 }
 
 //! Get the value of the Manipulator::_sfMaterialX field.
@@ -341,20 +330,57 @@ void ManipulatorBase::setMaterialZ(Material * const value)
     _sfMaterialZ.setValue(value);
 }
 
-//! Get the value of the Manipulator::_sfAxisLinesN field.
+//! Get the value of the Manipulator::_sfMaterialSelected field.
 inline
-Node * ManipulatorBase::getAxisLinesN(void) const
+Material * ManipulatorBase::getMaterialSelected(void) const
 {
-    return _sfAxisLinesN.getValue();
+    return _sfMaterialSelected.getValue();
 }
 
-//! Set the value of the Manipulator::_sfAxisLinesN field.
+//! Set the value of the Manipulator::_sfMaterialSelected field.
 inline
-void ManipulatorBase::setAxisLinesN(Node * const value)
+void ManipulatorBase::setMaterialSelected(Material * const value)
 {
-    editSField(AxisLinesNFieldMask);
+    editSField(MaterialSelectedFieldMask);
 
-    _sfAxisLinesN.setValue(value);
+    _sfMaterialSelected.setValue(value);
+}
+
+//! Get the value of the Manipulator::_sfMaterialRollover field.
+inline
+Material * ManipulatorBase::getMaterialRollover(void) const
+{
+    return _sfMaterialRollover.getValue();
+}
+
+//! Set the value of the Manipulator::_sfMaterialRollover field.
+inline
+void ManipulatorBase::setMaterialRollover(Material * const value)
+{
+    editSField(MaterialRolloverFieldMask);
+
+    _sfMaterialRollover.setValue(value);
+}
+
+//! Get the value of the \a index element the Manipulator::_mfXGeometries field.
+inline
+Geometry * ManipulatorBase::getXGeometries(const UInt32 index) const
+{
+    return _mfXGeometries[index];
+}
+
+//! Get the value of the \a index element the Manipulator::_mfYGeometries field.
+inline
+Geometry * ManipulatorBase::getYGeometries(const UInt32 index) const
+{
+    return _mfYGeometries[index];
+}
+
+//! Get the value of the \a index element the Manipulator::_mfZGeometries field.
+inline
+Geometry * ManipulatorBase::getZGeometries(const UInt32 index) const
+{
+    return _mfZGeometries[index];
 }
 
 
@@ -371,8 +397,11 @@ void ManipulatorBase::execSync (      ManipulatorBase *pFrom,
     if(FieldBits::NoField != (TargetFieldMask & whichField))
         _sfTarget.syncWith(pFrom->_sfTarget);
 
-    if(FieldBits::NoField != (ActiveSubHandleFieldMask & whichField))
-        _sfActiveSubHandle.syncWith(pFrom->_sfActiveSubHandle);
+    if(FieldBits::NoField != (ActiveHandleFieldMask & whichField))
+        _sfActiveHandle.syncWith(pFrom->_sfActiveHandle);
+
+    if(FieldBits::NoField != (RolloverHandleFieldMask & whichField))
+        _sfRolloverHandle.syncWith(pFrom->_sfRolloverHandle);
 
     if(FieldBits::NoField != (StartMousePosFieldMask & whichField))
         _sfStartMousePos.syncWith(pFrom->_sfStartMousePos);
@@ -380,29 +409,35 @@ void ManipulatorBase::execSync (      ManipulatorBase *pFrom,
     if(FieldBits::NoField != (ViewportFieldMask & whichField))
         _sfViewport.syncWith(pFrom->_sfViewport);
 
-    if(FieldBits::NoField != (ActiveFieldMask & whichField))
-        _sfActive.syncWith(pFrom->_sfActive);
+    if(FieldBits::NoField != (MaintainScreenSizeFieldMask & whichField))
+        _sfMaintainScreenSize.syncWith(pFrom->_sfMaintainScreenSize);
+
+    if(FieldBits::NoField != (ManipulatorScreenDepthFieldMask & whichField))
+        _sfManipulatorScreenDepth.syncWith(pFrom->_sfManipulatorScreenDepth);
 
     if(FieldBits::NoField != (LengthFieldMask & whichField))
         _sfLength.syncWith(pFrom->_sfLength);
 
-    if(FieldBits::NoField != (HandleXNodeFieldMask & whichField))
-        _sfHandleXNode.syncWith(pFrom->_sfHandleXNode);
+    if(FieldBits::NoField != (WidthFieldMask & whichField))
+        _sfWidth.syncWith(pFrom->_sfWidth);
 
-    if(FieldBits::NoField != (HandleYNodeFieldMask & whichField))
-        _sfHandleYNode.syncWith(pFrom->_sfHandleYNode);
+    if(FieldBits::NoField != (XGeometriesFieldMask & whichField))
+        _mfXGeometries.syncWith(pFrom->_mfXGeometries,
+                                syncMode,
+                                uiSyncInfo,
+                                oOffsets);
 
-    if(FieldBits::NoField != (HandleZNodeFieldMask & whichField))
-        _sfHandleZNode.syncWith(pFrom->_sfHandleZNode);
+    if(FieldBits::NoField != (YGeometriesFieldMask & whichField))
+        _mfYGeometries.syncWith(pFrom->_mfYGeometries,
+                                syncMode,
+                                uiSyncInfo,
+                                oOffsets);
 
-    if(FieldBits::NoField != (TransXNodeFieldMask & whichField))
-        _sfTransXNode.syncWith(pFrom->_sfTransXNode);
-
-    if(FieldBits::NoField != (TransYNodeFieldMask & whichField))
-        _sfTransYNode.syncWith(pFrom->_sfTransYNode);
-
-    if(FieldBits::NoField != (TransZNodeFieldMask & whichField))
-        _sfTransZNode.syncWith(pFrom->_sfTransZNode);
+    if(FieldBits::NoField != (ZGeometriesFieldMask & whichField))
+        _mfZGeometries.syncWith(pFrom->_mfZGeometries,
+                                syncMode,
+                                uiSyncInfo,
+                                oOffsets);
 
     if(FieldBits::NoField != (MaterialXFieldMask & whichField))
         _sfMaterialX.syncWith(pFrom->_sfMaterialX);
@@ -413,8 +448,11 @@ void ManipulatorBase::execSync (      ManipulatorBase *pFrom,
     if(FieldBits::NoField != (MaterialZFieldMask & whichField))
         _sfMaterialZ.syncWith(pFrom->_sfMaterialZ);
 
-    if(FieldBits::NoField != (AxisLinesNFieldMask & whichField))
-        _sfAxisLinesN.syncWith(pFrom->_sfAxisLinesN);
+    if(FieldBits::NoField != (MaterialSelectedFieldMask & whichField))
+        _sfMaterialSelected.syncWith(pFrom->_sfMaterialSelected);
+
+    if(FieldBits::NoField != (MaterialRolloverFieldMask & whichField))
+        _sfMaterialRollover.syncWith(pFrom->_sfMaterialRollover);
 }
 #endif
 

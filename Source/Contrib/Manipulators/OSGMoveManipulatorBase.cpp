@@ -251,7 +251,6 @@ MoveManipulator *MoveManipulatorBase::createEmpty(void)
     return returnValue;
 }
 
-
 FieldContainerTransitPtr MoveManipulatorBase::shallowCopyLocal(
     BitVector bFlags) const
 {
@@ -297,7 +296,6 @@ FieldContainerTransitPtr MoveManipulatorBase::shallowCopy(void) const
 
 
 
-
 /*------------------------- constructors ----------------------------------*/
 
 MoveManipulatorBase::MoveManipulatorBase(void) :
@@ -316,6 +314,7 @@ MoveManipulatorBase::MoveManipulatorBase(const MoveManipulatorBase &source) :
 MoveManipulatorBase::~MoveManipulatorBase(void)
 {
 }
+
 
 
 

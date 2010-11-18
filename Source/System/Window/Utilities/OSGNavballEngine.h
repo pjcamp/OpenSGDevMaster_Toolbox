@@ -2,7 +2,7 @@
  *                                OpenSG                                     *
  *                                                                           *
  *                                                                           *
- *               Copyright (C) 2000-2002 by the OpenSG Forum                 *
+ *             Copyright (C) 2000-2002 by the OpenSG Forum                   *
  *                                                                           *
  *                            www.opensg.org                                 *
  *                                                                           *
@@ -36,124 +36,129 @@
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 
-#ifndef _OSGROTATEMANIPULATOR_H_
-#define _OSGROTATEMANIPULATOR_H_
-#ifdef __sgi
-#pragma once
-#endif
+#ifndef _OSG_NAVBALLENGINE_H_
+#define _OSG_NAVBALLENGINE_H_
 
-#include "OSGConfig.h"
-
-#include "OSGRotateManipulatorBase.h"
-#include "OSGClipPlaneChunkFields.h"
+#include "OSGNavigatorEngine.h"
 
 OSG_BEGIN_NAMESPACE
 
-/*! \brief RotateManipulator class. See \ref
-           PageManipulatorsRotateManipulator for a description.
-*/
+class Navigator;
 
-class OSG_CONTRIBGUI_DLLMAPPING RotateManipulator : public RotateManipulatorBase
+/*! \brief NavballEngine provides the trackball navigator functionality.
+*/
+class OSG_UTIL_DLLMAPPING NavballEngine : public NavigatorEngine
 {
+    typedef NavigatorEngine Inherited;
+    typedef NavballEngine Self;
+
     /*==========================  PUBLIC  =================================*/
   public:
-    enum RotationMethod
-    {
-        ROLL_METHOD  = 0,
-        CRANK_METHOD = 1
-    };
-
     /*---------------------------------------------------------------------*/
-    /*! \name                      Sync                                    */
+    /*! \name                      Types                                   */
     /*! \{                                                                 */
 
-    virtual void changed(ConstFieldMaskArg whichField,
-                         UInt32            origin,
-                         BitVector         detail);
+    OSG_GEN_INTERNAL_MEMOBJPTR(NavballEngine);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
-    /*! \name                     Output                                   */
+    /*! \name                    Construction                              */
     /*! \{                                                                 */
 
-    virtual void dump(      UInt32     uiIndent = 0,
-                      const BitVector  bvFlags  = 0) const;
+    static ObjTransitPtr create(Real32 rSize = 0.8f);
 
     /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                    Class Get                                 */
+    /*! \{                                                                 */
 
-    virtual void mouseMove(Int16        x,
-                           Int16        y);
+    const char *getClassname(void) { return "NavballEngine"; }
 
-    virtual void mouseButtonPress(UInt16        button,
-                                   Int16        x,
-                                   Int16        y     );
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                        Get                                   */
+    /*! \{                                                                 */
 
-    virtual void mouseButtonRelease(UInt16      button,
-                                     Int16      x,
-                                     Int16      y     );
-    /*=========================  PROTECTED  ===============================*/
+    virtual const Pnt3f  &getFrom(void);
+    virtual const Pnt3f  &getAt(void);
+    virtual const Vec3f  &getUp(void);
+    virtual const Matrix &getMatrix(void);
+    virtual Real32 getDistance(void);
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                        Set                                   */
+    /*! \{                                                                 */
+
+    virtual void setFrom(Pnt3f new_from);
+    virtual void setAt(Pnt3f new_at);
+    virtual void setUp(Vec3f new_up);
+    virtual void set(Pnt3f new_from, Pnt3f new_at, Vec3f new_up);
+    virtual void set(const Matrix & new_matrix);
+    virtual void setDistance(Real32 new_distance);
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name             navigator engine callbacks                       */
+    /*! \{                                                                 */
+
+    virtual void buttonPress(Int16 button,   Int16 x, Int16 y, Navigator* nav);
+    virtual void buttonRelease(Int16 button, Int16 x, Int16 y, Navigator* nav);
+    virtual void keyPress(Int16 key,         Int16 x, Int16 y, Navigator* nav);
+    virtual void moveTo(                     Int16 x, Int16 y, Navigator* nav);
+    virtual void idle(Int16 buttons,         Int16 x, Int16 y, Navigator* nav);
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name              Navball Transformations                       */
+    /*! \{                                                                 */
+
+    void rotate     (Real32 fromX, Real32 fromY, Real32 toX, Real32 toY);
+    void translateXY(Real32 distanceX, Real32 distanceY);
+    void translateZ (Real32 distance);
+
+
+    /*! \}                                                                 */
+    /*==========================  PROTECTED  ==============================*/
   protected:
-
-    // Variables should all be in RotateManipulatorBase.
-
     /*---------------------------------------------------------------------*/
-    /*! \name                  Constructors                                */
+    /*! \name            Constructors/Destructor                           */
     /*! \{                                                                 */
 
-    RotateManipulator(void);
-    RotateManipulator(const RotateManipulator &source);
+             NavballEngine(Real32 rSize = 0.8f);
+    virtual ~NavballEngine(void               );
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
-    /*! \name                   Destructors                                */
+    /*! \name                     Members                                  */
     /*! \{                                                                 */
 
-    virtual ~RotateManipulator(void);
+    Real32 _rDistance;
+    Matrix _finalMatrix;
+    Pnt3f  _pFrom;
+    Pnt3f  _pAt;
+    Vec3f  _vUp;
+
+    /* temporary values */
+    Pnt3f  _ip;
+    Vec3f  _dir;
 
     /*! \}                                                                 */
-    /*---------------------------------------------------------------------*/
-    /*! \name                                                              */
-    /*! \{                                                                 */
 
-    void onCreate(const RotateManipulator* source = NULL);
-    void onDestroy(void);
+    void updateFinalMatrix();
+    void calcDeltas(Int16 , Int16 , Int16 toX, Int16 toY,
+                                     Real32 &distanceX, Real32 &distanceY,
+                                     Navigator* nav);
+    void getIntersectionPoint(Int16 x, Int16 y, Navigator* nav);
 
-    /*! \}                                                                 */
-
-    virtual NodeTransitPtr makeHandleGeo(Real32 radius, UInt16 axis);
-    virtual NodeTransitPtr createAxisManipulator(UInt16 Axis);
-    virtual void createMaterials(void);
-
-    /*Pnt2f _TargetOriginInitialScreenPos;*/
-    RotationMethod _RotationMethod;
-    Quaternion _InitialRotation;
-    Pnt3f _TargetInitialOrigin;
-    Pnt3f _StartManipInitialPosition;
-
-    Vec3f _HandleRollDirection;
-    
-    //ClipPlaneChunkRecPtr _DefaultFrontClipPlane;
-    //ClipPlaneChunkRecPtr _DefaultBackClipPlane;
-
-    /*==========================  PRIVATE  ================================*/
-private:
-
-    typedef RotateManipulatorBase Inherited;
-
-    friend class FieldContainer;
-    friend class RotateManipulatorBase;
-
-    static void initMethod(InitPhase ePhase);
-
-    // prohibit default functions (move to 'public' if you need one)
-    void operator =(const RotateManipulator &source);
+  private:
+    /* Not implemented */
+    NavballEngine(const NavballEngine &other);
+    NavballEngine &operator =(const NavballEngine &other);
 };
 
-typedef RotateManipulator *RotateManipulatorP;
+OSG_GEN_MEMOBJPTR(NavballEngine);
 
 OSG_END_NAMESPACE
 
-#include "OSGRotateManipulatorBase.inl"
-#include "OSGRotateManipulator.inl"
-
-#endif /* _OSGROTATEMANIPULATOR_H_ */
+#endif

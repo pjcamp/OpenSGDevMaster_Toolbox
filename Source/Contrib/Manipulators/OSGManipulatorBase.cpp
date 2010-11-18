@@ -60,6 +60,7 @@
 
 #include "OSGNode.h"                    // Target Class
 #include "OSGViewport.h"                // Viewport Class
+#include "OSGGeometry.h"                // XGeometries Class
 #include "OSGMaterial.h"                // MaterialX Class
 
 #include "OSGManipulatorBase.h"
@@ -89,7 +90,11 @@ OSG_BEGIN_NAMESPACE
     
 */
 
-/*! \var Node *          ManipulatorBase::_sfActiveSubHandle
+/*! \var UInt16          ManipulatorBase::_sfActiveHandle
+    the active sub handle
+*/
+
+/*! \var UInt16          ManipulatorBase::_sfRolloverHandle
     the active sub handle
 */
 
@@ -101,36 +106,32 @@ OSG_BEGIN_NAMESPACE
     
 */
 
-/*! \var bool            ManipulatorBase::_sfActive
-    
+/*! \var bool            ManipulatorBase::_sfMaintainScreenSize
+    If MaintainScreenSize is true then the manipulator will be drawn the same size on the screen regardless of the distance of the manipulor target from the camera.
+*/
+
+/*! \var Real32          ManipulatorBase::_sfManipulatorScreenDepth
+    The distance from the screen that the manipulator is drawn.
 */
 
 /*! \var Vec3f           ManipulatorBase::_sfLength
     The length of the three axes in one vector
 */
 
-/*! \var Node *          ManipulatorBase::_sfHandleXNode
+/*! \var Vec3f           ManipulatorBase::_sfWidth
+    The width of the three axes in one vector
+*/
+
+/*! \var Geometry *      ManipulatorBase::_mfXGeometries
     The node for the x-handle geometry
 */
 
-/*! \var Node *          ManipulatorBase::_sfHandleYNode
+/*! \var Geometry *      ManipulatorBase::_mfYGeometries
     The node for the y-handle geometry
 */
 
-/*! \var Node *          ManipulatorBase::_sfHandleZNode
+/*! \var Geometry *      ManipulatorBase::_mfZGeometries
     The node for the z-handle geometry
-*/
-
-/*! \var Node *          ManipulatorBase::_sfTransXNode
-    The node for the x-handle transform
-*/
-
-/*! \var Node *          ManipulatorBase::_sfTransYNode
-    The node for the y-handle transform
-*/
-
-/*! \var Node *          ManipulatorBase::_sfTransZNode
-    The node for the z-handle transform
 */
 
 /*! \var Material *      ManipulatorBase::_sfMaterialX
@@ -145,8 +146,12 @@ OSG_BEGIN_NAMESPACE
     material for the z-axis geometry
 */
 
-/*! \var Node *          ManipulatorBase::_sfAxisLinesN
-    
+/*! \var Material *      ManipulatorBase::_sfMaterialSelected
+    material for the axis geometry while selected
+*/
+
+/*! \var Material *      ManipulatorBase::_sfMaterialRollover
+    material for the axis geometry while rolled over
 */
 
 
@@ -189,15 +194,27 @@ void ManipulatorBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new SFUnrecNodePtr::Description(
-        SFUnrecNodePtr::getClassType(),
-        "activeSubHandle",
+    pDesc = new SFUInt16::Description(
+        SFUInt16::getClassType(),
+        "activeHandle",
         "the active sub handle\n",
-        ActiveSubHandleFieldId, ActiveSubHandleFieldMask,
+        ActiveHandleFieldId, ActiveHandleFieldMask,
         true,
         (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Manipulator::editHandleActiveSubHandle),
-        static_cast<FieldGetMethodSig >(&Manipulator::getHandleActiveSubHandle));
+        static_cast<FieldEditMethodSig>(&Manipulator::editHandleActiveHandle),
+        static_cast<FieldGetMethodSig >(&Manipulator::getHandleActiveHandle));
+
+    oType.addInitialDesc(pDesc);
+
+    pDesc = new SFUInt16::Description(
+        SFUInt16::getClassType(),
+        "rolloverHandle",
+        "the active sub handle\n",
+        RolloverHandleFieldId, RolloverHandleFieldMask,
+        true,
+        (Field::SFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&Manipulator::editHandleRolloverHandle),
+        static_cast<FieldGetMethodSig >(&Manipulator::getHandleRolloverHandle));
 
     oType.addInitialDesc(pDesc);
 
@@ -227,13 +244,25 @@ void ManipulatorBase::classDescInserter(TypeObject &oType)
 
     pDesc = new SFBool::Description(
         SFBool::getClassType(),
-        "active",
-        "",
-        ActiveFieldId, ActiveFieldMask,
+        "maintainScreenSize",
+        "If MaintainScreenSize is true then the manipulator will be drawn the same size on the screen regardless of the distance of the manipulor target from the camera.\n",
+        MaintainScreenSizeFieldId, MaintainScreenSizeFieldMask,
         false,
         (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Manipulator::editHandleActive),
-        static_cast<FieldGetMethodSig >(&Manipulator::getHandleActive));
+        static_cast<FieldEditMethodSig>(&Manipulator::editHandleMaintainScreenSize),
+        static_cast<FieldGetMethodSig >(&Manipulator::getHandleMaintainScreenSize));
+
+    oType.addInitialDesc(pDesc);
+
+    pDesc = new SFReal32::Description(
+        SFReal32::getClassType(),
+        "manipulatorScreenDepth",
+        "The distance from the screen that the manipulator is drawn.\n",
+        ManipulatorScreenDepthFieldId, ManipulatorScreenDepthFieldMask,
+        false,
+        (Field::SFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&Manipulator::editHandleManipulatorScreenDepth),
+        static_cast<FieldGetMethodSig >(&Manipulator::getHandleManipulatorScreenDepth));
 
     oType.addInitialDesc(pDesc);
 
@@ -249,75 +278,51 @@ void ManipulatorBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new SFUnrecNodePtr::Description(
-        SFUnrecNodePtr::getClassType(),
-        "handleXNode",
+    pDesc = new SFVec3f::Description(
+        SFVec3f::getClassType(),
+        "width",
+        "The width of the three axes in one vector\n",
+        WidthFieldId, WidthFieldMask,
+        false,
+        (Field::SFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&Manipulator::editHandleWidth),
+        static_cast<FieldGetMethodSig >(&Manipulator::getHandleWidth));
+
+    oType.addInitialDesc(pDesc);
+
+    pDesc = new MFUnrecGeometryPtr::Description(
+        MFUnrecGeometryPtr::getClassType(),
+        "XGeometries",
         "The node for the x-handle geometry\n",
-        HandleXNodeFieldId, HandleXNodeFieldMask,
+        XGeometriesFieldId, XGeometriesFieldMask,
         true,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Manipulator::editHandleHandleXNode),
-        static_cast<FieldGetMethodSig >(&Manipulator::getHandleHandleXNode));
+        (Field::MFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&Manipulator::editHandleXGeometries),
+        static_cast<FieldGetMethodSig >(&Manipulator::getHandleXGeometries));
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new SFUnrecNodePtr::Description(
-        SFUnrecNodePtr::getClassType(),
-        "handleYNode",
+    pDesc = new MFUnrecGeometryPtr::Description(
+        MFUnrecGeometryPtr::getClassType(),
+        "YGeometries",
         "The node for the y-handle geometry\n",
-        HandleYNodeFieldId, HandleYNodeFieldMask,
+        YGeometriesFieldId, YGeometriesFieldMask,
         true,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Manipulator::editHandleHandleYNode),
-        static_cast<FieldGetMethodSig >(&Manipulator::getHandleHandleYNode));
+        (Field::MFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&Manipulator::editHandleYGeometries),
+        static_cast<FieldGetMethodSig >(&Manipulator::getHandleYGeometries));
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new SFUnrecNodePtr::Description(
-        SFUnrecNodePtr::getClassType(),
-        "handleZNode",
+    pDesc = new MFUnrecGeometryPtr::Description(
+        MFUnrecGeometryPtr::getClassType(),
+        "ZGeometries",
         "The node for the z-handle geometry\n",
-        HandleZNodeFieldId, HandleZNodeFieldMask,
+        ZGeometriesFieldId, ZGeometriesFieldMask,
         true,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Manipulator::editHandleHandleZNode),
-        static_cast<FieldGetMethodSig >(&Manipulator::getHandleHandleZNode));
-
-    oType.addInitialDesc(pDesc);
-
-    pDesc = new SFUnrecNodePtr::Description(
-        SFUnrecNodePtr::getClassType(),
-        "transXNode",
-        "The node for the x-handle transform\n",
-        TransXNodeFieldId, TransXNodeFieldMask,
-        true,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Manipulator::editHandleTransXNode),
-        static_cast<FieldGetMethodSig >(&Manipulator::getHandleTransXNode));
-
-    oType.addInitialDesc(pDesc);
-
-    pDesc = new SFUnrecNodePtr::Description(
-        SFUnrecNodePtr::getClassType(),
-        "transYNode",
-        "The node for the y-handle transform\n",
-        TransYNodeFieldId, TransYNodeFieldMask,
-        true,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Manipulator::editHandleTransYNode),
-        static_cast<FieldGetMethodSig >(&Manipulator::getHandleTransYNode));
-
-    oType.addInitialDesc(pDesc);
-
-    pDesc = new SFUnrecNodePtr::Description(
-        SFUnrecNodePtr::getClassType(),
-        "transZNode",
-        "The node for the z-handle transform\n",
-        TransZNodeFieldId, TransZNodeFieldMask,
-        true,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Manipulator::editHandleTransZNode),
-        static_cast<FieldGetMethodSig >(&Manipulator::getHandleTransZNode));
+        (Field::MFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&Manipulator::editHandleZGeometries),
+        static_cast<FieldGetMethodSig >(&Manipulator::getHandleZGeometries));
 
     oType.addInitialDesc(pDesc);
 
@@ -326,7 +331,7 @@ void ManipulatorBase::classDescInserter(TypeObject &oType)
         "materialX",
         "material for the x-axis geometry\n",
         MaterialXFieldId, MaterialXFieldMask,
-        true,
+        false,
         (Field::SFDefaultFlags | Field::FStdAccess),
         static_cast<FieldEditMethodSig>(&Manipulator::editHandleMaterialX),
         static_cast<FieldGetMethodSig >(&Manipulator::getHandleMaterialX));
@@ -338,7 +343,7 @@ void ManipulatorBase::classDescInserter(TypeObject &oType)
         "materialY",
         "material for the y-axis geometry\n",
         MaterialYFieldId, MaterialYFieldMask,
-        true,
+        false,
         (Field::SFDefaultFlags | Field::FStdAccess),
         static_cast<FieldEditMethodSig>(&Manipulator::editHandleMaterialY),
         static_cast<FieldGetMethodSig >(&Manipulator::getHandleMaterialY));
@@ -350,22 +355,34 @@ void ManipulatorBase::classDescInserter(TypeObject &oType)
         "materialZ",
         "material for the z-axis geometry\n",
         MaterialZFieldId, MaterialZFieldMask,
-        true,
+        false,
         (Field::SFDefaultFlags | Field::FStdAccess),
         static_cast<FieldEditMethodSig>(&Manipulator::editHandleMaterialZ),
         static_cast<FieldGetMethodSig >(&Manipulator::getHandleMaterialZ));
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new SFUnrecNodePtr::Description(
-        SFUnrecNodePtr::getClassType(),
-        "axisLinesN",
-        "",
-        AxisLinesNFieldId, AxisLinesNFieldMask,
-        true,
+    pDesc = new SFUnrecMaterialPtr::Description(
+        SFUnrecMaterialPtr::getClassType(),
+        "materialSelected",
+        "material for the axis geometry while selected\n",
+        MaterialSelectedFieldId, MaterialSelectedFieldMask,
+        false,
         (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&Manipulator::editHandleAxisLinesN),
-        static_cast<FieldGetMethodSig >(&Manipulator::getHandleAxisLinesN));
+        static_cast<FieldEditMethodSig>(&Manipulator::editHandleMaterialSelected),
+        static_cast<FieldGetMethodSig >(&Manipulator::getHandleMaterialSelected));
+
+    oType.addInitialDesc(pDesc);
+
+    pDesc = new SFUnrecMaterialPtr::Description(
+        SFUnrecMaterialPtr::getClassType(),
+        "materialRollover",
+        "material for the axis geometry while rolled over\n",
+        MaterialRolloverFieldId, MaterialRolloverFieldMask,
+        false,
+        (Field::SFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&Manipulator::editHandleMaterialRollover),
+        static_cast<FieldGetMethodSig >(&Manipulator::getHandleMaterialRollover));
 
     oType.addInitialDesc(pDesc);
 }
@@ -398,24 +415,39 @@ ManipulatorBase::TypeObject ManipulatorBase::_type(
     "Baseclass for all Manipulators\n"
     "\t<Field\n"
     "\t\tname=\"target\"\n"
-    "\t\ttype=\"NodePtr\"\n"
+    "\t\ttype=\"Node\"\n"
+    "\t\tcategory=\"pointer\"\n"
     "\t\tcardinality=\"single\"\n"
     "\t\tvisibility=\"external\"\n"
     "\t\taccess=\"public\"\n"
     "\t>\n"
     "\t</Field>\n"
     "\t<Field\n"
-    "\t\tname=\"activeSubHandle\"\n"
-    "\t\ttype=\"NodePtr\"\n"
+    "\t\tname=\"activeHandle\"\n"
+    "\t\ttype=\"UInt16\"\n"
+    "\t\tcategory=\"data\"\n"
     "\t\tcardinality=\"single\"\n"
     "\t\tvisibility=\"internal\"\n"
     "\t\taccess=\"public\"\n"
+    "\t\tdefaultValue=\"Manipulator::NO_AXES_HANDLE\"\n"
+    "\t>\n"
+    "\tthe active sub handle\n"
+    "\t</Field>\n"
+    "\t<Field\n"
+    "\t\tname=\"rolloverHandle\"\n"
+    "\t\ttype=\"UInt16\"\n"
+    "\t\tcategory=\"data\"\n"
+    "\t\tcardinality=\"single\"\n"
+    "\t\tvisibility=\"internal\"\n"
+    "\t\taccess=\"public\"\n"
+    "\t\tdefaultValue=\"Manipulator::NO_AXES_HANDLE\"\n"
     "\t>\n"
     "\tthe active sub handle\n"
     "\t</Field>\n"
     "\t<Field\n"
     "\t\tname=\"startMousePos\"\n"
     "\t\ttype=\"Pnt2f\"\n"
+    "\t\tcategory=\"data\"\n"
     "\t\tcardinality=\"single\"\n"
     "\t\tvisibility=\"external\"\n"
     "\t\taccess=\"protected\"\n"
@@ -424,7 +456,8 @@ ManipulatorBase::TypeObject ManipulatorBase::_type(
     "\t</Field>\n"
     "\t<Field\n"
     "\t\tname=\"viewport\"\n"
-    "\t\ttype=\"ViewportPtr\"\n"
+    "\t\ttype=\"Viewport\"\n"
+    "\t\tcategory=\"pointer\"\n"
     "\t\tcardinality=\"single\"\n"
     "\t\tvisibility=\"internal\"\n"
     "\t\tdefaultValue=\"NULL\"\n"
@@ -432,111 +465,128 @@ ManipulatorBase::TypeObject ManipulatorBase::_type(
     "\t>\n"
     "\t</Field>\n"
     "\t<Field\n"
-    "\t\tname=\"active\"\n"
+    "\t\tname=\"maintainScreenSize\"\n"
     "\t\ttype=\"bool\"\n"
+    "\t\tcategory=\"data\"\n"
     "\t\tcardinality=\"single\"\n"
     "\t\tvisibility=\"external\"\n"
+    "\t\tdefaultValue=\"true\"\n"
     "\t\taccess=\"public\"\n"
     "\t>\n"
+    "\tIf MaintainScreenSize is true then the manipulator will be drawn the same size on the screen regardless of the distance of the manipulor target from the camera.\n"
+    "\t</Field>\n"
+    "\t<Field\n"
+    "\t\tname=\"manipulatorScreenDepth\"\n"
+    "\t\ttype=\"Real32\"\n"
+    "\t\tcategory=\"data\"\n"
+    "\t\tcardinality=\"single\"\n"
+    "\t\tvisibility=\"external\"\n"
+    "\t\tdefaultValue=\"10.0f\"\n"
+    "\t\taccess=\"public\"\n"
+    "\t>\n"
+    "\tThe distance from the screen that the manipulator is drawn.\n"
     "\t</Field>\n"
     "\t<Field\n"
     "\t\tname=\"length\"\n"
     "\t\ttype=\"Vec3f\"\n"
+    "\t\tcategory=\"data\"\n"
     "\t\tcardinality=\"single\"\n"
     "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"1,1,1\"\n"
+    "\t\tdefaultValue=\"1.0f,1.0f,1.0f\"\n"
     "\t\taccess=\"public\"\n"
     "\t>\n"
     "\tThe length of the three axes in one vector\n"
     "\t</Field>\n"
     "\t<Field\n"
-    "\t\tname=\"handleXNode\"\n"
-    "\t\ttype=\"NodePtr\"\n"
+    "\t\tname=\"width\"\n"
+    "\t\ttype=\"Vec3f\"\n"
+    "\t\tcategory=\"data\"\n"
     "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"internal\"\n"
+    "\t\tvisibility=\"external\"\n"
+    "\t\tdefaultValue=\"0.025f,0.025f,0.025f\"\n"
     "\t\taccess=\"public\"\n"
+    "\t>\n"
+    "\tThe width of the three axes in one vector\n"
+    "\t</Field>\n"
+    "\t<Field\n"
+    "\t\tname=\"XGeometries\"\n"
+    "\t\ttype=\"Geometry\"\n"
+    "\t\tcategory=\"pointer\"\n"
+    "\t\tcardinality=\"multi\"\n"
+    "\t\tvisibility=\"internal\"\n"
+    "\t\taccess=\"protected\"\n"
     "\t>\n"
     "\tThe node for the x-handle geometry\n"
     "\t</Field>\n"
     "\t<Field\n"
-    "\t\tname=\"handleYNode\"\n"
-    "\t\ttype=\"NodePtr\"\n"
-    "\t\tcardinality=\"single\"\n"
+    "\t\tname=\"YGeometries\"\n"
+    "\t\ttype=\"Geometry\"\n"
+    "\t\tcategory=\"pointer\"\n"
+    "\t\tcardinality=\"multi\"\n"
     "\t\tvisibility=\"internal\"\n"
-    "\t\taccess=\"public\"\n"
+    "\t\taccess=\"protected\"\n"
     "\t>\n"
     "\tThe node for the y-handle geometry\n"
     "\t</Field>\n"
     "\t<Field\n"
-    "\t\tname=\"handleZNode\"\n"
-    "\t\ttype=\"NodePtr\"\n"
-    "\t\tcardinality=\"single\"\n"
+    "\t\tname=\"ZGeometries\"\n"
+    "\t\ttype=\"Geometry\"\n"
+    "\t\tcategory=\"pointer\"\n"
+    "\t\tcardinality=\"multi\"\n"
     "\t\tvisibility=\"internal\"\n"
-    "\t\taccess=\"public\"\n"
+    "\t\taccess=\"protected\"\n"
     "\t>\n"
     "\tThe node for the z-handle geometry\n"
     "\t</Field>\n"
     "\t<Field\n"
-    "\t\tname=\"transXNode\"\n"
-    "\t\ttype=\"NodePtr\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"internal\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\tThe node for the x-handle transform\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"transYNode\"\n"
-    "\t\ttype=\"NodePtr\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"internal\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\tThe node for the y-handle transform\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"transZNode\"\n"
-    "\t\ttype=\"NodePtr\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"internal\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\tThe node for the z-handle transform\n"
-    "\t</Field>\n"
-    "\t<Field\n"
     "\t\tname=\"materialX\"\n"
-    "\t\ttype=\"MaterialPtr\"\n"
+    "\t\ttype=\"Material\"\n"
+    "\t\tcategory=\"pointer\"\n"
     "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"internal\"\n"
+    "\t\tvisibility=\"external\"\n"
     "\t\taccess=\"public\"\n"
     "\t>\n"
     "\tmaterial for the x-axis geometry\n"
     "\t</Field>\n"
     "\t<Field\n"
     "\t\tname=\"materialY\"\n"
-    "\t\ttype=\"MaterialPtr\"\n"
+    "\t\ttype=\"Material\"\n"
+    "\t\tcategory=\"pointer\"\n"
     "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"internal\"\n"
+    "\t\tvisibility=\"external\"\n"
     "\t\taccess=\"public\"\n"
     "\t>\n"
     "\tmaterial for the y-axis geometry\n"
     "\t</Field>\n"
     "\t<Field\n"
     "\t\tname=\"materialZ\"\n"
-    "\t\ttype=\"MaterialPtr\"\n"
+    "\t\ttype=\"Material\"\n"
+    "\t\tcategory=\"pointer\"\n"
     "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"internal\"\n"
+    "\t\tvisibility=\"external\"\n"
     "\t\taccess=\"public\"\n"
     "\t>\n"
     "\tmaterial for the z-axis geometry\n"
     "\t</Field>\n"
     "\t<Field\n"
-    "\t\tname=\"axisLinesN\"\n"
-    "\t\ttype=\"NodePtr\"\n"
+    "\t\tname=\"materialSelected\"\n"
+    "\t\ttype=\"Material\"\n"
+    "\t\tcategory=\"pointer\"\n"
     "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"internal\"\n"
+    "\t\tvisibility=\"external\"\n"
     "\t\taccess=\"public\"\n"
     "\t>\n"
+    "\tmaterial for the axis geometry while selected\n"
+    "\t</Field>\n"
+    "\t<Field\n"
+    "\t\tname=\"materialRollover\"\n"
+    "\t\ttype=\"Material\"\n"
+    "\t\tcategory=\"pointer\"\n"
+    "\t\tcardinality=\"single\"\n"
+    "\t\tvisibility=\"external\"\n"
+    "\t\taccess=\"public\"\n"
+    "\t>\n"
+    "\tmaterial for the axis geometry while rolled over\n"
     "\t</Field>\n"
     "</FieldContainer>\n",
     "Baseclass for all Manipulators\n"
@@ -575,18 +625,31 @@ SFUnrecNodePtr      *ManipulatorBase::editSFTarget         (void)
     return &_sfTarget;
 }
 
-//! Get the Manipulator::_sfActiveSubHandle field.
-const SFUnrecNodePtr *ManipulatorBase::getSFActiveSubHandle(void) const
+SFUInt16 *ManipulatorBase::editSFActiveHandle(void)
 {
-    return &_sfActiveSubHandle;
+    editSField(ActiveHandleFieldMask);
+
+    return &_sfActiveHandle;
 }
 
-SFUnrecNodePtr      *ManipulatorBase::editSFActiveSubHandle(void)
+const SFUInt16 *ManipulatorBase::getSFActiveHandle(void) const
 {
-    editSField(ActiveSubHandleFieldMask);
-
-    return &_sfActiveSubHandle;
+    return &_sfActiveHandle;
 }
+
+
+SFUInt16 *ManipulatorBase::editSFRolloverHandle(void)
+{
+    editSField(RolloverHandleFieldMask);
+
+    return &_sfRolloverHandle;
+}
+
+const SFUInt16 *ManipulatorBase::getSFRolloverHandle(void) const
+{
+    return &_sfRolloverHandle;
+}
+
 
 SFPnt2f *ManipulatorBase::editSFStartMousePos(void)
 {
@@ -614,16 +677,29 @@ SFUnrecViewportPtr  *ManipulatorBase::editSFViewport       (void)
     return &_sfViewport;
 }
 
-SFBool *ManipulatorBase::editSFActive(void)
+SFBool *ManipulatorBase::editSFMaintainScreenSize(void)
 {
-    editSField(ActiveFieldMask);
+    editSField(MaintainScreenSizeFieldMask);
 
-    return &_sfActive;
+    return &_sfMaintainScreenSize;
 }
 
-const SFBool *ManipulatorBase::getSFActive(void) const
+const SFBool *ManipulatorBase::getSFMaintainScreenSize(void) const
 {
-    return &_sfActive;
+    return &_sfMaintainScreenSize;
+}
+
+
+SFReal32 *ManipulatorBase::editSFManipulatorScreenDepth(void)
+{
+    editSField(ManipulatorScreenDepthFieldMask);
+
+    return &_sfManipulatorScreenDepth;
+}
+
+const SFReal32 *ManipulatorBase::getSFManipulatorScreenDepth(void) const
+{
+    return &_sfManipulatorScreenDepth;
 }
 
 
@@ -640,82 +716,56 @@ const SFVec3f *ManipulatorBase::getSFLength(void) const
 }
 
 
-//! Get the Manipulator::_sfHandleXNode field.
-const SFUnrecNodePtr *ManipulatorBase::getSFHandleXNode(void) const
+SFVec3f *ManipulatorBase::editSFWidth(void)
 {
-    return &_sfHandleXNode;
+    editSField(WidthFieldMask);
+
+    return &_sfWidth;
 }
 
-SFUnrecNodePtr      *ManipulatorBase::editSFHandleXNode    (void)
+const SFVec3f *ManipulatorBase::getSFWidth(void) const
 {
-    editSField(HandleXNodeFieldMask);
-
-    return &_sfHandleXNode;
+    return &_sfWidth;
 }
 
-//! Get the Manipulator::_sfHandleYNode field.
-const SFUnrecNodePtr *ManipulatorBase::getSFHandleYNode(void) const
+
+//! Get the Manipulator::_mfXGeometries field.
+const MFUnrecGeometryPtr *ManipulatorBase::getMFXGeometries(void) const
 {
-    return &_sfHandleYNode;
+    return &_mfXGeometries;
 }
 
-SFUnrecNodePtr      *ManipulatorBase::editSFHandleYNode    (void)
+MFUnrecGeometryPtr  *ManipulatorBase::editMFXGeometries    (void)
 {
-    editSField(HandleYNodeFieldMask);
+    editMField(XGeometriesFieldMask, _mfXGeometries);
 
-    return &_sfHandleYNode;
+    return &_mfXGeometries;
 }
 
-//! Get the Manipulator::_sfHandleZNode field.
-const SFUnrecNodePtr *ManipulatorBase::getSFHandleZNode(void) const
+//! Get the Manipulator::_mfYGeometries field.
+const MFUnrecGeometryPtr *ManipulatorBase::getMFYGeometries(void) const
 {
-    return &_sfHandleZNode;
+    return &_mfYGeometries;
 }
 
-SFUnrecNodePtr      *ManipulatorBase::editSFHandleZNode    (void)
+MFUnrecGeometryPtr  *ManipulatorBase::editMFYGeometries    (void)
 {
-    editSField(HandleZNodeFieldMask);
+    editMField(YGeometriesFieldMask, _mfYGeometries);
 
-    return &_sfHandleZNode;
+    return &_mfYGeometries;
 }
 
-//! Get the Manipulator::_sfTransXNode field.
-const SFUnrecNodePtr *ManipulatorBase::getSFTransXNode(void) const
+//! Get the Manipulator::_mfZGeometries field.
+const MFUnrecGeometryPtr *ManipulatorBase::getMFZGeometries(void) const
 {
-    return &_sfTransXNode;
+    return &_mfZGeometries;
 }
 
-SFUnrecNodePtr      *ManipulatorBase::editSFTransXNode     (void)
+MFUnrecGeometryPtr  *ManipulatorBase::editMFZGeometries    (void)
 {
-    editSField(TransXNodeFieldMask);
+    editMField(ZGeometriesFieldMask, _mfZGeometries);
 
-    return &_sfTransXNode;
-}
-
-//! Get the Manipulator::_sfTransYNode field.
-const SFUnrecNodePtr *ManipulatorBase::getSFTransYNode(void) const
-{
-    return &_sfTransYNode;
-}
-
-SFUnrecNodePtr      *ManipulatorBase::editSFTransYNode     (void)
-{
-    editSField(TransYNodeFieldMask);
-
-    return &_sfTransYNode;
-}
-
-//! Get the Manipulator::_sfTransZNode field.
-const SFUnrecNodePtr *ManipulatorBase::getSFTransZNode(void) const
-{
-    return &_sfTransZNode;
-}
-
-SFUnrecNodePtr      *ManipulatorBase::editSFTransZNode     (void)
-{
-    editSField(TransZNodeFieldMask);
-
-    return &_sfTransZNode;
+    return &_mfZGeometries;
 }
 
 //! Get the Manipulator::_sfMaterialX field.
@@ -757,20 +807,192 @@ SFUnrecMaterialPtr  *ManipulatorBase::editSFMaterialZ      (void)
     return &_sfMaterialZ;
 }
 
-//! Get the Manipulator::_sfAxisLinesN field.
-const SFUnrecNodePtr *ManipulatorBase::getSFAxisLinesN(void) const
+//! Get the Manipulator::_sfMaterialSelected field.
+const SFUnrecMaterialPtr *ManipulatorBase::getSFMaterialSelected(void) const
 {
-    return &_sfAxisLinesN;
+    return &_sfMaterialSelected;
 }
 
-SFUnrecNodePtr      *ManipulatorBase::editSFAxisLinesN     (void)
+SFUnrecMaterialPtr  *ManipulatorBase::editSFMaterialSelected(void)
 {
-    editSField(AxisLinesNFieldMask);
+    editSField(MaterialSelectedFieldMask);
 
-    return &_sfAxisLinesN;
+    return &_sfMaterialSelected;
+}
+
+//! Get the Manipulator::_sfMaterialRollover field.
+const SFUnrecMaterialPtr *ManipulatorBase::getSFMaterialRollover(void) const
+{
+    return &_sfMaterialRollover;
+}
+
+SFUnrecMaterialPtr  *ManipulatorBase::editSFMaterialRollover(void)
+{
+    editSField(MaterialRolloverFieldMask);
+
+    return &_sfMaterialRollover;
 }
 
 
+
+void ManipulatorBase::pushToXGeometries(Geometry * const value)
+{
+    editMField(XGeometriesFieldMask, _mfXGeometries);
+
+    _mfXGeometries.push_back(value);
+}
+
+void ManipulatorBase::assignXGeometries(const MFUnrecGeometryPtr &value)
+{
+    MFUnrecGeometryPtr::const_iterator elemIt  =
+        value.begin();
+    MFUnrecGeometryPtr::const_iterator elemEnd =
+        value.end  ();
+
+    static_cast<Manipulator *>(this)->clearXGeometries();
+
+    while(elemIt != elemEnd)
+    {
+        this->pushToXGeometries(*elemIt);
+
+        ++elemIt;
+    }
+}
+
+void ManipulatorBase::removeFromXGeometries(UInt32 uiIndex)
+{
+    if(uiIndex < _mfXGeometries.size())
+    {
+        editMField(XGeometriesFieldMask, _mfXGeometries);
+
+        _mfXGeometries.erase(uiIndex);
+    }
+}
+
+void ManipulatorBase::removeObjFromXGeometries(Geometry * const value)
+{
+    Int32 iElemIdx = _mfXGeometries.findIndex(value);
+
+    if(iElemIdx != -1)
+    {
+        editMField(XGeometriesFieldMask, _mfXGeometries);
+
+        _mfXGeometries.erase(iElemIdx);
+    }
+}
+void ManipulatorBase::clearXGeometries(void)
+{
+    editMField(XGeometriesFieldMask, _mfXGeometries);
+
+
+    _mfXGeometries.clear();
+}
+
+void ManipulatorBase::pushToYGeometries(Geometry * const value)
+{
+    editMField(YGeometriesFieldMask, _mfYGeometries);
+
+    _mfYGeometries.push_back(value);
+}
+
+void ManipulatorBase::assignYGeometries(const MFUnrecGeometryPtr &value)
+{
+    MFUnrecGeometryPtr::const_iterator elemIt  =
+        value.begin();
+    MFUnrecGeometryPtr::const_iterator elemEnd =
+        value.end  ();
+
+    static_cast<Manipulator *>(this)->clearYGeometries();
+
+    while(elemIt != elemEnd)
+    {
+        this->pushToYGeometries(*elemIt);
+
+        ++elemIt;
+    }
+}
+
+void ManipulatorBase::removeFromYGeometries(UInt32 uiIndex)
+{
+    if(uiIndex < _mfYGeometries.size())
+    {
+        editMField(YGeometriesFieldMask, _mfYGeometries);
+
+        _mfYGeometries.erase(uiIndex);
+    }
+}
+
+void ManipulatorBase::removeObjFromYGeometries(Geometry * const value)
+{
+    Int32 iElemIdx = _mfYGeometries.findIndex(value);
+
+    if(iElemIdx != -1)
+    {
+        editMField(YGeometriesFieldMask, _mfYGeometries);
+
+        _mfYGeometries.erase(iElemIdx);
+    }
+}
+void ManipulatorBase::clearYGeometries(void)
+{
+    editMField(YGeometriesFieldMask, _mfYGeometries);
+
+
+    _mfYGeometries.clear();
+}
+
+void ManipulatorBase::pushToZGeometries(Geometry * const value)
+{
+    editMField(ZGeometriesFieldMask, _mfZGeometries);
+
+    _mfZGeometries.push_back(value);
+}
+
+void ManipulatorBase::assignZGeometries(const MFUnrecGeometryPtr &value)
+{
+    MFUnrecGeometryPtr::const_iterator elemIt  =
+        value.begin();
+    MFUnrecGeometryPtr::const_iterator elemEnd =
+        value.end  ();
+
+    static_cast<Manipulator *>(this)->clearZGeometries();
+
+    while(elemIt != elemEnd)
+    {
+        this->pushToZGeometries(*elemIt);
+
+        ++elemIt;
+    }
+}
+
+void ManipulatorBase::removeFromZGeometries(UInt32 uiIndex)
+{
+    if(uiIndex < _mfZGeometries.size())
+    {
+        editMField(ZGeometriesFieldMask, _mfZGeometries);
+
+        _mfZGeometries.erase(uiIndex);
+    }
+}
+
+void ManipulatorBase::removeObjFromZGeometries(Geometry * const value)
+{
+    Int32 iElemIdx = _mfZGeometries.findIndex(value);
+
+    if(iElemIdx != -1)
+    {
+        editMField(ZGeometriesFieldMask, _mfZGeometries);
+
+        _mfZGeometries.erase(iElemIdx);
+    }
+}
+void ManipulatorBase::clearZGeometries(void)
+{
+    editMField(ZGeometriesFieldMask, _mfZGeometries);
+
+
+    _mfZGeometries.clear();
+}
 
 
 
@@ -784,9 +1006,13 @@ UInt32 ManipulatorBase::getBinSize(ConstFieldMaskArg whichField)
     {
         returnValue += _sfTarget.getBinSize();
     }
-    if(FieldBits::NoField != (ActiveSubHandleFieldMask & whichField))
+    if(FieldBits::NoField != (ActiveHandleFieldMask & whichField))
     {
-        returnValue += _sfActiveSubHandle.getBinSize();
+        returnValue += _sfActiveHandle.getBinSize();
+    }
+    if(FieldBits::NoField != (RolloverHandleFieldMask & whichField))
+    {
+        returnValue += _sfRolloverHandle.getBinSize();
     }
     if(FieldBits::NoField != (StartMousePosFieldMask & whichField))
     {
@@ -796,37 +1022,33 @@ UInt32 ManipulatorBase::getBinSize(ConstFieldMaskArg whichField)
     {
         returnValue += _sfViewport.getBinSize();
     }
-    if(FieldBits::NoField != (ActiveFieldMask & whichField))
+    if(FieldBits::NoField != (MaintainScreenSizeFieldMask & whichField))
     {
-        returnValue += _sfActive.getBinSize();
+        returnValue += _sfMaintainScreenSize.getBinSize();
+    }
+    if(FieldBits::NoField != (ManipulatorScreenDepthFieldMask & whichField))
+    {
+        returnValue += _sfManipulatorScreenDepth.getBinSize();
     }
     if(FieldBits::NoField != (LengthFieldMask & whichField))
     {
         returnValue += _sfLength.getBinSize();
     }
-    if(FieldBits::NoField != (HandleXNodeFieldMask & whichField))
+    if(FieldBits::NoField != (WidthFieldMask & whichField))
     {
-        returnValue += _sfHandleXNode.getBinSize();
+        returnValue += _sfWidth.getBinSize();
     }
-    if(FieldBits::NoField != (HandleYNodeFieldMask & whichField))
+    if(FieldBits::NoField != (XGeometriesFieldMask & whichField))
     {
-        returnValue += _sfHandleYNode.getBinSize();
+        returnValue += _mfXGeometries.getBinSize();
     }
-    if(FieldBits::NoField != (HandleZNodeFieldMask & whichField))
+    if(FieldBits::NoField != (YGeometriesFieldMask & whichField))
     {
-        returnValue += _sfHandleZNode.getBinSize();
+        returnValue += _mfYGeometries.getBinSize();
     }
-    if(FieldBits::NoField != (TransXNodeFieldMask & whichField))
+    if(FieldBits::NoField != (ZGeometriesFieldMask & whichField))
     {
-        returnValue += _sfTransXNode.getBinSize();
-    }
-    if(FieldBits::NoField != (TransYNodeFieldMask & whichField))
-    {
-        returnValue += _sfTransYNode.getBinSize();
-    }
-    if(FieldBits::NoField != (TransZNodeFieldMask & whichField))
-    {
-        returnValue += _sfTransZNode.getBinSize();
+        returnValue += _mfZGeometries.getBinSize();
     }
     if(FieldBits::NoField != (MaterialXFieldMask & whichField))
     {
@@ -840,9 +1062,13 @@ UInt32 ManipulatorBase::getBinSize(ConstFieldMaskArg whichField)
     {
         returnValue += _sfMaterialZ.getBinSize();
     }
-    if(FieldBits::NoField != (AxisLinesNFieldMask & whichField))
+    if(FieldBits::NoField != (MaterialSelectedFieldMask & whichField))
     {
-        returnValue += _sfAxisLinesN.getBinSize();
+        returnValue += _sfMaterialSelected.getBinSize();
+    }
+    if(FieldBits::NoField != (MaterialRolloverFieldMask & whichField))
+    {
+        returnValue += _sfMaterialRollover.getBinSize();
     }
 
     return returnValue;
@@ -857,9 +1083,13 @@ void ManipulatorBase::copyToBin(BinaryDataHandler &pMem,
     {
         _sfTarget.copyToBin(pMem);
     }
-    if(FieldBits::NoField != (ActiveSubHandleFieldMask & whichField))
+    if(FieldBits::NoField != (ActiveHandleFieldMask & whichField))
     {
-        _sfActiveSubHandle.copyToBin(pMem);
+        _sfActiveHandle.copyToBin(pMem);
+    }
+    if(FieldBits::NoField != (RolloverHandleFieldMask & whichField))
+    {
+        _sfRolloverHandle.copyToBin(pMem);
     }
     if(FieldBits::NoField != (StartMousePosFieldMask & whichField))
     {
@@ -869,37 +1099,33 @@ void ManipulatorBase::copyToBin(BinaryDataHandler &pMem,
     {
         _sfViewport.copyToBin(pMem);
     }
-    if(FieldBits::NoField != (ActiveFieldMask & whichField))
+    if(FieldBits::NoField != (MaintainScreenSizeFieldMask & whichField))
     {
-        _sfActive.copyToBin(pMem);
+        _sfMaintainScreenSize.copyToBin(pMem);
+    }
+    if(FieldBits::NoField != (ManipulatorScreenDepthFieldMask & whichField))
+    {
+        _sfManipulatorScreenDepth.copyToBin(pMem);
     }
     if(FieldBits::NoField != (LengthFieldMask & whichField))
     {
         _sfLength.copyToBin(pMem);
     }
-    if(FieldBits::NoField != (HandleXNodeFieldMask & whichField))
+    if(FieldBits::NoField != (WidthFieldMask & whichField))
     {
-        _sfHandleXNode.copyToBin(pMem);
+        _sfWidth.copyToBin(pMem);
     }
-    if(FieldBits::NoField != (HandleYNodeFieldMask & whichField))
+    if(FieldBits::NoField != (XGeometriesFieldMask & whichField))
     {
-        _sfHandleYNode.copyToBin(pMem);
+        _mfXGeometries.copyToBin(pMem);
     }
-    if(FieldBits::NoField != (HandleZNodeFieldMask & whichField))
+    if(FieldBits::NoField != (YGeometriesFieldMask & whichField))
     {
-        _sfHandleZNode.copyToBin(pMem);
+        _mfYGeometries.copyToBin(pMem);
     }
-    if(FieldBits::NoField != (TransXNodeFieldMask & whichField))
+    if(FieldBits::NoField != (ZGeometriesFieldMask & whichField))
     {
-        _sfTransXNode.copyToBin(pMem);
-    }
-    if(FieldBits::NoField != (TransYNodeFieldMask & whichField))
-    {
-        _sfTransYNode.copyToBin(pMem);
-    }
-    if(FieldBits::NoField != (TransZNodeFieldMask & whichField))
-    {
-        _sfTransZNode.copyToBin(pMem);
+        _mfZGeometries.copyToBin(pMem);
     }
     if(FieldBits::NoField != (MaterialXFieldMask & whichField))
     {
@@ -913,9 +1139,13 @@ void ManipulatorBase::copyToBin(BinaryDataHandler &pMem,
     {
         _sfMaterialZ.copyToBin(pMem);
     }
-    if(FieldBits::NoField != (AxisLinesNFieldMask & whichField))
+    if(FieldBits::NoField != (MaterialSelectedFieldMask & whichField))
     {
-        _sfAxisLinesN.copyToBin(pMem);
+        _sfMaterialSelected.copyToBin(pMem);
+    }
+    if(FieldBits::NoField != (MaterialRolloverFieldMask & whichField))
+    {
+        _sfMaterialRollover.copyToBin(pMem);
     }
 }
 
@@ -929,60 +1159,60 @@ void ManipulatorBase::copyFromBin(BinaryDataHandler &pMem,
         editSField(TargetFieldMask);
         _sfTarget.copyFromBin(pMem);
     }
-    if(FieldBits::NoField != (ActiveSubHandleFieldMask & whichField))
+    if(FieldBits::NoField != (ActiveHandleFieldMask & whichField))
     {
-        editSField(ActiveSubHandleFieldMask);
-        _sfActiveSubHandle.copyFromBin(pMem);
+        editSField(ActiveHandleFieldMask);
+        _sfActiveHandle.copyFromBin(pMem);
+    }
+    if(FieldBits::NoField != (RolloverHandleFieldMask & whichField))
+    {
+        editSField(RolloverHandleFieldMask);
+        _sfRolloverHandle.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (StartMousePosFieldMask & whichField))
     {
-        editSField(LastMousePosFieldMask);
-        _sfLastMousePos.copyFromBin(pMem);
+        editSField(StartMousePosFieldMask);
+        _sfStartMousePos.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ViewportFieldMask & whichField))
     {
         editSField(ViewportFieldMask);
         _sfViewport.copyFromBin(pMem);
     }
-    if(FieldBits::NoField != (ActiveFieldMask & whichField))
+    if(FieldBits::NoField != (MaintainScreenSizeFieldMask & whichField))
     {
-        editSField(ActiveFieldMask);
-        _sfActive.copyFromBin(pMem);
+        editSField(MaintainScreenSizeFieldMask);
+        _sfMaintainScreenSize.copyFromBin(pMem);
+    }
+    if(FieldBits::NoField != (ManipulatorScreenDepthFieldMask & whichField))
+    {
+        editSField(ManipulatorScreenDepthFieldMask);
+        _sfManipulatorScreenDepth.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (LengthFieldMask & whichField))
     {
         editSField(LengthFieldMask);
         _sfLength.copyFromBin(pMem);
     }
-    if(FieldBits::NoField != (HandleXNodeFieldMask & whichField))
+    if(FieldBits::NoField != (WidthFieldMask & whichField))
     {
-        editSField(HandleXNodeFieldMask);
-        _sfHandleXNode.copyFromBin(pMem);
+        editSField(WidthFieldMask);
+        _sfWidth.copyFromBin(pMem);
     }
-    if(FieldBits::NoField != (HandleYNodeFieldMask & whichField))
+    if(FieldBits::NoField != (XGeometriesFieldMask & whichField))
     {
-        editSField(HandleYNodeFieldMask);
-        _sfHandleYNode.copyFromBin(pMem);
+        editMField(XGeometriesFieldMask, _mfXGeometries);
+        _mfXGeometries.copyFromBin(pMem);
     }
-    if(FieldBits::NoField != (HandleZNodeFieldMask & whichField))
+    if(FieldBits::NoField != (YGeometriesFieldMask & whichField))
     {
-        editSField(HandleZNodeFieldMask);
-        _sfHandleZNode.copyFromBin(pMem);
+        editMField(YGeometriesFieldMask, _mfYGeometries);
+        _mfYGeometries.copyFromBin(pMem);
     }
-    if(FieldBits::NoField != (TransXNodeFieldMask & whichField))
+    if(FieldBits::NoField != (ZGeometriesFieldMask & whichField))
     {
-        editSField(TransXNodeFieldMask);
-        _sfTransXNode.copyFromBin(pMem);
-    }
-    if(FieldBits::NoField != (TransYNodeFieldMask & whichField))
-    {
-        editSField(TransYNodeFieldMask);
-        _sfTransYNode.copyFromBin(pMem);
-    }
-    if(FieldBits::NoField != (TransZNodeFieldMask & whichField))
-    {
-        editSField(TransZNodeFieldMask);
-        _sfTransZNode.copyFromBin(pMem);
+        editMField(ZGeometriesFieldMask, _mfZGeometries);
+        _mfZGeometries.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (MaterialXFieldMask & whichField))
     {
@@ -999,13 +1229,17 @@ void ManipulatorBase::copyFromBin(BinaryDataHandler &pMem,
         editSField(MaterialZFieldMask);
         _sfMaterialZ.copyFromBin(pMem);
     }
-    if(FieldBits::NoField != (AxisLinesNFieldMask & whichField))
+    if(FieldBits::NoField != (MaterialSelectedFieldMask & whichField))
     {
-        editSField(AxisLinesNFieldMask);
-        _sfAxisLinesN.copyFromBin(pMem);
+        editSField(MaterialSelectedFieldMask);
+        _sfMaterialSelected.copyFromBin(pMem);
+    }
+    if(FieldBits::NoField != (MaterialRolloverFieldMask & whichField))
+    {
+        editSField(MaterialRolloverFieldMask);
+        _sfMaterialRollover.copyFromBin(pMem);
     }
 }
-
 
 
 
@@ -1014,42 +1248,44 @@ void ManipulatorBase::copyFromBin(BinaryDataHandler &pMem,
 ManipulatorBase::ManipulatorBase(void) :
     Inherited(),
     _sfTarget                 (NULL),
-    _sfActiveSubHandle        (NULL),
+    _sfActiveHandle           (UInt16(Manipulator::NO_AXES_HANDLE)),
+    _sfRolloverHandle         (UInt16(Manipulator::NO_AXES_HANDLE)),
     _sfStartMousePos          (),
     _sfViewport               (NULL),
-    _sfActive                 (),
-    _sfLength                 (Vec3f(1,1,1)),
-    _sfHandleXNode            (NULL),
-    _sfHandleYNode            (NULL),
-    _sfHandleZNode            (NULL),
-    _sfTransXNode             (NULL),
-    _sfTransYNode             (NULL),
-    _sfTransZNode             (NULL),
+    _sfMaintainScreenSize     (bool(true)),
+    _sfManipulatorScreenDepth (Real32(10.0f)),
+    _sfLength                 (Vec3f(1.0f,1.0f,1.0f)),
+    _sfWidth                  (Vec3f(0.025f,0.025f,0.025f)),
+    _mfXGeometries            (),
+    _mfYGeometries            (),
+    _mfZGeometries            (),
     _sfMaterialX              (NULL),
     _sfMaterialY              (NULL),
     _sfMaterialZ              (NULL),
-    _sfAxisLinesN             (NULL)
+    _sfMaterialSelected       (NULL),
+    _sfMaterialRollover       (NULL)
 {
 }
 
 ManipulatorBase::ManipulatorBase(const ManipulatorBase &source) :
     Inherited(source),
     _sfTarget                 (NULL),
-    _sfActiveSubHandle        (NULL),
+    _sfActiveHandle           (source._sfActiveHandle           ),
+    _sfRolloverHandle         (source._sfRolloverHandle         ),
     _sfStartMousePos          (source._sfStartMousePos          ),
     _sfViewport               (NULL),
-    _sfActive                 (source._sfActive                 ),
+    _sfMaintainScreenSize     (source._sfMaintainScreenSize     ),
+    _sfManipulatorScreenDepth (source._sfManipulatorScreenDepth ),
     _sfLength                 (source._sfLength                 ),
-    _sfHandleXNode            (NULL),
-    _sfHandleYNode            (NULL),
-    _sfHandleZNode            (NULL),
-    _sfTransXNode             (NULL),
-    _sfTransYNode             (NULL),
-    _sfTransZNode             (NULL),
+    _sfWidth                  (source._sfWidth                  ),
+    _mfXGeometries            (),
+    _mfYGeometries            (),
+    _mfZGeometries            (),
     _sfMaterialX              (NULL),
     _sfMaterialY              (NULL),
     _sfMaterialZ              (NULL),
-    _sfAxisLinesN             (NULL)
+    _sfMaterialSelected       (NULL),
+    _sfMaterialRollover       (NULL)
 {
 }
 
@@ -1070,21 +1306,43 @@ void ManipulatorBase::onCreate(const Manipulator *source)
 
         pThis->setTarget(source->getTarget());
 
-        pThis->setActiveSubHandle(source->getActiveSubHandle());
-
         pThis->setViewport(source->getViewport());
 
-        pThis->setHandleXNode(source->getHandleXNode());
+        MFUnrecGeometryPtr::const_iterator XGeometriesIt  =
+            source->_mfXGeometries.begin();
+        MFUnrecGeometryPtr::const_iterator XGeometriesEnd =
+            source->_mfXGeometries.end  ();
 
-        pThis->setHandleYNode(source->getHandleYNode());
+        while(XGeometriesIt != XGeometriesEnd)
+        {
+            pThis->pushToXGeometries(*XGeometriesIt);
 
-        pThis->setHandleZNode(source->getHandleZNode());
+            ++XGeometriesIt;
+        }
 
-        pThis->setTransXNode(source->getTransXNode());
+        MFUnrecGeometryPtr::const_iterator YGeometriesIt  =
+            source->_mfYGeometries.begin();
+        MFUnrecGeometryPtr::const_iterator YGeometriesEnd =
+            source->_mfYGeometries.end  ();
 
-        pThis->setTransYNode(source->getTransYNode());
+        while(YGeometriesIt != YGeometriesEnd)
+        {
+            pThis->pushToYGeometries(*YGeometriesIt);
 
-        pThis->setTransZNode(source->getTransZNode());
+            ++YGeometriesIt;
+        }
+
+        MFUnrecGeometryPtr::const_iterator ZGeometriesIt  =
+            source->_mfZGeometries.begin();
+        MFUnrecGeometryPtr::const_iterator ZGeometriesEnd =
+            source->_mfZGeometries.end  ();
+
+        while(ZGeometriesIt != ZGeometriesEnd)
+        {
+            pThis->pushToZGeometries(*ZGeometriesIt);
+
+            ++ZGeometriesIt;
+        }
 
         pThis->setMaterialX(source->getMaterialX());
 
@@ -1092,7 +1350,9 @@ void ManipulatorBase::onCreate(const Manipulator *source)
 
         pThis->setMaterialZ(source->getMaterialZ());
 
-        pThis->setAxisLinesN(source->getAxisLinesN());
+        pThis->setMaterialSelected(source->getMaterialSelected());
+
+        pThis->setMaterialRollover(source->getMaterialRollover());
     }
 }
 
@@ -1124,30 +1384,52 @@ EditFieldHandlePtr ManipulatorBase::editHandleTarget         (void)
     return returnValue;
 }
 
-GetFieldHandlePtr ManipulatorBase::getHandleActiveSubHandle (void) const
+GetFieldHandlePtr ManipulatorBase::getHandleActiveHandle    (void) const
 {
-    SFUnrecNodePtr::GetHandlePtr returnValue(
-        new  SFUnrecNodePtr::GetHandle(
-             &_sfActiveSubHandle,
-             this->getType().getFieldDesc(ActiveSubHandleFieldId),
+    SFUInt16::GetHandlePtr returnValue(
+        new  SFUInt16::GetHandle(
+             &_sfActiveHandle,
+             this->getType().getFieldDesc(ActiveHandleFieldId),
              const_cast<ManipulatorBase *>(this)));
 
     return returnValue;
 }
 
-EditFieldHandlePtr ManipulatorBase::editHandleActiveSubHandle(void)
+EditFieldHandlePtr ManipulatorBase::editHandleActiveHandle   (void)
 {
-    SFUnrecNodePtr::EditHandlePtr returnValue(
-        new  SFUnrecNodePtr::EditHandle(
-             &_sfActiveSubHandle,
-             this->getType().getFieldDesc(ActiveSubHandleFieldId),
+    SFUInt16::EditHandlePtr returnValue(
+        new  SFUInt16::EditHandle(
+             &_sfActiveHandle,
+             this->getType().getFieldDesc(ActiveHandleFieldId),
              this));
 
-    returnValue->setSetMethod(
-        boost::bind(&Manipulator::setActiveSubHandle,
-                    static_cast<Manipulator *>(this), _1));
 
-    editSField(ActiveSubHandleFieldMask);
+    editSField(ActiveHandleFieldMask);
+
+    return returnValue;
+}
+
+GetFieldHandlePtr ManipulatorBase::getHandleRolloverHandle  (void) const
+{
+    SFUInt16::GetHandlePtr returnValue(
+        new  SFUInt16::GetHandle(
+             &_sfRolloverHandle,
+             this->getType().getFieldDesc(RolloverHandleFieldId),
+             const_cast<ManipulatorBase *>(this)));
+
+    return returnValue;
+}
+
+EditFieldHandlePtr ManipulatorBase::editHandleRolloverHandle (void)
+{
+    SFUInt16::EditHandlePtr returnValue(
+        new  SFUInt16::EditHandle(
+             &_sfRolloverHandle,
+             this->getType().getFieldDesc(RolloverHandleFieldId),
+             this));
+
+
+    editSField(RolloverHandleFieldMask);
 
     return returnValue;
 }
@@ -1205,27 +1487,52 @@ EditFieldHandlePtr ManipulatorBase::editHandleViewport       (void)
     return returnValue;
 }
 
-GetFieldHandlePtr ManipulatorBase::getHandleActive          (void) const
+GetFieldHandlePtr ManipulatorBase::getHandleMaintainScreenSize (void) const
 {
     SFBool::GetHandlePtr returnValue(
         new  SFBool::GetHandle(
-             &_sfActive,
-             this->getType().getFieldDesc(ActiveFieldId),
+             &_sfMaintainScreenSize,
+             this->getType().getFieldDesc(MaintainScreenSizeFieldId),
              const_cast<ManipulatorBase *>(this)));
 
     return returnValue;
 }
 
-EditFieldHandlePtr ManipulatorBase::editHandleActive         (void)
+EditFieldHandlePtr ManipulatorBase::editHandleMaintainScreenSize(void)
 {
     SFBool::EditHandlePtr returnValue(
         new  SFBool::EditHandle(
-             &_sfActive,
-             this->getType().getFieldDesc(ActiveFieldId),
+             &_sfMaintainScreenSize,
+             this->getType().getFieldDesc(MaintainScreenSizeFieldId),
              this));
 
 
-    editSField(ActiveFieldMask);
+    editSField(MaintainScreenSizeFieldMask);
+
+    return returnValue;
+}
+
+GetFieldHandlePtr ManipulatorBase::getHandleManipulatorScreenDepth (void) const
+{
+    SFReal32::GetHandlePtr returnValue(
+        new  SFReal32::GetHandle(
+             &_sfManipulatorScreenDepth,
+             this->getType().getFieldDesc(ManipulatorScreenDepthFieldId),
+             const_cast<ManipulatorBase *>(this)));
+
+    return returnValue;
+}
+
+EditFieldHandlePtr ManipulatorBase::editHandleManipulatorScreenDepth(void)
+{
+    SFReal32::EditHandlePtr returnValue(
+        new  SFReal32::EditHandle(
+             &_sfManipulatorScreenDepth,
+             this->getType().getFieldDesc(ManipulatorScreenDepthFieldId),
+             this));
+
+
+    editSField(ManipulatorScreenDepthFieldMask);
 
     return returnValue;
 }
@@ -1255,170 +1562,138 @@ EditFieldHandlePtr ManipulatorBase::editHandleLength         (void)
     return returnValue;
 }
 
-GetFieldHandlePtr ManipulatorBase::getHandleHandleXNode     (void) const
+GetFieldHandlePtr ManipulatorBase::getHandleWidth           (void) const
 {
-    SFUnrecNodePtr::GetHandlePtr returnValue(
-        new  SFUnrecNodePtr::GetHandle(
-             &_sfHandleXNode,
-             this->getType().getFieldDesc(HandleXNodeFieldId),
+    SFVec3f::GetHandlePtr returnValue(
+        new  SFVec3f::GetHandle(
+             &_sfWidth,
+             this->getType().getFieldDesc(WidthFieldId),
              const_cast<ManipulatorBase *>(this)));
 
     return returnValue;
 }
 
-EditFieldHandlePtr ManipulatorBase::editHandleHandleXNode    (void)
+EditFieldHandlePtr ManipulatorBase::editHandleWidth          (void)
 {
-    SFUnrecNodePtr::EditHandlePtr returnValue(
-        new  SFUnrecNodePtr::EditHandle(
-             &_sfHandleXNode,
-             this->getType().getFieldDesc(HandleXNodeFieldId),
+    SFVec3f::EditHandlePtr returnValue(
+        new  SFVec3f::EditHandle(
+             &_sfWidth,
+             this->getType().getFieldDesc(WidthFieldId),
              this));
 
-    returnValue->setSetMethod(
-        boost::bind(&Manipulator::setHandleXNode,
-                    static_cast<Manipulator *>(this), _1));
 
-    editSField(HandleXNodeFieldMask);
+    editSField(WidthFieldMask);
 
     return returnValue;
 }
 
-GetFieldHandlePtr ManipulatorBase::getHandleHandleYNode     (void) const
+GetFieldHandlePtr ManipulatorBase::getHandleXGeometries     (void) const
 {
-    SFUnrecNodePtr::GetHandlePtr returnValue(
-        new  SFUnrecNodePtr::GetHandle(
-             &_sfHandleYNode,
-             this->getType().getFieldDesc(HandleYNodeFieldId),
+    MFUnrecGeometryPtr::GetHandlePtr returnValue(
+        new  MFUnrecGeometryPtr::GetHandle(
+             &_mfXGeometries,
+             this->getType().getFieldDesc(XGeometriesFieldId),
              const_cast<ManipulatorBase *>(this)));
 
     return returnValue;
 }
 
-EditFieldHandlePtr ManipulatorBase::editHandleHandleYNode    (void)
+EditFieldHandlePtr ManipulatorBase::editHandleXGeometries    (void)
 {
-    SFUnrecNodePtr::EditHandlePtr returnValue(
-        new  SFUnrecNodePtr::EditHandle(
-             &_sfHandleYNode,
-             this->getType().getFieldDesc(HandleYNodeFieldId),
+    MFUnrecGeometryPtr::EditHandlePtr returnValue(
+        new  MFUnrecGeometryPtr::EditHandle(
+             &_mfXGeometries,
+             this->getType().getFieldDesc(XGeometriesFieldId),
              this));
 
-    returnValue->setSetMethod(
-        boost::bind(&Manipulator::setHandleYNode,
+    returnValue->setAddMethod(
+        boost::bind(&Manipulator::pushToXGeometries,
                     static_cast<Manipulator *>(this), _1));
+    returnValue->setRemoveMethod(
+        boost::bind(&Manipulator::removeFromXGeometries,
+                    static_cast<Manipulator *>(this), _1));
+    returnValue->setRemoveObjMethod(
+        boost::bind(&Manipulator::removeObjFromXGeometries,
+                    static_cast<Manipulator *>(this), _1));
+    returnValue->setClearMethod(
+        boost::bind(&Manipulator::clearXGeometries,
+                    static_cast<Manipulator *>(this)));
 
-    editSField(HandleYNodeFieldMask);
+    editMField(XGeometriesFieldMask, _mfXGeometries);
 
     return returnValue;
 }
 
-GetFieldHandlePtr ManipulatorBase::getHandleHandleZNode     (void) const
+GetFieldHandlePtr ManipulatorBase::getHandleYGeometries     (void) const
 {
-    SFUnrecNodePtr::GetHandlePtr returnValue(
-        new  SFUnrecNodePtr::GetHandle(
-             &_sfHandleZNode,
-             this->getType().getFieldDesc(HandleZNodeFieldId),
+    MFUnrecGeometryPtr::GetHandlePtr returnValue(
+        new  MFUnrecGeometryPtr::GetHandle(
+             &_mfYGeometries,
+             this->getType().getFieldDesc(YGeometriesFieldId),
              const_cast<ManipulatorBase *>(this)));
 
     return returnValue;
 }
 
-EditFieldHandlePtr ManipulatorBase::editHandleHandleZNode    (void)
+EditFieldHandlePtr ManipulatorBase::editHandleYGeometries    (void)
 {
-    SFUnrecNodePtr::EditHandlePtr returnValue(
-        new  SFUnrecNodePtr::EditHandle(
-             &_sfHandleZNode,
-             this->getType().getFieldDesc(HandleZNodeFieldId),
+    MFUnrecGeometryPtr::EditHandlePtr returnValue(
+        new  MFUnrecGeometryPtr::EditHandle(
+             &_mfYGeometries,
+             this->getType().getFieldDesc(YGeometriesFieldId),
              this));
 
-    returnValue->setSetMethod(
-        boost::bind(&Manipulator::setHandleZNode,
+    returnValue->setAddMethod(
+        boost::bind(&Manipulator::pushToYGeometries,
                     static_cast<Manipulator *>(this), _1));
+    returnValue->setRemoveMethod(
+        boost::bind(&Manipulator::removeFromYGeometries,
+                    static_cast<Manipulator *>(this), _1));
+    returnValue->setRemoveObjMethod(
+        boost::bind(&Manipulator::removeObjFromYGeometries,
+                    static_cast<Manipulator *>(this), _1));
+    returnValue->setClearMethod(
+        boost::bind(&Manipulator::clearYGeometries,
+                    static_cast<Manipulator *>(this)));
 
-    editSField(HandleZNodeFieldMask);
+    editMField(YGeometriesFieldMask, _mfYGeometries);
 
     return returnValue;
 }
 
-GetFieldHandlePtr ManipulatorBase::getHandleTransXNode      (void) const
+GetFieldHandlePtr ManipulatorBase::getHandleZGeometries     (void) const
 {
-    SFUnrecNodePtr::GetHandlePtr returnValue(
-        new  SFUnrecNodePtr::GetHandle(
-             &_sfTransXNode,
-             this->getType().getFieldDesc(TransXNodeFieldId),
+    MFUnrecGeometryPtr::GetHandlePtr returnValue(
+        new  MFUnrecGeometryPtr::GetHandle(
+             &_mfZGeometries,
+             this->getType().getFieldDesc(ZGeometriesFieldId),
              const_cast<ManipulatorBase *>(this)));
 
     return returnValue;
 }
 
-EditFieldHandlePtr ManipulatorBase::editHandleTransXNode     (void)
+EditFieldHandlePtr ManipulatorBase::editHandleZGeometries    (void)
 {
-    SFUnrecNodePtr::EditHandlePtr returnValue(
-        new  SFUnrecNodePtr::EditHandle(
-             &_sfTransXNode,
-             this->getType().getFieldDesc(TransXNodeFieldId),
+    MFUnrecGeometryPtr::EditHandlePtr returnValue(
+        new  MFUnrecGeometryPtr::EditHandle(
+             &_mfZGeometries,
+             this->getType().getFieldDesc(ZGeometriesFieldId),
              this));
 
-    returnValue->setSetMethod(
-        boost::bind(&Manipulator::setTransXNode,
+    returnValue->setAddMethod(
+        boost::bind(&Manipulator::pushToZGeometries,
                     static_cast<Manipulator *>(this), _1));
-
-    editSField(TransXNodeFieldMask);
-
-    return returnValue;
-}
-
-GetFieldHandlePtr ManipulatorBase::getHandleTransYNode      (void) const
-{
-    SFUnrecNodePtr::GetHandlePtr returnValue(
-        new  SFUnrecNodePtr::GetHandle(
-             &_sfTransYNode,
-             this->getType().getFieldDesc(TransYNodeFieldId),
-             const_cast<ManipulatorBase *>(this)));
-
-    return returnValue;
-}
-
-EditFieldHandlePtr ManipulatorBase::editHandleTransYNode     (void)
-{
-    SFUnrecNodePtr::EditHandlePtr returnValue(
-        new  SFUnrecNodePtr::EditHandle(
-             &_sfTransYNode,
-             this->getType().getFieldDesc(TransYNodeFieldId),
-             this));
-
-    returnValue->setSetMethod(
-        boost::bind(&Manipulator::setTransYNode,
+    returnValue->setRemoveMethod(
+        boost::bind(&Manipulator::removeFromZGeometries,
                     static_cast<Manipulator *>(this), _1));
-
-    editSField(TransYNodeFieldMask);
-
-    return returnValue;
-}
-
-GetFieldHandlePtr ManipulatorBase::getHandleTransZNode      (void) const
-{
-    SFUnrecNodePtr::GetHandlePtr returnValue(
-        new  SFUnrecNodePtr::GetHandle(
-             &_sfTransZNode,
-             this->getType().getFieldDesc(TransZNodeFieldId),
-             const_cast<ManipulatorBase *>(this)));
-
-    return returnValue;
-}
-
-EditFieldHandlePtr ManipulatorBase::editHandleTransZNode     (void)
-{
-    SFUnrecNodePtr::EditHandlePtr returnValue(
-        new  SFUnrecNodePtr::EditHandle(
-             &_sfTransZNode,
-             this->getType().getFieldDesc(TransZNodeFieldId),
-             this));
-
-    returnValue->setSetMethod(
-        boost::bind(&Manipulator::setTransZNode,
+    returnValue->setRemoveObjMethod(
+        boost::bind(&Manipulator::removeObjFromZGeometries,
                     static_cast<Manipulator *>(this), _1));
+    returnValue->setClearMethod(
+        boost::bind(&Manipulator::clearZGeometries,
+                    static_cast<Manipulator *>(this)));
 
-    editSField(TransZNodeFieldMask);
+    editMField(ZGeometriesFieldMask, _mfZGeometries);
 
     return returnValue;
 }
@@ -1507,33 +1782,62 @@ EditFieldHandlePtr ManipulatorBase::editHandleMaterialZ      (void)
     return returnValue;
 }
 
-GetFieldHandlePtr ManipulatorBase::getHandleAxisLinesN      (void) const
+GetFieldHandlePtr ManipulatorBase::getHandleMaterialSelected (void) const
 {
-    SFUnrecNodePtr::GetHandlePtr returnValue(
-        new  SFUnrecNodePtr::GetHandle(
-             &_sfAxisLinesN,
-             this->getType().getFieldDesc(AxisLinesNFieldId),
+    SFUnrecMaterialPtr::GetHandlePtr returnValue(
+        new  SFUnrecMaterialPtr::GetHandle(
+             &_sfMaterialSelected,
+             this->getType().getFieldDesc(MaterialSelectedFieldId),
              const_cast<ManipulatorBase *>(this)));
 
     return returnValue;
 }
 
-EditFieldHandlePtr ManipulatorBase::editHandleAxisLinesN     (void)
+EditFieldHandlePtr ManipulatorBase::editHandleMaterialSelected(void)
 {
-    SFUnrecNodePtr::EditHandlePtr returnValue(
-        new  SFUnrecNodePtr::EditHandle(
-             &_sfAxisLinesN,
-             this->getType().getFieldDesc(AxisLinesNFieldId),
+    SFUnrecMaterialPtr::EditHandlePtr returnValue(
+        new  SFUnrecMaterialPtr::EditHandle(
+             &_sfMaterialSelected,
+             this->getType().getFieldDesc(MaterialSelectedFieldId),
              this));
 
     returnValue->setSetMethod(
-        boost::bind(&Manipulator::setAxisLinesN,
+        boost::bind(&Manipulator::setMaterialSelected,
                     static_cast<Manipulator *>(this), _1));
 
-    editSField(AxisLinesNFieldMask);
+    editSField(MaterialSelectedFieldMask);
 
     return returnValue;
 }
+
+GetFieldHandlePtr ManipulatorBase::getHandleMaterialRollover (void) const
+{
+    SFUnrecMaterialPtr::GetHandlePtr returnValue(
+        new  SFUnrecMaterialPtr::GetHandle(
+             &_sfMaterialRollover,
+             this->getType().getFieldDesc(MaterialRolloverFieldId),
+             const_cast<ManipulatorBase *>(this)));
+
+    return returnValue;
+}
+
+EditFieldHandlePtr ManipulatorBase::editHandleMaterialRollover(void)
+{
+    SFUnrecMaterialPtr::EditHandlePtr returnValue(
+        new  SFUnrecMaterialPtr::EditHandle(
+             &_sfMaterialRollover,
+             this->getType().getFieldDesc(MaterialRolloverFieldId),
+             this));
+
+    returnValue->setSetMethod(
+        boost::bind(&Manipulator::setMaterialRollover,
+                    static_cast<Manipulator *>(this), _1));
+
+    editSField(MaterialRolloverFieldMask);
+
+    return returnValue;
+}
+
 
 
 #ifdef OSG_MT_CPTR_ASPECT
@@ -1561,21 +1865,13 @@ void ManipulatorBase::resolveLinks(void)
 
     static_cast<Manipulator *>(this)->setTarget(NULL);
 
-    static_cast<Manipulator *>(this)->setActiveSubHandle(NULL);
-
     static_cast<Manipulator *>(this)->setViewport(NULL);
 
-    static_cast<Manipulator *>(this)->setHandleXNode(NULL);
+    static_cast<Manipulator *>(this)->clearXGeometries();
 
-    static_cast<Manipulator *>(this)->setHandleYNode(NULL);
+    static_cast<Manipulator *>(this)->clearYGeometries();
 
-    static_cast<Manipulator *>(this)->setHandleZNode(NULL);
-
-    static_cast<Manipulator *>(this)->setTransXNode(NULL);
-
-    static_cast<Manipulator *>(this)->setTransYNode(NULL);
-
-    static_cast<Manipulator *>(this)->setTransZNode(NULL);
+    static_cast<Manipulator *>(this)->clearZGeometries();
 
     static_cast<Manipulator *>(this)->setMaterialX(NULL);
 
@@ -1583,7 +1879,9 @@ void ManipulatorBase::resolveLinks(void)
 
     static_cast<Manipulator *>(this)->setMaterialZ(NULL);
 
-    static_cast<Manipulator *>(this)->setAxisLinesN(NULL);
+    static_cast<Manipulator *>(this)->setMaterialSelected(NULL);
+
+    static_cast<Manipulator *>(this)->setMaterialRollover(NULL);
 
 
 }

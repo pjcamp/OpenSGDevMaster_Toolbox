@@ -47,7 +47,13 @@
 
 #include "OSGConfig.h"
 #include "OSGBaseFunctions.h"
-#include "OSGSimpleMaterial.h"
+
+#include "OSGChunkMaterial.h"
+#include "OSGMaterialChunk.h"
+#include "OSGDepthChunk.h"
+#include "OSGBlendChunk.h"
+#include "OSGPolygonChunk.h"
+
 #include "OSGTransform.h"
 #include "OSGStackedTransform.h"
 #include "OSGTranslationTransformationElement.h"
@@ -58,6 +64,7 @@
 #include "OSGWindow.h"
 #include "OSGNameAttachment.h"
 #include "OSGCamera.h"
+#include "OSGScreenTransform.h"
 
 #include "OSGManipulator.h"
 #include "OSGSimpleGeometryExt.h"
@@ -92,55 +99,156 @@ void Manipulator::initMethod(InitPhase)
 
 void Manipulator::addHandleGeo(Node *n)
 {
-    n->addChild(getTransXNode());
-    n->addChild(getTransYNode());
-    n->addChild(getTransZNode());
-    n->addChild(getAxisLinesN());
+    n->addChild(_root);
 }
 
 void Manipulator::subHandleGeo(Node *n)
 {
-    n->subChild(getTransXNode());
-    n->subChild(getTransYNode());
-    n->subChild(getTransZNode());
-    n->subChild(getAxisLinesN());
+    n->subChild(_root);
 }
 
 void Manipulator::startManip(Node *subHandle)
 {
-    if(!_isManipulating)
+    if(getTarget() == NULL) return;
+
+    if(!isManipulating())
     {
-        setActiveSubHandle(subHandle);
+        setActiveHandle(getNodeHandle(subHandle));
 
-        _isManipulating = true;
+        applyStateMaterial(getActiveHandle());
 
-        getTransformation(_initialXForm);
+        if(getActiveHandle() != NO_AXES_HANDLE)
+        {
+            getTransformation(_initialXForm);
+        }
     }
 }
 
 void Manipulator::cancelManip(void)
 {
-    if(_isManipulating)
-    {
-        _isManipulating = false;
+    if(getTarget() == NULL) return;
 
+    if(isManipulating())
+    {
         setTransformation(_initialXForm);
+
+
+        UInt32 ManipAxis(getActiveHandle());
+
+        setActiveHandle(NO_AXES_HANDLE);
+        applyStateMaterial(ManipAxis);
     }
 }
 
 void Manipulator::endManip(void)
 {
-    if(_isManipulating)
+    if(getTarget() == NULL) return;
+
+    if(isManipulating())
     {
-        _isManipulating = false;
+        UInt32 ManipAxis(getActiveHandle());
+
+        setActiveHandle(NO_AXES_HANDLE);
+        applyStateMaterial(ManipAxis);
     }
 }
 
-bool Manipulator::isManipulating(void) const\
+void Manipulator::rolloverHandle(Node *subHandle)
 {
-    return _isManipulating;
+    if(getTarget() == NULL) return;
+
+    if(!isRolledOver())
+    {
+        setRolloverHandle(getNodeHandle(subHandle));
+
+        applyStateMaterial(getRolloverHandle());
+    }
 }
 
+void Manipulator::exitHandle(void)
+{
+    if(getTarget() == NULL) return;
+
+    if(isRolledOver())
+    {
+
+        UInt32 ManipAxis(getRolloverHandle());
+
+        setRolloverHandle(NO_AXES_HANDLE);
+        applyStateMaterial(ManipAxis);
+    }
+}
+
+bool Manipulator::isRolledOver(void) const
+{
+    if(getTarget() == NULL) return false;
+
+    return getRolloverHandle() != NO_AXES_HANDLE;
+}
+
+
+UInt16 Manipulator::getNodeHandle(Node* const HandleNode) const
+{
+    switch(HandleNode->getTravMask())
+    {
+    case ALL_AXIS_TRAV_MASK:
+        return ALL_AXES_HANDLE;
+        break;
+    case XY_AXES_TRAV_MASK:
+        return XY_AXES_HANDLE;
+        break;
+    case XZ_AXES_TRAV_MASK:
+        return XZ_AXES_HANDLE;
+        break;
+    case YZ_AXES_TRAV_MASK:
+        return YZ_AXES_HANDLE;
+        break;
+    case X_AXIS_TRAV_MASK:
+        return X_AXIS_HANDLE;
+        break;
+    case Y_AXIS_TRAV_MASK:
+        return Y_AXIS_HANDLE;
+        break;
+    case Z_AXIS_TRAV_MASK:
+        return Z_AXIS_HANDLE;
+        break;
+    default:
+        return NO_AXES_HANDLE;
+        break;
+    }
+}
+
+void Manipulator::applyStateMaterial(UInt16 Axis)
+{
+    if(Axis != NO_AXES_HANDLE)
+    {
+        for(UInt32 i(0) ; i<editAxisGeometries(Axis)->size(); ++i)
+        {
+            (*editAxisGeometries(Axis))[i]->setMaterial(getCurStateAxisMaterial(Axis));
+        }
+    }
+}
+
+Material* Manipulator::getCurStateAxisMaterial(UInt16 Axis) const
+{
+    if(isManipulating())
+    {
+        return getMaterialSelected();
+    }
+    else if(isRolledOver())
+    {
+        return getMaterialRollover();
+    }
+    else
+    {
+        return getAxisMaterial(Axis);
+    }
+}
+
+bool Manipulator::isManipulating(void) const
+{
+    return getActiveHandle() != NO_AXES_HANDLE;
+}
 
 void Manipulator::reverseTransform()
 {
@@ -205,24 +313,6 @@ Pnt2f Manipulator::calcScreenProjection(const Pnt3f    &       p,
     }
 }
 
-UInt16 Manipulator::getActiveHandle(void) const
-{
-    //  check for the active handle
-    if(     getActiveSubHandle() == getHandleXNode())
-    {
-        return X_AXIS_HANDLE;
-    }
-    else if(getActiveSubHandle() == getHandleYNode())
-    {
-        return Y_AXIS_HANDLE;
-    }
-    else if(getActiveSubHandle() == getHandleZNode())
-    {
-        return Z_AXIS_HANDLE;
-    }
-    return NO_AXES_HANDLE;
-}
-
 /*! The mouseMove is called by the viewer when the mouse is moved in the
     viewer and this handle is the active one.
 
@@ -232,78 +322,6 @@ UInt16 Manipulator::getActiveHandle(void) const
 void Manipulator::mouseMove(const Int16 x,
                             const Int16 y)
 {
-    //SLOG << "Manipulator::mouseMove() enter\n" << std::flush;
-
-    // get the beacon's core (must be ComponentTransform) and it's center
-    if( getTarget() != NULL )
-    {
-        if( getTarget()->getCore() != NULL )
-        {
-            UInt16     coord(0);          // active coordinate: X=0, Y=1, Z=2
-
-            Vec3f      centerV;           // center of beacon
-
-            Vec3f      translation;       // for matrix decomposition
-            Quaternion rotation;
-            Vec3f      scaleFactor;
-            Quaternion scaleOrientation;
-
-            // TODO: das ist ja schon ein wenig haesslich
-            static const Vec3f coordVector[3] = {
-                Vec3f(1.0f, 0.0f, 0.0f),
-                Vec3f(0.0f, 1.0f, 0.0f),
-                Vec3f(0.0f, 0.0f, 1.0f)
-            };
-
-            //get the active handle
-            coord = getActiveHandle();
-            OSG_ASSERT(coord != NO_AXES_HANDLE);
-
-            // set the vector resulting from user mouse movement and calc its length
-            
-            getTransformation(translation, rotation, scaleFactor,
-                                        scaleOrientation);
-
-
-            // calculate the camera coordinate of the center
-            centerV            = translation;
-            Pnt2f centerPixPos = calcScreenProjection(centerV.addToZero(),
-                                                      getViewport());
-
-
-            // calculate the camera coordinate of the handle center
-            Real32 value;
-            if(coord == ALL_AXES_HANDLE)
-            {
-                value = getStartMousePos().dist(Pnt2f(x,y)) * 0.01f;
-            }
-            else
-            {
-                Vec2f movedMouseProj(Pnt2f(x,y) - getStartMousePos());
-                movedMouseProj.projectTo(_handleScreenDir);
-
-                Real32 s = static_cast<Real32>(osgSgn(_handleScreenDir.dot(Pnt2f(x,y) - getStartMousePos()))) * movedMouseProj.length();
-                
-                value = s  * 0.01f;
-            }
-
-            doMovement(coord, value, translation,
-                       rotation, scaleFactor, scaleOrientation);
-        }
-        else
-        {
-            SWARNING << "handled object has no parent transform!\n";
-        }
-        callExternalUpdateHandler();
-    }
-    else
-    {
-        SWARNING << "Handle has no target.\n";
-    }
-
-    reverseTransform();
-
-    //SLOG << "Manipulator::mouseMove() leave\n" << std::flush;
 }
 
 /*! The mouseButtonPress is called by the viewer when the mouse is
@@ -319,47 +337,12 @@ void Manipulator::mouseButtonPress(const UInt16 button,
                                    const Int16  y     )
 {
     setStartMousePos(Pnt2f(x, y));
-
-    //get the active handle
-    if(getActiveSubHandle() != NULL)
-    {
-
-        Pnt3f      center(getTarget()->getToWorld() * Pnt3f(0.0f,0.0f,0.0f));           // center of beacon
-        Pnt3f      handleCenter(getActiveSubHandle()->getToWorld() * Pnt3f(0.0f,0.0f,0.0f));
-
-        // calculate the camera coordinate of the center
-        Pnt2f centerStartScreenPos = calcScreenProjection(center,
-                                                  getViewport());
-
-
-        Pnt2f handleCenterPixPos = calcScreenProjection(handleCenter,
-                                                        getViewport());
-
-
-        _handleScreenDir = handleCenterPixPos - centerStartScreenPos;
-        _handleScreenDir.normalize();
-
-        Vec2f mouseProj(getStartMousePos() - centerStartScreenPos);
-        mouseProj.projectTo(_handleScreenDir);
-
-        _startMouseProj = centerStartScreenPos + mouseProj;
-    }
-
-    setActive(true);
 }
 
 void Manipulator::mouseButtonRelease(const UInt16 button,
                                      const Int16  x,
                                      const Int16  y     )
 {
-    setActive(false);
-}
-
-bool Manipulator::hasSubHandle(Node * const n)
-{
-    return ( n == getHandleXNode() ||
-             n == getHandleYNode() ||
-             n == getHandleZNode() );
 }
 
 const Matrix& Manipulator::getInitialXForm(void) const
@@ -377,147 +360,146 @@ void Manipulator::dump(      UInt32    ,
     SLOG << "Dump Manipulator NI" << std::endl;
 }
 
+void Manipulator::createMaterials(void)
+{
+    Real32 Alpha(0.5f);
+
+    //Default Depth Chunk
+    DepthChunkRecPtr DefaultDepth = DepthChunk::create();
+    DefaultDepth->setEnable(false);
+
+    //Default Blend Chunk
+    BlendChunkRecPtr DefaultBlend = BlendChunk::create();
+    DefaultBlend->setSrcFactor(GL_SRC_ALPHA);
+    DefaultBlend->setDestFactor(GL_ONE_MINUS_SRC_ALPHA);
+
+    //Default Polygon Chunk
+    PolygonChunkRecPtr DefaultPolygon = PolygonChunk::create();
+    DefaultPolygon->setCullFace(GL_BACK);
+
+    ChunkMaterialUnrecPtr pMat;
+    MaterialChunkUnrecPtr DefaultMaterialChunk;
+
+    //X-axis Material
+    DefaultMaterialChunk = MaterialChunk::create();
+    DefaultMaterialChunk->setDiffuse(Color4f(1.0f, 0.0f, 0.0f, Alpha));
+    DefaultMaterialChunk->setLit(true);
+    
+    pMat = ChunkMaterial::create();
+    pMat->addChunk(DefaultMaterialChunk);
+    pMat->addChunk(DefaultDepth);
+    pMat->addChunk(DefaultBlend);
+    pMat->addChunk(DefaultPolygon);
+
+    setMaterialX(pMat);
+
+    //Y-axis Material
+    DefaultMaterialChunk = MaterialChunk::create();
+    DefaultMaterialChunk->setDiffuse(Color4f(0.0f, 1.0f, 0.0f, Alpha));
+    DefaultMaterialChunk->setLit(true);
+    
+    pMat = ChunkMaterial::create();
+    pMat->addChunk(DefaultMaterialChunk);
+    pMat->addChunk(DefaultDepth);
+    pMat->addChunk(DefaultBlend);
+    pMat->addChunk(DefaultPolygon);
+
+    setMaterialY(pMat);
+
+    //Z-axis Material
+    DefaultMaterialChunk = MaterialChunk::create();
+    DefaultMaterialChunk->setDiffuse(Color4f(0.0f, 0.0f, 1.0f, Alpha));
+    DefaultMaterialChunk->setLit(true);
+    
+    pMat = ChunkMaterial::create();
+    pMat->addChunk(DefaultMaterialChunk);
+    pMat->addChunk(DefaultDepth);
+    pMat->addChunk(DefaultBlend);
+    pMat->addChunk(DefaultPolygon);
+
+    setMaterialZ(pMat);
+    
+    //Selected-axis Material
+    DefaultMaterialChunk = MaterialChunk::create();
+    DefaultMaterialChunk->setDiffuse(Color4f(1.0f, 1.0f, 0.0f, 1.0f));
+    DefaultMaterialChunk->setLit(true);
+    
+    pMat = ChunkMaterial::create();
+    pMat->addChunk(DefaultMaterialChunk);
+    pMat->addChunk(DefaultDepth);
+    pMat->addChunk(DefaultBlend);
+    pMat->addChunk(DefaultPolygon);
+    setMaterialSelected(pMat);
+    
+    //Rollover-axis Material
+    DefaultMaterialChunk = MaterialChunk::create();
+    DefaultMaterialChunk->setDiffuse(Color4f(0.5f, 0.5f, 0.0f, 1.0f));
+    DefaultMaterialChunk->setLit(true);
+    
+    pMat = ChunkMaterial::create();
+    pMat->addChunk(DefaultMaterialChunk);
+    pMat->addChunk(DefaultDepth);
+    pMat->addChunk(DefaultBlend);
+    pMat->addChunk(DefaultPolygon);
+    setMaterialRollover(pMat);
+}
+
 void Manipulator::onCreate(const Manipulator* source)
 {
     Inherited::onCreate(source);
 
     if(source != NULL)
     {
-        SimpleMaterialUnrecPtr pMat = SimpleMaterial::create();
+        createMaterials();
 
-        setMaterialX(pMat);
+        NodeUnrecPtr XAxisManipulator = createXAxisManipulator();
+        NodeUnrecPtr YAxisManipulator = createYAxisManipulator();
+        NodeUnrecPtr ZAxisManipulator = createZAxisManipulator();
 
-        pMat = SimpleMaterial::create();
+        ScreenTransformRecPtr TheScreenTransform = ScreenTransform::create();
+        Matrix ScreenTransformView;
+        ScreenTransformView.setTranslate(0.0f,0.0f,-getManipulatorScreenDepth());
+        TheScreenTransform->setView(ScreenTransformView);
+        TheScreenTransform->setApplyBeaconRotation(true);
+        TheScreenTransform->setApplyBeaconScreenTranslation(true);
+        TheScreenTransform->setInvertWorldTransform(true);
+        TheScreenTransform->setInvertViewTransform(true);
 
-        setMaterialY(pMat);
-
-        pMat = SimpleMaterial::create();
-
-        setMaterialZ(pMat);
-
-        SimpleMaterial *simpleMat;
-        Geometry       *geo;
-
-        setExternalUpdateHandler(NULL);
-
-        // add a name attachment
-        NameUnrecPtr nameN = Name::create();
-        nameN->editFieldPtr()->setValue("XManipulator");
-        addAttachment(nameN);
-
-        // make the axis lines
-        NodeUnrecPtr pNode = makeCoordAxis(getLength()[0], 2.0, false);
-        setAxisLinesN(pNode);
-
-        // make the red x-axis transform and handle
-
-        pNode = Node::create();
-        setTransXNode(pNode);
-        ComponentTransformUnrecPtr transHandleXC = ComponentTransform::create();
-
-        pNode = makeHandleGeo();
-        setHandleXNode(pNode);
-        pMat = SimpleMaterial::create();
-        setMaterialX  (pMat );
-
-        getTransXNode()->setCore (transHandleXC  );
-        getTransXNode()->addChild(getHandleXNode());
-
-        transHandleXC->setTranslation(Vec3f(getLength()[0], 0, 0)                   );
-        transHandleXC->setRotation   (Quaternion(Vec3f(0, 0, 1), osgDegree2Rad(-90)));
-
-        simpleMat = dynamic_cast<SimpleMaterial *>(getMaterialX());
-
-        simpleMat->setDiffuse(Color3f(1, 0, 0));
-        simpleMat->setLit    (true            );
-
-        geo = dynamic_cast<Geometry *>(getHandleXNode()->getCore());
-        geo->setMaterial(simpleMat);
-
-        //
-        // make the green y-axis transform and handle
-
-        pNode = Node::create();
-        setTransYNode(pNode);
-        ComponentTransformUnrecPtr transHandleYC = ComponentTransform::create();
-        pNode = makeHandleGeo();
-        setHandleYNode(pNode);
-        pMat = SimpleMaterial::create();
-        setMaterialY(pMat);
-
-        getTransYNode()->setCore (transHandleYC  );
-        getTransYNode()->addChild(getHandleYNode());
-
-        transHandleYC->setTranslation(Vec3f(0, getLength()[1], 0)                    );
-        //    transHandleYC->setRotation   ( Quaternion(Vec3f(0, 0, 1), osgDegree2Rad(-90)));
-
-        simpleMat = dynamic_cast<SimpleMaterial *>(getMaterialY());
-        simpleMat->setDiffuse(Color3f(0, 1, 0));
-        simpleMat->setLit    (true            );
-
-        geo = dynamic_cast<Geometry *>(getHandleYNode()->getCore());
-        geo->setMaterial(simpleMat);
-
-        //
-        // make the blue z-axis transform and handle
-
-        pNode = Node::create();
-        setTransZNode(pNode);
-        ComponentTransformUnrecPtr transHandleZC = ComponentTransform::create();
-        pNode = makeHandleGeo();
-        setHandleZNode(pNode);
-        pMat = SimpleMaterial::create();
-        setMaterialZ  (pMat);
-
-        getTransZNode()->setCore (transHandleZC);
-        getTransZNode()->addChild(getHandleZNode());
-
-        transHandleZC->setTranslation(Vec3f(0, 0, getLength()[2])                  );
-        transHandleZC->setRotation   (Quaternion(Vec3f(1, 0, 0), osgDegree2Rad(90)));
-
-        simpleMat = dynamic_cast<SimpleMaterial *>(getMaterialZ());
-        simpleMat->setDiffuse(Color3f(0, 0, 1));
-        simpleMat->setLit    (true            );
-
-        geo = dynamic_cast<Geometry *>(getHandleZNode()->getCore());
-        geo->setMaterial(simpleMat);
-
+        _root = makeNodeFor(TheScreenTransform);
+        _root->addChild(XAxisManipulator);
+        _root->addChild(YAxisManipulator);
+        _root->addChild(ZAxisManipulator);
     }
 }
 
 void Manipulator::updateLength(void)
 {
-    Vec3f scale(Vec3f(1.0f,1.0f,1.0f) * osgMax(1.0f, getLength().maxValue() * 0.2f));
-    dynamic_cast<ComponentTransform*>(getTransXNode()->getCore())->setTranslation(Vec3f(getLength()[0], 0, 0));
-    dynamic_cast<ComponentTransform*>(getTransXNode()->getCore())->setScale(scale);
-    dynamic_cast<ComponentTransform*>(getTransYNode()->getCore())->setTranslation(Vec3f(0, getLength()[1], 0));
-    dynamic_cast<ComponentTransform*>(getTransYNode()->getCore())->setScale(scale);
-    dynamic_cast<ComponentTransform*>(getTransZNode()->getCore())->setTranslation(Vec3f(0, 0, getLength()[2]));
-    dynamic_cast<ComponentTransform*>(getTransZNode()->getCore())->setScale(scale);
+    //Vec3f scale(Vec3f(1.0f,1.0f,1.0f) * getLength().maxValue());
+    //dynamic_cast<ComponentTransform*>(_root->getCore())->setScale(scale);
 
-    //Update the Axes
-    NodeUnrecPtr pNode = makeCoordAxis(getLength()[0], 2.0, false);
-    setAxisLinesN(pNode);
+    //Node *parent;
 
-    Node *parent;
+    //if ( !getParents().empty() )
+    //{
+    //    parent = dynamic_cast<Node *>(getParents()[0]); // Dangerous! multiple parents?
+    //}
+    //else
+    //{
+    //    parent = NULL;
+    //}
+    //if ( NULL != parent )
+    //{
+    //    // remove old childs
+    //    while(parent->getNChildren() > 0)
+    //    {
+    //        parent->subChild(parent->getChild(0));
+    //    }
+    //    addHandleGeo(parent);
+    //}
+}
 
-    if ( !getParents().empty() )
-    {
-        parent = dynamic_cast<Node *>(getParents()[0]); // Dangerous! multiple parents?
-    }
-    else
-    {
-        parent = NULL;
-    }
-    if ( NULL != parent )
-    {
-        // remove old childs
-        while(parent->getNChildren() > 0)
-        {
-            parent->subChild(parent->getChild(0));
-        }
-        addHandleGeo(parent);
-    }
+void Manipulator::updateWidth(void)
+{
 }
 
 void Manipulator::updateParent(void)
@@ -564,6 +546,7 @@ void Manipulator::resolveLinks(void)
     Inherited::resolveLinks();
 
     _activeParent  = NULL;
+    _root = NULL;
 }
 
 void Manipulator::getTransformation(Vec3f        &translation,
@@ -670,22 +653,141 @@ void Manipulator::setTransformation(const Vec3f        &translation,
     }
 }
 
+NodeTransitPtr Manipulator::createAxisManipulator(UInt16 Axis)
+{
+    NodeUnrecPtr RootXManip = makeCoredNode<Group>();
+
+    //Make axis Geometry
+    if( Axis == X_AXIS_HANDLE ||
+        Axis == Y_AXIS_HANDLE ||
+        Axis == Z_AXIS_HANDLE)
+    {
+        Vec3f Direction(0.0f,0.0f,0.0f);
+        Direction[Axis] = 1.0f;
+
+        GeometryUnrecPtr AxisCylendarGeo = makeCylinderGeo(1.0f, getWidth()[Axis], 16, true, false,false);
+        AxisCylendarGeo->setMaterial(getAxisMaterial(Axis));
+        editAxisGeometries(Axis)->push_back(AxisCylendarGeo);
+
+        NodeUnrecPtr AxisCylendarNode = makeNodeFor(AxisCylendarGeo);
+        AxisCylendarNode->setTravMask(NONCOLLIDE_RENDERED_TRAV_MASK);
+
+        Matrix AxisMat;
+        AxisMat.setTransform(Direction * 0.5f, Quaternion(Vec3f(0.0f,1.0f,0.0f),Direction));
+
+        TransformUnrecPtr AxisTransform = Transform::create();
+        AxisTransform->setMatrix(AxisMat);
+
+        NodeUnrecPtr AxisNode = makeNodeFor(AxisTransform);
+        AxisNode->addChild(AxisCylendarNode);
+
+        //Make axis collision geometry
+        GeometryUnrecPtr AxisCylendarCollisionGeo = makeCylinderGeo(1.0f, getWidth()[Axis]*2.0f, 10, true, false,false);
+
+        NodeUnrecPtr AxisCylendarCollisionNode = makeNodeFor(AxisCylendarCollisionGeo);
+        AxisCylendarCollisionNode->setTravMask(getAxisCollisionTravMask(Axis));
+
+        AxisNode->addChild(AxisCylendarCollisionNode);
+        
+        RootXManip->addChild(AxisNode);
+    }
+
+    //Make the handle Geometry
+    NodeUnrecPtr HandleGeoNode = makeHandleGeo(0.1f, Axis);
+
+    RootXManip->addChild(HandleGeoNode);
+
+    return NodeTransitPtr(RootXManip);
+}
+
+NodeTransitPtr Manipulator::createXAxisManipulator(void)
+{
+    return createAxisManipulator(X_AXIS_HANDLE);
+}
+
+NodeTransitPtr Manipulator::createYAxisManipulator(void)
+{
+    return createAxisManipulator(Y_AXIS_HANDLE);
+}
+
+NodeTransitPtr Manipulator::createZAxisManipulator(void)
+{
+    return createAxisManipulator(Z_AXIS_HANDLE);
+}
+
+UInt32 Manipulator::getAxisCollisionTravMask(UInt16 Axis) const
+{
+    switch(Axis)
+    {
+    case X_AXIS_HANDLE:
+        return X_AXIS_TRAV_MASK;
+        break;
+    case Y_AXIS_HANDLE:
+        return Y_AXIS_TRAV_MASK;
+        break;
+    case Z_AXIS_HANDLE:
+        return Z_AXIS_TRAV_MASK;
+        break;
+    default:
+        return NONE_TRAV_MASK;
+        break;
+    }
+}
+
+Material* Manipulator::getAxisMaterial(UInt16 Axis) const
+{
+    switch(Axis)
+    {
+    case X_AXIS_HANDLE:
+        return getMaterialX();
+        break;
+    case Y_AXIS_HANDLE:
+        return getMaterialY();
+        break;
+    case Z_AXIS_HANDLE:
+        return getMaterialZ();
+        break;
+    default:
+        return NULL;
+        break;
+    }
+}
+    
+MFUnrecGeometryPtr* Manipulator::editAxisGeometries(UInt16 Axis)
+{
+    switch(Axis)
+    {
+    case X_AXIS_HANDLE:
+        return editMFXGeometries();
+        break;
+    case Y_AXIS_HANDLE:
+        return editMFYGeometries();
+        break;
+    case Z_AXIS_HANDLE:
+        return editMFZGeometries();
+        break;
+    default:
+        return NULL;
+        break;
+    }
+}
+
 /*----------------------- constructors & destructors ----------------------*/
 
 Manipulator::Manipulator(void) :
     Inherited(),
     _activeParent( NULL ),
-    _externalUpdateHandler( NULL ),
-    _isManipulating(false)
+    _root( NULL ),
+    _externalUpdateHandler( NULL )
 {
 }
 
 Manipulator::Manipulator(const Manipulator &source) :
     Inherited(source),
-    _isManipulating(false)
-
+    _activeParent( NULL ),
+    _root( NULL ),
+    _externalUpdateHandler( NULL )
 {
-    //TODO: empty copy constructor?!?!?!?
 }
 
 Manipulator::~Manipulator(void)
@@ -717,7 +819,18 @@ void Manipulator::changed(ConstFieldMaskArg whichField,
 
     if ( whichField & TargetFieldMask )
     {
-        reverseTransform();
+        dynamic_cast<ScreenTransform*>(_root->getCore())->setBeacon(getTarget());
+        //reverseTransform();
+    }
+    if ( whichField & ManipulatorScreenDepthFieldMask )
+    {
+        dynamic_cast<ScreenTransform*>(_root->getCore())->editView().setTranslate(Vec3f(0.0f,0.0f,-getManipulatorScreenDepth()));
+    }
+    if ( whichField & MaintainScreenSizeFieldMask )
+    {
+        dynamic_cast<ScreenTransform*>(_root->getCore())->setApplyBeaconScreenTranslation(getMaintainScreenSize());
+        dynamic_cast<ScreenTransform*>(_root->getCore())->setInvertWorldTransform(getMaintainScreenSize());
+        dynamic_cast<ScreenTransform*>(_root->getCore())->setInvertViewTransform(getMaintainScreenSize());
     }
 
     if ( whichField & ParentsFieldMask )
@@ -728,6 +841,10 @@ void Manipulator::changed(ConstFieldMaskArg whichField,
     if (whichField & LengthFieldMask)
     {
         updateLength();
+    }
+    if (whichField & WidthFieldMask)
+    {
+        updateWidth();
     }
 }
 

@@ -58,7 +58,8 @@
 
 
 
-#include "OSGNode.h"                    // HandleUniformNode Class
+#include "OSGGeometry.h"                // UniformGeometries Class
+#include "OSGNode.h"                    // TransUniformNode Class
 #include "OSGMaterial.h"                // MaterialUniform Class
 
 #include "OSGScaleManipulatorBase.h"
@@ -88,8 +89,8 @@ OSG_BEGIN_NAMESPACE
     Uniform/Non-uniform scaling.
 */
 
-/*! \var Node *          ScaleManipulatorBase::_sfHandleUniformNode
-    The node for the uniform-handle geometry
+/*! \var Geometry *      ScaleManipulatorBase::_mfUniformGeometries
+    
 */
 
 /*! \var Node *          ScaleManipulatorBase::_sfTransUniformNode
@@ -132,15 +133,15 @@ void ScaleManipulatorBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new SFUnrecNodePtr::Description(
-        SFUnrecNodePtr::getClassType(),
-        "handleUniformNode",
-        "The node for the uniform-handle geometry\n",
-        HandleUniformNodeFieldId, HandleUniformNodeFieldMask,
+    pDesc = new MFUnrecGeometryPtr::Description(
+        MFUnrecGeometryPtr::getClassType(),
+        "uniformGeometries",
+        "",
+        UniformGeometriesFieldId, UniformGeometriesFieldMask,
         true,
-        (Field::SFDefaultFlags | Field::FStdAccess),
-        static_cast<FieldEditMethodSig>(&ScaleManipulator::editHandleHandleUniformNode),
-        static_cast<FieldGetMethodSig >(&ScaleManipulator::getHandleHandleUniformNode));
+        (Field::MFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&ScaleManipulator::editHandleUniformGeometries),
+        static_cast<FieldGetMethodSig >(&ScaleManipulator::getHandleUniformGeometries));
 
     oType.addInitialDesc(pDesc);
 
@@ -207,14 +208,13 @@ ScaleManipulatorBase::TypeObject ScaleManipulatorBase::_type(
     "      Uniform/Non-uniform scaling.\n"
     "    </Field>\n"
     "\t<Field\n"
-    "\t\tname=\"handleUniformNode\"\n"
-    "\t\ttype=\"Node\"\n"
-    "        category=\"pointer\"\n"
-    "\t\tcardinality=\"single\"\n"
+    "\t\tname=\"uniformGeometries\"\n"
+    "\t\ttype=\"Geometry\"\n"
+    "\t\tcategory=\"pointer\"\n"
+    "\t\tcardinality=\"multi\"\n"
     "\t\tvisibility=\"internal\"\n"
-    "\t\taccess=\"public\"\n"
+    "\t\taccess=\"protected\"\n"
     "\t>\n"
-    "\tThe node for the uniform-handle geometry\n"
     "\t</Field>\n"
     "\t<Field\n"
     "\t\tname=\"transUniformNode\"\n"
@@ -274,17 +274,17 @@ const SFBool *ScaleManipulatorBase::getSFUniform(void) const
 }
 
 
-//! Get the ScaleManipulator::_sfHandleUniformNode field.
-const SFUnrecNodePtr *ScaleManipulatorBase::getSFHandleUniformNode(void) const
+//! Get the ScaleManipulator::_mfUniformGeometries field.
+const MFUnrecGeometryPtr *ScaleManipulatorBase::getMFUniformGeometries(void) const
 {
-    return &_sfHandleUniformNode;
+    return &_mfUniformGeometries;
 }
 
-SFUnrecNodePtr      *ScaleManipulatorBase::editSFHandleUniformNode(void)
+MFUnrecGeometryPtr  *ScaleManipulatorBase::editMFUniformGeometries(void)
 {
-    editSField(HandleUniformNodeFieldMask);
+    editMField(UniformGeometriesFieldMask, _mfUniformGeometries);
 
-    return &_sfHandleUniformNode;
+    return &_mfUniformGeometries;
 }
 
 //! Get the ScaleManipulator::_sfTransUniformNode field.
@@ -315,6 +315,59 @@ SFUnrecMaterialPtr  *ScaleManipulatorBase::editSFMaterialUniform(void)
 
 
 
+void ScaleManipulatorBase::pushToUniformGeometries(Geometry * const value)
+{
+    editMField(UniformGeometriesFieldMask, _mfUniformGeometries);
+
+    _mfUniformGeometries.push_back(value);
+}
+
+void ScaleManipulatorBase::assignUniformGeometries(const MFUnrecGeometryPtr &value)
+{
+    MFUnrecGeometryPtr::const_iterator elemIt  =
+        value.begin();
+    MFUnrecGeometryPtr::const_iterator elemEnd =
+        value.end  ();
+
+    static_cast<ScaleManipulator *>(this)->clearUniformGeometries();
+
+    while(elemIt != elemEnd)
+    {
+        this->pushToUniformGeometries(*elemIt);
+
+        ++elemIt;
+    }
+}
+
+void ScaleManipulatorBase::removeFromUniformGeometries(UInt32 uiIndex)
+{
+    if(uiIndex < _mfUniformGeometries.size())
+    {
+        editMField(UniformGeometriesFieldMask, _mfUniformGeometries);
+
+        _mfUniformGeometries.erase(uiIndex);
+    }
+}
+
+void ScaleManipulatorBase::removeObjFromUniformGeometries(Geometry * const value)
+{
+    Int32 iElemIdx = _mfUniformGeometries.findIndex(value);
+
+    if(iElemIdx != -1)
+    {
+        editMField(UniformGeometriesFieldMask, _mfUniformGeometries);
+
+        _mfUniformGeometries.erase(iElemIdx);
+    }
+}
+void ScaleManipulatorBase::clearUniformGeometries(void)
+{
+    editMField(UniformGeometriesFieldMask, _mfUniformGeometries);
+
+
+    _mfUniformGeometries.clear();
+}
+
 
 
 /*------------------------------ access -----------------------------------*/
@@ -327,9 +380,9 @@ UInt32 ScaleManipulatorBase::getBinSize(ConstFieldMaskArg whichField)
     {
         returnValue += _sfUniform.getBinSize();
     }
-    if(FieldBits::NoField != (HandleUniformNodeFieldMask & whichField))
+    if(FieldBits::NoField != (UniformGeometriesFieldMask & whichField))
     {
-        returnValue += _sfHandleUniformNode.getBinSize();
+        returnValue += _mfUniformGeometries.getBinSize();
     }
     if(FieldBits::NoField != (TransUniformNodeFieldMask & whichField))
     {
@@ -352,9 +405,9 @@ void ScaleManipulatorBase::copyToBin(BinaryDataHandler &pMem,
     {
         _sfUniform.copyToBin(pMem);
     }
-    if(FieldBits::NoField != (HandleUniformNodeFieldMask & whichField))
+    if(FieldBits::NoField != (UniformGeometriesFieldMask & whichField))
     {
-        _sfHandleUniformNode.copyToBin(pMem);
+        _mfUniformGeometries.copyToBin(pMem);
     }
     if(FieldBits::NoField != (TransUniformNodeFieldMask & whichField))
     {
@@ -376,16 +429,19 @@ void ScaleManipulatorBase::copyFromBin(BinaryDataHandler &pMem,
         editSField(UniformFieldMask);
         _sfUniform.copyFromBin(pMem);
     }
-    if(FieldBits::NoField != (HandleUniformNodeFieldMask & whichField))
+    if(FieldBits::NoField != (UniformGeometriesFieldMask & whichField))
     {
-        _sfHandleUniformNode.copyFromBin(pMem);
+        editMField(UniformGeometriesFieldMask, _mfUniformGeometries);
+        _mfUniformGeometries.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (TransUniformNodeFieldMask & whichField))
     {
+        editSField(TransUniformNodeFieldMask);
         _sfTransUniformNode.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (MaterialUniformFieldMask & whichField))
     {
+        editSField(MaterialUniformFieldMask);
         _sfMaterialUniform.copyFromBin(pMem);
     }
 }
@@ -462,7 +518,6 @@ ScaleManipulator *ScaleManipulatorBase::createEmpty(void)
     return returnValue;
 }
 
-
 FieldContainerTransitPtr ScaleManipulatorBase::shallowCopyLocal(
     BitVector bFlags) const
 {
@@ -508,13 +563,12 @@ FieldContainerTransitPtr ScaleManipulatorBase::shallowCopy(void) const
 
 
 
-
 /*------------------------- constructors ----------------------------------*/
 
 ScaleManipulatorBase::ScaleManipulatorBase(void) :
     Inherited(),
     _sfUniform                (bool(false)),
-    _sfHandleUniformNode      (NULL),
+    _mfUniformGeometries      (),
     _sfTransUniformNode       (NULL),
     _sfMaterialUniform        (NULL)
 {
@@ -523,7 +577,7 @@ ScaleManipulatorBase::ScaleManipulatorBase(void) :
 ScaleManipulatorBase::ScaleManipulatorBase(const ScaleManipulatorBase &source) :
     Inherited(source),
     _sfUniform                (source._sfUniform                ),
-    _sfHandleUniformNode      (NULL),
+    _mfUniformGeometries      (),
     _sfTransUniformNode       (NULL),
     _sfMaterialUniform        (NULL)
 {
@@ -544,7 +598,17 @@ void ScaleManipulatorBase::onCreate(const ScaleManipulator *source)
     {
         ScaleManipulator *pThis = static_cast<ScaleManipulator *>(this);
 
-        pThis->setHandleUniformNode(source->getHandleUniformNode());
+        MFUnrecGeometryPtr::const_iterator UniformGeometriesIt  =
+            source->_mfUniformGeometries.begin();
+        MFUnrecGeometryPtr::const_iterator UniformGeometriesEnd =
+            source->_mfUniformGeometries.end  ();
+
+        while(UniformGeometriesIt != UniformGeometriesEnd)
+        {
+            pThis->pushToUniformGeometries(*UniformGeometriesIt);
+
+            ++UniformGeometriesIt;
+        }
 
         pThis->setTransUniformNode(source->getTransUniformNode());
 
@@ -577,30 +641,39 @@ EditFieldHandlePtr ScaleManipulatorBase::editHandleUniform        (void)
     return returnValue;
 }
 
-GetFieldHandlePtr ScaleManipulatorBase::getHandleHandleUniformNode (void) const
+GetFieldHandlePtr ScaleManipulatorBase::getHandleUniformGeometries (void) const
 {
-    SFUnrecNodePtr::GetHandlePtr returnValue(
-        new  SFUnrecNodePtr::GetHandle(
-             &_sfHandleUniformNode,
-             this->getType().getFieldDesc(HandleUniformNodeFieldId),
+    MFUnrecGeometryPtr::GetHandlePtr returnValue(
+        new  MFUnrecGeometryPtr::GetHandle(
+             &_mfUniformGeometries,
+             this->getType().getFieldDesc(UniformGeometriesFieldId),
              const_cast<ScaleManipulatorBase *>(this)));
 
     return returnValue;
 }
 
-EditFieldHandlePtr ScaleManipulatorBase::editHandleHandleUniformNode(void)
+EditFieldHandlePtr ScaleManipulatorBase::editHandleUniformGeometries(void)
 {
-    SFUnrecNodePtr::EditHandlePtr returnValue(
-        new  SFUnrecNodePtr::EditHandle(
-             &_sfHandleUniformNode,
-             this->getType().getFieldDesc(HandleUniformNodeFieldId),
+    MFUnrecGeometryPtr::EditHandlePtr returnValue(
+        new  MFUnrecGeometryPtr::EditHandle(
+             &_mfUniformGeometries,
+             this->getType().getFieldDesc(UniformGeometriesFieldId),
              this));
 
-    returnValue->setSetMethod(
-        boost::bind(&ScaleManipulator::setHandleUniformNode,
+    returnValue->setAddMethod(
+        boost::bind(&ScaleManipulator::pushToUniformGeometries,
                     static_cast<ScaleManipulator *>(this), _1));
+    returnValue->setRemoveMethod(
+        boost::bind(&ScaleManipulator::removeFromUniformGeometries,
+                    static_cast<ScaleManipulator *>(this), _1));
+    returnValue->setRemoveObjMethod(
+        boost::bind(&ScaleManipulator::removeObjFromUniformGeometries,
+                    static_cast<ScaleManipulator *>(this), _1));
+    returnValue->setClearMethod(
+        boost::bind(&ScaleManipulator::clearUniformGeometries,
+                    static_cast<ScaleManipulator *>(this)));
 
-    editSField(HandleUniformNodeFieldMask);
+    editMField(UniformGeometriesFieldMask, _mfUniformGeometries);
 
     return returnValue;
 }
@@ -662,6 +735,7 @@ EditFieldHandlePtr ScaleManipulatorBase::editHandleMaterialUniform(void)
 }
 
 
+
 #ifdef OSG_MT_CPTR_ASPECT
 void ScaleManipulatorBase::execSyncV(      FieldContainer    &oFrom,
                                         ConstFieldMaskArg  whichField,
@@ -698,7 +772,7 @@ void ScaleManipulatorBase::resolveLinks(void)
 {
     Inherited::resolveLinks();
 
-    static_cast<ScaleManipulator *>(this)->setHandleUniformNode(NULL);
+    static_cast<ScaleManipulator *>(this)->clearUniformGeometries();
 
     static_cast<ScaleManipulator *>(this)->setTransUniformNode(NULL);
 

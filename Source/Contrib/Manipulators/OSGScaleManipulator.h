@@ -74,7 +74,17 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulator : public ScaleManipulatorBase
                       const BitVector  bvFlags  = 0) const;
 
     /*! \}                                                                 */
-    virtual bool hasSubHandle(Node * const n);
+
+    virtual void mouseMove(Int16        x,
+                           Int16        y);
+
+    virtual void mouseButtonPress(UInt16        button,
+                                   Int16        x,
+                                   Int16        y     );
+
+    virtual void mouseButtonRelease(UInt16      button,
+                                     Int16      x,
+                                     Int16      y     );
     /*=========================  PROTECTED  ===============================*/
   protected:
 
@@ -99,17 +109,21 @@ class OSG_CONTRIBGUI_DLLMAPPING ScaleManipulator : public ScaleManipulatorBase
     /*! \}                                                                 */
     virtual void addHandleGeo(Node *n);
     virtual void subHandleGeo(Node *n);
-    virtual UInt16 getActiveHandle(void) const;
 
-    virtual NodeTransitPtr makeHandleGeo();
-    virtual void           doMovement(const Int32         coord,
-                                      const Real32        value,
-                                      const Vec3f        &translation,
-                                      const Quaternion   &rotation,
-                                      const Vec3f        &scaleFactor,
-                                      const Quaternion   &scaleOrientation);
+    virtual NodeTransitPtr makeHandleGeo(Real32 radius, UInt16 axis);
     virtual void updateLength(void);
+    virtual UInt32 getAxisCollisionTravMask(UInt16 Axis) const;
+    virtual Material* getAxisMaterial(UInt16 Axis) const;
+    virtual MFUnrecGeometryPtr* editAxisGeometries(UInt16 Axis);
 
+
+    Pnt3f _TargetInitialOrigin;
+    Pnt3f _StartManipInitialPosition;
+    Vec3f _InitialScale;
+
+    
+    bool  _StartUniformManip;
+    Vec2f _InitialMouseDirection;
     /*==========================  PRIVATE  ================================*/
   private:
 
