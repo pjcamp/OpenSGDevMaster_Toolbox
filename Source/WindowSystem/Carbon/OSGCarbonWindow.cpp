@@ -703,342 +703,342 @@ BoostPath CarbonWindow::saveFileDialog(const std::string& DialogTitle,
     return FileToSave;
 }
 
-CGKeyCode CarbonWindow::getKeyCode(KeyEvent::Key TheKey)
+CGKeyCode CarbonWindow::getKeyCode(KeyEventDetails::Key TheKey)
 {
     switch(TheKey)
     {
 	////Alphabet
-    case KeyEvent::KEY_A:
+    case KeyEventDetails::KEY_A:
       return KeyA;
       break;
-    case KeyEvent::KEY_B:
+    case KeyEventDetails::KEY_B:
       return KeyB;
       break;
-    case KeyEvent::KEY_C:
+    case KeyEventDetails::KEY_C:
       return KeyC;
       break;
-    case KeyEvent::KEY_D:
+    case KeyEventDetails::KEY_D:
       return KeyD;
       break;
-    case KeyEvent::KEY_E:
+    case KeyEventDetails::KEY_E:
       return KeyE;
       break;
-    case KeyEvent::KEY_F:
+    case KeyEventDetails::KEY_F:
       return KeyF;
       break;
-    case KeyEvent::KEY_G:
+    case KeyEventDetails::KEY_G:
       return KeyG;
       break;
-    case KeyEvent::KEY_H:
+    case KeyEventDetails::KEY_H:
       return KeyH;
       break;
-    case KeyEvent::KEY_I:
+    case KeyEventDetails::KEY_I:
       return KeyI;
       break;
-    case KeyEvent::KEY_J:
+    case KeyEventDetails::KEY_J:
       return KeyJ;
       break;
-    case KeyEvent::KEY_K:
+    case KeyEventDetails::KEY_K:
       return KeyK;
       break;
-    case KeyEvent::KEY_L:
+    case KeyEventDetails::KEY_L:
       return KeyL;
       break;
-    case KeyEvent::KEY_M:
+    case KeyEventDetails::KEY_M:
       return KeyM;
       break;
-    case KeyEvent::KEY_N:
+    case KeyEventDetails::KEY_N:
       return KeyN;
       break;
-    case KeyEvent::KEY_O:
+    case KeyEventDetails::KEY_O:
       return KeyO;
       break;
-    case KeyEvent::KEY_P:
+    case KeyEventDetails::KEY_P:
       return KeyP;
       break;
-    case KeyEvent::KEY_Q:
+    case KeyEventDetails::KEY_Q:
       return KeyQ;
       break;
-    case KeyEvent::KEY_R:
+    case KeyEventDetails::KEY_R:
       return KeyR;
       break;
-    case KeyEvent::KEY_S:
+    case KeyEventDetails::KEY_S:
       return KeyS;
       break;
-    case KeyEvent::KEY_T:
+    case KeyEventDetails::KEY_T:
       return KeyT;
       break;
-    case KeyEvent::KEY_U:
+    case KeyEventDetails::KEY_U:
       return KeyU;
       break;
-    case KeyEvent::KEY_V:
+    case KeyEventDetails::KEY_V:
       return KeyV;
       break;
-    case KeyEvent::KEY_W:
+    case KeyEventDetails::KEY_W:
       return KeyW;
       break;
-    case KeyEvent::KEY_X:
+    case KeyEventDetails::KEY_X:
       return KeyX;
       break;
-    case KeyEvent::KEY_Y:
+    case KeyEventDetails::KEY_Y:
       return KeyY;
       break;
-    case KeyEvent::KEY_Z:
+    case KeyEventDetails::KEY_Z:
       return KeyZ;
       break;
     //Numbers
-    case KeyEvent::KEY_0:
+    case KeyEventDetails::KEY_0:
       return Key0;
       break;
-    case KeyEvent::KEY_1:
+    case KeyEventDetails::KEY_1:
       return Key1;
       break;
-    case KeyEvent::KEY_2:
+    case KeyEventDetails::KEY_2:
       return Key2;
       break;
-    case KeyEvent::KEY_3:
+    case KeyEventDetails::KEY_3:
       return Key3;
       break;
-    case KeyEvent::KEY_4:
+    case KeyEventDetails::KEY_4:
       return Key4;
       break;
-    case KeyEvent::KEY_5:
+    case KeyEventDetails::KEY_5:
       return Key5;
       break;
-    case KeyEvent::KEY_6:
+    case KeyEventDetails::KEY_6:
       return Key6;
       break;
-    case KeyEvent::KEY_7:
+    case KeyEventDetails::KEY_7:
       return Key7;
       break;
-    case KeyEvent::KEY_8:
+    case KeyEventDetails::KEY_8:
       return Key8;
       break;
-    case KeyEvent::KEY_9:
+    case KeyEventDetails::KEY_9:
       return Key9;
       break;
 
     //Other
-    case KeyEvent::KEY_MINUS:
+    case KeyEventDetails::KEY_MINUS:
       return KeyMinus;
       break;
-    case KeyEvent::KEY_EQUALS:
+    case KeyEventDetails::KEY_EQUALS:
       return KeyEquals;
       break;
-    case KeyEvent::KEY_BACK_QUOTE:
+    case KeyEventDetails::KEY_BACK_QUOTE:
       return KeyBackquote;
       break;
-    case KeyEvent::KEY_TAB:
+    case KeyEventDetails::KEY_TAB:
       return KeyTab;
       break;
-    case KeyEvent::KEY_SPACE:
+    case KeyEventDetails::KEY_SPACE:
       return KeySpacebar;
       break;
-    case KeyEvent::KEY_OPEN_BRACKET:
+    case KeyEventDetails::KEY_OPEN_BRACKET:
       return KeyLeftBracket;
       break;
-    case KeyEvent::KEY_CLOSE_BRACKET:
+    case KeyEventDetails::KEY_CLOSE_BRACKET:
       return KeyRightBracket;
       break;
-    case KeyEvent::KEY_SEMICOLON:
+    case KeyEventDetails::KEY_SEMICOLON:
       return KeySemicolon;
       break;
-    case KeyEvent::KEY_COMMA:
+    case KeyEventDetails::KEY_COMMA:
       return KeyComma;
       break;
-    case KeyEvent::KEY_PERIOD:
+    case KeyEventDetails::KEY_PERIOD:
       return KeyPeriod;
       break;
-    case KeyEvent::KEY_BACK_SLASH:
+    case KeyEventDetails::KEY_BACK_SLASH:
       return KeyBackslash;
       break;
-    case KeyEvent::KEY_APOSTROPHE:
+    case KeyEventDetails::KEY_APOSTROPHE:
       return KeyApostrophe;
       break;
-    case KeyEvent::KEY_SLASH:
+    case KeyEventDetails::KEY_SLASH:
       return KeySlash;
       break;
 
     //Non-visible
-    case KeyEvent::KEY_ESCAPE:
+    case KeyEventDetails::KEY_ESCAPE:
       return KeyEscape;
       break;
-    case KeyEvent::KEY_SHIFT:
+    case KeyEventDetails::KEY_SHIFT:
       return KeyShift;
       break;
-    case KeyEvent::KEY_CONTROL:
+    case KeyEventDetails::KEY_CONTROL:
       return KeyControl;
       break;
-    case KeyEvent::KEY_META:
+    case KeyEventDetails::KEY_META:
       return KeyMacCommand;
       break;
-    case KeyEvent::KEY_ALT:
+    case KeyEventDetails::KEY_ALT:
       return KeyMenu;
       break;
-    case KeyEvent::KEY_ENTER:
+    case KeyEventDetails::KEY_ENTER:
       return KeyReturn;
       break;
-    //case KeyEvent::KEY_CANCEL:
+    //case KeyEventDetails::KEY_CANCEL:
       //return KeyCancel;
     //  break;
-    case KeyEvent::KEY_CLEAR:
+    case KeyEventDetails::KEY_CLEAR:
       return KeyClear;
       break;
-    //case KeyEvent::KEY_PAUSE:
+    //case KeyEventDetails::KEY_PAUSE:
       //return KeyPause;
     //  break;
-    case KeyEvent::KEY_CAPS_LOCK:
+    case KeyEventDetails::KEY_CAPS_LOCK:
       return KeyCapsLock;
       break;
-    case KeyEvent::KEY_END:
+    case KeyEventDetails::KEY_END:
       return KeyEnd;
       break;
-    case KeyEvent::KEY_HOME:
+    case KeyEventDetails::KEY_HOME:
       return KeyHome;
       break;
-    case KeyEvent::KEY_PAGE_UP:
+    case KeyEventDetails::KEY_PAGE_UP:
       return KeyPageUp;
       break;
-    case KeyEvent::KEY_PAGE_DOWN:
+    case KeyEventDetails::KEY_PAGE_DOWN:
       return KeyPageDown;
       break;
-    case KeyEvent::KEY_UP:
+    case KeyEventDetails::KEY_UP:
       return KeyUp;
       break;
-    case KeyEvent::KEY_DOWN:
+    case KeyEventDetails::KEY_DOWN:
       return KeyDown;
       break;
-    case KeyEvent::KEY_LEFT:
+    case KeyEventDetails::KEY_LEFT:
       return KeyLeft;
       break;
-    case KeyEvent::KEY_RIGHT:
+    case KeyEventDetails::KEY_RIGHT:
       return KeyRight;
       break;
-    //case KeyEvent::KEY_PRINTSCREEN:
+    //case KeyEventDetails::KEY_PRINTSCREEN:
       //return KeySNAPSHOT;
     //  break;
-    //case KeyEvent::KEY_INSERT:
+    //case KeyEventDetails::KEY_INSERT:
       //return KeyInsert;
     //  break;
-    case KeyEvent::KEY_DELETE:
+    case KeyEventDetails::KEY_DELETE:
       return KeyDelete;
       break;
-    case KeyEvent::KEY_HELP:
+    case KeyEventDetails::KEY_HELP:
       return KeyHelp;
       break;
-    //case KeyEvent::KEY_NUM_LOCK:
+    //case KeyEventDetails::KEY_NUM_LOCK:
       //return KeyNUMLOCK;
     //  break;
-    //case KeyEvent::KEY_SCROLL_LOCK:
+    //case KeyEventDetails::KEY_SCROLL_LOCK:
       //return KeySCROLL;
     //  break;
-    case KeyEvent::KEY_BACK_SPACE:
+    case KeyEventDetails::KEY_BACK_SPACE:
       return KeyBackspace;
       break;
 
     //Function Keys
-    case KeyEvent::KEY_F1:
+    case KeyEventDetails::KEY_F1:
       return KeyF1;
       break;
-    case KeyEvent::KEY_F2:
+    case KeyEventDetails::KEY_F2:
       return KeyF2;
       break;
-    case KeyEvent::KEY_F3:
+    case KeyEventDetails::KEY_F3:
       return KeyF3;
       break;
-    case KeyEvent::KEY_F4:
+    case KeyEventDetails::KEY_F4:
       return KeyF4;
       break;
-    case KeyEvent::KEY_F5:
+    case KeyEventDetails::KEY_F5:
       return KeyF5;
       break;
-    case KeyEvent::KEY_F6:
+    case KeyEventDetails::KEY_F6:
       return KeyF6;
       break;
-    case KeyEvent::KEY_F7:
+    case KeyEventDetails::KEY_F7:
       return KeyF7;
       break;
-    case KeyEvent::KEY_F8:
+    case KeyEventDetails::KEY_F8:
       return KeyF8;
       break;
-    case KeyEvent::KEY_F9:
+    case KeyEventDetails::KEY_F9:
       return KeyF9;
       break;
-    case KeyEvent::KEY_F10:
+    case KeyEventDetails::KEY_F10:
       return KeyF10;
       break;
-    case KeyEvent::KEY_F11:
+    case KeyEventDetails::KEY_F11:
       return KeyF11;
       break;
-    case KeyEvent::KEY_F12:
+    case KeyEventDetails::KEY_F12:
       return KeyF12;
       break;
       
     //Numpad Keys
-    case KeyEvent::KEY_NUMPAD_0:
+    case KeyEventDetails::KEY_NUMPAD_0:
       return KeyNum0;
       break;
-    case KeyEvent::KEY_NUMPAD_1:
+    case KeyEventDetails::KEY_NUMPAD_1:
       return KeyNum1;
       break;
-    case KeyEvent::KEY_NUMPAD_2:
+    case KeyEventDetails::KEY_NUMPAD_2:
       return KeyNum2;
       break;
-    case KeyEvent::KEY_NUMPAD_3:
+    case KeyEventDetails::KEY_NUMPAD_3:
       return KeyNum3;
       break;
-    case KeyEvent::KEY_NUMPAD_4:
+    case KeyEventDetails::KEY_NUMPAD_4:
       return KeyNum4;
       break;
-    case KeyEvent::KEY_NUMPAD_5:
+    case KeyEventDetails::KEY_NUMPAD_5:
       return KeyNum5;
       break;
-    case KeyEvent::KEY_NUMPAD_6:
+    case KeyEventDetails::KEY_NUMPAD_6:
       return KeyNum6;
       break;
-    case KeyEvent::KEY_NUMPAD_7:
+    case KeyEventDetails::KEY_NUMPAD_7:
       return KeyNum7;
       break;
-    case KeyEvent::KEY_NUMPAD_8:
+    case KeyEventDetails::KEY_NUMPAD_8:
       return KeyNum8;
       break;
-    case KeyEvent::KEY_NUMPAD_9:
+    case KeyEventDetails::KEY_NUMPAD_9:
       return KeyNum9;
       break;
-    case KeyEvent::KEY_MULTIPLY:
+    case KeyEventDetails::KEY_MULTIPLY:
       return KeyMultiply;
       break;
-    case KeyEvent::KEY_ADD:
+    case KeyEventDetails::KEY_ADD:
       return KeyAdd;
       break;
-    case KeyEvent::KEY_SUBTRACT:
+    case KeyEventDetails::KEY_SUBTRACT:
       return KeySubtract;
       break;
-    case KeyEvent::KEY_DIVIDE:
+    case KeyEventDetails::KEY_DIVIDE:
       return KeyDivide;
       break;
-    case KeyEvent::KEY_DECIMAL:
+    case KeyEventDetails::KEY_DECIMAL:
       return KeyDecimal;
       break;
-    case KeyEvent::KEY_NUMPAD_EQUALS:
+    case KeyEventDetails::KEY_NUMPAD_EQUALS:
       return KeyNumEqual;
       break;
 	
-    case KeyEvent::KEY_UNKNOWN:
+    case KeyEventDetails::KEY_UNKNOWN:
 	default:
 	  return 0;
 	}
 }
 
-KeyEvent::KeyState CarbonWindow::getKeyState(KeyEvent::Key TheKey) const
+KeyEventDetails::KeyState CarbonWindow::getKeyState(KeyEventDetails::Key TheKey) const
 {
     if(CGEventSourceKeyState(kCGEventSourceStateCombinedSessionState,getKeyCode(TheKey)))
 	{
-        return KeyEvent::KEY_STATE_DOWN;
+        return KeyEventDetails::KEY_STATE_DOWN;
 	}
 	else
 	{
-		return KeyEvent::KEY_STATE_UP;
+		return KeyEventDetails::KEY_STATE_UP;
 	}
 }
 
@@ -1168,7 +1168,7 @@ OSStatus CarbonWindow::handleMouseEvent(EventHandlerCallRef nextHandler, EventRe
     }
 
     //Get Mouse Button
-    MouseEvent::MouseButton TheMouseButton;
+    MouseEventDetails::MouseButton TheMouseButton;
     switch(eventKind)
     {
         case kEventMouseDown:
@@ -1184,37 +1184,37 @@ OSStatus CarbonWindow::handleMouseEvent(EventHandlerCallRef nextHandler, EventRe
                 switch (mouseButton)
                 {
                     case kEventMouseButtonPrimary: // left button
-                        TheMouseButton = MouseEvent::BUTTON1;
+                        TheMouseButton = MouseEventDetails::BUTTON1;
                         break;
                     case kEventMouseButtonSecondary: // right button
-                        TheMouseButton = MouseEvent::BUTTON3;
+                        TheMouseButton = MouseEventDetails::BUTTON3;
                         break;
                     case kEventMouseButtonTertiary: // middle button
-                        TheMouseButton = MouseEvent::BUTTON2;
+                        TheMouseButton = MouseEventDetails::BUTTON2;
                         break;
                     case 4:
-                        TheMouseButton = MouseEvent::BUTTON4;
+                        TheMouseButton = MouseEventDetails::BUTTON4;
                         break;
                     case 5:
-                        TheMouseButton = MouseEvent::BUTTON5;
+                        TheMouseButton = MouseEventDetails::BUTTON5;
                         break;
                     case 6:
-                        TheMouseButton = MouseEvent::BUTTON6;
+                        TheMouseButton = MouseEventDetails::BUTTON6;
                         break;
                     case 7:
-                        TheMouseButton = MouseEvent::BUTTON7;
+                        TheMouseButton = MouseEventDetails::BUTTON7;
                         break;
                     case 8:
-                        TheMouseButton = MouseEvent::BUTTON8;
+                        TheMouseButton = MouseEventDetails::BUTTON8;
                         break;
                     case 9:
-                        TheMouseButton = MouseEvent::BUTTON9;
+                        TheMouseButton = MouseEventDetails::BUTTON9;
                         break;
                     case 10:
-                        TheMouseButton = MouseEvent::BUTTON10;
+                        TheMouseButton = MouseEventDetails::BUTTON10;
                         break;
                     default:
-                        TheMouseButton = MouseEvent::NO_BUTTON;
+                        TheMouseButton = MouseEventDetails::NO_BUTTON;
                         break;
                 }
                 break;
@@ -1407,41 +1407,41 @@ OSStatus CarbonWindow::handleKeyEvent(EventHandlerCallRef nextHandler, EventRef 
 			produceKeyPressed(determineKey(key),determineKeyModifiers(keyModifiers));
 			break;
 		case kEventRawKeyModifiersChanged:
-			if((determineKeyModifiers(keyModifiers) & KeyEvent::KEY_MODIFIER_META) &&
-			   !(_modifierKeyState & KeyEvent::KEY_MODIFIER_META))
+			if((determineKeyModifiers(keyModifiers) & KeyEventDetails::KEY_MODIFIER_META) &&
+			   !(_modifierKeyState & KeyEventDetails::KEY_MODIFIER_META))
 			{
 				//Meta key pressed
-				produceKeyPressed(KeyEvent::KEY_META, determineKeyModifiers(keyModifiers));
+				produceKeyPressed(KeyEventDetails::KEY_META, determineKeyModifiers(keyModifiers));
 			}
-			if(!(determineKeyModifiers(keyModifiers) & KeyEvent::KEY_MODIFIER_META) &&
-			   (_modifierKeyState & KeyEvent::KEY_MODIFIER_META))
+			if(!(determineKeyModifiers(keyModifiers) & KeyEventDetails::KEY_MODIFIER_META) &&
+			   (_modifierKeyState & KeyEventDetails::KEY_MODIFIER_META))
 			{
 				//Meta key released
-				produceKeyReleased(KeyEvent::KEY_META, determineKeyModifiers(keyModifiers));
+				produceKeyReleased(KeyEventDetails::KEY_META, determineKeyModifiers(keyModifiers));
 			}
-			if((determineKeyModifiers(keyModifiers) & KeyEvent::KEY_MODIFIER_ALT) &&
-			   !(_modifierKeyState & KeyEvent::KEY_MODIFIER_ALT))
+			if((determineKeyModifiers(keyModifiers) & KeyEventDetails::KEY_MODIFIER_ALT) &&
+			   !(_modifierKeyState & KeyEventDetails::KEY_MODIFIER_ALT))
 			{
 				//Alt key pressed
-				produceKeyPressed(KeyEvent::KEY_ALT, determineKeyModifiers(keyModifiers));
+				produceKeyPressed(KeyEventDetails::KEY_ALT, determineKeyModifiers(keyModifiers));
 			}
-			if(!(determineKeyModifiers(keyModifiers) & KeyEvent::KEY_MODIFIER_ALT) &&
-			   (_modifierKeyState & KeyEvent::KEY_MODIFIER_ALT))
+			if(!(determineKeyModifiers(keyModifiers) & KeyEventDetails::KEY_MODIFIER_ALT) &&
+			   (_modifierKeyState & KeyEventDetails::KEY_MODIFIER_ALT))
 			{
 				//Alt key released
-				produceKeyReleased(KeyEvent::KEY_ALT, determineKeyModifiers(keyModifiers));
+				produceKeyReleased(KeyEventDetails::KEY_ALT, determineKeyModifiers(keyModifiers));
 			}
-			if((determineKeyModifiers(keyModifiers) & KeyEvent::KEY_MODIFIER_CONTROL) &&
-			   !(_modifierKeyState & KeyEvent::KEY_MODIFIER_CONTROL))
+			if((determineKeyModifiers(keyModifiers) & KeyEventDetails::KEY_MODIFIER_CONTROL) &&
+			   !(_modifierKeyState & KeyEventDetails::KEY_MODIFIER_CONTROL))
 			{
 				//Control key pressed
-				produceKeyPressed(KeyEvent::KEY_CONTROL, determineKeyModifiers(keyModifiers));
+				produceKeyPressed(KeyEventDetails::KEY_CONTROL, determineKeyModifiers(keyModifiers));
 			}
-			if(!(determineKeyModifiers(keyModifiers) & KeyEvent::KEY_MODIFIER_CONTROL) &&
-			   (_modifierKeyState & KeyEvent::KEY_MODIFIER_CONTROL))
+			if(!(determineKeyModifiers(keyModifiers) & KeyEventDetails::KEY_MODIFIER_CONTROL) &&
+			   (_modifierKeyState & KeyEventDetails::KEY_MODIFIER_CONTROL))
 			{
 				//Control key released
-				produceKeyReleased(KeyEvent::KEY_CONTROL, determineKeyModifiers(keyModifiers));
+				produceKeyReleased(KeyEventDetails::KEY_CONTROL, determineKeyModifiers(keyModifiers));
 			}
 			_modifierKeyState = determineKeyModifiers(keyModifiers);
 			break;
@@ -1458,359 +1458,359 @@ UInt32 CarbonWindow::determineKeyModifiers(::UInt32 keyModifiers)
 
    if(keyModifiers & shiftKey)
    {
-      Modifiers |= KeyEvent::KEY_MODIFIER_SHIFT;
+      Modifiers |= KeyEventDetails::KEY_MODIFIER_SHIFT;
    }
    if(keyModifiers & controlKey)
    {
-      Modifiers |= KeyEvent::KEY_MODIFIER_CONTROL;
+      Modifiers |= KeyEventDetails::KEY_MODIFIER_CONTROL;
    }
    if(keyModifiers & optionKey)
    {
-      Modifiers |= KeyEvent::KEY_MODIFIER_ALT;
+      Modifiers |= KeyEventDetails::KEY_MODIFIER_ALT;
    }
    if(keyModifiers & alphaLock)
    {
-      Modifiers |= KeyEvent::KEY_MODIFIER_CAPS_LOCK;
+      Modifiers |= KeyEventDetails::KEY_MODIFIER_CAPS_LOCK;
    }
    if(keyModifiers & cmdKey)
    {
-      Modifiers |= KeyEvent::KEY_MODIFIER_META;
+      Modifiers |= KeyEventDetails::KEY_MODIFIER_META;
    }
    //if(GetKeyState(VK_NUMLOCK)>0)
    //{
-   //   Modifiers |= KeyEvent::KEY_MODIFIER_NUM_LOCK;
+   //   Modifiers |= KeyEventDetails::KEY_MODIFIER_NUM_LOCK;
    //}
    //if(GetKeyState(VK_SCROLL)>0)
    //{
-   //   Modifiers |= KeyEvent::KEY_MODIFIER_SCROLL_LOCK;
+   //   Modifiers |= KeyEventDetails::KEY_MODIFIER_SCROLL_LOCK;
    //}
    return Modifiers;
 }
 
-KeyEvent::Key CarbonWindow::determineKey(::UInt32 key)
+KeyEventDetails::Key CarbonWindow::determineKey(::UInt32 key)
 {
-    KeyEvent::Key OSGKey;
+    KeyEventDetails::Key OSGKey;
 	switch(key)
 	{
 	//Alphabet
 	case KeyA:
-	  OSGKey = KeyEvent::KEY_A;
+	  OSGKey = KeyEventDetails::KEY_A;
 	  break;
 	case KeyB:
-	  OSGKey = KeyEvent::KEY_B;
+	  OSGKey = KeyEventDetails::KEY_B;
 	  break;
 	case KeyC:
-	  OSGKey = KeyEvent::KEY_C;
+	  OSGKey = KeyEventDetails::KEY_C;
 	  break;
 	case KeyD:
-	  OSGKey = KeyEvent::KEY_D;
+	  OSGKey = KeyEventDetails::KEY_D;
 	  break;
 	case KeyE:
-	  OSGKey = KeyEvent::KEY_E;
+	  OSGKey = KeyEventDetails::KEY_E;
 	  break;
 	case KeyF:
-	  OSGKey = KeyEvent::KEY_F;
+	  OSGKey = KeyEventDetails::KEY_F;
 	  break;
 	case KeyG:
-	  OSGKey = KeyEvent::KEY_G;
+	  OSGKey = KeyEventDetails::KEY_G;
 	  break;
 	case KeyH:
-	  OSGKey = KeyEvent::KEY_H;
+	  OSGKey = KeyEventDetails::KEY_H;
 	  break;
 	case KeyI:
-	  OSGKey = KeyEvent::KEY_I;
+	  OSGKey = KeyEventDetails::KEY_I;
 	  break;
 	case KeyJ:
-	  OSGKey = KeyEvent::KEY_J;
+	  OSGKey = KeyEventDetails::KEY_J;
 	  break;
 	case KeyK:
-	  OSGKey = KeyEvent::KEY_K;
+	  OSGKey = KeyEventDetails::KEY_K;
 	  break;
 	case KeyL:
-	  OSGKey = KeyEvent::KEY_L;
+	  OSGKey = KeyEventDetails::KEY_L;
 	  break;
 	case KeyM:
-	  OSGKey = KeyEvent::KEY_M;
+	  OSGKey = KeyEventDetails::KEY_M;
 	  break;
 	case KeyN:
-	  OSGKey = KeyEvent::KEY_N;
+	  OSGKey = KeyEventDetails::KEY_N;
 	  break;
 	case KeyO:
-	  OSGKey = KeyEvent::KEY_O;
+	  OSGKey = KeyEventDetails::KEY_O;
 	  break;
 	case KeyP:
-	  OSGKey = KeyEvent::KEY_P;
+	  OSGKey = KeyEventDetails::KEY_P;
 	  break;
 	case KeyQ:
-	  OSGKey = KeyEvent::KEY_Q;
+	  OSGKey = KeyEventDetails::KEY_Q;
 	  break;
 	case KeyR:
-	  OSGKey = KeyEvent::KEY_R;
+	  OSGKey = KeyEventDetails::KEY_R;
 	  break;
 	case KeyS:
-	  OSGKey = KeyEvent::KEY_S;
+	  OSGKey = KeyEventDetails::KEY_S;
 	  break;
 	case KeyT:
-	  OSGKey = KeyEvent::KEY_T;
+	  OSGKey = KeyEventDetails::KEY_T;
 	  break;
 	case KeyU:
-	  OSGKey = KeyEvent::KEY_U;
+	  OSGKey = KeyEventDetails::KEY_U;
 	  break;
 	case KeyV:
-	  OSGKey = KeyEvent::KEY_V;
+	  OSGKey = KeyEventDetails::KEY_V;
 	  break;
 	case KeyW:
-	  OSGKey = KeyEvent::KEY_W;
+	  OSGKey = KeyEventDetails::KEY_W;
 	  break;
 	case KeyX:
-	  OSGKey = KeyEvent::KEY_X;
+	  OSGKey = KeyEventDetails::KEY_X;
 	  break;
 	case KeyY:
-	  OSGKey = KeyEvent::KEY_Y;
+	  OSGKey = KeyEventDetails::KEY_Y;
 	  break;
 	case KeyZ:
-	  OSGKey = KeyEvent::KEY_Z;
+	  OSGKey = KeyEventDetails::KEY_Z;
 	  break;
 	//Numbers
 	case Key0:
-	  OSGKey = KeyEvent::KEY_0;
+	  OSGKey = KeyEventDetails::KEY_0;
 	  break;
 	case Key1:
-	  OSGKey = KeyEvent::KEY_1;
+	  OSGKey = KeyEventDetails::KEY_1;
 	  break;
 	case Key2:
-	  OSGKey = KeyEvent::KEY_2;
+	  OSGKey = KeyEventDetails::KEY_2;
 	  break;
 	case Key3:
-	  OSGKey = KeyEvent::KEY_3;
+	  OSGKey = KeyEventDetails::KEY_3;
 	  break;
 	case Key4:
-	  OSGKey = KeyEvent::KEY_4;
+	  OSGKey = KeyEventDetails::KEY_4;
 	  break;
 	case Key5:
-	  OSGKey = KeyEvent::KEY_5;
+	  OSGKey = KeyEventDetails::KEY_5;
 	  break;
 	case Key6:
-	  OSGKey = KeyEvent::KEY_6;
+	  OSGKey = KeyEventDetails::KEY_6;
 	  break;
 	case Key7:
-	  OSGKey = KeyEvent::KEY_7;
+	  OSGKey = KeyEventDetails::KEY_7;
 	  break;
 	case Key8:
-	  OSGKey = KeyEvent::KEY_8;
+	  OSGKey = KeyEventDetails::KEY_8;
 	  break;
 	case Key9:
-	  OSGKey = KeyEvent::KEY_9;
+	  OSGKey = KeyEventDetails::KEY_9;
 	  break;
 
 	//Other
 	case KeyMinus:
-	  OSGKey = KeyEvent::KEY_MINUS;
+	  OSGKey = KeyEventDetails::KEY_MINUS;
 	  break;
 	case KeyEquals:
-	  OSGKey = KeyEvent::KEY_EQUALS;
+	  OSGKey = KeyEventDetails::KEY_EQUALS;
 	  break;
 	case KeyBackquote:
-	  OSGKey = KeyEvent::KEY_BACK_QUOTE;
+	  OSGKey = KeyEventDetails::KEY_BACK_QUOTE;
 	  break;
 	case KeyTab:
-	  OSGKey = KeyEvent::KEY_TAB;
+	  OSGKey = KeyEventDetails::KEY_TAB;
 	  break;
 	case KeySpacebar:
-	  OSGKey = KeyEvent::KEY_SPACE;
+	  OSGKey = KeyEventDetails::KEY_SPACE;
 	  break;
 	case KeyLeftBracket:
-	  OSGKey = KeyEvent::KEY_OPEN_BRACKET;
+	  OSGKey = KeyEventDetails::KEY_OPEN_BRACKET;
 	  break;
 	case KeyRightBracket:
-	  OSGKey = KeyEvent::KEY_CLOSE_BRACKET;
+	  OSGKey = KeyEventDetails::KEY_CLOSE_BRACKET;
 	  break;
 	case KeySemicolon:
-	  OSGKey = KeyEvent::KEY_SEMICOLON;
+	  OSGKey = KeyEventDetails::KEY_SEMICOLON;
 	  break;
 	case KeyComma:
-	  OSGKey = KeyEvent::KEY_COMMA;
+	  OSGKey = KeyEventDetails::KEY_COMMA;
 	  break;
 	case KeyPeriod:
-	  OSGKey = KeyEvent::KEY_PERIOD;
+	  OSGKey = KeyEventDetails::KEY_PERIOD;
 	  break;
 	case KeyBackslash:
-	  OSGKey = KeyEvent::KEY_BACK_SLASH;
+	  OSGKey = KeyEventDetails::KEY_BACK_SLASH;
 	  break;
 	case KeyApostrophe:
-	  OSGKey = KeyEvent::KEY_APOSTROPHE;
+	  OSGKey = KeyEventDetails::KEY_APOSTROPHE;
 	  break;
 	case KeySlash:
-	  OSGKey = KeyEvent::KEY_SLASH;
+	  OSGKey = KeyEventDetails::KEY_SLASH;
 	  break;
 
 	//Non-visible
 	case KeyEscape:
-	  OSGKey = KeyEvent::KEY_ESCAPE;
+	  OSGKey = KeyEventDetails::KEY_ESCAPE;
 	  break;
 	case KeyShift:
-	  OSGKey = KeyEvent::KEY_SHIFT;
+	  OSGKey = KeyEventDetails::KEY_SHIFT;
 	  break;
 	case KeyControl:
-	  OSGKey = KeyEvent::KEY_CONTROL;
+	  OSGKey = KeyEventDetails::KEY_CONTROL;
 	  break;
 	case KeyMacCommand:
-	  OSGKey = KeyEvent::KEY_META;
+	  OSGKey = KeyEventDetails::KEY_META;
 	  break;
 	case KeyMenu:
-	  OSGKey = KeyEvent::KEY_ALT;
+	  OSGKey = KeyEventDetails::KEY_ALT;
 	  break;
 	case KeyReturn:
-	  OSGKey = KeyEvent::KEY_ENTER;
+	  OSGKey = KeyEventDetails::KEY_ENTER;
 	  break;
 	//case KeyCancel:
-	//  OSGKey = KeyEvent::KEY_CANCEL;
+	//  OSGKey = KeyEventDetails::KEY_CANCEL;
 	//  break;
 	case KeyClear:
-	  OSGKey = KeyEvent::KEY_CLEAR;
+	  OSGKey = KeyEventDetails::KEY_CLEAR;
 	  break;
 	//case KeyPause:
-	//  OSGKey = KeyEvent::KEY_PAUSE;
+	//  OSGKey = KeyEventDetails::KEY_PAUSE;
 	//  break;
 	case KeyCapsLock:
-	  OSGKey = KeyEvent::KEY_CAPS_LOCK;
+	  OSGKey = KeyEventDetails::KEY_CAPS_LOCK;
 	  break;
 	case KeyEnd:
-	  OSGKey = KeyEvent::KEY_END;
+	  OSGKey = KeyEventDetails::KEY_END;
 	  break;
 	case KeyHome:
-	  OSGKey = KeyEvent::KEY_HOME;
+	  OSGKey = KeyEventDetails::KEY_HOME;
 	  break;
 	case KeyPageUp:
-	  OSGKey = KeyEvent::KEY_PAGE_UP;
+	  OSGKey = KeyEventDetails::KEY_PAGE_UP;
 	  break;
 	case KeyPageDown:
-	  OSGKey = KeyEvent::KEY_PAGE_DOWN;
+	  OSGKey = KeyEventDetails::KEY_PAGE_DOWN;
 	  break;
 	case KeyUp:
-	  OSGKey = KeyEvent::KEY_UP;
+	  OSGKey = KeyEventDetails::KEY_UP;
 	  break;
 	case KeyDown:
-	  OSGKey = KeyEvent::KEY_DOWN;
+	  OSGKey = KeyEventDetails::KEY_DOWN;
 	  break;
 	case KeyLeft:
-	  OSGKey = KeyEvent::KEY_LEFT;
+	  OSGKey = KeyEventDetails::KEY_LEFT;
 	  break;
 	case KeyRight:
-	  OSGKey = KeyEvent::KEY_RIGHT;
+	  OSGKey = KeyEventDetails::KEY_RIGHT;
 	  break;
 	//case KeySNAPSHOT:
-	//  OSGKey = KeyEvent::KEY_PRINTSCREEN;
+	//  OSGKey = KeyEventDetails::KEY_PRINTSCREEN;
 	//  break;
 	//case KeyInsert:
-	//  OSGKey = KeyEvent::KEY_INSERT;
+	//  OSGKey = KeyEventDetails::KEY_INSERT;
 	//  break;
 	case KeyDelete:
-	  OSGKey = KeyEvent::KEY_DELETE;
+	  OSGKey = KeyEventDetails::KEY_DELETE;
 	  break;
 	case KeyHelp:
-	  OSGKey = KeyEvent::KEY_HELP;
+	  OSGKey = KeyEventDetails::KEY_HELP;
 	  break;
 	//case KeyNUMLOCK:
-	//  OSGKey = KeyEvent::KEY_NUM_LOCK;
+	//  OSGKey = KeyEventDetails::KEY_NUM_LOCK;
 	//  break;
 	//case KeySCROLL:
-	//  OSGKey = KeyEvent::KEY_SCROLL_LOCK;
+	//  OSGKey = KeyEventDetails::KEY_SCROLL_LOCK;
 	//  break;
 	case KeyBackspace:
-	  OSGKey = KeyEvent::KEY_BACK_SPACE;
+	  OSGKey = KeyEventDetails::KEY_BACK_SPACE;
 	  break;
 
 	//Function Keys
 	case KeyF1:
-	  OSGKey = KeyEvent::KEY_F1;
+	  OSGKey = KeyEventDetails::KEY_F1;
 	  break;
 	case KeyF2:
-	  OSGKey = KeyEvent::KEY_F2;
+	  OSGKey = KeyEventDetails::KEY_F2;
 	  break;
 	case KeyF3:
-	  OSGKey = KeyEvent::KEY_F3;
+	  OSGKey = KeyEventDetails::KEY_F3;
 	  break;
 	case KeyF4:
-	  OSGKey = KeyEvent::KEY_F4;
+	  OSGKey = KeyEventDetails::KEY_F4;
 	  break;
 	case KeyF5:
-	  OSGKey = KeyEvent::KEY_F5;
+	  OSGKey = KeyEventDetails::KEY_F5;
 	  break;
 	case KeyF6:
-	  OSGKey = KeyEvent::KEY_F6;
+	  OSGKey = KeyEventDetails::KEY_F6;
 	  break;
 	case KeyF7:
-	  OSGKey = KeyEvent::KEY_F7;
+	  OSGKey = KeyEventDetails::KEY_F7;
 	  break;
 	case KeyF8:
-	  OSGKey = KeyEvent::KEY_F8;
+	  OSGKey = KeyEventDetails::KEY_F8;
 	  break;
 	case KeyF9:
-	  OSGKey = KeyEvent::KEY_F9;
+	  OSGKey = KeyEventDetails::KEY_F9;
 	  break;
 	case KeyF10:
-	  OSGKey = KeyEvent::KEY_F10;
+	  OSGKey = KeyEventDetails::KEY_F10;
 	  break;
 	case KeyF11:
-	  OSGKey = KeyEvent::KEY_F11;
+	  OSGKey = KeyEventDetails::KEY_F11;
 	  break;
 	case KeyF12:
-	  OSGKey = KeyEvent::KEY_F12;
+	  OSGKey = KeyEventDetails::KEY_F12;
 	  break;
 	  
 	//Numpad Keys
 	case KeyNum0:
-	  OSGKey = KeyEvent::KEY_NUMPAD_0;
+	  OSGKey = KeyEventDetails::KEY_NUMPAD_0;
 	  break;
 	case KeyNum1:
-	  OSGKey = KeyEvent::KEY_NUMPAD_1;
+	  OSGKey = KeyEventDetails::KEY_NUMPAD_1;
 	  break;
 	case KeyNum2:
-	  OSGKey = KeyEvent::KEY_NUMPAD_2;
+	  OSGKey = KeyEventDetails::KEY_NUMPAD_2;
 	  break;
 	case KeyNum3:
-	  OSGKey = KeyEvent::KEY_NUMPAD_3;
+	  OSGKey = KeyEventDetails::KEY_NUMPAD_3;
 	  break;
 	case KeyNum4:
-	  OSGKey = KeyEvent::KEY_NUMPAD_4;
+	  OSGKey = KeyEventDetails::KEY_NUMPAD_4;
 	  break;
 	case KeyNum5:
-	  OSGKey = KeyEvent::KEY_NUMPAD_5;
+	  OSGKey = KeyEventDetails::KEY_NUMPAD_5;
 	  break;
 	case KeyNum6:
-	  OSGKey = KeyEvent::KEY_NUMPAD_6;
+	  OSGKey = KeyEventDetails::KEY_NUMPAD_6;
 	  break;
 	case KeyNum7:
-	  OSGKey = KeyEvent::KEY_NUMPAD_7;
+	  OSGKey = KeyEventDetails::KEY_NUMPAD_7;
 	  break;
 	case KeyNum8:
-	  OSGKey = KeyEvent::KEY_NUMPAD_8;
+	  OSGKey = KeyEventDetails::KEY_NUMPAD_8;
 	  break;
 	case KeyNum9:
-	  OSGKey = KeyEvent::KEY_NUMPAD_9;
+	  OSGKey = KeyEventDetails::KEY_NUMPAD_9;
 	  break;
 	case KeyMultiply:
-	  OSGKey = KeyEvent::KEY_MULTIPLY;
+	  OSGKey = KeyEventDetails::KEY_MULTIPLY;
 	  break;
 	case KeyAdd:
-	  OSGKey = KeyEvent::KEY_ADD;
+	  OSGKey = KeyEventDetails::KEY_ADD;
 	  break;
 	case KeySubtract:
-	  OSGKey = KeyEvent::KEY_SUBTRACT;
+	  OSGKey = KeyEventDetails::KEY_SUBTRACT;
 	  break;
 	case KeyDivide:
-	  OSGKey = KeyEvent::KEY_DIVIDE;
+	  OSGKey = KeyEventDetails::KEY_DIVIDE;
 	  break;
 	case KeyDecimal:
-	  OSGKey = KeyEvent::KEY_DECIMAL;
+	  OSGKey = KeyEventDetails::KEY_DECIMAL;
 	  break;
 	case KeyNumEqual:
-	  OSGKey = KeyEvent::KEY_NUMPAD_EQUALS;
+	  OSGKey = KeyEventDetails::KEY_NUMPAD_EQUALS;
 	  break;
 	  
 	default:
-	  OSGKey = KeyEvent::KEY_UNKNOWN;
+	  OSGKey = KeyEventDetails::KEY_UNKNOWN;
 	  break;
 	}
 	return OSGKey;

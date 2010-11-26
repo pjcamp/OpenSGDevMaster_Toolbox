@@ -104,7 +104,7 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
 
 	virtual std::vector<BoostPath, std::allocator<BoostPath> > openFileDialog(const std::string&, const std::vector<WindowEventProducer::FileDialogFilter, std::allocator<WindowEventProducer::FileDialogFilter> >&, const BoostPath&, bool);
 	virtual BoostPath saveFileDialog(const std::string&, const std::vector<WindowEventProducer::FileDialogFilter, std::allocator<WindowEventProducer::FileDialogFilter> >&, const std::string&, const BoostPath&, bool);
-	virtual KeyEvent::KeyState getKeyState(KeyEvent::Key) const;
+	virtual KeyEventDetails::KeyState getKeyState(KeyEventDetails::Key) const;
 	
 	//Store state of modifier keys
 	UInt32 _modifierKeyState;
@@ -242,10 +242,10 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
 	OSStatus handleKeyEvent(EventHandlerCallRef nextHandler, EventRef event, void *userData);
     void disposeWindow(void);
 	
-	static KeyEvent::Key determineKey(::UInt32 key);
+	static KeyEventDetails::Key determineKey(::UInt32 key);
 	static UInt32 determineKeyModifiers(::UInt32 keyModifiers);
 
-    static CGKeyCode getKeyCode(KeyEvent::Key TheKey);
+    static CGKeyCode getKeyCode(KeyEventDetails::Key TheKey);
 
 	static CarbonWindowToProducerMap _CarbonWindowToProducerMap;
 	
