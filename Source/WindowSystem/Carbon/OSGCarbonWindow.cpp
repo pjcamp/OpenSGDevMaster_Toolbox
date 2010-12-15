@@ -167,8 +167,6 @@ OSG_BEGIN_NAMESPACE
  *                           Class variables                               *
 \***************************************************************************/
 
-CarbonWindow::CarbonWindowToProducerMap CarbonWindow::_CarbonWindowToProducerMap;
-
 /***************************************************************************\
  *                           Class methods                                 *
 \***************************************************************************/
@@ -189,27 +187,18 @@ void CarbonWindow::initMethod(InitPhase ePhase)
 
 OSStatus CarbonWindow::eventHandler(EventHandlerCallRef nextHandler, EventRef event, void *userData)
 {
-    UInt32 WindowId(*static_cast<UInt32*>(userData));
-        
-   if(_CarbonWindowToProducerMap.find(WindowId) != _CarbonWindowToProducerMap.end())
-   {
-      return _CarbonWindowToProducerMap[WindowId]->internalEventHandler(nextHandler, event,
-                           userData);
-   }
-   else
-   {
-        return eventNotHandledErr;
-   }
-}
+    CarbonWindow* TheWindow(static_cast<CarbonWindow*>(userData));
 
-UInt32 CarbonWindow::getUndefinedWindowId(void)
-{
-    UInt32 i(1);
-    while(_CarbonWindowToProducerMap.find(i) != _CarbonWindowToProducerMap.end())
+    if(TheWindow != NULL)
     {
-        ++i;
+        return TheWindow->internalEventHandler(nextHandler,
+                                               event,
+                                               userData);
     }
-    return i;
+    else
+    {
+        return eventNotHandledErr;
+    }
 }
 
 void  CarbonWindow::mainLoop(void)
@@ -218,27 +207,17 @@ void  CarbonWindow::mainLoop(void)
     EventRef theEvent;    
     EventTargetRef theTarget;    
     theTarget = GetEventDispatcherTarget(); 
-    while (true)
+    while (_IsWindowOpen)
     {
+        update();
+        draw();
+	
         while  ( ReceiveNextEvent(0, NULL,0 /*kEventDurationForever*/ ,true,
                                  &theEvent)== noErr)
         {
             SendEventToEventTarget (theEvent, theTarget);        
             ReleaseEvent(theEvent);
-            
         }
-	
-        CarbonWindowToProducerMap::iterator MapItor;
-        for( MapItor = _CarbonWindowToProducerMap.begin(); MapItor != _CarbonWindowToProducerMap.end(); ++MapItor)
-        {
-            MapItor->second->update();
-            MapItor->second->draw();
-        }
-        if(_CarbonWindowToProducerMap.size() == 0)
-        {
-            break;
-        }
-
     }
 }
 
@@ -1044,6 +1023,8 @@ KeyEventDetails::KeyState CarbonWindow::getKeyState(KeyEventDetails::Key TheKey)
 
 Window* CarbonWindow::initWindow(void)
 {
+    OSStatus ErrCode;
+
 	WindowUnrecPtr MyWindow = Inherited::initWindow();
     
     attachWindow();
@@ -1070,21 +1051,60 @@ Window* CarbonWindow::initWindow(void)
         { kEventClassWindow, kEventAppActivated },
         { kEventClassWindow, kEventAppDeactivated },
     };
-    InstallWindowEventHandler(_WindowRef, _EventHandlerUPP, GetEventTypeCount(eventList), eventList, &(_WindowId), 0);
+    if(getFullscreen())
+    {
+        ErrCode = InstallApplicationEventHandler(_EventHandlerUPP,
+                                                 GetEventTypeCount(eventList),
+                                                 eventList,
+                                                 this,
+                                                 0);
+    }
+    else
+    {
+        ErrCode = InstallWindowEventHandler(_WindowRef,
+                                            _EventHandlerUPP,
+                                            GetEventTypeCount(eventList),
+                                            eventList,
+                                            this,
+                                            0);
+    }
+    if(ErrCode != noErr){SFATAL << "Error calling InstallWindowEventHandler(), Error code: " << ErrCode << std::endl;}
 
     // Initialize OpenGL
-    GLint attribs[] = { AGL_RGBA, AGL_DOUBLEBUFFER, AGL_DEPTH_SIZE, 16, AGL_STENCIL_SIZE, 8, AGL_ACCELERATED, AGL_NO_RECOVERY, AGL_NONE };
-    //GLint attribs[] = { AGL_RGBA, AGL_DOUBLEBUFFER, AGL_DEPTH_SIZE, 16, AGL_STENCIL_SIZE, 8,  AGL_NONE };
-    AGLPixelFormat pixelFormat = aglChoosePixelFormat(0, 0, attribs);
+    GLint attribs[] = {
+        AGL_RGBA,
+        AGL_DOUBLEBUFFER,
+        //AGL_DEPTH_SIZE,   16,
+        AGL_DEPTH_SIZE,   24,
+        AGL_STENCIL_SIZE,  8,
+        AGL_ACCELERATED,
+        AGL_NO_RECOVERY,
+        AGL_NONE
+    };
+    AGLPixelFormat pixelFormat = aglChoosePixelFormat(NULL, 0, attribs);
     if (pixelFormat == 0)
+    {
         SFATAL << "Cannot choose pixel format" << std::endl;
+    }
     _Context = aglCreateContext(pixelFormat, 0);
     aglDestroyPixelFormat(pixelFormat);
     if (_Context == 0)
+    {
         SFATAL << "Cannot create context" << std::endl;
-    aglSetWindowRef(_Context,_WindowRef);
-    
-    //Attach Window
+    }
+
+    if(getFullscreen())
+    {
+        aglSetCurrentContext(_Context);
+        aglSetFullScreen(_Context,0,0,0,0);
+        GLint displayCaps [3];
+        aglGetInteger (_Context, AGL_FULLSCREEN, displayCaps);
+        resize(displayCaps[0],displayCaps[1]);
+    }
+    else
+    {
+        aglSetWindowRef(_Context,_WindowRef);
+    }
     setContext(_Context);
 	
     return MyWindow;
@@ -1123,30 +1143,46 @@ OSStatus CarbonWindow::handleMouseEvent(EventHandlerCallRef nextHandler, EventRe
 {
     OSStatus err;
 
-    // Get the window
-    WindowRef window;
-    err = GetEventParameter(event, kEventParamWindowRef, typeWindowRef, 0, sizeof(window), 0, &window);
-    if (err != noErr)
-        return err;
+    if(!getFullscreen())
+    {
+        // Get the window
+        WindowRef window;
+        err = GetEventParameter(event, kEventParamWindowRef, typeWindowRef, 0, sizeof(window), 0, &window);
+        if (err != noErr)
+        {
+            return err;
+        }
 
-    SetPortWindowPort(window);
+        SetPortWindowPort(window);
+    }
 
     // Get the location of the cursor
     ::HIPoint location;
-    err = GetEventParameter(event, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(location), 0, &location);
+    if(getFullscreen())
+    {
+        err = GetEventParameter(event, kEventParamMouseLocation, typeHIPoint, 0, sizeof(location), 0, &location);
+    }
+    else
+    {
+        err = GetEventParameter(event, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(location), 0, &location);
+        location.y -= 22.0f;
+    }
     if (err != noErr)
-        //std::vector<BoostPath, std::allocator<BoostPath> >;
+    {
         return err;
-    location.y -= 22.0f;
+    }
 
     //Check that the mouse is withing the content area
-    WindowPartCode part;
-    GetEventParameter (event, kEventParamWindowPartCode, typeWindowPartCode,
-            NULL, sizeof(part), NULL, &part);
-
-    if(part != inContent)
+    if(!getFullscreen())
     {
-        return eventNotHandledErr;
+        WindowPartCode part;
+        GetEventParameter (event, kEventParamWindowPartCode, typeWindowPartCode,
+                NULL, sizeof(part), NULL, &part);
+
+        if(part != inContent)
+        {
+            return eventNotHandledErr;
+        }
     }
 
     // Handle the different kinds of events
@@ -1161,7 +1197,9 @@ OSStatus CarbonWindow::handleMouseEvent(EventHandlerCallRef nextHandler, EventRe
                 ::HIPoint delta;
                 err = GetEventParameter(event, kEventParamMouseDelta, typeHIPoint, 0, sizeof(delta), 0, &delta);
                 if (err != noErr)
+                {
                     return err;
+                }
                 MouseDelta.setValues(delta.x,delta.y);
             }
             break;
@@ -1179,7 +1217,9 @@ OSStatus CarbonWindow::handleMouseEvent(EventHandlerCallRef nextHandler, EventRe
                 EventMouseButton mouseButton;
                 err = GetEventParameter(event, kEventParamMouseButton, typeMouseButton, 0, sizeof(mouseButton), 0, &mouseButton);
                 if (err != noErr)
+                {
                     return err;
+                }
 
                 switch (mouseButton)
                 {
@@ -1292,13 +1332,13 @@ OSStatus CarbonWindow::handleWindowEvent(EventHandlerCallRef nextHandler, EventR
     ::UInt32 eventKind = GetEventKind(event);
     switch (eventKind)
     {
-    // Quit the application when the user closes the window
     case kEventWindowClosed:
+            aglSetCurrentContext( NULL );
             aglDestroyContext(_Context);
             produceWindowClosing();
             DisposeEventHandlerUPP(_EventHandlerUPP);
-            _CarbonWindowToProducerMap.erase(_CarbonWindowToProducerMap.find(_WindowId));
             produceWindowClosed();
+            _IsWindowOpen = false;
             return noErr;
 		  break;
     
@@ -1334,15 +1374,28 @@ OSStatus CarbonWindow::handleWindowEvent(EventHandlerCallRef nextHandler, EventR
 
             if ((attributes & kWindowBoundsChangeSizeChanged) != 0)
             {
-                // Get the new bounds of the window
-                Rect bounds;
-                GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, 0, sizeof(Rect), 0, &bounds);
+                GLsizei width, height;
+                if(getFullscreen())
+                {
+                    aglSetCurrentContext(_Context);
+                    aglSetFullScreen(_Context,0,0,0,0);
+                    GLint displayCaps [3];
+                    aglGetInteger (_Context, AGL_FULLSCREEN, displayCaps);
+                    width = displayCaps[0];
+                    height = displayCaps[1];
+                }
+                else
+                {
+                    // Get the new bounds of the window
+                    Rect bounds;
+                    GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, 0, sizeof(Rect), 0, &bounds);
 
-                // Resize the OpenSG Window
-                GLsizei width = bounds.right - bounds.left;
-                GLsizei height = bounds.bottom - bounds.top;
-				resize(width, height );
-				internalReshape(Vec2f(width, height));
+                    // Resize the OpenSG Window
+                    width = bounds.right - bounds.left;
+                    height = bounds.bottom - bounds.top;
+                }
+                resize(width, height );
+                internalReshape(Vec2f(width, height));
             }
 
             return noErr;
@@ -1893,17 +1946,18 @@ bool CarbonWindow::getIconify(void) const
 
 void CarbonWindow::setFullscreen(bool Fullscreen)
 {
-	if(Fullscreen)
-	{
-		::Ptr      _OldScreenState;
-      assert(false && "Not Implemented");
-		//CGCaptureAllDisplays();
-		//BeginFullScreen(&_OldScreenState, NULL, 0, 0, &_WindowRef, NULL, 0);
-	}
-	else
-	{
-		//EndFullScreen(NULL, NULL);
-	}
+    _IsFullscreen = Fullscreen;
+	//if()
+	//{
+		//::Ptr      _OldScreenState;
+          //assert(false && "Not Implemented");
+		////CGCaptureAllDisplays();
+		////BeginFullScreen(&_OldScreenState, NULL, 0, 0, &_WindowRef, NULL, 0);
+	//}
+	//else
+	//{
+		////EndFullScreen(NULL, NULL);
+	//}
 }
 
 bool CarbonWindow::getFullscreen(void) const
@@ -1984,15 +2038,6 @@ void CarbonWindow::update(void)
 
 bool CarbonWindow::attachWindow(void)
 {
-    assert(_WindowId != 0);
-    
-    if(_CarbonWindowToProducerMap.find(_WindowId) != _CarbonWindowToProducerMap.end())
-    {
-        return false;
-    }
-    
-    _CarbonWindowToProducerMap[_WindowId] = CarbonWindowUnrecPtr(this);
-    
     return true;
 }
 
@@ -2173,19 +2218,22 @@ void CarbonWindow::openWindow(const Pnt2f& ScreenPosition,
     init();
     deactivate();
     
-    // Show window
-    RepositionWindow(_WindowRef, 0, kWindowCascadeOnMainScreen);
-    setPosition(ScreenPosition);
+    if(!getFullscreen())
+    {
+        // Show window
+        RepositionWindow(_WindowRef, 0, kWindowCascadeOnMainScreen);
+        setPosition(ScreenPosition);
 
-    //For some reason the Viewport is not set up right unless I force the window to resize
-    //there must be a better way of doing this
-    setSize(Vec2us(Size[0],Size[1])+Vec2us(-1,0));
-    setSize(Vec2us(Size[0],Size[1]));
-    
-    ShowWindow(_WindowRef);
+        //For some reason the Viewport is not set up right unless I force the window to resize
+        //there must be a better way of doing this
+        setSize(Vec2us(Size[0],Size[1])+Vec2us(-1,0));
+        setSize(Vec2us(Size[0],Size[1]));
+        
+        ShowWindow(_WindowRef);
+    }
 	produceWindowOpened();
     _modifierKeyState = getKeyModifiers();
-	
+	_IsWindowOpen = true;
 }
 
 void CarbonWindow::closeWindow(void)
@@ -2267,7 +2315,6 @@ void OSG::CarbonWindow::onCreate(const CarbonWindow *source)
         _EventHandlerUPP = NewEventHandlerUPP(eventHandler);
         
         _WindowRef = window;
-        _WindowId = getUndefinedWindowId();
     }
 }
 
@@ -2283,12 +2330,16 @@ void OSG::CarbonWindow::onDestroy(UInt32 uiContainerId)
 /*----------------------- constructors & destructors ----------------------*/
 
 CarbonWindow::CarbonWindow(void) :
-    Inherited()
+    Inherited(),
+    _IsWindowOpen(false),
+    _AttachMouseToCursor(true)
 {
 }
 
 CarbonWindow::CarbonWindow(const CarbonWindow &source) :
-    Inherited(source)
+    Inherited(source),
+    _IsWindowOpen(false),
+    _AttachMouseToCursor(true)
 {
 }
 

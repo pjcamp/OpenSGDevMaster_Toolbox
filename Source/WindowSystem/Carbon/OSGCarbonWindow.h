@@ -70,7 +70,6 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
     typedef CarbonWindowBase Inherited;
     typedef CarbonWindow     Self;
 
-    typedef std::map<UInt32, CarbonWindowUnrecPtr> CarbonWindowToProducerMap;    
     /*---------------------------------------------------------------------*/
     /*! \name                      Sync                                    */
     /*! \{                                                                 */
@@ -247,18 +246,15 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
 
     static CGKeyCode getKeyCode(KeyEventDetails::Key TheKey);
 
-	static CarbonWindowToProducerMap _CarbonWindowToProducerMap;
-	
-	
     static pascal OSStatus eventHandler(EventHandlerCallRef nextHandler, EventRef event, void *userData);
     
 	OSStatus internalEventHandler(EventHandlerCallRef nextHandler, EventRef event, void *userData);
 	
-	UInt32 _WindowId;
 	EventHandlerUPP _EventHandlerUPP;
     WindowRef _WindowRef;
 	AGLContext _Context;
-	static UInt32 getUndefinedWindowId(void);
+    bool _IsFullscreen;
+    bool _IsWindowOpen;
 
     /*==========================  PRIVATE  ================================*/
 
