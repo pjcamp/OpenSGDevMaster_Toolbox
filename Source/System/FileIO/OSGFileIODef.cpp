@@ -50,8 +50,7 @@
 */
 static bool versionAdder(void)
 {
-    OSG::addLibraryVersion("OSGFileIO:           " OSG_VERSION_STRING 
-                           "\tRev: "               SVN_REVISION );    
+    OSG::addLibraryVersion("OSGFileIO", OSG_VERSION_STRING, SVN_REVISION );    
     return true;
 }
 
