@@ -349,28 +349,29 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 			if(animator != NULL)
 			{
 				KeyframeNumberSequenceReal32 * kfSeq = dynamic_cast<KeyframeNumberSequenceReal32 *>(animator->getKeyframeSequence());
-				KeyframeVectorSequenceVec1fRecPtr newKfSeq = KeyframeVectorSequenceVec1f::create();
+                if(kfSeq != NULL)
+                {
+                    KeyframeVectorSequenceVec1fRecPtr newKfSeq = KeyframeVectorSequenceVec1f::create();
 
-				MFReal32 keys = kfSeq->getKeys();
-				MFReal32 values = kfSeq->editField();
-				// fill in the new keyframe sequence
-				for(UInt32 i(0); i < keys.size(); i++)
-				{
-					newKfSeq->addKeyframe(values[i],keys[i]);
-				}
+                    // fill in the new keyframe sequence
+                    for(UInt32 i(0); i < kfSeq->getKeys().size(); i++)
+                    {
+                        newKfSeq->addKeyframe(kfSeq->getKeyValue(i),kfSeq->getKey(i));
+                    }
 
-				animator->setKeyframeSequence(newKfSeq);
-				_animation->getAnimation()->setAnimator(animator);
+                    animator->setKeyframeSequence(newKfSeq);
+                    _animation->getAnimation()->setAnimator(animator);
 
-				// set the animated field.  Some animations will be on a particular index of a multi-field...
-				if(_animation->isIndexed())
-				{
-					_animation->getAnimation()->setAnimatedMultiField(newMorphGeo->getWeights(),"values",_animation->getTargetIndex());
-				}
-				else if(_animation != NULL)
-				{
-					_animation->getAnimation()->setAnimatedMultiField(newMorphGeo->getWeights(),"values",0);
-				}
+                    // set the animated field.  Some animations will be on a particular index of a multi-field...
+                    if(_animation->isIndexed())
+                    {
+                        _animation->getAnimation()->setAnimatedMultiField(newMorphGeo->getWeights(),"values",_animation->getTargetIndex());
+                    }
+                    else if(_animation != NULL)
+                    {
+                        _animation->getAnimation()->setAnimatedMultiField(newMorphGeo->getWeights(),"values",0);
+                    }
+                }
 			}
 		}
 
