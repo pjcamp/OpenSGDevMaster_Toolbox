@@ -53,7 +53,8 @@
 #include <GL/glx.h>
 #endif
 #ifdef __APPLE__
-#include "OSGCocoaWindowWrapper.h"
+//#include "OSGCocoaWindowWrapper.h"
+#include "OSGCarbonWindowWrapper.h"
 #endif
 
 OSG_USING_NAMESPACE
@@ -129,7 +130,8 @@ void PassiveWindow::init(GLInitFunctor oFunc)
     Inherited::setHdc  (wglGetCurrentDC     ());
     Inherited::setHglrc(wglGetCurrentContext());
 #elif defined(__APPLE__)
-    Inherited::setContext(cocoaWrapperCurrentContext());
+    //Inherited::setContext(cocoaWrapperCurrentContext());
+    Inherited::setContext(carbonWrapperCurrentContext());
 #else
     Inherited::setDisplay(glXGetCurrentDisplay ());
     Inherited::setContext(glXGetCurrentContext ());

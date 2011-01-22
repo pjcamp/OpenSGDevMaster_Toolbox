@@ -1887,8 +1887,7 @@ void CarbonWindow::setFullscreen(bool Fullscreen)
 
 bool CarbonWindow::getFullscreen(void) const
 {
-    //TODO: Implement
-    assert(false && "Not Implemented");
+    //return _IsFullscreen;
     return false;
 }
 
