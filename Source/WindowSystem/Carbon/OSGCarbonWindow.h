@@ -224,7 +224,10 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
 
            void onCreate       (const CarbonWindow *source = NULL);
 
-           void onDestroy      (      UInt32  uiContainerId);
+           void onDestroy      (      UInt32        uiContainerId);
+
+           void onDestroyAspect(      UInt32        uiContainerId,
+                                      UInt32        uiAspect     );
 
     /*! \}                                                                 */
 

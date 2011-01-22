@@ -1333,8 +1333,6 @@ OSStatus CarbonWindow::handleWindowEvent(EventHandlerCallRef nextHandler, EventR
     switch (eventKind)
     {
     case kEventWindowClosed:
-            aglSetCurrentContext( NULL );
-            aglDestroyContext(_Context);
             produceWindowClosing();
             DisposeEventHandlerUPP(_EventHandlerUPP);
             produceWindowClosed();
@@ -2290,7 +2288,7 @@ void CarbonWindow::setCursor(void)
  -  private                                                                 -
 \*-------------------------------------------------------------------------*/
 
-void OSG::CarbonWindow::onCreate(const CarbonWindow *source)
+void CarbonWindow::onCreate(const CarbonWindow *source)
 {
     Inherited::onCreate(source);
 
@@ -2321,16 +2319,30 @@ void OSG::CarbonWindow::onCreate(const CarbonWindow *source)
 /*! instance deletion
 */
 
-void OSG::CarbonWindow::onDestroy(UInt32 uiContainerId)
+void CarbonWindow::onDestroy(UInt32 uiContainerId)
 {
 
     Inherited::onDestroy(uiContainerId);
 }
+ 
+void CarbonWindow::onDestroyAspect(UInt32  uiContainerId,
+                                   UInt32  uiAspect     )
+{
+    Inherited::onDestroyAspect(uiContainerId,uiAspect);
+
+    if(_Context != 0)
+    {
+        aglSetCurrentContext( NULL );
+        aglDestroyContext(_Context);
+    }
+}
+
 
 /*----------------------- constructors & destructors ----------------------*/
 
 CarbonWindow::CarbonWindow(void) :
     Inherited(),
+    _Context(0),
     _IsWindowOpen(false),
     _AttachMouseToCursor(true)
 {
@@ -2338,6 +2350,7 @@ CarbonWindow::CarbonWindow(void) :
 
 CarbonWindow::CarbonWindow(const CarbonWindow &source) :
     Inherited(source),
+    _Context(0),
     _IsWindowOpen(false),
     _AttachMouseToCursor(true)
 {
