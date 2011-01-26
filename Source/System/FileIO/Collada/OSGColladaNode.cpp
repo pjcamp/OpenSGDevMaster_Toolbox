@@ -372,7 +372,7 @@ ColladaNode::handleRotate(domRotate *rotate)
 
 	    if(getGlobal()->editAnimationMap()[rotate] != NULL) 
 	    {
-            SLOG << "Found Rotation Animation" << std::endl;
+            SNOTICE << "Found Rotation Animation" << std::endl;
 		    getGlobal()->editAnimationMap()[rotate]->getAnimation()->setAnimatedField(RotationElement,std::string("Angle"));
 	    }
     }
@@ -421,7 +421,7 @@ ColladaNode::handleScale(domScale *scale)
 
 		 if(getGlobal()->editAnimationMap()[scale] != NULL) 
 	    {
-            SLOG << "Found Scale Animation" << std::endl;
+            SNOTICE << "Found Scale Animation" << std::endl;
 		    getGlobal()->editAnimationMap()[scale]->getAnimation()->setAnimatedField(ScaleElement,std::string("Scale"));
 	    }
     }
@@ -520,11 +520,11 @@ ColladaNode::handleTranslate(domTranslate *translate)
 
         appendStackedXForm(TranslateElement, node);
 
-	    if(getGlobal()->editAnimationMap()[translate] != NULL) 
-	    {
-				SLOG << "Found Translation Animation" << std::endl;
-				getGlobal()->editAnimationMap()[translate]->getAnimation()->setAnimatedField(TranslateElement,std::string("Translation")) ;
-	    }
+        if(getGlobal()->editAnimationMap()[translate] != NULL) 
+        {
+            SNOTICE << "Found Translation Animation" << std::endl;
+            getGlobal()->editAnimationMap()[translate]->getAnimation()->setAnimatedField(TranslateElement,std::string("Translation")) ;
+        }
     }
     else
     {
