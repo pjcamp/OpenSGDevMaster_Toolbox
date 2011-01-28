@@ -376,6 +376,20 @@ void Viewport::render(RenderActionBase *action)
 
         oEnv.setWindow(action->getWindow());
 
+        Matrix m, t;
+        getCamera()->getProjection          ( m,
+                                           getPixelWidth (),
+                                           getPixelHeight());
+        getCamera()->getProjectionTranslation( t,
+                                           getPixelWidth (),
+                                           getPixelHeight());
+        oEnv.setupProjection(m,t);
+
+        getCamera()->getViewing( m,
+                             getPixelWidth (),
+                             getPixelHeight());
+        oEnv.setupViewing   (m);
+
         oEnv.setTileFullSize(getCamera()->tileGetFullSize());
         oEnv.setTileRegion  (getCamera()->tileGetRegion  ());
 		oEnv.setAction         ( action );
