@@ -250,12 +250,12 @@ void TrackballEngine::buttonPress(Int16 button, Int16 x, Int16 y,
             break;
                             
         case Navigator::RIGHT_MOUSE :  
-            _currentState = Navigator::TRANSLATING_Z;    
+            _currentState = Navigator::TRANSLATING_XY;
+            getIntersectionPoint(x,y, nav);      
             break;
  
         case Navigator::MIDDLE_MOUSE:  
-            _currentState = Navigator::TRANSLATING_XY;
-            getIntersectionPoint(x,y, nav);      
+            _currentState = Navigator::TRANSLATING_Z;    
             break;
 
         case Navigator::UP_MOUSE    :  
