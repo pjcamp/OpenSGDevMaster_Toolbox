@@ -230,6 +230,8 @@ void ColladaController::readMorph(domMorph *morph)
 	_mMorph.source = daeSafeCast<domGeometry>(morph->getSource().getElement());
 	// get the target meshes and their weights
 	domInputLocal_Array locals = morph->getTargets()->getInput_array();
+    // Get the blending method
+	_mMorph.method = morph->getMethod();
 
 	domSourceRef targets, weights;
 	std::string targetToken("MORPH_TARGET"),weightToken("MORPH_WEIGHT");
@@ -329,6 +331,19 @@ ColladaController::createInstance(ColladaInstanceElement *colInstElem)
 	{ 
 		MorphGeometryRefPtr newMorphGeo = MorphGeometry::create();
 		newMorphGeo->setBaseGeometry(geo);
+        UInt16 BlendingMethod;
+        switch(_mMorph.method)
+        {
+            case MORPHMETHODTYPE_RELATIVE:
+                BlendingMethod = MorphGeometry::Relative;
+                break;
+            default:
+                SWARNING << "Invalid blending method: " << _mMorph.method << std::endl;
+            case MORPHMETHODTYPE_NORMALIZED:
+                BlendingMethod = MorphGeometry::Normalized;
+                break;
+        }
+		newMorphGeo->setBlendingMethod(BlendingMethod);
 		for(UInt32 i(0); i < _mMorph.targets.size(); i++)
 		{
 			GeometryRefPtr target = handleGeometry(_mMorph.targets[i], colInstElem);

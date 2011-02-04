@@ -113,6 +113,7 @@ class OSG_FILEIO_DLLMAPPING ColladaController : public ColladaInstantiableElemen
 		std::vector<Real32> weights;
 		std::vector<domGeometry *> targets;
 		domGeometry * source;
+        domMorphMethodType    method;
 	};
 	bool	hasMorph				(void);
 
