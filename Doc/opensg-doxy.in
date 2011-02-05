@@ -189,12 +189,17 @@ TAB_SIZE               = 4
 # will result in a user-defined paragraph with heading "Side Effects:".
 # You can put \n's in the value part of an alias to insert newlines.
 
-ALIASES                = "hint=<em>Hint! " \
+ALIASES                = example_link{1}="<a href=\"\1_8cpp-example.html\">\1</a>" \
+                         example_link{2}="<a href=\"\1_8cpp-example.html\">\2</a>" \
+                         examples="\par Examples:" \
+                         endexamples="\n\n" \
+                         "hint=<em>Hint! " \
                          endhint=</em> \
                          "dev=\if dev\n<em>Dev:</em> " \
                          enddev=\n\endif \
                          "ext=\if ext\n<b>Ext:</b> " \
                          endext=\n\endif \
+                         "example-link{1}=<a href=\"\">/1</a>" \
                          "guide{1}= "
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C
@@ -538,7 +543,7 @@ FILE_VERSION_FILTER    =
 # You can optionally specify a file name after the option, if omitted
 # DoxygenLayout.xml will be used as the name of the layout file.
 
-LAYOUT_FILE            =
+LAYOUT_FILE            = ${CMAKE_SOURCE_DIR}/Doc/DoxygenLayout.xml
 
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages

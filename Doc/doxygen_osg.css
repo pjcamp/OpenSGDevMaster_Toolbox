@@ -440,3 +440,87 @@ address {
 	font-style: normal;
 	color: #333;
 }
+
+/*Examples*/
+#example-content
+{
+	/*padding: 20px;*/
+	/*border-right: 1px solid #b0b0b0;*/
+	/*border: 1px solid #b0b0b0;*/
+	/*border-left: 1px solid #b0b0b0;*/
+	/*color: #333333;*/
+}
+
+
+#example-section
+{
+	padding: 10px;
+	border: 1px solid #b0b0b0;
+	color: #333333;
+    margin-bottom: 20px;
+}
+
+#example-content h2
+{
+	font-size: 18px;
+	/* 18px is the default minimum font size for which anti-aliasing will occur. */
+	margin: 0px;
+	border-bottom: 1px solid black;	
+}
+
+#example-content p
+{
+	text-align: justify;
+	text-indent: 3em;
+	line-height: 1.3em;
+}
+
+
+#example-content_footer
+{
+	border-bottom: 1px dotted #666666;
+	padding: 4px;
+	text-align: right;
+	margin-bottom: 2em;
+	background-repeat: no-repeat;
+	background-position: center left;
+    clear: right;
+}
+
+#example-image
+{
+    position: relative;
+    float: right;
+    padding: 5px 5px 5px 5px;
+    margin: 5px 5px 5px 5px;
+    border-width:1px;
+    border-color:#62623e;
+    border-style:solid;
+    width: 220px;
+}
+
+#example-image img
+{
+    width: 220px;
+    vertical-align: center;
+}
+
+#example-video
+{
+    position: relative;
+    float: right;
+    padding: 5px 5px 5px 5px;
+    margin: 5px 5px 5px 5px;
+    border-width:1px;
+    border-color:#62623e;
+    border-style:solid;
+    width: 510px;
+    height: 310px;
+}
+
+#example-video-embediframe
+{
+    width: 500px;
+    height: 300px;
+    vertical-align: center;
+}
