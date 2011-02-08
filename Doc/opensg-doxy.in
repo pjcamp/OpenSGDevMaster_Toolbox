@@ -193,6 +193,7 @@ ALIASES                = example_link{1}="<a href=\"\1_8cpp-example.html\">\1</a
                          example_link{2}="<a href=\"\1_8cpp-example.html\">\2</a>" \
                          examples="\par Examples:" \
                          endexamples="\n\n" \
+                         toolbox_video{1}="\htmlonly\n <iframe title=\"YouTube video player\" class=\"youtube-player\" type=\"text/html\" width=\"600\" height=\"450\" src=\"http://www.youtube.com/embed/\1\" frameborder=\"0\" allowFullScreen> </iframe>\n \endhtmlonly" \
                          "hint=<em>Hint! " \
                          endhint=</em> \
                          "dev=\if dev\n<em>Dev:</em> " \
