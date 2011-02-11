@@ -1,0 +1,30 @@
+//
+// Copyright (c) 2006 by Conor O'Mahony.
+// For enquiries, please email GubuSoft@GubuSoft.com.
+// Please keep all copyright notices below.
+// Original author of TreeView script is Marcelino Martins.
+//
+// This document includes the TreeView script.
+// The TreeView script can be found at http://www.TreeView.net.
+// The script is Copyright (c) 2006 by Conor O'Mahony.
+//
+// You can find general instructions for this file at www.treeview.net. 
+//
+
+// Configures whether the names of the nodes are links (or whether only the icons
+// are links).
+USETEXTLINKS = 1
+
+// Configures whether the tree is fully open upon loading of the page, or whether
+// only the root node is visible.
+STARTALLOPEN = 1
+
+HIGHLIGHT = 1
+USEICONS = 0
+
+// Specify if the images are in a subdirectory;
+ICONPATH = './images/'
+
+foldersTree = gFld("<i>OpenSG Doxygen Documentation</i>", "")
+  foldersTree.treeID = "Frameset"
+

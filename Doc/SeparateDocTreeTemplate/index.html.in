@@ -1,0 +1,11 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+        <title>OpenSG Doxygen Documentatation</title>
+    </head>
+    <frameset cols="@OSG_DOXY_DOC_TREE_WIDTH@,*" onResize="if (navigator.family == 'nn4') window.location.reload()"> 
+        <frame src="LibraryTreeFrame.html" name="treeframe"> 
+        <frame src="@OSG_DOXY_BASELIB_DOC_HTML_INDEX@" name="basefrm"> 
+    </frameset> 
+</html>
