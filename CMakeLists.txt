@@ -309,6 +309,10 @@ ENDIF()
 
 ADD_DEFINITIONS(-D OSG_BUILD_ACTIVE)
 
+IF(WIN32)
+    SET(CMAKE_SHARED_LINKER_FLAGS_DEBUG "/INCREMENTAL:NO")
+ENDIF()
+
 OSG_CHECK_INSTALL()
 
 ##############################################################################
