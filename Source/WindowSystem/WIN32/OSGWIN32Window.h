@@ -295,4 +295,6 @@ OSG_END_NAMESPACE
 #include "OSGWIN32WindowBase.inl"
 #include "OSGWIN32Window.inl"
 
+#endif /* defined(WIN32) || defined(OSG_DO_DOC) */
+
 #endif /* _OSGWIN32WINDOW_H_ */
