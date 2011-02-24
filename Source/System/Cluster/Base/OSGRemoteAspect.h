@@ -235,7 +235,7 @@ typedef RemoteAspect *RemoteAspectP;
 
 struct RemoteAspectFieldContainerMapper : public ContainerIdMapper
 {                                              
-    virtual UInt32 map(UInt32 uiId);
+    virtual UInt32 map(UInt32 uiId) const;
 
     RemoteAspect *_remoteAspect;
 };

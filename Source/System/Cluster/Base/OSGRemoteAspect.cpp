@@ -910,14 +910,14 @@ bool RemoteAspect::_defaultChangedFunction(FieldContainer * const fcp,
 #pragma reset woff 3201
 #endif
 
-/*! Field container id mapper. This mapper mappes remote field 
+/*! Field container id mapper. This mapper maps remote field 
  *  container id to local ids.
  */
 
-UInt32 RemoteAspectFieldContainerMapper::map(UInt32 uiId)
+UInt32 RemoteAspectFieldContainerMapper::map(UInt32 uiId) const
 {
-    UInt32                              mappedId;
-    RemoteAspect::LocalFCMapT::iterator i;
+    UInt32 mappedId;
+    RemoteAspect::LocalFCMapT::const_iterator i;
 
     i = _remoteAspect->_localFC.find(_remoteAspect->getFullRemoteId(uiId));
 
@@ -935,3 +935,4 @@ UInt32 RemoteAspectFieldContainerMapper::map(UInt32 uiId)
 
     return mappedId;
 }
+
