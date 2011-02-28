@@ -48,7 +48,8 @@
 #include "OSGTextDef.h"
 
 
-#if defined(__APPLE__) || defined(OSG_DO_DOC)
+#if 0
+//#if defined(__APPLE__) || defined(OSG_DO_DOC)
 
 
 #include "OSGTextBackend.h"
@@ -131,7 +132,8 @@ class OSG_TEXT_DLLMAPPING TextMacBackend: public TextBackend
 OSG_END_NAMESPACE
 
 
-#endif // __APPLE__
+//#endif // __APPLE__
+#endif // 0
 
 
 #include "OSGTextMacBackend.inl"

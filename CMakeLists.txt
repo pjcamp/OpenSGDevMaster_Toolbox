@@ -384,7 +384,9 @@ IF(NOT OSG_BUILD_DEPENDEND)
 
 #    MESSAGE(STATUS "zlib: ${ZLIB_FOUND}")
 
-    IF(UNIX AND NOT APPLE)
+    OSG_OPTION(OSG_ENABLE_FREETYPE                        "Build OpenSG with Freetype support" OFF)
+    IF(OSG_ENABLE_FREETYPE)
+    #IF(UNIX AND NOT APPLE)
         #############
         #### Freetype
         #############
@@ -405,9 +407,10 @@ IF(NOT OSG_BUILD_DEPENDEND)
         OSG_ADD_OPT(FREETYPE_FOUND)
         OSG_ADD_OPT(FREETYPE_INCLUDE_DIR_freetype2)
         OSG_ADD_OPT(FREETYPE_INCLUDE_DIR_ft2build)
+        OSG_ADD_OPT(FREETYPE_INCLUDE_DIR_ft2build)
         OSG_ADD_OPT(FONTCONFIG_LIBRARY)
         OSG_ADD_OPT(FREETYPE_LIBRARIES)
-    ENDIF(UNIX AND NOT APPLE)
+    ENDIF()
 
     ##############
     #### ImageLibs

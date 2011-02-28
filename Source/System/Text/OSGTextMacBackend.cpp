@@ -45,7 +45,8 @@
 #include "OSGBaseTypes.h"
 
 
-#if defined(__APPLE__) || defined(OSG_DO_DOC)
+#if 0
+//#if defined(__APPLE__) || defined(OSG_DO_DOC)
 
 
 #include "OSGTextPixmapFace.h"
@@ -1562,4 +1563,5 @@ TextMacTXFGlyph::~TextMacTXFGlyph() {}
 OSG_END_NAMESPACE
 
 
-#endif // __APPLE__
+//#endif // __APPLE__
+#endif // 0
