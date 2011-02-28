@@ -277,7 +277,7 @@ EventDescription *@!Classname!@Base::_eventDesc[] =
 {
 @@BeginProducedEventLoop@@
     new EventDescription("@!producedEvent.Name!@", 
-                          "@!producedEvent.Description!@",
+                          @!producedEvent.SafeDescription!@,
                           @!producedEvent.Name!@EventId, 
                           FieldTraits<@!producedEvent.TypeRaw!@ *>::getType(),
     @@if producedEvent.consumable

@@ -85,7 +85,7 @@ class ProducedEvent(FCDElement):
             self["SafeDescription"] = "\"\"";
         else:
             self["Description"]     = self._formatString    (self.getFCD("description"), 4)
-            self["SafeDescription"] = self._formatSafeString(self.getFCD("description"), 8)
+            self["SafeDescription"] = self._formatSafeString(self.getFCD("description"), 26)
             
             
         fieldInclude = "";
