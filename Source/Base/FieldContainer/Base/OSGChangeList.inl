@@ -196,15 +196,15 @@ void ChangeList::setReadWriteDefault(bool bReadWrite)
 }
 
 inline 
-void commitChanges(void)
+void commitChanges(UInt32 AdditionalChangeOrigin)
 {
-    Thread::getCurrentChangeList()->commitChanges();
+    Thread::getCurrentChangeList()->commitChanges(AdditionalChangeOrigin);
 }
 
 inline 
-void commitChangesAndClear(void)
+void commitChangesAndClear(UInt32 AdditionalChangeOrigin)
 {
-    Thread::getCurrentChangeList()->commitChangesAndClear();
+    Thread::getCurrentChangeList()->commitChangesAndClear(AdditionalChangeOrigin);
 }
 
 inline 

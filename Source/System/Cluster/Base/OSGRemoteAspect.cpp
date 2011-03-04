@@ -411,11 +411,11 @@ void RemoteAspect::receiveSync(Connection &connection, bool applyToChangelist)
 
     if(applyToChangelist)
     {
-        commitChanges();
+        commitChanges(ChangedOrigin::Sync);
     }
     else
     {
-        commitChangesAndClear();
+        commitChangesAndClear(ChangedOrigin::Sync);
     }
 
     // unregister mapper into factory
