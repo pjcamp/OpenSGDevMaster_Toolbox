@@ -391,6 +391,8 @@ KeyEventDetails::Key XWindow::determineKey(const KeySym& XKeySym)
 
 ::OSG::Window* XWindow::initWindow(void)
 {
+    Inherited::initWindow();
+
     DisplayP      dpy;
     X11Window     hwin;
 
