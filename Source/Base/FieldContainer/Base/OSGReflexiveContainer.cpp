@@ -207,7 +207,7 @@ bool ReflexiveContainer::validateConnectable(EventDescription const * eventDesc,
     }
 
     EventDescription const * LocalDesc(eventProducer->getEventDescription(eventDesc->getName().c_str()));
-    if(LocalDesc->isEquivalent(*eventDesc))
+    if(!LocalDesc->isEquivalent(*eventDesc))
     {
         SWARNING << "There is no Update event defined on "
                  << eventProducer->getType().getName() << " types." << std::endl;
