@@ -367,4 +367,116 @@ void PassiveWindow::putClipboard(const std::string Value)
     //Do nothing
 }
 
+void PassiveWindow::setCursor(void)
+{
+    //Do nothing
+}
+
+void PassiveWindow::produceMouseClicked(const MouseEventDetails::MouseButton& Button, const Pnt2f& Location)
+{
+    Inherited::produceMouseClicked(Button, Location);
+}
+
+void PassiveWindow::produceMouseEntered(const Pnt2f& Location)
+{
+    Inherited::produceMouseEntered(Location);
+}
+
+void PassiveWindow::produceMouseExited(const Pnt2f& Location)
+{
+    Inherited::produceMouseExited(Location);
+}
+
+void PassiveWindow::produceMousePressed(const MouseEventDetails::MouseButton& Button, const Pnt2f& Location)
+{
+    Inherited::produceMousePressed(Button, Location);
+}
+
+void PassiveWindow::produceMouseReleased(const MouseEventDetails::MouseButton& Button, const Pnt2f& Location)
+{
+    Inherited::produceMouseReleased(Button, Location);
+}
+
+
+void PassiveWindow::produceMouseWheelMoved(const Int32& WheelRotation,
+                                           const Pnt2f& Location,
+                                           const MouseWheelEventDetails::ScrollType& TheScrollType)
+{
+    Inherited::produceMouseWheelMoved(WheelRotation, Location, TheScrollType);
+}
+
+void PassiveWindow::produceMouseMoved(const Pnt2f& Location, const Vec2f& Delta)
+{
+    Inherited::produceMouseMoved(Location, Delta);
+}
+
+void PassiveWindow::produceMouseDragged(const MouseEventDetails::MouseButton& Button, const Pnt2f& Location, const Vec2f& Delta)
+{
+    Inherited::produceMouseDragged(Button, Location, Delta);
+}
+
+void PassiveWindow::produceKeyPressed(const KeyEventDetails::Key& TheKey, const UInt32& Modifiers)
+{
+    Inherited::produceKeyPressed(TheKey, Modifiers);
+}
+
+void PassiveWindow::produceKeyReleased(const KeyEventDetails::Key& TheKey, const UInt32& Modifiers)
+{
+    Inherited::produceKeyReleased(TheKey, Modifiers);
+}
+
+void PassiveWindow::produceKeyTyped(const KeyEventDetails::Key& TheKey, const UInt32& Modifiers)
+{
+    Inherited::produceKeyTyped(TheKey, Modifiers);
+}
+
+void PassiveWindow::produceWindowOpened(void)
+{
+    Inherited::produceWindowOpened();
+}
+
+void PassiveWindow::produceWindowClosing(void)
+{
+    Inherited::produceWindowClosing();
+}
+
+void PassiveWindow::produceWindowClosed(void)
+{
+    Inherited::produceWindowClosed();
+}
+
+void PassiveWindow::produceWindowIconified(void)
+{
+    Inherited::produceWindowIconified();
+}
+
+void PassiveWindow::produceWindowDeiconified(void)
+{
+    Inherited::produceWindowDeiconified();
+}
+
+void PassiveWindow::produceWindowActivated(void)
+{
+    Inherited::produceWindowActivated();
+}
+
+void PassiveWindow::produceWindowDeactivated(void)
+{
+    Inherited::produceWindowDeactivated();
+}
+
+void PassiveWindow::produceWindowEntered(void)
+{
+    Inherited::produceWindowEntered();
+}
+
+void PassiveWindow::produceWindowExited(void)
+{
+    Inherited::produceWindowExited();
+}
+
+void PassiveWindow::produceUpdate(const Time& ElapsedTime)
+{
+    Inherited::produceUpdate(ElapsedTime);
+}
 

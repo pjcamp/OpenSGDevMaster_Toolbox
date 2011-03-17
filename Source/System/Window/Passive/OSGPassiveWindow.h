@@ -194,6 +194,43 @@ class OSG_WINDOW_DLLMAPPING PassiveWindow : public PassiveWindowBase
 	virtual std::string getClipboard(void) const;
 
 	virtual void putClipboard(const std::string Value);
+
+    void produceMouseClicked(const MouseEventDetails::MouseButton& Button,
+                             const Pnt2f& Location);
+    void produceMouseEntered(const Pnt2f& Location);
+    void produceMouseExited(const Pnt2f& Location);
+    void produceMousePressed(const MouseEventDetails::MouseButton& Button,
+                             const Pnt2f& Location);
+    void produceMouseReleased(const MouseEventDetails::MouseButton& Button,
+                              const Pnt2f& Location);
+
+    void produceMouseWheelMoved(const Int32& WheelRotation,
+                                const Pnt2f& Location,
+                                const MouseWheelEventDetails::ScrollType& TheScrollType = MouseWheelEventDetails::UNIT_SCROLL);
+
+    void produceMouseMoved(const Pnt2f& Location, const Vec2f& Delta);
+    void produceMouseDragged(const MouseEventDetails::MouseButton& Button,
+                             const Pnt2f& Location,
+                             const Vec2f& Delta);
+
+    void produceKeyPressed(const KeyEventDetails::Key& TheKey,
+                           const UInt32& Modifiers);
+    void produceKeyReleased(const KeyEventDetails::Key& TheKey,
+                            const UInt32& Modifiers);
+    void produceKeyTyped(const KeyEventDetails::Key& TheKey,
+                         const UInt32& Modifiers);
+    
+    void produceUpdate(const Time& ElapsedTime);
+    
+    void produceWindowOpened(void);
+    void produceWindowClosing(void);
+    void produceWindowClosed(void);
+    void produceWindowIconified(void);
+    void produceWindowDeiconified(void);
+    void produceWindowActivated(void);
+    void produceWindowDeactivated(void);
+    void produceWindowEntered(void);
+    void produceWindowExited(void);
     /*=========================  PROTECTED  ===============================*/
 
   protected:
@@ -219,7 +256,8 @@ class OSG_WINDOW_DLLMAPPING PassiveWindow : public PassiveWindowBase
     /*! \name      Window system implementation functions                  */
     /*! \{                                                                 */
 
-   /*! \}                                                                 */
+    virtual void setCursor(void);
+    /*! \}                                                                 */
     /*==========================  PRIVATE  ================================*/
 
   private:
