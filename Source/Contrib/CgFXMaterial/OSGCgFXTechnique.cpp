@@ -169,14 +169,17 @@ bool CgFXTechnique::validate(CgFXMaterial *pMat,
         if(_pCGTechnique                      == NULL     || 
            cgValidateTechnique(_pCGTechnique) == CG_FALSE  )
         {
+            CgFXMaterial::checkForCgError("cgValidateTechnique", NULL);
             _uiValidationState = 0x02;
         }
         else
         {
+            CgFXMaterial::checkForCgError("cgValidateTechnique", NULL);
             const CgFXMaterial::MFTexturesType *pTextures = 
                 pMat->getMFTextures();
 
             CGpass pPass = cgGetFirstPass(_pCGTechnique);
+            CgFXMaterial::checkForCgError("cgGetFirstPass", NULL);
 
             for(UInt32 i = 0; i < pTextures->size(); ++i)
             {
@@ -198,7 +201,8 @@ bool CgFXTechnique::validate(CgFXMaterial *pMat,
                 {
                     CGparameter pParam = 
                         cgGetNamedEffectParameter(pMat->getEffect(), 
-                                                  szTexParamName);
+                                                      szTexParamName);
+                    CgFXMaterial::checkForCgError("cgGetNamedEffectParameter", NULL);
 
                     (*pTextures)[i]->activate(pEnv, 0);
                     
@@ -207,7 +211,9 @@ bool CgFXTechnique::validate(CgFXMaterial *pMat,
                             (*pTextures)[i]->getGLId());
 
                     cgGLSetTextureParameter(pParam, texObjId);
+                    CgFXMaterial::checkForCgError("cgGLSetTextureParameter", NULL);
                     cgSetSamplerState      (pParam          );
+                    CgFXMaterial::checkForCgError("cgSetSamplerState", NULL);
 
                     CgFXVariableTexObj *pTexVarW = 
                         const_cast<CgFXVariableTexObj *>(pTexVar);
@@ -233,6 +239,7 @@ bool CgFXTechnique::validate(CgFXMaterial *pMat,
                 this->addPassState(pState);
 
                 pPass = cgGetNextPass(pPass);
+                CgFXMaterial::checkForCgError("cgGetNextPass", NULL);
                 count++;
             }
 
