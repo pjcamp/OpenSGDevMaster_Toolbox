@@ -442,20 +442,35 @@ void CgFXPassChunk::updateStateUniforms(DrawEnv  *pEnv)
                 CgFXMaterial::checkForCgError("cgGLSetMatrixParameterfc", NULL);
             }
             break;
-	
-			case CgFXMaterial::CgTimeMask:
-			{
-				CGparameter pTime = cgGetNamedEffectParameter(
-										pEffect,
-										vStateVarNames[
-											CgFXMaterial::CgTime].c_str());
+
+            case CgFXMaterial::CgTimeMask:
+            {
+                CGparameter pTime = cgGetNamedEffectParameter(
+                                                              pEffect,
+                                                              vStateVarNames[
+                                                              CgFXMaterial::CgTime].c_str());
                 CgFXMaterial::checkForCgError("cgGetNamedEffectParameter", NULL);
-				OSG_ASSERT(pTime != NULL);
+                OSG_ASSERT(pTime != NULL);
 
-				cgSetParameter1f(pTime, ((Real32) OSG::getSystemTime()));
+                static const UInt16 MaxLeftDecDigits(4);
 
-			}
-			break;
+                //getSystemTime() returns a time value as a 64-bit floating
+                //point number.  But the time value taken by Cg is a 32-bit
+                //float.  This can cause a problem with precision when
+                //getSystemTime() returns large values, that truncate when cast
+                //to a 32-bit float.
+                //
+                //To deal with this, we are removing the most significant
+                //decimal digits left of the decimal points after the MaxLeftDecDigits
+                //one
+                Time SysTime(OSG::getSystemTime());
+
+                Time Base10Shift(osgPow<Time>(10,MaxLeftDecDigits));
+                Time TruncValue(SysTime - (floor(SysTime / Base10Shift) * Base10Shift));
+                
+                cgSetParameter1f(pTime, static_cast<Real32>(TruncValue));
+            }
+            break;
 
             default:
                 break;
