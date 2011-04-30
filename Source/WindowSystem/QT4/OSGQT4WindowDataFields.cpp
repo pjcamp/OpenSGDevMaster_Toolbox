@@ -52,7 +52,7 @@
 
 OSG_BEGIN_NAMESPACE
 
-DataType FieldTraits<OSGQGLWidgetP>::_type("OSGQGLWidgetP", NULL);
+DataType FieldTraits<OSGQGLWidgetP>::_type("OSGQGLWidgetP", "");
 
 //OSG_FIELDTRAITS_GETTYPE(OSGQGLWidgetP)
 

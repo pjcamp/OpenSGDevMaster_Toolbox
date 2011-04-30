@@ -84,8 +84,8 @@ class OSG_BASE_DLLMAPPING FieldType : public DataType
     /*! \name                   Constructors                               */
     /*! \{                                                                 */
 
-    FieldType(const Char8                   *szName, 
-              const Char8                   *szParentName,
+    FieldType(const std::string             &szName, 
+              const std::string             &szParentName,
               const DataType                &contentType,
                     Cardinality              cardinality,
                     Class                    fieldClass,
@@ -93,8 +93,8 @@ class OSG_BASE_DLLMAPPING FieldType : public DataType
                     IndexedFieldDescCreator  fIdxCreator = NULL,
               const UInt32                   uiNameSpace = GlobalNamespace);
 
-    FieldType(const Char8                   *szName, 
-              const Char8                   *szParentName,
+    FieldType(const std::string             &szName, 
+              const std::string             &szParentName,
               const DataType                &contentType ,
                     Cardinality              cardinality ,
                     Class                    fieldClass,

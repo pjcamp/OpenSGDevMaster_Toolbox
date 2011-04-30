@@ -193,7 +193,7 @@ class @!Classname!@Base : public @!Parent!@
         (TypeTraits<BitVector>::One << NextFieldId);
         
         @@BeginFieldLoop
-    typedef @!field.FieldTypeNS!@@!field.CARD!@@!field.FieldTypeCaps:15!@ @!field.CARD!@@!field.Name!@Type;
+    typedef @!field.FieldTypeNS!@@!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:15!@ @!field.CARD!@@!field.Name!@Type;
         @@EndFieldLoop
     @@endif // hasFields
 @@endif // isDecorator
@@ -255,25 +255,25 @@ class @!Classname!@Base : public @!Parent!@
     @@BeginFieldLoop@@
         @@if field.isPublicRead
             @@if field.isPtrField
-    @!field.MethodType:7!@ const @!field.CARD!@@!field.FieldTypeCaps:17!@ *get@!field.CARD!@@!field.Name:15!@(void) const;
+    @!field.MethodType:7!@ const @!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *get@!field.CARD!@@!field.Name:15!@(void) const;
                 @@if field.ptrFieldStandardAccess
                     @@if field.isPublicWrite
-    @!field.MethodType:7!@       @!field.CARD!@@!field.FieldTypeCaps:17!@ *edit@!field.CARD!@@!field.Name:15!@(void);
+    @!field.MethodType:7!@       @!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *edit@!field.CARD!@@!field.Name:15!@(void);
                     @@endif // field.isPublicWrite
                 @@endif
                 @@if field.isSField
                     @@if field.ptrFieldNullCheckAccess
                         @@if field.isPublicWrite
-    @!field.MethodType:7!@       @!field.CARD!@@!field.FieldTypeCaps:17!@ *edit@!field.CARD!@@!field.Name:15!@(void);
+    @!field.MethodType:7!@       @!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *edit@!field.CARD!@@!field.Name:15!@(void);
                         @@endif // field.isPublicWrite
                     @@endif
                 @@endif
             @@else // field.isPtrField
 
                 @@if field.isPublicWrite
-    @!field.MethodType:7!@       @!field.FieldTypeNS!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *edit@!field.CARD!@@!field.Name:15!@(void);
+    @!field.MethodType:7!@       @!field.FieldTypeNS!@@!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *edit@!field.CARD!@@!field.Name:15!@(void);
                 @@endif // field.isPublicWrite
-    @!field.MethodType:7!@ const @!field.FieldTypeNS!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *get@!field.CARD!@@!field.Name:15!@ (void) const;
+    @!field.MethodType:7!@ const @!field.FieldTypeNS!@@!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *get@!field.CARD!@@!field.Name:15!@ (void) const;
             @@endif // field.isPtrField
         @@endif // field.isPublicRead
     @@EndFieldLoop@@
@@ -288,20 +288,28 @@ class @!Classname!@Base : public @!Parent!@
                 @@if field.isPtrField
     @!field.MethodType:7!@       @!field.Type!@ get@!field.Name:15!@(void) const;
                 @@else // field.isPtrField
-                    @@if field.isPublicWrite
+                    @@if field.isBridge
+    @!field.MethodType:7!@       @!field.FullType:20!@ get@!field.Name:15!@ (void) const;
+                    @@else // field.isBridge
+                        @@if field.isPublicWrite
     @!field.MethodType:7!@       @!field.FullType:19!@ &edit@!field.Name:15!@(void);
-                    @@endif // field.isPublicWrite
+                        @@endif // field.isPublicWrite
     @!field.MethodType:7!@ @!field.RetConst!@ @!field.FullType:19!@ @!field.RetRef!@get@!field.Name:15!@ (void) const;
+                    @@endif // field.isBridge
                 @@endif // field.isPtrField
             @@else // field.isSField
 
                 @@if field.isPtrField
     @!field.MethodType:7!@       @!field.Type!@ get@!field.Name:15!@(const UInt32 index) const;
                 @@else // field.isPtrField
-                    @@if field.isPublicWrite
-    @!field.MethodType:7!@       @!field.FullType:19!@ &edit@!field.Name:15!@(const UInt32 index);
-                    @@endif // field.isPublicWrite
+                    @@if field.isBridge
     @!field.MethodType:7!@ @!field.RetConst!@ @!field.FullType:19!@ @!field.RetRef!@get@!field.Name:15!@ (const UInt32 index) const;
+                    @@else // field.isBridge
+                        @@if field.isPublicWrite
+    @!field.MethodType:7!@       @!field.FullType:19!@ &edit@!field.Name:15!@(const UInt32 index);
+                        @@endif // field.isPublicWrite
+    @!field.MethodType:7!@ @!field.RetConst!@ @!field.FullType:19!@ @!field.RetRef!@get@!field.Name:15!@ (const UInt32 index) const;
+                    @@endif // field.isBridge
                 @@endif // field.isPtrField
             @@endif // field.isSField
         @@endif // field.isPublicRead
@@ -349,7 +357,7 @@ class @!Classname!@Base : public @!Parent!@
             @@if field.isPtrField
                 @@if field.ptrFieldStandardAccess
     void @!field.PushToField:15!@           (@!field.Type!@ const value   );
-    void @!field.AssignMField:15!@          (const @!field.TypeNamespace!@@!field.CARD!@@!field.FieldTypeCaps:15!@ &value);
+    void @!field.AssignMField:15!@          (const @!field.TypeNamespace!@@!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:15!@ &value);
     void @!field.RemoveFromMFieldIndex:15!@ (UInt32               uiIndex );
     void @!field.RemoveFromMFieldObject:15!@(@!field.Type!@ const value   );
     void @!field.ClearField:15!@            (void                         );
@@ -357,7 +365,7 @@ class @!Classname!@Base : public @!Parent!@
                 @@endif
                 @@if field.ptrFieldNullCheckAccess
     void @!field.PushToField:15!@           (@!field.Type!@ const value   );
-    void @!field.AssignMField:15!@          (const @!field.TypeNamespace!@@!field.CARD!@@!field.FieldTypeCaps:15!@ &value);
+    void @!field.AssignMField:15!@          (const @!field.TypeNamespace!@@!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:15!@ &value);
     void @!field.ClearField:15!@            (void                         );
     void @!field.InsertIntoMField:15!@      (UInt32               uiIndex,
                                              @!field.Type!@ const value   );
@@ -496,7 +504,7 @@ class @!Classname!@Base : public @!Parent!@
     SFUnrec@!Parent!@Ptr _sfDecoratee;
     @@else // isDecorator
         @@BeginFieldLoop@@
-    @!field.FieldTypeNS!@@!field.CARD!@@!field.FieldTypeCaps:15!@ _@!field.VarName!@;
+    @!field.FieldTypeNS!@@!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:15!@ _@!field.VarName!@;
         @@EndFieldLoop@@
     @@endif // isDecorator
 
@@ -583,21 +591,21 @@ class @!Classname!@Base : public @!Parent!@
         @@if field.isProtected
             @@if field.isPtrField
                 @@if !field.isPublicRead
-    @!field.MethodType:7!@ const @!field.FieldTypeNS!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *get@!field.CARD!@@!field.Name:15!@ (void) const;
+    @!field.MethodType:7!@ const @!field.FieldTypeNS!@@!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *get@!field.CARD!@@!field.Name:15!@ (void) const;
                 @@endif
                 @@if field.ptrFieldStandardAccess
-    @!field.MethodType:7!@       @!field.CARD!@@!field.FieldTypeCaps:17!@ *edit@!field.CARD!@@!field.Name:15!@(void);
+    @!field.MethodType:7!@       @!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *edit@!field.CARD!@@!field.Name:15!@(void);
                 @@endif
                 @@if field.isSField
                     @@if field.ptrFieldNullCheckAccess
-    @!field.MethodType:7!@       @!field.CARD!@@!field.FieldTypeCaps:17!@ *edit@!field.CARD!@@!field.Name:15!@(void);
+    @!field.MethodType:7!@       @!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *edit@!field.CARD!@@!field.Name:15!@(void);
                     @@endif
                 @@endif
             @@else // field.isPtrField
 
-    @!field.MethodType:7!@       @!field.FieldTypeNS!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *edit@!field.CARD!@@!field.Name:15!@(void);
+    @!field.MethodType:7!@       @!field.FieldTypeNS!@@!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *edit@!field.CARD!@@!field.Name:15!@(void);
                 @@if !field.isPublicRead
-    @!field.MethodType:7!@ const @!field.FieldTypeNS!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *get@!field.CARD!@@!field.Name:15!@ (void) const;
+    @!field.MethodType:7!@ const @!field.FieldTypeNS!@@!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:17!@ *get@!field.CARD!@@!field.Name:15!@ (void) const;
                 @@endif
             @@endif // field.isPtrField
         @@endif // field.isProtected
@@ -660,7 +668,7 @@ class @!Classname!@Base : public @!Parent!@
             @@if field.isPtrField
                 @@if field.ptrFieldStandardAccess
     void @!field.PushToField:15!@           (@!field.Type!@ const value   );
-    void @!field.AssignMField:15!@           (const @!field.TypeNamespace!@@!field.CARD!@@!field.FieldTypeCaps:15!@ &value);
+    void @!field.AssignMField:15!@           (const @!field.TypeNamespace!@@!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:15!@ &value);
     void @!field.RemoveFromMFieldIndex:15!@ (UInt32                uiIndex );
     void @!field.RemoveFromMFieldObject:15!@(@!field.Type!@ const value   );
     void @!field.ClearField:15!@            (void                          );
@@ -668,7 +676,7 @@ class @!Classname!@Base : public @!Parent!@
                 @@endif
                 @@if field.ptrFieldNullCheckAccess
     void @!field.PushToField:15!@           (@!field.Type!@ const value   );
-    void @!field.AssignMField:15!@          (const @!field.TypeNamespace!@@!field.CARD!@@!field.FieldTypeCaps:15!@ &value);
+    void @!field.AssignMField:15!@          (const @!field.TypeNamespace!@@!field.BRIDGE!@@!field.CARD!@@!field.FieldTypeCaps:15!@ &value);
     void @!field.ClearField:15!@            (void                          );
     void @!field.InsertIntoMField:15!@      (UInt32         uiIndex,
                                              @!field.Type!@ const value   );

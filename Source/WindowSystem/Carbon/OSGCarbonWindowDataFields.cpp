@@ -58,7 +58,7 @@
 
 OSG_BEGIN_NAMESPACE
 
-DataType FieldTraits<AGLContext>::_type("AGLContext", NULL);
+DataType FieldTraits<AGLContext>::_type("AGLContext", "");
 
 OSG_FIELDTRAITS_GETTYPE(AGLContext)
 

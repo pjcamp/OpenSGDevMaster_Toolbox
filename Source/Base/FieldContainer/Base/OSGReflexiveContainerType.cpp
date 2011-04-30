@@ -56,9 +56,9 @@ OSG_BEGIN_NAMESPACE
 /*-------------------------------------------------------------------------*/
 /*                            Constructors                                 */
 ReflexiveContainerType::ReflexiveContainerType(
-    const Char8                *szName,
-    const Char8                *szParentName,
-    const Char8                *szGroupName,
+    const std::string           &szName, 
+    const std::string           &szParentName,
+    const std::string           &szGroupName,
     const UInt32                uiNameSpace,
           InitalInsertDescFunc  descInsertFunc,
           bool                  bDescsAddable,
@@ -70,7 +70,7 @@ ReflexiveContainerType::ReflexiveContainerType(
 
     _uiGroupId        (                  0),
     _bDescsAddable    (      bDescsAddable),
-    _szGroupName      (                   ),
+    _szGroupName      (        szGroupName),
 
     _vInitialDescs    (                   ),
 
@@ -80,9 +80,6 @@ ReflexiveContainerType::ReflexiveContainerType(
    _descInsertFunc    (descInsertFunc     ),
    _bvUnmarkedOnCreate(~bvUnmarkedOnCreate)      
 {
-    if(szGroupName != NULL)
-        _szGroupName.assign(szGroupName);
-
 }
 
 ReflexiveContainerType::ReflexiveContainerType(

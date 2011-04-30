@@ -66,7 +66,7 @@ DrawTask::~DrawTask(void)
 {
 }
 
-DataType FieldTraits<DrawTaskRefPtr, 0>::_type("DrawTaskRefPtr", NULL);
+DataType FieldTraits<DrawTaskRefPtr, 0>::_type("DrawTaskRefPtr", "");
 
 OSG_FIELDTRAITS_GETTYPE_NS(DrawTaskRefPtr, 0)
 

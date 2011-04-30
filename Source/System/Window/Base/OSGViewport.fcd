@@ -139,7 +139,7 @@ all the different ClusterWindows!
 	   access="public"
        defaultValue="TypeTraits&lt;UInt32&gt;::getMax()"
 	   >
-	  The foreground additions to the rendered image.
+	  The traversal mask to be used by the RenderAction.
 	</Field>
 	<Field
 	   name="enabled"
@@ -149,7 +149,7 @@ all the different ClusterWindows!
 	   access="public"
        defaultValue="true"
 	   >
-	  Enabled is used to turn drawing on and off of a viewport.
+	  Enabled is used to turn the rendering of a viewport on and off.
 	</Field>
 	<Field
 	   name="drawTime"
@@ -179,5 +179,6 @@ all the different ClusterWindows!
 	   access="public"
        defaultValue="NULL"
 	   >
+       An optional grouping of various render options that are used by the RenderAction.
 	</Field>
 </FieldContainer>

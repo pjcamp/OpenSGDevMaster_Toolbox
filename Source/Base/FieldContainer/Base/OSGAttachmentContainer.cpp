@@ -79,7 +79,7 @@ void AttachmentContainer::classDescInserter(TypeObject &oType)
 AttachmentContainer::TypeObject AttachmentContainer::_type(
     AttachmentContainer::getClassname(),
     Inherited          ::getClassname(),
-    NULL,
+    "",
     0,
     NULL,
     NULL,

@@ -63,9 +63,9 @@ OSG_USING_NAMESPACE
 *
 */
 FieldContainerType::FieldContainerType(
-    const Char8                *szName,
-    const Char8                *szParentName,
-    const Char8                *szGroupName,
+    const std::string           &szName, 
+    const std::string           &szParentName,
+    const std::string           &szGroupName,
     const UInt32                uiNameSpace,
           PrototypeCreateF      fPrototypeCreate,
           InitContainerF        fInitMethod,

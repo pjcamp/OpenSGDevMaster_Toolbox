@@ -58,7 +58,7 @@
 
 OSG_BEGIN_NAMESPACE
 
-DataType FieldTraits<CGLContextObj>::_type("CGLContextObj", NULL);
+DataType FieldTraits<CGLContextObj>::_type("CGLContextObj", "");
 
 OSG_FIELDTRAITS_GETTYPE(CGLContextObj)
 

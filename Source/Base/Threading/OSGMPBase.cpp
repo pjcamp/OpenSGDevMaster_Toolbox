@@ -57,8 +57,8 @@ OSG_USING_NAMESPACE
 /*! \class OSG::MPType
  */
 
-MPType::MPType(const Char8  *szName, 
-               const Char8  *szParentName,
+MPType::MPType(const std::string &szName, 
+               const std::string &szParentName,
                const UInt32  uiNamespace ) :
     Inherited(szName, 
               szParentName, 
@@ -84,8 +84,8 @@ MPType::~MPType(void)
 UInt32 MPThreadType::_uiThreadCount = 0;
 
 
-MPThreadType::MPThreadType(const Char8          *szName, 
-                           const Char8          *szParentName,
+MPThreadType::MPThreadType(const std::string &szName, 
+                           const std::string &szParentName,
                                  CreateThreadF   fCreateThread,
                                  InitThreadingF  fInitThreading,
                            const UInt32          uiNamespace   ) :
@@ -140,9 +140,9 @@ BaseThread *MPThreadType::create(const Char8 *szName, bool bGlobal)
 UInt32 MPCondVarType::_uiCondVarCount = 0;
 
 
-MPCondVarType::MPCondVarType(const Char8       *szName, 
-                             const Char8       *szParentName,
-                             CreateCondVarF     fCreateCondVar,
+MPCondVarType::MPCondVarType(const std::string &szName, 
+                             const std::string &szParentName,
+                                   CreateCondVarF     fCreateCondVar,
                              const UInt32       uiNamespace ) :
      Inherited  (szName, szParentName, uiNamespace),
     _fCreateCondVar(fCreateCondVar                      )
@@ -193,8 +193,8 @@ CondVar *MPCondVarType::create(const Char8 *szName, bool bGlobal)
 UInt32 MPBarrierType::_uiBarrierCount = 0;
 
 
-MPBarrierType::MPBarrierType(const Char8          *szName, 
-                             const Char8          *szParentName,
+MPBarrierType::MPBarrierType(const std::string &szName, 
+                             const std::string &szParentName,
                                    CreateBarrierF  fCreateBarrier,
                              const UInt32          uiNamespace   ) :
      Inherited     (szName, szParentName, uiNamespace),
@@ -247,8 +247,8 @@ Barrier *MPBarrierType::create(const Char8 *szName, bool bGlobal)
 UInt32 MPLockType::_uiLockCount = 0;
 
 
-MPLockType::MPLockType(const Char8       *szName, 
-                       const Char8       *szParentName,
+MPLockType::MPLockType(const std::string &szName, 
+                       const std::string &szParentName,
                              CreateLockF  fCreateLock,
                        const UInt32       uiNamespace ) :
      Inherited  (szName, szParentName, uiNamespace),
@@ -301,11 +301,10 @@ Lock *MPLockType::create(const Char8 *szName, bool bGlobal)
 UInt32 MPLockPoolType::_uiLockPoolCount = 0;
 
 
-MPLockPoolType::MPLockPoolType(
-    const Char8           *szName, 
-    const Char8           *szParentName,
-          CreateLockPoolF  fCreateLockPool,
-    const UInt32           uiNamespace    ) :
+MPLockPoolType::MPLockPoolType(const std::string &szName, 
+                               const std::string &szParentName,
+                                     CreateLockPoolF  fCreateLockPool,
+                               const UInt32           uiNamespace    ) :
 
      Inherited      (szName, szParentName, uiNamespace),
     _fCreateLockPool(fCreateLockPool                  )
@@ -356,8 +355,8 @@ LockPool *MPLockPoolType::create(const Char8 *szName, bool bGlobal)
 UInt32 MPSemaphoreType::_uiSemaphoreCount = 0;
 
 
-MPSemaphoreType::MPSemaphoreType(const Char8            *szName, 
-                                 const Char8            *szParentName,
+MPSemaphoreType::MPSemaphoreType(const std::string &szName, 
+                                 const std::string &szParentName,
                                        CreateSemaphoreF  fCreateSemaphore,
                                  const UInt32            uiNamespace ) :
      Inherited       (szName, szParentName, uiNamespace),
@@ -405,7 +404,7 @@ Semaphore *MPSemaphoreType::create(const Char8 *szName, bool bGlobal)
 /*! \class OSG::MPBase
  */
 
-MPType MPBase::_type("OSGMPBase", NULL);
+MPType MPBase::_type("OSGMPBase", "");
 
 
 const MPType &MPBase::getStaticType(void)

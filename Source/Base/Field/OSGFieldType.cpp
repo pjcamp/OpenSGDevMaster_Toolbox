@@ -54,8 +54,8 @@ OSG_USING_NAMESPACE
 /*-------------------------------------------------------------------------*/
 /*                            Constructors                                 */
 
-FieldType::FieldType(const Char8                   *szName,
-                     const Char8                   *szParentName,
+FieldType::FieldType(const std::string             &szName, 
+                     const std::string             &szParentName,
                      const DataType                &contentType,
                            Cardinality              cardinality,
                            Class                    fieldClass,
@@ -70,14 +70,14 @@ FieldType::FieldType(const Char8                   *szName,
     _contentType (contentType ),
     _pScanAsType (NULL        )
 {
-    FieldDescFactory::the()->registerDescription( szName,
+    FieldDescFactory::the()->registerDescription( szName.c_str(),
                                                  _uiTypeId,
                                                   fCreator,
                                                   fIdxCreator);
 }
 
-FieldType::FieldType(const Char8                   *szName,
-                     const Char8                   *szParentName,
+FieldType::FieldType(const std::string             &szName, 
+                     const std::string             &szParentName,
                      const DataType                &contentType,
                            Cardinality              cardinality,
                            Class                    fieldClass,
@@ -93,7 +93,7 @@ FieldType::FieldType(const Char8                   *szName,
     _contentType ( contentType ),
     _pScanAsType (&pScanAsType )
 {
-    FieldDescFactory::the()->registerDescription( szName,
+    FieldDescFactory::the()->registerDescription( szName.c_str(),
                                                  _uiTypeId,
                                                   fCreator,
                                                   fIdxCreator);

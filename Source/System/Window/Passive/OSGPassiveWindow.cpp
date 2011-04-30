@@ -344,7 +344,7 @@ bool PassiveWindow::attachWindow(void)
     return true;
 }
 
-UInt32 PassiveWindow::getKeyModifiers(void) const
+OSG::UInt32 PassiveWindow::getKeyModifiers(void) const
 {
     //Do nothing
     return KeyEventDetails::KEY_MODIFIER_UNKNOWN;

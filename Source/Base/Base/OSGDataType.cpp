@@ -57,8 +57,8 @@ OSG_USING_NAMESPACE
 /*-------------------------------------------------------------------------*/
 /*                            Constructors                                 */
 
-DataType::DataType(const Char8  *szName,
-                   const Char8  *szParentName,
+DataType::DataType(const std::string             &szName, 
+                   const std::string             &szParentName,
                    const UInt32  uiNameSpace ) :
     Inherited(szName, szParentName, uiNameSpace)
 {

@@ -67,7 +67,7 @@ namespace
     // Type objects for "abstract" types in the type hierarchy.
     // These types do not correspond with any real types, but are used to
     // group the concrete types.
-    DataType typeObjTypeRoot    ("TypeRoot",     NULL      );
+    DataType typeObjTypeRoot    ("TypeRoot",     ""      );
     DataType typeObjBaseType    ("BaseType",     "TypeRoot");
     DataType typeObjIntegralType("IntegralType", "TypeRoot");
     DataType typeObjField       ("Field",        "TypeRoot");

@@ -1272,11 +1272,11 @@ void XWindow::onDestroy(UInt32 uiContainerId)
 
 OSG_BEGIN_NAMESPACE
 
-DataType FieldTraits<DisplayP,   2>::_type("DisplayP",   NULL);
+DataType FieldTraits<DisplayP,   2>::_type("DisplayP",   "");
 #if ( !defined(__GNUC__) || !defined(__linux) || ( !defined(__ia64) && !defined(__x86_64) && !defined(_ARCH_PPC64)) ) && (!defined(_MIPS_SZPTR) || _MIPS_SZPTR != 64)
-DataType FieldTraits<X11Window,  2>::_type("X11Window",  NULL);
+DataType FieldTraits<X11Window,  2>::_type("X11Window",  "");
 #endif
-DataType FieldTraits<GLXContext, 2>::_type("GLXContext", NULL);
+DataType FieldTraits<GLXContext, 2>::_type("GLXContext", "");
 
 OSG_FIELD_DLLEXPORT_DEF2(SField, DisplayP,   2);
 OSG_FIELD_DLLEXPORT_DEF2(MField, DisplayP,   2);

@@ -58,7 +58,7 @@
 
 OSG_BEGIN_NAMESPACE
 
-DataType FieldTraits<NSOpenGLContextP>::_type("NSOpenGLContextP", NULL);
+DataType FieldTraits<NSOpenGLContextP>::_type("NSOpenGLContextP", "");
 
 OSG_FIELDTRAITS_GETTYPE(NSOpenGLContextP)
 

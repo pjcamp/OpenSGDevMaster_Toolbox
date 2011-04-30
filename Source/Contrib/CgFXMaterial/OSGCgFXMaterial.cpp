@@ -400,6 +400,7 @@ bool CgFXMaterial::checkForCgError(const Char8     *szSituation,
 
 void CgFXMaterial::readEffectFile(void)
 {
+
     if(_sfEffectFile.getValue().empty() == true)
         return;
 
@@ -730,6 +731,7 @@ void CgFXMaterial::extractParameters( )
 
         std::string szParamSemantic = 
             cgGetParameterSemantic(pParam) ? cgGetParameterSemantic(pParam): "";
+
 
         if(szParamSemantic.empty() == false)
         {
@@ -1344,16 +1346,29 @@ void CgFXMaterial::extractParameters( )
 
                             pTexO->setImage(pImg);
 
-                            if(!varIsInitialized)
-                            {
-                                pVar = CgFXVariableTexObj::create();
-
-                                pVar->setName (szParamName);
-                                this->addVariable   (pVar );
-                                pVar->setValue(uiSamplerId);
-                            }
-
                             this->pushToTextures(pTexO);
+                        }
+                        else
+                        {
+                            for(MFTexturesType::const_iterator TexItor(getMFTextures()->begin()) ;
+                                TexItor != getMFTextures()->end() ; 
+                                ++TexItor)
+                            {
+                                if(szParamName.compare(getName(*TexItor)) == 0)
+                                {
+                                    pImg = (*TexItor)->getImage();
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(pImg != NULL && !varIsInitialized)
+                        {
+                            pVar = CgFXVariableTexObj::create();
+
+                            pVar->setName (szParamName);
+                            this->addVariable   (pVar );
+                            pVar->setValue(uiSamplerId);
                         }
                     }
                 }

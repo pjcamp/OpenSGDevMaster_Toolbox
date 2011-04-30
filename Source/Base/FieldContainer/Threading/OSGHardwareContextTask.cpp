@@ -303,7 +303,7 @@ void HardwareContextTaskQueue::runAndClearQueue(HardwareContext *pContext,
 
 DataType FieldTraits<
              HardwareContextTaskRefPtr>::_type("HardwareContextTaskRefPtr", 
-                                               NULL);
+                                               "");
 
 OSG_FIELDTRAITS_GETTYPE(HardwareContextTaskRefPtr)
 

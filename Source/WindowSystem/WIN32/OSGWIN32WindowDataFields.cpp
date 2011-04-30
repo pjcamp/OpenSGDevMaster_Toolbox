@@ -51,10 +51,10 @@
 
 OSG_BEGIN_NAMESPACE
 
-DataType FieldTraits<HWND       >::_type("HWND",        NULL);
-DataType FieldTraits<HDC        >::_type("HDC",         NULL);
-DataType FieldTraits<HGLRC      >::_type("HGLRC",       NULL);
-DataType FieldTraits<PAINTSTRUCT>::_type("PAINTSTRUCT", NULL);
+DataType FieldTraits<HWND       >::_type("HWND",        "");
+DataType FieldTraits<HDC        >::_type("HDC",         "");
+DataType FieldTraits<HGLRC      >::_type("HGLRC",       "");
+DataType FieldTraits<PAINTSTRUCT>::_type("PAINTSTRUCT", "");
 
 OSG_FIELDTRAITS_GETTYPE(HWND)
 OSG_FIELDTRAITS_GETTYPE(HDC)

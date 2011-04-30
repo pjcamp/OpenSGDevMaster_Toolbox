@@ -100,8 +100,8 @@ class OSG_BASE_DLLMAPPING MPType : public TypeBase
     /*! \name                   Constructor                                */
     /*! \{                                                                 */
 
-    MPType(const Char8  *szName, 
-           const Char8  *szParentName,
+    MPType(const std::string &szName, 
+           const std::string &szParentName,
            const UInt32  uiNamespace = GlobalNamespace);
                  
     /*! \}                                                                 */
@@ -153,8 +153,8 @@ class OSG_BASE_DLLMAPPING MPThreadType : public MPType
     /*! \name                   Constructor                                */
     /*! \{                                                                 */
 
-    MPThreadType(const Char8         *szName, 
-                 const Char8         *szParentName,
+    MPThreadType(const std::string &szName, 
+                 const std::string &szParentName,
                        CreateThreadF  fCreateThread,
                        InitThreadingF fInitThreading,
                  const UInt32         uiNamespace   = GlobalNamespace);
@@ -223,8 +223,8 @@ class OSG_BASE_DLLMAPPING MPBarrierType : public MPType
     /*! \name                   Constructor                                */
     /*! \{                                                                 */
 
-    MPBarrierType(const Char8          *szName, 
-                  const Char8          *szParentName,
+    MPBarrierType(const std::string &szName, 
+                  const std::string &szParentName,
                         CreateBarrierF  fCreateBarrier,
                   const UInt32          uiNamespace   = GlobalNamespace);
                         
@@ -289,8 +289,8 @@ class OSG_BASE_DLLMAPPING MPCondVarType : public MPType
     /*! \name                   Constructor                                */
     /*! \{                                                                 */
 
-    MPCondVarType(const Char8           *szName, 
-                  const Char8           *szParentName,
+    MPCondVarType(const std::string &szName, 
+                  const std::string &szParentName,
                         CreateCondVarF  fCreateCondVar,
                   const UInt32          uiNamespace = GlobalNamespace);
                      
@@ -356,8 +356,8 @@ class OSG_BASE_DLLMAPPING MPLockType : public MPType
     /*! \name                   Constructor                                */
     /*! \{                                                                 */
 
-    MPLockType(const Char8       *szName, 
-               const Char8       *szParentName,
+    MPLockType(const std::string &szName, 
+               const std::string &szParentName,
                      CreateLockF  fCreateLock,
                const UInt32       uiNamespace = GlobalNamespace);
                      
@@ -423,8 +423,8 @@ class OSG_BASE_DLLMAPPING MPLockPoolType : public MPType
     /*! \name                   Constructor                                */
     /*! \{                                                                 */
 
-    MPLockPoolType(const Char8           *szName, 
-                   const Char8           *szParentName,
+    MPLockPoolType(const std::string &szName, 
+                   const std::string &szParentName,
                          CreateLockPoolF  fCreateLockPool,
                    const UInt32           uiNamespace    = GlobalNamespace);
                          
@@ -491,8 +491,8 @@ class OSG_BASE_DLLMAPPING MPSemaphoreType : public MPType
     /*! \name                   Constructor                                */
     /*! \{                                                                 */
 
-    MPSemaphoreType(const Char8            *szName, 
-                    const Char8            *szParentName,
+    MPSemaphoreType(const std::string &szName, 
+                    const std::string &szParentName,
                           CreateSemaphoreF  fCreateSemaphore,
                     const UInt32            uiNamespace = GlobalNamespace);
                      
