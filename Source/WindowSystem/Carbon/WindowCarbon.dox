@@ -1,0 +1,13 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! 
+
+   \if separate
+     \page PageWindowCarbon Window Carbon Documentation
+   \else
+     \page PageWindowCarbon Window Carbon
+   \endif
+
+ */

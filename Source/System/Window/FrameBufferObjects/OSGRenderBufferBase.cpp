@@ -186,6 +186,7 @@ RenderBufferBase::TypeObject RenderBufferBase::_type(
     "   systemcomponent=\"true\"\n"
     "   parentsystemcomponent=\"true\"\n"
     "   decoratable=\"false\"\n"
+    "   docGroupBase=\"GrpSystemWindowFBO\"\n"
     "   >\n"
     "  Render buffer.  Wraps OpenGL render buffer objects.  RENDERBUFFER_EXT\n"
     "  A renderbuffer is a data storage object containing a single image of a renderable internal format.\n"
@@ -338,14 +339,17 @@ void RenderBufferBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (GLIdFieldMask & whichField))
     {
+        editSField(GLIdFieldMask);
         _sfGLId.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (InternalFormatFieldMask & whichField))
     {
+        editSField(InternalFormatFieldMask);
         _sfInternalFormat.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ImageFieldMask & whichField))
     {
+        editSField(ImageFieldMask);
         _sfImage.copyFromBin(pMem);
     }
 }

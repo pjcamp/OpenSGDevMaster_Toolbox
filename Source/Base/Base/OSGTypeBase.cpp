@@ -201,9 +201,9 @@ void TypeBase::terminate (void)
 
     \note Some members only have valid values after initialize was called.
  */
-TypeBase::TypeBase(const Char8 *szName,
-                   const Char8 *szParentName,
-                   const UInt32 uiNameSpace) :
+TypeBase::TypeBase(const std::string &szName, 
+                   const std::string &szParentName,
+                   const UInt32      uiNameSpace) :
     _uiTypeId    (           0),
     //_uiTypeRootId(           0),
     _uiNameSpace (uiNameSpace ),
@@ -215,7 +215,7 @@ TypeBase::TypeBase(const Char8 *szName,
 
     _bInitialized(false       )
 {
-    if(szParentName != NULL)
+    if(!szParentName.empty())
         _szParentName.assign(szParentName);
 
     _uiTypeId = TypeFactory::the()->registerType(this);

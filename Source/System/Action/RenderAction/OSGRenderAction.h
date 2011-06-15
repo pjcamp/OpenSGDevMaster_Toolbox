@@ -73,6 +73,8 @@ class MultiCore;
 //---------------------------------------------------------------------------
 
 /*! \brief RenderAction class
+    \ingroup GrpSystemRenderAction
+    \ingroup GrpLibOSGSystem
  */
 
 class OSG_SYSTEM_DLLMAPPING RenderAction : public RenderActionBase
@@ -164,8 +166,9 @@ class OSG_SYSTEM_DLLMAPPING RenderAction : public RenderActionBase
 
     /*---------------------------- state ------------------------------------*/
 
-    Int32 allocateLightIndex(void);
-    void  releaseLightIndex (void);
+    Int32  allocateLightIndex(void);
+    void   releaseLightIndex (void);
+    UInt32 getLightState     (void) const;
 
     /*--------------------------- matrix ------------------------------------*/
 

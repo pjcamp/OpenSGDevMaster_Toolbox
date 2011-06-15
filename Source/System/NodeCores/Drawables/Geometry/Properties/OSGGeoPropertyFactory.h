@@ -47,12 +47,12 @@
 #include "OSGGeoIntegralProperty.h"
 #include "OSGGeoVectorProperty.h"
 
-#ifdef OSG_DOC_FILES_IN_MODULE
-/*! \file OSGGeoPropertyFactory.h
- */
-#endif
-
 OSG_BEGIN_NAMESPACE
+
+/*! \brief Accessible via #GeoPropertyFactory
+    \ingroup GrpDrawablesGeometryProperties
+    \ingroup GrpLibOSGDrawables
+ */
 
 class GeoPropertyFactoryBase
 {
@@ -76,6 +76,11 @@ class GeoPropertyFactoryBase
     
     static CreatePropFuncP _createFuncMap[3][4][8][2];
 };
+
+/*! \typedef OSG::SingletonHolder<OSG::GeoPropertyFactoryBase> GeoPropertyFactory;
+    \ingroup GrpDrawablesGeometryProperties
+    \relatesalso OSG::GeoPropertyFactoryBase
+ */
 
 typedef SingletonHolder<GeoPropertyFactoryBase> GeoPropertyFactory;
 

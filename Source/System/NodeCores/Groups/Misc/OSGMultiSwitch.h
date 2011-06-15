@@ -48,7 +48,10 @@ OSG_BEGIN_NAMESPACE
 
 /*! \brief MultiSwitch class. See \ref
            PageSystemMultiSwitch for a description.
-*/
+    \ingroup GrpGroupMiscObj
+    \ingroup GrpLibOSGGroup
+    \includebasedoc
+ */
 
 class OSG_GROUP_DLLMAPPING MultiSwitch : public MultiSwitchBase
 {
@@ -128,9 +131,7 @@ class OSG_GROUP_DLLMAPPING MultiSwitch : public MultiSwitchBase
     /*! \name                 Intersect                                    */
     /*! \{                                                                 */
 
-#ifndef OSG_EMBEDDED
     ActionBase::ResultE intersectEnter(Action *action);
-#endif
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

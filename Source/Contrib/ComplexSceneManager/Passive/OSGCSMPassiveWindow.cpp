@@ -190,6 +190,16 @@ CSMPassiveWindow::~CSMPassiveWindow(void)
 {
 }
 
+void CSMPassiveWindow::terminateGLContext(void)
+{
+    if(_pWindow != NULL)
+    {
+        _pWindow->terminate();
+    }
+
+    glutDestroyWindow(_iGlutWinId);
+}
+
 /*----------------------------- class specific ----------------------------*/
 
 void CSMPassiveWindow::changed(ConstFieldMaskArg whichField, 

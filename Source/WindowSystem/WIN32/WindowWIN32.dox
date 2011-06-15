@@ -1,0 +1,13 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! 
+
+   \if separate
+     \page PageWindowWIN32 Window Win32 Documentation
+   \else
+     \page PageWindowWIN32 Window Win32
+   \endif
+
+ */

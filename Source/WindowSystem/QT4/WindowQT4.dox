@@ -1,0 +1,13 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! 
+
+   \if separate
+     \page PageWindowQt4 Window Qt4 Documentation
+   \else
+     \page PageWindowQt4 Window Qt4
+   \endif
+
+ */

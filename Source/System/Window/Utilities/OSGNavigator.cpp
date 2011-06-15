@@ -75,33 +75,33 @@ OSG_USING_NAMESPACE
     Interpretation also depends on the currently active Navigator::Mode.
 */
 
-/*! \var Navigator::State Navigator::IDLE
+/*! \var NavigatorBase::State NavigatorBase::IDLE
 
     Inactive state. 
 */
 
-/*! \var Navigator::State Navigator::ROTATING
+/*! \var NavigatorBase::State NavigatorBase::ROTATING
 
     State for in-place rotation. 
 */
 
-/*! \var Navigator::State Navigator::TRANSLATING_XY
+/*! \var NavigatorBase::State NavigatorBase::TRANSLATING_XY
 
     State for x/y translation, used by the Trackball case. 
 */
 
-/*! \var Navigator::State Navigator::TRANSLATING_Z
+/*! \var NavigatorBase::State NavigatorBase::TRANSLATING_Z
 
     State for z translation, used by the Trackball case. 
 */
 
-/*! \var Navigator::State Navigator::TRANSLATING_ZPLUS
+/*! \var NavigatorBase::State NavigatorBase::TRANSLATING_ZPLUS
 
     State for rotation with automatic forward motion. The standard fly forward
     state. 
 */
 
-/*! \var Navigator::State Navigator::TRANSLATING_ZMINUS
+/*! \var NavigatorBase::State NavigatorBase::TRANSLATING_ZMINUS
 
     State for rotation with automatic backwards motion. The standard fly
     backwards state. 
@@ -114,12 +114,12 @@ OSG_USING_NAMESPACE
     independent of the actual Window System.
 */
 
-/*! \var Navigator::MouseButton Navigator::UP_MOUSE
+/*! \var NavigatorBase::MouseButton NavigatorBase::UP_MOUSE
 
     Mouse wheel up button. 
 */
 
-/*! \var Navigator::MouseButton Navigator::DOWN_MOUSE
+/*! \var NavigatorBase::MouseButton NavigatorBase::DOWN_MOUSE
 
     Mouse wheel down button. 
 */
@@ -146,6 +146,7 @@ Navigator::Navigator() :
     _trackballEngine(TrackballEngine::create()),
     _flyEngine      (FlyEngine      ::create()),
     _walkEngine     (WalkEngine     ::create()),
+    _navballEngine  (NavballEngine  ::create()),
     _noneEngine     (NoneEngine     ::create()),
     _userEngine     (TrackballEngine::create()),
 
@@ -174,6 +175,7 @@ Navigator::~Navigator()
     _trackballEngine = NULL;
     _flyEngine       = NULL;
     _walkEngine      = NULL;
+    _navballEngine   = NULL;
     _noneEngine      = NULL;
     _userEngine      = NULL;
 }
@@ -274,6 +276,7 @@ void Navigator::setMode(Navigator::Mode new_mode, bool copyViewParams)
         case TRACKBALL: engine = _trackballEngine; break;
         case FLY:       engine = _flyEngine;       break;
         case WALK:      engine = _walkEngine;      break;
+        case NAVBALL:   engine = _navballEngine;   break;
         case NONE:      engine = _noneEngine;      break;
         case USER:      engine = _userEngine;      break;
         default:
@@ -422,6 +425,7 @@ Navigator::Mode Navigator::getMode(void)
     if (_engine == _trackballEngine) return TRACKBALL;
     if (_engine == _flyEngine)       return FLY;
     if (_engine == _walkEngine)      return WALK;
+    if (_engine == _navballEngine)   return NAVBALL;
     if (_engine == _noneEngine)      return NONE;
 
     return USER;
@@ -481,6 +485,11 @@ Int16 Navigator::getLastX(void)
 Int16 Navigator::getLastY(void)
 {
     return _lastY;
+}
+
+NavballEngine& Navigator::getNavballEngine(void)
+{ 
+    return *_navballEngine; 
 }
 
 TrackballEngine& Navigator::getTrackballEngine(void)

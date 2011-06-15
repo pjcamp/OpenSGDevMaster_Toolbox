@@ -53,8 +53,11 @@ OSG_BEGIN_NAMESPACE
 class RenderTraversalActionBase;
 
 /*! \brief Foreground class for displaying an image. See \ref 
-    PageSystemWindowForegroundImage for a description.
-*/
+           PageSystemWindowForegroundImage for a description.
+    \ingroup GrpWindowForegroundObj
+    \ingroup GrpLibOSGWindow
+    \includebasedoc
+ */
 
 class OSG_WINDOW_DLLMAPPING ImageForeground : public ImageForegroundBase
 {
@@ -93,7 +96,7 @@ class OSG_WINDOW_DLLMAPPING ImageForeground : public ImageForegroundBase
     /*! \name                    draw                                      */
     /*! \{                                                                 */
 
-    virtual void draw(DrawEnv *, Viewport *);
+    virtual void draw(DrawEnv *);
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/

@@ -50,9 +50,7 @@
 
 #include "OSGStatCollector.h"
 
-OSG_USING_NAMESPACE
-
-
+OSG_BEGIN_NAMESPACE
 
 /***************************************************************************\
  *                            Description                                  *
@@ -83,6 +81,9 @@ StatCollector::StatCollector(void) :
 {
     refitElemNum();
 }
+
+/*! copy constructor 
+ */
 
 StatCollector::StatCollector(const StatCollector &source) :
      Inherited(source),
@@ -272,7 +273,7 @@ void StatCollector::reset(StatElemDescBase::ResetMode mode)
 
 /*-------------------------- assignment -----------------------------------*/
 
-const StatCollector& StatCollector::operator = (const StatCollector &source)
+const StatCollector &StatCollector::operator = (const StatCollector &source)
 {
     if(this == &source)
         return *this;
@@ -324,12 +325,15 @@ StatCollector &StatCollector::operator += (const StatCollector &other)
     return *this;
 }
 
+OSG_END_NAMESPACE
 
 #include "OSGSField.h"
 #include "OSGSField.ins"
 
 #include "OSGMField.h"
 #include "OSGMField.ins"
+
+#include "OSGFieldContainer.h"
 
 OSG_BEGIN_NAMESPACE
 

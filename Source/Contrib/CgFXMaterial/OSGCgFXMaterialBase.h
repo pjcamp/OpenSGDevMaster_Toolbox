@@ -90,6 +90,8 @@ class OSG_CONTRIBCGFX_DLLMAPPING CgFXMaterialBase : public VariantMaterial
     typedef TypeObject::InitPhase InitPhase;
 
     OSG_GEN_INTERNALPTR(CgFXMaterial);
+    
+    
 
     /*==========================  PUBLIC  =================================*/
 

@@ -1,8 +1,47 @@
-
+/*---------------------------------------------------------------------------*\
+ *                                OpenSG                                     *
+ *                                                                           *
+ *                                                                           *
+ *                Copyright (C) 2009 by the OpenSG Forum                     *
+ *                                                                           *
+ *                            www.opensg.org                                 *
+ *                                                                           *
+ *         contact: Daniel Guilliams <dan.guilliams@gmail.com>			     *
+ *                                                                           *
+\*---------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------*\
+ *                                License                                    *
+ *                                                                           *
+ * This library is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU Library General Public License as published    *
+ * by the Free Software Foundation, version 2.                               *
+ *                                                                           *
+ * This library is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
+ * Library General Public License for more details.                          *
+ *                                                                           *
+ * You should have received a copy of the GNU Library General Public         *
+ * License along with this library; if not, write to the Free Software       *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.                 *
+ *                                                                           *
+\*---------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------*\
+ *                                Changes                                    *
+ *                                                                           *
+ *                                                                           *
+ *                                                                           *
+ *                                                                           *
+ *                                                                           *
+ *                                                                           *
+\*---------------------------------------------------------------------------*/
 #include "OSGColladaAnimation.h"
 #include "OSGBaseFunctions.h"
 #include "OSGTransformAnimator.h"
 #include "OSGColladaGlobal.h"
+
+#include <boost/xpressive/xpressive_static.hpp>
+#include <boost/lexical_cast.hpp>
 
 OSG_BEGIN_NAMESPACE
 
@@ -24,37 +63,30 @@ void  ColladaAnimation::read(void)
 	domChannel_Array channel = anim->getChannel_array();
 	for(UInt32 i(0); i < channel.getCount(); i++)
 	{
-		_animationTarget = channel[i]->getTarget();
+		_animationTargetName = channel[i]->getTarget();
 	}
-
-	daeSidRef sidRef(_animationTarget,channel[0]);
+	// find the target daeElement that is being animated.
+	daeSidRef sidRef(_animationTargetName,channel[0]);
 	_animTarget = sidRef.resolve().elt;
+	
+
+	// get the index of the animation target (if there is one)
+	extractIndex();
 
 	// if we can't find the animation target, we can't make an animation.
 	if(_animTarget == NULL) return;
 
-	 /*	
-		Here we are checking to see if this animation target is an attribute of a 
-		transform (e.g., a rotation, translation, etc.).  If this is the case
-		the parent of the attribute is saved so that we can combine all animations
-		on a transform into a single TransformAnimator
-	 */
-	if(isTransformAttribute(_animTarget))
-	{
-		_animTarget = _animTarget->getParent();
-	}
-
+	// build up the keyframe sequence
 	buildKeyframeSequence(anim);
 
-	// this is where the animator/animation should be set up
+	// this is where the animator/animation is set up
 	buildAnimator(anim);
 
 	if(_animation != NULL) 
 	{
-		std::string name = _animTarget->getID();
 		getGlobal()->addFieldContainer(_animation);
 
-		getGlobal()->editAnimationMap()[_animTarget] = _animation;
+		getGlobal()->editAnimationMap()[_animTarget] = this;
 	}
 
 	return;
@@ -63,7 +95,7 @@ void  ColladaAnimation::read(void)
 FieldContainer *
 ColladaAnimation::createInstance(ColladaInstanceElement *colInstElem)
 {
-	// NIY - Collada doesn't support it yet 
+	// NIY - Collada doesn't support it in v1.4
 	return NULL;
 }
 
@@ -72,133 +104,25 @@ ColladaAnimation::createInstance(ColladaInstanceElement *colInstElem)
 */
 void ColladaAnimation::buildAnimator(domAnimationRef anim)
 { 
-	_reusingAnimator  = false;
-	// check and see if this target aleady has an animation.
-	ColladaGlobal::AnimMapIt amIt = getGlobal()->editAnimationMap().find(_animTarget);
-	ColladaGlobal::AnimMapIt amEnd = getGlobal()->editAnimationMap().end();
-	if(amIt != amEnd)
-	{
-		_animation = dynamic_cast<FieldAnimation *>(amIt->second);
+	_animator =  OSG::KeyframeAnimator::create();
+	_animator->setKeyframeSequence(_keyframeSequence);
 
-		_animator = _animation->getAnimator();
-		if(_animator != NULL)
-		{
-			_reusingAnimator = true;
-		}
+
+	if(_animation == NULL)
+	{
+		_animation = FieldAnimation::create();
 	}
+	/* 
+	* We attach everything to the animation except for the 
+	* node core/etc that we are animating, because it hasn't
+	* been created yet.  This will be done later, when the
+	* scene is set up (in ColladaNode.cpp)
+	*/
+	_animation->setAnimator(_animator);
+	_animation->setCycling(-1);
+	_animation->setInterpolationType(_interpolationType);
+	_animation->setReplacementPolicy(FieldAnimation::OVERWRITE);
 
-	//TODO: work out how to handle non-transform animations.
-	switch(_seqTy)
-	{
-	case REAL:
-		{
-			break;
-		}
-	case QUATX:
-		{
-			OSG::TransformAnimator * xfAnim = getTransformAnimator();
-			xfAnim->setXRotationSequence(dynamic_pointer_cast<KeyframeNumberSequenceReal32>(_keyframeSequence));
-			buildAnimation(xfAnim);
-			break;
-		} 
-	case QUATY:
-		{
-			OSG::TransformAnimator * xfAnim = getTransformAnimator();
-			xfAnim->setYRotationSequence(dynamic_pointer_cast<KeyframeNumberSequenceReal32>(_keyframeSequence));
-			buildAnimation(xfAnim);
-			break;
-		} 
-	case QUATZ:
-		{
-			OSG::TransformAnimator * xfAnim = getTransformAnimator();
-			xfAnim->setZRotationSequence(dynamic_pointer_cast<KeyframeNumberSequenceReal32>(_keyframeSequence));
-			buildAnimation(xfAnim);
-			break;
-		} 
-	case TRANSX:
-		{
-			OSG::TransformAnimator * xfAnim = getTransformAnimator();
-			xfAnim->setXTranslationSequence(dynamic_pointer_cast<KeyframeNumberSequenceReal32>(_keyframeSequence));
-			buildAnimation(xfAnim);
-			break;
-		}
-	case TRANSY:
-		{
-			OSG::TransformAnimator * xfAnim = getTransformAnimator();
-			xfAnim->setYTranslationSequence(dynamic_pointer_cast<KeyframeNumberSequenceReal32>(_keyframeSequence));
-			buildAnimation(xfAnim);
-			break;
-		}
-	case TRANSZ:
-		{
-			OSG::TransformAnimator * xfAnim = getTransformAnimator();
-			xfAnim->setZTranslationSequence(dynamic_pointer_cast<KeyframeNumberSequenceReal32>(_keyframeSequence));
-			buildAnimation(xfAnim);
-			break;
-		}
-	case SCALEX:
-		{
-			OSG::TransformAnimator * xfAnim = getTransformAnimator();
-			xfAnim->setXScaleSequence(dynamic_pointer_cast<KeyframeNumberSequenceReal32>(_keyframeSequence));
-			buildAnimation(xfAnim);
-			break;
-		}
-	case SCALEY:
-		{
-			OSG::TransformAnimator * xfAnim = getTransformAnimator();
-			xfAnim->setYScaleSequence(dynamic_pointer_cast<KeyframeNumberSequenceReal32>(_keyframeSequence));
-			buildAnimation(xfAnim);
-			break;
-		}
-	case SCALEZ:
-		{
-			OSG::TransformAnimator * xfAnim = getTransformAnimator();
-			xfAnim->setZScaleSequence(dynamic_pointer_cast<KeyframeNumberSequenceReal32>(_keyframeSequence));
-			buildAnimation(xfAnim);
-			break;
-		}
-	case REAL2:
-		{
-			break;
-		}
-	case REAL3:
-		{
-			break;
-		} 
-	case SCALE:
-		{
-			OSG::TransformAnimator * xfAnim = getTransformAnimator();
-			xfAnim->setScaleSequence(dynamic_pointer_cast<KeyframeVectorSequenceVec3f>(_keyframeSequence));
-			buildAnimation(xfAnim);
-			break;
-		} 
-	case TRANSLATE:
-		{
-			OSG::TransformAnimator * xfAnim = getTransformAnimator();
-			xfAnim->setTranslationSequence(dynamic_pointer_cast<KeyframeVectorSequenceVec3f>(_keyframeSequence));
-			buildAnimation(xfAnim);
-			break;
-		}
-	case REAL4:
-		{
-			break;
-		}
-	case COLOR3:
-		{	
-			break;
-		}
-	case COLOR4:
-		{
-			break;
-		}
-
-	case INVALID:
-	default:
-		{
-
-			break;
-		}
-	} // end switch(seqTy)
 }
 
 /*! Reads the input and output sources for an <animation>, and 
@@ -206,56 +130,59 @@ void ColladaAnimation::buildAnimator(domAnimationRef anim)
 */
 void ColladaAnimation::buildKeyframeSequence(domAnimationRef anim)
 {
-	
-    // get interpolation type
 	getInterpolationType();
 
-	// now we make sure that the quantity input and output values is the same for the input and output
+	domSource::domTechnique_commonRef inputTech, outputTech;
+	domAccessorRef inputAccessor, outputAccessor;
+
+	// now we make sure that the number of input and output values is the same 
 	if(_inputSource != NULL && _outputSource != NULL)
 	{
-		domSource::domTechnique_commonRef inputTech = _inputSource->getTechnique_common();
-		domSource::domTechnique_commonRef outputTech = _outputSource->getTechnique_common();
+		inputTech = _inputSource->getTechnique_common();
+		outputTech = _outputSource->getTechnique_common();
+	}
 
-		if(inputTech != NULL && outputTech != NULL)
+	if(inputTech != NULL && outputTech != NULL)
+	{
+		inputAccessor = inputTech->getAccessor();
+		outputAccessor = outputTech->getAccessor();
+	}
+
+	if(inputAccessor != NULL && outputAccessor != NULL)
+	{	
+		/* 
+		* The counts should be the same, but if the number of 
+		* one is less than the other, we will
+		* still make an animation out of what we can
+		*/
+		_animLength = OSG::osgMin<UInt32>(inputAccessor->getCount(),outputAccessor->getCount());
+		domListOfFloats & arr = _inputSource->getFloat_array()->getValue();
+		if(arr.getCount() > 0 && inputAccessor->getStride() == 1)
 		{
-			domAccessorRef inputAccessor = inputTech->getAccessor();
-			domAccessorRef outputAccessor = outputTech->getAccessor();
-			if(inputAccessor != NULL && outputAccessor != NULL)
-			{	
-				// the counts should be the same, but if the number of 
-				// one is less than the other, we will
-				// still make an animation out of what we can
-				UInt32 numKeys = OSG::osgMin<UInt32>(inputAccessor->getCount(),outputAccessor->getCount());
-				domListOfFloats & arr = _inputSource->getFloat_array()->getValue();
-				if(arr.getCount() > 0 && inputAccessor->getStride() == 1)
-				{
-					std::vector<Real32> inputKeys;
-					for(UInt32 i(0); i < numKeys; i++)
-					{
-						inputKeys.push_back(arr[i]);
-					}
-					
-					if(_outputSource->getFloat_array() != NULL)
-					{
-						buildFloatSequence(anim,outputAccessor,inputKeys);
-					}
-					else if(_outputSource->getInt_array() != NULL)
-					{
-						buildIntSequence(anim,outputAccessor,inputKeys);
-					}
-					else if(_outputSource->getBool_array() != NULL)
-					{
-						buildBoolSequence(anim,outputAccessor,inputKeys);
-					}
-					
-				} else
-				{
-					SWARNING << "Unable to get input keys for animation "<< anim->getID() 
-							 << "! (Probably not keyed by TIME)" << std::endl;
-				}
-				
+			std::vector<Real32> inputKeys;
+			for(UInt32 i(0); i < _animLength; i++)
+			{
+				inputKeys.push_back(arr[i]);
 			}
-		}
+			
+			if(_outputSource->getFloat_array() != NULL)
+			{
+				buildFloatSequence(anim,outputAccessor,inputKeys);
+			}
+			else if(_outputSource->getInt_array() != NULL)
+			{
+				buildIntSequence(anim,outputAccessor,inputKeys);
+			}
+			else if(_outputSource->getBool_array() != NULL)
+			{
+				buildBoolSequence(anim,outputAccessor,inputKeys);
+			}
+			
+		} else
+		{
+			SWARNING << "Unable to get input keys for animation "<< anim->getID() 
+					 << "! (Probably not keyed by TIME)" << std::endl;
+		}	
 	}
 }
 
@@ -286,6 +213,7 @@ void ColladaAnimation::readSamplers(domAnimationRef anim)
 				domURIFragmentType & source = inputs[j]->getSource();
 				_interpolationSource = daeSafeCast<domSource>(source.getElement());
 			}
+			//Splines not implemented, so they are ignored
 		}
 	}
 }
@@ -318,30 +246,32 @@ ColladaAnimation::buildFloatSequence(domAnimationRef	 animation,
 	if(stride == 1)
 	{
 		if(pName.compare("ANGLE") == 0)
-		{ // we have a quaternion, need to determine which axis is it around
-			if(_animationTarget.find("/rotateZ") != std::string::npos) 
+		{ // we have a quaternion, need to determine which axis the rotation is in
+			if(_animationTargetName.find("/rotateZ") != std::string::npos) 
 				_seqTy = QUATZ;
-			else if(_animationTarget.find("/rotateY") != std::string::npos)
+			else if(_animationTargetName.find("/rotateY") != std::string::npos)
 				_seqTy = QUATY;
-			else if(_animationTarget.find("/rotateX") != std::string::npos)
+			else if(_animationTargetName.find("/rotateX") != std::string::npos)
 				_seqTy = QUATX;
 		} 
 		else if(	pName.compare("X") == 0 ||
 					pName.compare("Y") == 0 ||
 					pName.compare("Z") == 0	)
 		{
-			if(_animationTarget.find("/scale.X") != std::string::npos) 
+			if(_animationTargetName.find("/scale.X") != std::string::npos) 
 				_seqTy = SCALEX;
-			else if(_animationTarget.find("/scale.Y") != std::string::npos)
+			else if(_animationTargetName.find("/scale.Y") != std::string::npos)
 				_seqTy = SCALEY;
-			else if(_animationTarget.find("/scale.Z") != std::string::npos)
+			else if(_animationTargetName.find("/scale.Z") != std::string::npos)
 				_seqTy = SCALEZ;
-			else if(_animationTarget.find("/translate.X") != std::string::npos)
+			else if(_animationTargetName.find("/translate.X") != std::string::npos)
 				_seqTy = TRANSX;
-			else if(_animationTarget.find("/translate.Y") != std::string::npos)
+			else if(_animationTargetName.find("/translate.Y") != std::string::npos)
 				_seqTy = TRANSY;
-			else if(_animationTarget.find("/translate.Z") != std::string::npos)
+			else if(_animationTargetName.find("/translate.Z") != std::string::npos)
 				_seqTy = TRANSZ;
+			else 
+				_seqTy = REAL;
 		} 
 		else
 			_seqTy = REAL;
@@ -355,11 +285,11 @@ ColladaAnimation::buildFloatSequence(domAnimationRef	 animation,
 			pName.compare("Y") == 0 ||
 			pName.compare("Z") == 0	)
 		{
-			if(_animationTarget.find("/scale") != std::string::npos)
+			if(_animationTargetName.find("/scale") != std::string::npos)
 			{
 				_seqTy = SCALE;
 			}
-			else if(_animationTarget.find("/translate") != std::string::npos)
+			else if(_animationTargetName.find("/translate") != std::string::npos)
 			{
 				_seqTy = TRANSLATE;
 			}
@@ -367,7 +297,6 @@ ColladaAnimation::buildFloatSequence(domAnimationRef	 animation,
 			{
 				_seqTy = REAL3;
 			}
-			
 		}
 		else if (	pName.compare("R") == 0 ||
 					pName.compare("G") == 0 ||
@@ -405,18 +334,53 @@ ColladaAnimation::buildFloatSequence(domAnimationRef	 animation,
 	switch(_seqTy)
 	{
 	case REAL:
-		{   //NIY
+		{   
+			KeyframeNumberSequenceReal32UnrecPtr seq = KeyframeNumberSequenceReal32::create();
+			for(UInt32 i(0); i < timeKeys.size() && i < arrSize;i++)
+			{	
+				seq->addKeyframe(floats[i],timeKeys[i]);
+			}
+			_keyframeSequence = seq;
+			break;
+		}
+	case TRANSX:
+	case SCALEX:
+		{	
+			// because animations are only defined for one axis, we need to know the values
+			// for the scale/translation in the other two (if they are defaulted to zero, the
+			// animation will look incorrect.  Here, we grab the values from the animation
+			// target and use them to fill in the non-animated axes.
+
+			KeyframeVectorSequenceVec3fUnrecPtr seq = KeyframeVectorSequenceVec3f::create();
+
+			buildSingleAxisKeyframes( seq, getVec3fAnimTargetValue(), 0, floats, timeKeys);
+			
+			_keyframeSequence = seq;
+			break;
+		}
+	case TRANSY:
+	case SCALEY:
+		{	
+			KeyframeVectorSequenceVec3fUnrecPtr seq = KeyframeVectorSequenceVec3f::create();
+
+			buildSingleAxisKeyframes( seq, getVec3fAnimTargetValue(), 1, floats, timeKeys);
+			
+			_keyframeSequence = seq;
+			break;
+		}
+	case TRANSZ:
+	case SCALEZ:
+		{	
+			KeyframeVectorSequenceVec3fUnrecPtr seq = KeyframeVectorSequenceVec3f::create();
+
+			buildSingleAxisKeyframes( seq, getVec3fAnimTargetValue(), 2, floats, timeKeys);
+			
+			_keyframeSequence = seq;
 			break;
 		}
 	case QUATX:
 	case QUATY:
 	case QUATZ:
-	case TRANSX:
-	case TRANSY:
-	case TRANSZ:
-	case SCALEX:
-	case SCALEY:
-	case SCALEZ:
 		{
 			KeyframeNumberSequenceReal32UnrecPtr seq = KeyframeNumberSequenceReal32::create();
 			for(UInt32 i(0); i < timeKeys.size() && i < arrSize;i++)
@@ -532,26 +496,8 @@ void ColladaAnimation::buildIntSequence(domAnimationRef		animation,
 		}
 		_keyframeSequence = seq;
 	}
-	/*  ---- No integer vector types or keyframe sequences for them -----
-	
-	else if(seqTy == INT2)
-	{
-		KeyframeVectorSequenceVec2iUnrecPtr seq = KeyframeVectorSequenceVec2i::create();
-		for(UInt32 i(0),j(0); i < timeKeys.size();i++)
-		{
-			seq->addKeyframe(Vec2f(floats[j++],floats[j++]),timeKeys[i]);
-		}
-		_keyframeSequence = seq;
-	}
-	else if(seqTy == INT3)
-	{
-		
-	}
-	else if(seqTy == INT4)
-	{
-		
-	} */
-	
+	/*  ---- No integer vector types or keyframe sequences for them ----- */
+
 }
 
 // probably won't be needed....
@@ -579,6 +525,53 @@ void ColladaAnimation::buildBoolSequence(domAnimationRef	 animation,
 	}
 }
 
+void ColladaAnimation::buildSingleAxisKeyframes( KeyframeVectorSequenceVec3f * kfSeq, Vec3f defaultValue, UInt32 animatedAxis, 
+							   domListOfFloats animVals, std::vector<Real32> timeKeys)
+{
+
+	for(UInt32 i = 0; i < timeKeys.size(); i++)
+	{
+		if(animatedAxis == 0)
+		{
+			kfSeq->addKeyframe(Vec3f(animVals[i],defaultValue.y(),defaultValue.z()),timeKeys[i]);
+		}
+		else if(animatedAxis == 1)
+		{
+			kfSeq->addKeyframe(Vec3f(defaultValue.x(),animVals[i],defaultValue.z()),timeKeys[i]);
+		}
+		else if(animatedAxis == 2)
+		{
+			kfSeq->addKeyframe(Vec3f(defaultValue.x(),defaultValue.y(),animVals[i]),timeKeys[i]);
+		}
+		else
+		{ // default to 'no animation'
+			kfSeq->addKeyframe(Vec3f(defaultValue.x(),defaultValue.y(),defaultValue.z()),timeKeys[i]);
+		}
+	}
+}
+
+Vec3f ColladaAnimation::getVec3fAnimTargetValue()
+{
+	Vec3f defaultValue;
+
+	domTranslate *transl = daeSafeCast<domTranslate>(_animTarget);
+	if(transl != NULL)
+	{
+		defaultValue = Vec3f(transl->getValue()[0], transl->getValue()[1], transl->getValue()[2]);
+		return defaultValue;
+	}
+
+	domScale *scale = daeSafeCast<domScale>(_animTarget);
+	if(scale != NULL)
+	{
+		defaultValue = Vec3f(scale->getValue()[0], scale->getValue()[1], scale->getValue()[2]);
+		return defaultValue;
+	}	
+	
+	defaultValue = Vec3f(0.0f,0.0f,0.0f);
+	return defaultValue;
+}
+
 void ColladaAnimation::getInterpolationType()
 {
 	/*		Animator interpolation types:
@@ -598,9 +591,14 @@ void ColladaAnimation::getInterpolationType()
 			{
 				std::string type;
 				domListOfNames & names = _interpolationSource->getName_array()->getValue();
+				
 				if(names[0] != NULL) type = names[0];
 				// we just pick the closest interpolation possible
-				if(type.compare("BEZIER") == 0)
+				if(_animLength < 3) 
+				{// can't do anything but linear interpolation with < 3 keyframes
+					_interpolationType = Animator::LINEAR_INTERPOLATION;
+				}
+				else if(type.compare("BEZIER") == 0)
 				{
 					_interpolationType = Animator::CUBIC_INTERPOLATION;
 				}
@@ -620,32 +618,10 @@ void ColladaAnimation::getInterpolationType()
 			}
 		}	
 	}
-	// default to cubic interpolation
-	_interpolationType = Animator::CUBIC_INTERPOLATION;
+	// default to linear interpolation
+	_interpolationType = Animator::LINEAR_INTERPOLATION;
 } // end getInterpolationType()
 
-bool ColladaAnimation::isTransformAttribute(daeElement * target)
-{
-	if( daeSafeCast<domTranslate>(target) != NULL	||
-		daeSafeCast<domRotate>(target) != NULL		||
-		daeSafeCast<domScale>(target) != NULL		||
-		daeSafeCast<domSkew>(target) != NULL)
-	{
-		return true;
-	}
-	return false;
-}
-
-TransformAnimator * ColladaAnimation::getTransformAnimator()
-{
-	if(!_reusingAnimator)
-	{
-		OSG::TransformAnimatorRecPtr anim = OSG::TransformAnimator::create();
-		_animator = anim;
-		return anim;
-	} 
-	else return dynamic_pointer_cast<TransformAnimator>(_animator); 
-}
 
 void ColladaAnimation::buildAnimation(Animator * animator)
 {
@@ -662,12 +638,53 @@ void ColladaAnimation::buildAnimation(Animator * animator)
 		_animation->setAnimator(_animator);
 		_animation->setCycling(-1);
 		_animation->setInterpolationType(_interpolationType);
+		_animation->setReplacementPolicy(FieldAnimation::OVERWRITE);
 	}
 }
 
+UInt32 ColladaAnimation::getTargetIndex()
+{
+	return _targetIndex;
+}
+
+bool ColladaAnimation::isIndexed()
+{
+	return _isIndexed;
+}
+
+void ColladaAnimation::extractIndex()
+{
+	_targetIndex = 0;
+	_isIndexed = false;
+	using namespace boost::xpressive;
+
+	// this regex matches any number of digits between two parenthesis 
+	sregex regex = after('(') >> -+_d >> before(')');
+
+	smatch result;
+
+	// we are only worried about the first match, which will be the index we want
+	if(regex_search(_animationTargetName, result, regex))
+	{	// only concerned with first index
+		_targetIndex = boost::lexical_cast<int, std::string>(result[0].str());
+		_isIndexed = true;
+	}
+}
+
+ColladaAnimation::SequenceType ColladaAnimation::getSequenceType()
+{
+	return _seqTy;
+}
+
+FieldAnimation* ColladaAnimation::getAnimation()
+{
+	return _animation;
+}
+
+
 /***********************Ctors & Dtors*******************************/
 ColladaAnimation::ColladaAnimation(daeElement *elem, ColladaGlobal *global)
-    : Inherited (elem, global)
+    : Inherited (elem, global),_targetIndex(0),_isIndexed(false)
 {
 }
 

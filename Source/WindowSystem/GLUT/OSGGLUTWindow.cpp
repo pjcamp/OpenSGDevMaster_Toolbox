@@ -45,7 +45,7 @@
 
 #include "OSGConfig.h"
 
-#ifdef OSG_WITH_GLUT
+#if defined(OSG_WITH_GLUT) || defined(OSG_DO_DOC)
 
 #define OSG_COMPILEWINDOWGLUTINST
 
@@ -57,12 +57,15 @@
 #include "OSGCamera.h"
 #include "OSGBackground.h"
 #include "OSGGLUTWindow.h"
+#include "OSGRenderActionBase.h"
+#include "OSGRenderActionTask.h"
 
 #ifdef OSG_USE_GLX
 #include <GL/glx.h>
 #endif
 #ifdef __APPLE__
-#include <AGL/agl.h>
+//#include "OSGCocoaWindowWrapper.h"
+#include "OSGCarbonWindowWrapper.h"
 #endif
 
 OSG_BEGIN_NAMESPACE
@@ -78,12 +81,18 @@ OSG_BEGIN_NAMESPACE
 GLUTWindow::GLUTWindow(void) :
     Inherited()
 {
+    _sfDrawMode.setValue(
+        (_sfDrawMode.getValue()  & ~Window::ContextMask) | 
+        (Window::ExternalContext &  Window::ContextMask) );
 }
 
 //! Copy Constructor
 GLUTWindow::GLUTWindow(const GLUTWindow &source) :
     Inherited(source)
 {
+    _sfDrawMode.setValue(
+        (_sfDrawMode.getValue()  & ~Window::ContextMask) | 
+        (Window::ExternalContext &  Window::ContextMask) );
 }
 
 //! Destructor
@@ -126,9 +135,8 @@ void GLUTWindow::init(GLInitFunctor oFunc)
     Inherited::setHglrc(wglGetCurrentContext());
     Inherited::setHwnd (WindowFromDC(Inherited::getHdc()));
 #elif defined(__APPLE__)
-    glutSetWindow(getGlutId());
-
-    Inherited::setContext(aglGetCurrentContext());
+    //Inherited::setContext(cocoaWrapperCurrentContext());
+    Inherited::setContext(carbonWrapperCurrentContext());
 #else
     glutSetWindow(getGlutId());
 
@@ -150,6 +158,13 @@ void GLUTWindow::activate(void)
 
         Inherited::doActivate();
     }
+}
+
+void GLUTWindow::terminate(void)
+{
+    Window::doTerminate();
+
+    Inherited::setContext(NULL);
 }
 
 OSG_END_NAMESPACE

@@ -63,6 +63,6 @@ ENDIF(CG_LIBRARY_RELEASE AND CG_GL_LIBRARY_RELEASE)
 # all listed variables are TRUE
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(CG DEFAULT_MSG 
-    CG_LIBRARIES_FOUND 
-    CG_INCLUDE_DIR)
+                                  CG_LIBRARIES_FOUND
+                                  CG_INCLUDE_DIR)
 

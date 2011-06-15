@@ -48,6 +48,7 @@
  *****************************************************************************
 \*****************************************************************************/
 
+
 OSG_BEGIN_NAMESPACE
 
 
@@ -99,22 +100,6 @@ void ScaleManipulatorBase::setUniform(const bool value)
     _sfUniform.setValue(value);
 }
 
-//! Get the value of the ScaleManipulator::_sfHandleUniformNode field.
-inline
-Node * ScaleManipulatorBase::getHandleUniformNode(void) const
-{
-    return _sfHandleUniformNode.getValue();
-}
-
-//! Set the value of the ScaleManipulator::_sfHandleUniformNode field.
-inline
-void ScaleManipulatorBase::setHandleUniformNode(Node * const value)
-{
-    editSField(HandleUniformNodeFieldMask);
-
-    _sfHandleUniformNode.setValue(value);
-}
-
 //! Get the value of the ScaleManipulator::_sfTransUniformNode field.
 inline
 Node * ScaleManipulatorBase::getTransUniformNode(void) const
@@ -147,6 +132,13 @@ void ScaleManipulatorBase::setMaterialUniform(Material * const value)
     _sfMaterialUniform.setValue(value);
 }
 
+//! Get the value of the \a index element the ScaleManipulator::_mfUniformGeometries field.
+inline
+Geometry * ScaleManipulatorBase::getUniformGeometries(const UInt32 index) const
+{
+    return _mfUniformGeometries[index];
+}
+
 
 #ifdef OSG_MT_CPTR_ASPECT
 inline
@@ -161,8 +153,11 @@ void ScaleManipulatorBase::execSync (      ScaleManipulatorBase *pFrom,
     if(FieldBits::NoField != (UniformFieldMask & whichField))
         _sfUniform.syncWith(pFrom->_sfUniform);
 
-    if(FieldBits::NoField != (HandleUniformNodeFieldMask & whichField))
-        _sfHandleUniformNode.syncWith(pFrom->_sfHandleUniformNode);
+    if(FieldBits::NoField != (UniformGeometriesFieldMask & whichField))
+        _mfUniformGeometries.syncWith(pFrom->_mfUniformGeometries,
+                                syncMode,
+                                uiSyncInfo,
+                                oOffsets);
 
     if(FieldBits::NoField != (TransUniformNodeFieldMask & whichField))
         _sfTransUniformNode.syncWith(pFrom->_sfTransUniformNode);

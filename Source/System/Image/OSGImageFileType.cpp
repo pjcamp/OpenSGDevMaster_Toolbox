@@ -49,7 +49,7 @@
 #include "OSGImageGenericAtt.h"
 #include "OSGLog.h"
 
-OSG_USING_NAMESPACE
+OSG_BEGIN_NAMESPACE
 
 ImageBlockAccessor::~ImageBlockAccessor(void)
 {
@@ -258,9 +258,8 @@ void BlockAccessWrapper::open(const Char8 *szFilename)
 }
 
 
-/*! \class OSG::ImageFileType
-    \ingroup GrpSystemImage
-*/
+/*! \class ImageFileType
+ */
 
 //-------------------------------------------------------------------------
 /*!
@@ -269,18 +268,18 @@ void BlockAccessWrapper::open(const Char8 *szFilename)
 
 bool ImageFileType::Head::netToHost(void)
 {
-    pixelFormat    = osgntohs(pixelFormat);
-    width          = osgntohs(width);
-    height         = osgntohs(height);
-    depth          = osgntohs(depth);
-    mipmapCount    = osgntohs(mipmapCount);
-    frameCount     = osgntohs(frameCount);
-    frameDelay     = osgntohs(frameDelay);
-    sideCount      = osgntohs(sideCount);
-    dataType       = osgntohs(dataType);
+    pixelFormat    = osgNetToHost<UInt16>(pixelFormat);
+    width          = osgNetToHost<UInt16>(width);
+    height         = osgNetToHost<UInt16>(height);
+    depth          = osgNetToHost<UInt16>(depth);
+    mipmapCount    = osgNetToHost<UInt16>(mipmapCount);
+    frameCount     = osgNetToHost<UInt16>(frameCount);
+    frameDelay     = osgNetToHost<UInt16>(frameDelay);
+    sideCount      = osgNetToHost<UInt16>(sideCount);
+    dataType       = osgNetToHost<UInt16>(dataType);
     _reserved3     = 0;
     _reserved4     = 0;
-    attachmentSize = osgntohs(attachmentSize);
+    attachmentSize = osgNetToHost<UInt16>(attachmentSize);
 
     return true;
 }
@@ -293,18 +292,18 @@ Helper method to convert the Head block from host to net format
 
 bool ImageFileType::Head::hostToNet(void)
 {
-    pixelFormat    = osghtons(pixelFormat);
-    width          = osghtons(width);
-    height         = osghtons(height);
-    depth          = osghtons(depth);
-    mipmapCount    = osghtons(mipmapCount);
-    frameCount     = osghtons(frameCount);
-    frameDelay     = osghtons(frameDelay);
-    sideCount      = osghtons(sideCount);
-    dataType       = osghtons(dataType);
+    pixelFormat    = osgHostToNet<UInt16>(pixelFormat);
+    width          = osgHostToNet<UInt16>(width);
+    height         = osgHostToNet<UInt16>(height);
+    depth          = osgHostToNet<UInt16>(depth);
+    mipmapCount    = osgHostToNet<UInt16>(mipmapCount);
+    frameCount     = osgHostToNet<UInt16>(frameCount);
+    frameDelay     = osgHostToNet<UInt16>(frameDelay);
+    sideCount      = osgHostToNet<UInt16>(sideCount);
+    dataType       = osgHostToNet<UInt16>(dataType);
     _reserved3     = 0;
     _reserved4     = 0;
-    attachmentSize = osghtons(attachmentSize);
+    attachmentSize = osgHostToNet<UInt16>(attachmentSize);
 
     return true;
 }
@@ -780,3 +779,6 @@ void ImageFileType::dump(void)
 
     std::cerr << std::endl;
 }
+
+OSG_END_NAMESPACE
+

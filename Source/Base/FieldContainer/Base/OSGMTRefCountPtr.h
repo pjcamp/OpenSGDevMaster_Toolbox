@@ -159,6 +159,13 @@ class MTRefCountPtr
     
     void    swap(Self   &       other    );
 
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name Access                                                       */
+    /*! \{                                                                 */
+
+    void shutdownSetNull(void);
+
 #if defined(OSG_1_COMPAT)
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -208,7 +215,7 @@ class MTRefCountPtr
 };
 
 /*! \ingroup GrpBaseBaseRefCounting
-    \relatesalso RefCountPtr
+    \relatesalso MTRefCountPtr
  */
        
 template <class TargetT, class SourceT, class RCPolicyT> inline
@@ -216,7 +223,7 @@ OSG::MTRefCountPtr<TargetT, RCPolicyT> dynamic_pointer_cast(
     OSG::MTRefCountPtr<SourceT, RCPolicyT> const &source);
 
 /*! \ingroup GrpBaseBaseRefCounting
-    \relatesalso RefCountPtr
+    \relatesalso MTRefCountPtr
  */
 
 template <class TargetT, class SourceT, class RCPolicyT> inline

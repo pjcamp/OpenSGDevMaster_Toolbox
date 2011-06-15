@@ -48,7 +48,6 @@
 OSG_BEGIN_NAMESPACE
 
 /*! \class OSG::WindowDrawTask
-    \ingroup GrpSystemRenderingBackend
  */
 
 RenderActionTask::RenderActionTask(UInt32 uiType) :
@@ -99,6 +98,16 @@ void RenderActionTask::execute(HardwareContext *pContext, DrawEnv *pEnv)
         }
         break;
 
+        case HandleGLFinishNoWait:
+        {           
+#ifdef OSG_DUMP_RENDERTASK
+            fprintf(stderr, "HandleGLFinishNoWait\n");
+            fflush(stderr);
+#endif
+            glFinish();
+        }
+        break;
+
         default:
             break;
     }
@@ -122,6 +131,12 @@ void RenderActionTask::dump(UInt32 uiIndent)
         case HandleGLFinish:
         {           
             fprintf(stderr, "HandleGLFinish\n");
+        }
+        break;
+
+        case HandleGLFinishNoWait:
+        {           
+            fprintf(stderr, "HandleGLFinishNoWait\n");
         }
         break;
 

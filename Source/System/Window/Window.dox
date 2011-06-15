@@ -1,0 +1,36 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! 
+
+   \if separate
+     \page PageWindow Window Documentation
+   \else
+     \page PageWindow Window
+   \endif
+
+    \section PageSystemWindowBackgroundDepthClear
+    \section PageSystemWindowForegroundGrabFile
+    \section PageSystemWindowForegroundGrab
+    \section PageWindowTileableBackground
+    \section PageSystemWindowForegroundImage
+    \section PageSystemCameraDecoratorsMatrix
+    \section PageSystemOrthographicCamera
+    \section PageSystemWindowBackgroundPassive
+    \section PageSystemWindowViewportsPassive
+    \section PageSystemPassiveWindow    
+    \section PageSystemPolygonBackground
+    \section PageSystemWindowCameraDecoratorsStereoSheared
+    \section PageSystemWindowBackgroundSky
+    \section PageSystemWindowBackgroundSolid
+    \section PageSystemTextureBackground
+    \section PageWindowGLUTTextureGrabBackground
+    \section PageSystemWindowForegroundTextureGrab
+    \section PageSystemWindowCameraDecoratorsTile
+    \section PageSystemPolygonForeground
+    \section PageSystemWindowForegroundGrabTexture
+    \section PageSystemWindowCameraDecoratorsMatrix
+    \section PageSystemWindowWindowPassive
+    \section PageSystemWindowCameraDecoratorsStereoProjection
+ */

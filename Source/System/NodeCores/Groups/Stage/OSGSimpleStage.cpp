@@ -226,6 +226,9 @@ void SimpleStage::setupPartition(
                                        pPart->getViewportWidth (),
                                        pPart->getViewportHeight());
 
+        pPart->getDrawEnv().setTileFullSize(pCam->tileGetFullSize());
+        pPart->getDrawEnv().setTileRegion  (pCam->tileGetRegion  ());
+
         pPart->setupProjection(m, t);
 
         pCam->getViewing(m,
@@ -241,5 +244,11 @@ void SimpleStage::setupPartition(
     }
 
     pPart->setBackground(pBack);
+
+    pPart->clearForegrounds();
+    for(UInt32 i(0) ; i<getMFForegrounds()->size() ; ++i)
+    {
+        pPart->pushToForegrounds(getForegrounds(i));
+    }
 }
 

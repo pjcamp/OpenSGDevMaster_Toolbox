@@ -203,6 +203,7 @@ TextureBufferBase::TypeObject TextureBufferBase::_type(
     "   systemcomponent=\"true\"\n"
     "   parentsystemcomponent=\"true\"\n"
     "   decoratable=\"false\"\n"
+    "   docGroupBase=\"GrpSystemWindowFBO\"\n"
     "   >\n"
     "  Texture buffer.  Wraps support to binding a framebuffer attachment to an OpenSG texture object.\n"
     "  \n"
@@ -385,18 +386,22 @@ void TextureBufferBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (TextureFieldMask & whichField))
     {
+        editSField(TextureFieldMask);
         _sfTexture.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (TexTargetFieldMask & whichField))
     {
+        editSField(TexTargetFieldMask);
         _sfTexTarget.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (LevelFieldMask & whichField))
     {
+        editSField(LevelFieldMask);
         _sfLevel.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ZoffsetFieldMask & whichField))
     {
+        editSField(ZoffsetFieldMask);
         _sfZoffset.copyFromBin(pMem);
     }
 }

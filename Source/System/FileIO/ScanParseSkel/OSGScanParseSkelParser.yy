@@ -59,6 +59,7 @@
 
 #include "OSGConfig.h"
 #include "OSGBaseFunctions.h"
+#include "OSGMatrix.h"
 #include "OSGScanParseLexer.h"
 #include "OSGScanParseSkel.h"
 
@@ -206,8 +207,8 @@ x3dScene:
     statements;
 
 headerStatement:
-    TOK_HEADER { SKEL->verifyHeader($1); }
-    | /* empty */;
+    TOK_HEADER { if(SKEL->verifyHeader($1) == false) { YYABORT; } }
+    | /* empty */{ if(SKEL->checkHeader() == true) { YYABORT; } }
 
 profileStatement:
     TOK_PROFILE profileNameId { SKEL->profileElement($2); }

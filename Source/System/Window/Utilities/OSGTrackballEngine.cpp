@@ -86,7 +86,7 @@ see \ref PageSystemWindowNavigatorsTrackball for a description.
 	The resulting matrix for the final transformation.
 */
     
-/*! \var State TrackballEngine::_currentState
+/*! \var NavigatorBase::State NavigatorEngine::_currentState
 
 	The current state of the trackball, whether it is currently rotating, 
 	translating in xy or in z.
@@ -107,12 +107,12 @@ see \ref PageSystemWindowNavigatorsTrackball for a description.
 	The Up direction.
 */
 
-/*! \var Navigator::_ip
+/*! \var TrackballEngine::_ip
     
     Temporary hit point for intersection testing.
 */
 
-/*! \var Navigator::_dir
+/*! \var TrackballEngine::_dir
 
     Temporary ray direction for intersection testing.
 */
@@ -250,12 +250,12 @@ void TrackballEngine::buttonPress(Int16 button, Int16 x, Int16 y,
             break;
                             
         case Navigator::RIGHT_MOUSE :  
-            _currentState = Navigator::TRANSLATING_Z;    
+            _currentState = Navigator::TRANSLATING_XY;
+            getIntersectionPoint(x,y, nav);      
             break;
  
         case Navigator::MIDDLE_MOUSE:  
-            _currentState = Navigator::TRANSLATING_XY;
-            getIntersectionPoint(x,y, nav);      
+            _currentState = Navigator::TRANSLATING_Z;    
             break;
 
         case Navigator::UP_MOUSE    :  

@@ -54,27 +54,36 @@ OSG_BEGIN_NAMESPACE
 
 class ChunkBlock;
 
+/*! \ingroup GrpSystemStateFieldTraits
+ */
+
 typedef RenderPropertiesPool::Singleton::ValueType ChunkBlockMapKey;
 
+/*! \ingroup GrpSystemStateFieldTraits
+ */
 typedef std::map<ChunkBlockMapKey, ChunkBlock *>  ChunkBlockMap;
 
-typedef SField<ChunkBlockMapKey> SFChunkBlockMapKey;
-typedef MField<ChunkBlockMapKey> MFChunkBlockMapKey;
-
-#if !defined(OSG_DO_DOC) || (OSG_DOC_LEVEL >= 3)
-
-#ifdef OSG_DOC_FILES_IN_MODULE
-/*! \file OSGBaseFieldTraits.h
-    \ingroup GrpBaseField
-    \ingroup GrpBaseFieldTraits
-*/
-#endif
-
-/*! \ingroup GrpBaseFieldTraits
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+/*! \ingroup GrpSystemStateFieldSFields
  */
-#if !defined(OSG_DOC_DEV_TRAITS)
-/*! \hideinhierarchy */
+typedef SField<ChunkBlockMapKey> SFChunkBlockMapKey;
+
+/*! \ingroup GrpSystemStateFieldMFields
+ */
+typedef MField<ChunkBlockMapKey> MFChunkBlockMapKey;
+#else
+/*! \ingroup GrpSystemStateFieldSFields \ingroup GrpLibOSGSystem
+ */
+struct SFChunkBlockMapKey : public SField<ChunkBlockMapKey> {};
+
+/*! \ingroup GrpSystemStateFieldMFields \ingroup GrpLibOSGSystem
+ */
+struct MFChunkBlockMapKey : public MField<ChunkBlockMapKey> {};
 #endif
+
+/*! \ingroup GrpSystemStateFieldTraits
+    \ingroup GrpLibOSGSystem
+ */
 
 template <>
 struct FieldTraits<ChunkBlockMap> : 
@@ -148,11 +157,18 @@ struct FieldTraits<ChunkBlockMap> :
     }
 };
 
-#if !defined(OSG_DO_DOC) || defined(OSG_DOC_FIELD_TYPEDEFS) 
-/*! \ingroup GrpBaseFieldSingle */
-
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+/*! \ingroup GrpSystemStateFieldSFields
+ */
 typedef SField<ChunkBlockMap> SFChunkBlockPtrMap;
+#else
+/*! \ingroup GrpSystemStateFieldSFields \ingroup GrpLibOSGSystem
+ */
+struct SFChunkBlockPtrMap : public SField<ChunkBlockMap> {};
 #endif
+
+/*! \ingroup GrpSystemStateFieldHandle
+ */
 
 template<>
 class OSG_SYSTEM_DLLMAPPING GetSFieldHandle<SFChunkBlockPtrMap> : 
@@ -210,6 +226,9 @@ class OSG_SYSTEM_DLLMAPPING GetSFieldHandle<SFChunkBlockPtrMap> :
     SFChunkBlockPtrMap const * operator ->(void);
     SFChunkBlockPtrMap const & operator * (void);
 };
+
+/*! \ingroup GrpSystemStateFieldHandle
+ */
 
 template<>
 class OSG_SYSTEM_DLLMAPPING 
@@ -304,8 +323,6 @@ class OSG_SYSTEM_DLLMAPPING
         const TypeIdVector      &ignoreGroupIds = TypeIdVector ()) const;
 
 };
-
-#endif // !defined(OSG_DO_DOC) || (OSG_DOC_LEVEL >= 3)
 
 OSG_END_NAMESPACE
 

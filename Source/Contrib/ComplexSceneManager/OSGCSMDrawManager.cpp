@@ -138,7 +138,7 @@ bool CSMDrawManager::init(void)
 
     if(_sfParallel.getValue() == true)
     {
-        _pThread   = Thread::getCurrent();
+        _pThread   = dynamic_cast<OSG::Thread *>(Thread::getCurrent());
 
 #ifdef OSG_GLOBAL_SYNC_LOCK
         _pSyncLock = Lock::get("DM::synclock", false);
@@ -245,6 +245,27 @@ void CSMDrawManager::shutdown(void)
         _pThread->getChangeList()->clear();
 
 
+        // release gl contexts
+
+        dIt  = getMFDrawer()->begin();
+
+        while(dIt != dEnd)
+        {
+            (*dIt)->terminateGLContexts();
+            
+            ++dIt;
+        }
+
+        // sync gl takedown
+
+        commitChanges();
+
+        _pSyncBarrier->enter(_uiSyncCount);
+        _pSyncBarrier->enter(_uiSyncCount);
+
+        _pThread->getChangeList()->clear();
+
+
         // release windows
 
         dIt  = getMFDrawer()->begin();
@@ -308,6 +329,21 @@ void CSMDrawManager::shutdown(void)
         {
             (*dIt)->shutdown();
         }
+
+        commitChanges();
+
+        AttachmentContainer::resolveLinks();
+
+        dIt  = getMFDrawer()->begin();
+
+        while(dIt != dEnd)
+        {
+            (*dIt)->terminateGLContexts();
+            
+            ++dIt;
+        }
+
+        commitChanges();
     }
 }
 

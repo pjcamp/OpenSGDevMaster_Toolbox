@@ -45,17 +45,16 @@
 #include "OSGGeoPropertyBase.h"
 #include "OSGWindow.h"
 
-#ifdef OSG_EMBEDDED
-#define GL_STATIC_DRAW_ARB 0x88E4
-#endif
-
 OSG_BEGIN_NAMESPACE
 
 class Window;
 
 /*! \brief GeoProperty class. See \ref
            PageSystemGeoProperty for a description.
-*/
+    \ingroup GrpDrawablesGeometryProperties
+    \ingroup GrpLibOSGDrawables
+    \includebasedoc
+ */
 
 class OSG_DRAWABLE_DLLMAPPING GeoProperty : public GeoPropertyBase
 {

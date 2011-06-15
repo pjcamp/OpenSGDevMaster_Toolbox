@@ -53,7 +53,7 @@ OSG_BEGIN_NAMESPACE
 /* WeakMemObjPointerSField<FieldConfigT>                                     */
 /*---------------------------------------------------------------------------*/
 
-/*! \ingroup GrpBaseFieldContainerFields
+/*! \ingroup GrpBaseMemoryObjectsFields
     \ingroup GrpLibOSGBase
  */
 
@@ -187,6 +187,23 @@ class MemObjPointerSField :
     
     static FieldType _fieldType;
     
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name FieldDesc creation                                           */
+    /*! \{                                                                 */
+
+    static FieldDescriptionBase *
+        createFieldDescription   (const Char8                *szFieldname,
+                                        UInt32                uiFieldFlags,
+                                        FieldEditMethod       fEditMethod,
+                                        FieldGetMethod        fGetMethod  );
+
+    static FieldDescriptionBase *
+        createIdxFieldDescription(const Char8                *szFieldname,
+                                        UInt32                uiFieldFlags,
+                                        FieldIndexEditMethod  fEditMethod,
+                                        FieldIndexGetMethod   fGetMethod  );
+
     /*! \}                                                                 */
     /*==========================  PRIVATE  ================================*/
 

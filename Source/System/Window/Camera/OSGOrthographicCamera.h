@@ -48,7 +48,10 @@ OSG_BEGIN_NAMESPACE
 
 /*! \brief OrthographicCamera class. See \ref 
            PageSystemOrthographicCamera for a description.
-*/
+    \ingroup GrpWindowCameraObj
+    \ingroup GrpLibOSGWindow
+    \includebasedoc
+ */
 
 class OSG_WINDOW_DLLMAPPING OrthographicCamera : public OrthographicCameraBase
 {
@@ -73,9 +76,9 @@ class OSG_WINDOW_DLLMAPPING OrthographicCamera : public OrthographicCameraBase
     /*! \name                  Camera-specific                             */
     /*! \{                                                                 */
 
-    virtual void getProjection(Matrixr &result, 
-                               UInt32   width, 
-                               UInt32   height);
+    virtual void getProjection(Matrix &result, 
+                               UInt32  width, 
+                               UInt32  height);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

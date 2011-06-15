@@ -2,6 +2,57 @@
 
 using namespace OSG;
 
+/*! 
+
+   \if separate
+     \page PageState State Documentation
+   \else
+     \page PageState State
+   \endif
+
+    \section PageSystemCubeTextureObjChunk
+    \section PageSystemClipPlaneChunk
+    \section PageStateFogChunk
+    \section PageSystemFragmentProgramChunk
+    \section PageSystemProgramChunk
+    \section PageSystemLightModelChunk
+    \section PageSystemLineChunk
+    \section PageStateLogicOpChunk
+    \section PageSystemRegisterCombinersChunk
+    \section PageSystemShadeModelChunk
+    \section PageSystemStencilChunk
+    \section PageSystemTexGenChunk
+    \section PageSystemTextureEnvChunk
+    \section PageSystemTextureObjRefChunk
+    \section PageSystemTextureSelectChunk
+    \section PageSystemTextureTransformChunk
+    \section PageSystemTransformChunk
+    \section PageSystemVertexProgramChunk
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+
 /*! \page PageSystemState State Handling
 
 \latexonly Starter:NewChapter \endlatexonly
@@ -342,3 +393,4 @@ specification</A> for details.
 \section PageSystemDepthChunk DepthChunk
 
 */
+#endif

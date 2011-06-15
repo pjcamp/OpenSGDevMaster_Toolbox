@@ -66,9 +66,16 @@ OSG_BEGIN_NAMESPACE
 class RenderActionBase;
 class TraversalValidator;
 class ShaderCache;
+class PassiveViewport;
 
 /*! \brief Window base class. See \ref PageSystemWindowWindow
-for a description. */
+    for a description. 
+
+  \ingroup GrpSystemWindowBase
+  \ingroup GrpLibOSGSystem
+  \includebasedoc
+ */
+
 class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
 {
     /*==========================  PUBLIC  =================================*/
@@ -107,8 +114,9 @@ class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
         ParallelDrawer          = 0x000200,        
         DrawerMask              = 0x00FF00,
 
-        CycleContext            = 0x010000,
-        KeepContextActive       = 0x020000,
+        ActiveContext           = 0x010000,
+        ExternalContext         = 0x020000,       
+        PassiveContext          = 0x040000,
         ContextMask             = 0xFF0000
     };
 
@@ -149,7 +157,7 @@ class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name             Extension registration                           
-    * See \ref */
+    * See */
     /*! \{                                                                 */
 
     static UInt32 registerExtension(const Char8 *s               );
@@ -263,14 +271,15 @@ class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
     /*! \name             Sequential drawing                               */
     /*! \{                                                                 */
 
-    virtual void activate          (void                    ) = 0;
-    virtual void deactivate        (void                    ) = 0;
-    virtual bool swap              (void                    ) = 0;
+    virtual void activate          (void                    );
+    virtual void deactivate        (void                    );
+    virtual bool swap              (void                    );
 
     virtual void frameExit         (void                    );
     virtual void frameInit         (void                    );
     virtual void renderAllViewports(RenderActionBase *action);
 
+    virtual void terminate         (void                    ) = 0;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -279,11 +288,9 @@ class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
 
     void   setPartitionDrawMode(UInt32 uiMode      );
     void   setDrawerType       (UInt32 uiDrawerType);
-    void   setKeepContextActive(bool   bVal        );
 
     UInt32 getPartitionDrawMode(void               ) const;
     UInt32 getDrawerType       (void               ) const;
-    bool   getKeepContextActive(void               ) const;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -327,11 +334,12 @@ class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
     /*! \name                      Output                                  */
     /*! \{                                                                 */
 
-    virtual void dump(      UInt32    uiIndent = 0,
-                      const BitVector bvFlags  = 0) const;
+    virtual void dump      (      UInt32    uiIndent = 0,
+                            const BitVector bvFlags  = 0) const;
+
+    static  void staticDump(void                        );
 
     /*! \}                                                                 */
-
     /*=========================  PROTECTED  ===============================*/
 
   protected:
@@ -388,6 +396,7 @@ class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
 
     virtual void doRenderAllViewports(RenderActionBase *action      );
 
+    virtual bool hasContext          (void                          ) = 0;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -416,8 +425,10 @@ class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
 
     friend class GLObject;
 
-    /** Used to keep track of the OpenGL objects registered with the system.
-     * See \ref PageSystemOGLObjects for a description.
+    /*! Used to keep track of the OpenGL objects registered with the system.
+        See \ref PageSystemOGLObjects for a description.
+
+        \nohierarchy
      */
     class GLObject
     {
@@ -479,6 +490,11 @@ class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
     void pushToDrawTasks(DrawTask * const value);
 
     /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                GL object handling                            */
+    /*! \{                                                                 */
+
+    /*! \}                                                                 */
     /*==========================  PRIVATE  ================================*/
 
   private:
@@ -491,6 +507,7 @@ class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
     friend class WindowBase;
     friend class DrawTask;
     friend class WindowDrawTask;
+    friend class PassiveViewport;
 
     static WindowStore                _allWindows;
     static Int32                      _currentWindowId;
@@ -499,10 +516,8 @@ class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
     /*! \name   Static GL Object / Extension variables                     */
     /*! \{                                                                 */
 
-#ifndef OSG_EMBEDDED
     static  LockRefPtr                _GLObjectLock;
     static  LockRefPtr                _staticWindowLock;
-#endif
 
     static std::vector<GLObject  *>   _glObjects;
     static const Char8               *_glLibraryName;
@@ -543,7 +558,6 @@ class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
     std::vector<GLExtensionFunction>  _extFunctions;
 
     ConstHash                         _availConstants;
-    UInt32                            _numAvailConstants;
 
     Int32                             _windowId;
     TraversalValidator               *_pTravValidator;
@@ -555,6 +569,8 @@ class OSG_SYSTEM_DLLMAPPING Window : public WindowBase
     WindowDrawTaskRefPtr              _pFrameInitTask;
     WindowDrawTaskRefPtr              _pFrameExitTask;
     WindowDrawTaskRefPtr              _pActivateTask;
+    WindowDrawTaskRefPtr              _pDeactivateTask;
+    DrawTaskRefPtr                    _pGLFinishTask;
 
     DrawEnv                           _oEnv;
 

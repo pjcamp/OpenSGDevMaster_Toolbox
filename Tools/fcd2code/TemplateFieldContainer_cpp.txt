@@ -7,7 +7,7 @@
  *                            www.opensg.org                                 *
  *                                                                           *
 @@if hasAuthors
- *   contact:  @!Authors!@*
+@!AuthorsCommentText!@
 @@else // hasAuthors
  *   contact: dirk@opensg.org, gerrit.voss@vossg.org, jbehr@zgdv.de          *
 @@endif // hasAuthors
@@ -54,7 +54,7 @@
 
 @@endif
 @@endif
-#include <@!HeaderPrefix!@OSGConfig.h>
+#include "@!HeaderPrefix!@OSGConfig.h"
 
 #include "OSG@!Classname!@.h"
 

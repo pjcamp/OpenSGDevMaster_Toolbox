@@ -6,7 +6,7 @@
  *                                                                           *
  *                            www.opensg.org                                 *
  *                                                                           *
- *                 contact: dan.guilliams@gmail.com			     *
+ *            contact: Dan Guilliams <dan.guilliams@gmail.com>	             *
  *                                                                           *
 \*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*\
@@ -104,7 +104,25 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 
 	virtual FieldContainer *createInstance(ColladaInstanceElement *colInstElem);
 
-	
+	// used to determine which type of keyframe sequence used
+	enum SequenceType {	REAL,REAL2,REAL3,REAL4, // 
+						INT,INT2,INT3,INT4, // not used?
+						BOOL,BOOL2,BOOL3,BOOL4, // probably not used
+						COLOR3,COLOR4, // definitely used
+						QUATX,QUATY,QUATZ, // rotations
+						TRANSX,TRANSY,TRANSZ, // translations in 1 axis
+						SCALEX,SCALEY,SCALEZ, // scales in 1 axis
+						TRANSLATE,SCALE, // translation/scaling in all 3 axis
+						INVALID // unable to determine type
+					  };
+
+	// getters for this class.  These are used to get data from the ColladaAnimaiton
+	// when finalizing animations when setting up a scene in ColladNode.cpp
+	ColladaAnimation::SequenceType getSequenceType();
+	FieldAnimation* getAnimation();
+	bool isIndexed();
+	UInt32 getTargetIndex();
+
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
   protected:
@@ -123,18 +141,8 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
     /*---------------------------------------------------------------------*/
 	static ColladaElementRegistrationHelper _regHelper;
 
-	// used to determine which type of keyframe sequence we need
-	enum SequenceType {	REAL,REAL2,REAL3,REAL4, // 
-						INT,INT2,INT3,INT4, // not used?
-						BOOL,BOOL2,BOOL3,BOOL4, // probably not used
-						COLOR3,COLOR4, // definitely used
-						QUATX,QUATY,QUATZ, // rotations
-						TRANSX,TRANSY,TRANSZ, // translations in 1 axis
-						SCALEX,SCALEY,SCALEZ, // scales in 1 axis
-						TRANSLATE,SCALE, // translation/scaling in all 3 axis
-						INVALID // unable to determine type
-					  };
 
+	// internal functions
 	void buildKeyframeSequence(domAnimationRef anim);
 	void buildAnimator(domAnimationRef anim);
 	void buildAnimation(Animator * animator);
@@ -143,29 +151,29 @@ class OSG_FILEIO_DLLMAPPING ColladaAnimation : public ColladaInstantiableElement
 	void buildBoolSequence(domAnimationRef animation, domAccessorRef accessor, std::vector<Real32> timeKeys);
 	void readSamplers(domAnimationRef anim);
 	void getInterpolationType();
+	void extractIndex();
 	bool isTransformAttribute(daeElement * target);
-	TransformAnimator* getTransformAnimator();
 
-	
-	//  map from a <source> name to its corresponding OpenSG keyframe sequence
-	//  typedef std::map<std::string, KeyframeInfoPtr>	SourceMap;
-	//  typedef SourceMap::iterator								SourceMapIt;
-	//	typedef SourceMap::const_iterator						SourceMapConstIt;
+	void buildSingleAxisKeyframes( KeyframeVectorSequenceVec3f * kfSeq, Vec3f defaultValue, UInt32 animatedAxis, 
+							   domListOfFloats animVals, std::vector<Real32> timeKeys);
 
-	//SourceMap _sourceMap;
-	//SourceMap _samplerMap;
-	std::string _animationTarget;
+	Vec3f getVec3fAnimTargetValue();
+
+	// members
+	std::string _animationTargetName;
 	KeyframeSequenceUnrecPtr _keyframeSequence;
 	SequenceType _seqTy;
-	AnimatorUnrecPtr _animator;
+	KeyframeAnimatorUnrecPtr _animator;
 	FieldAnimationUnrecPtr _animation;
 	Animator::InterpolationType _interpolationType;
 	daeElement * _animTarget;
 	domSourceRef _inputSource;
 	domSourceRef _outputSource;
 	domSourceRef _interpolationSource;
-	
+	UInt32 _animLength;
 	bool _reusingAnimator;
+	UInt32 _targetIndex;
+	bool _isIndexed;
 };
 
 OSG_GEN_MEMOBJPTR(ColladaAnimation);

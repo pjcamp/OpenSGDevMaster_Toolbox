@@ -85,6 +85,8 @@ class OSG_CONTRIBGUI_DLLMAPPING RotateManipulatorBase : public Manipulator
     typedef TypeObject::InitPhase InitPhase;
 
     OSG_GEN_INTERNALPTR(RotateManipulator);
+    
+    
 
     /*==========================  PUBLIC  =================================*/
 

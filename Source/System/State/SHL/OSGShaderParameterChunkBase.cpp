@@ -299,6 +299,7 @@ void ShaderParameterChunkBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (ParametersFieldMask & whichField))
     {
+        editMField(ParametersFieldMask, _mfParameters);
         _mfParameters.copyFromBin(pMem);
     }
 }
@@ -356,8 +357,15 @@ bool ShaderParameterChunkBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("ShaderParameterChunkBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }

@@ -151,6 +151,7 @@ ResolutionDisplayFilterBase::TypeObject ResolutionDisplayFilterBase::_type(
     "   parentsystemcomponent=\"true\"\n"
     "   decoratable=\"false\"\n"
     "   useLocalIncludes=\"false\"\n"
+    "   docGroupBase=\"GrpEffectsGroupsDisplayFilter\"\n"
     "   >   \n"
     "  <Field\n"
     "\t name=\"downScale\"\n"
@@ -233,6 +234,7 @@ void ResolutionDisplayFilterBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (DownScaleFieldMask & whichField))
     {
+        editSField(DownScaleFieldMask);
         _sfDownScale.copyFromBin(pMem);
     }
 }

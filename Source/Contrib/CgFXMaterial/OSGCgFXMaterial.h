@@ -115,6 +115,8 @@ class OSG_CONTRIBCGFX_DLLMAPPING CgFXMaterial : public CgFXMaterialBase
 
     static const UInt32 NumStateVars = CgTime + 1;
 
+    static const std::string FALBACK_MATERIAL_TECHNIQUE_NAME;
+
     /*---------------------------------------------------------------------*/
     /*! \name                      Sync                                    */
     /*! \{                                                                 */
@@ -157,8 +159,17 @@ class OSG_CONTRIBCGFX_DLLMAPPING CgFXMaterial : public CgFXMaterialBase
     template<class ValueT>
     bool getUniformVariable   (const Char8 *name,       ValueT &value);
 
-	bool setActiveTechnique(std::string techniqueName);
-	std::vector<std::string> getAvailableTechniques();
+	bool setActiveTechnique(const std::string& techniqueName);
+	std::vector<std::string> getAvailableTechniques(void) const;
+	CgFXTechnique* getTechnique(const std::string& techniqueName) const;
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                       Init                                   */
+    /*! \{                                                                 */
+
+    static bool checkForCgError(const Char8     *szSituation, 
+                                      CGcontext  pCGcontext);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -221,14 +232,6 @@ class OSG_CONTRIBCGFX_DLLMAPPING CgFXMaterial : public CgFXMaterialBase
     /*! \name                       Init                                   */
     /*! \{                                                                 */
 
-    static bool checkForCgError(const Char8     *szSituation, 
-                                      CGcontext  pCGcontext);
-
-    /*! \}                                                                 */
-    /*---------------------------------------------------------------------*/
-    /*! \name                       Init                                   */
-    /*! \{                                                                 */
-
     void readEffectFile        (      void                      );
     void processEffectString   (      void                      );
 
@@ -241,6 +244,9 @@ class OSG_CONTRIBCGFX_DLLMAPPING CgFXMaterial : public CgFXMaterialBase
 
     void addVariable           (      ShaderVariable *pVar      );
     const ShaderVariable *getVariable(const Char8    *name) const;
+
+    
+    void initContext           (      void                      );
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -274,6 +280,7 @@ class OSG_CONTRIBCGFX_DLLMAPPING CgFXMaterial : public CgFXMaterialBase
     friend class CgFXPassChunk;
     friend class CgFXTechnique;
 	friend class ColladaEffect;
+    bool _ForceUseFallback;
 
     // prohibit default functions (move to 'public' if you need one)
     void operator =(const CgFXMaterial &source);

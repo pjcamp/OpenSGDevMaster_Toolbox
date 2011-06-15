@@ -310,7 +310,7 @@ ColladaLight::createTechniqueSpot(
     }
     if(falloffAngle != NULL)
     {
-        osgLight->setSpotCutOff(falloffAngle->getValue());
+        osgLight->setSpotCutOff(osgDegree2Rad(falloffAngle->getValue()));
     }
     if(falloffExp != NULL)
     {

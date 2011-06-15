@@ -50,8 +50,11 @@ OSG_BEGIN_NAMESPACE
 class RenderActionBase;
 
 /*! \brief Passive Viewport class. See \ref 
-    PageSystemWindowViewportsPassive for a description.
-*/
+           PageSystemWindowViewportsPassive for a description.
+    \ingroup GrpWindowPassiveObj
+    \ingroup GrpLibOSGWindow
+    \includebasedoc
+ */
 
 class OSG_WINDOW_DLLMAPPING PassiveViewport : public PassiveViewportBase
 {
@@ -99,6 +102,7 @@ class OSG_WINDOW_DLLMAPPING PassiveViewport : public PassiveViewportBase
   protected:
 
     // Variables should all be in PassiveViewportBase.
+    WindowDrawTaskRefPtr _pDeactivateTask;
 
     /*---------------------------------------------------------------------*/
     /*! \name                  Constructors                                */

@@ -50,7 +50,10 @@ OSG_BEGIN_NAMESPACE
 
 /*! \brief PassiveWindow class. See \ref 
            PageSystemPassiveWindow for a description.
-*/
+    \ingroup GrpWindowPassiveObj
+    \ingroup GrpLibOSGWindow
+    \includebasedoc
+ */
 
 class OSG_WINDOW_DLLMAPPING PassiveWindow : public PassiveWindowBase
 {
@@ -78,7 +81,12 @@ class OSG_WINDOW_DLLMAPPING PassiveWindow : public PassiveWindowBase
     /*---------------------------------------------------------------------*/
     /*! \name                      Redefined                               */
     /*! \{                                                                 */
-    
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                      Redefined                               */
+    /*! \{                                                                 */
+
     virtual void init     (GLInitFunctor oFunc = GLInitFunctor());
     virtual void terminate(void                                 );
 
@@ -87,11 +95,142 @@ class OSG_WINDOW_DLLMAPPING PassiveWindow : public PassiveWindowBase
     /*! \name                      Redefined                               */
     /*! \{                                                                 */
 
-    virtual void activate  (void);
-    virtual void deactivate(void);
-    virtual bool swap      (void);
-   
     /*! \}                                                                 */  
+	virtual void setShowCursor(bool show);
+	virtual bool getShowCursor() const;
+    virtual void setAttachMouseToCursor(bool attach);
+    virtual bool getAttachMouseToCursor(void) const;
+	virtual Vec2f getDesktopSize() const;
+
+	virtual std::vector<BoostPath, std::allocator<BoostPath> >
+        openFileDialog(const std::string&,
+                       const std::vector<WindowEventProducer::FileDialogFilter,
+                       std::allocator<WindowEventProducer::FileDialogFilter> >&,
+                       const BoostPath&, bool);
+	virtual BoostPath
+        saveFileDialog(const std::string&,
+                       const std::vector<WindowEventProducer::FileDialogFilter,
+                       std::allocator<WindowEventProducer::FileDialogFilter> >&,
+                       const std::string&, const BoostPath&, bool);
+
+	virtual KeyEventDetails::KeyState getKeyState(KeyEventDetails::Key) const;
+	
+    virtual void openWindow(const Pnt2f& ScreenPosition,
+                            const Vec2f& Size,
+                            const std::string& WindowName);
+    
+    virtual void closeWindow(void);
+    
+    virtual void mainLoop(void);
+	
+	virtual Window* initWindow(void);
+	
+    //Set the Window Position
+    virtual void setPosition(Pnt2f Pos);
+
+    //Set the Window Position
+    virtual Pnt2f getPosition(void) const;
+
+    //Set the Window size
+    virtual void setSize(Vec2us Size);
+
+    //Get the Window size
+    virtual Vec2f getSize(void) const;
+
+    //Focused
+    //Set the Window Focus
+    virtual void setFocused(bool Focused);
+
+    //Get the Window Focus
+    virtual bool getFocused(void) const;
+
+    //Visible / Iconify / Normal
+    //Set the Window Visible
+    virtual void setVisible(bool Visible);
+
+    //Get the Window Visible
+    virtual bool getVisible(void) const;
+
+    //Set the Window Iconify
+    virtual void setIconify(bool Iconify);
+
+    //Get the Window Iconify
+    virtual bool getIconify(void) const;
+
+    //Fullscreen
+    virtual void setFullscreen(bool Fullscreen);
+
+    //Get the Window Fullscreen
+    virtual bool getFullscreen(void) const;
+
+    //Set the text on the Title bar of the window
+    virtual void setTitle(const std::string& TitleText);
+
+    //Get the text of the Title bar of the window
+    virtual std::string getTitle(void);
+
+    //Set the window to allow or not allow Resizing
+    virtual void setRisizable(bool IsResizable);
+
+    //Get whether or not the window allows resizing
+    virtual bool getRisizable(void);
+
+    //Set the window to draw or not draw it's border
+    virtual void setDrawBorder(bool DrawBorder);
+
+    //Get wether or not the window is drawing a border
+    virtual bool getDrawBorder(void);
+	
+    virtual void draw(void);
+
+    virtual void update(void);
+
+    virtual bool attachWindow(void);
+
+	virtual UInt32 getKeyModifiers(void) const;
+    
+	virtual Pnt2f getMousePosition(void) const;
+	
+	virtual std::string getClipboard(void) const;
+
+	virtual void putClipboard(const std::string Value);
+
+    void produceMouseClicked(const MouseEventDetails::MouseButton& Button,
+                             const Pnt2f& Location);
+    void produceMouseEntered(const Pnt2f& Location);
+    void produceMouseExited(const Pnt2f& Location);
+    void produceMousePressed(const MouseEventDetails::MouseButton& Button,
+                             const Pnt2f& Location);
+    void produceMouseReleased(const MouseEventDetails::MouseButton& Button,
+                              const Pnt2f& Location);
+
+    void produceMouseWheelMoved(const Int32& WheelRotation,
+                                const Pnt2f& Location,
+                                const MouseWheelEventDetails::ScrollType& TheScrollType = MouseWheelEventDetails::UNIT_SCROLL);
+
+    void produceMouseMoved(const Pnt2f& Location, const Vec2f& Delta);
+    void produceMouseDragged(const MouseEventDetails::MouseButton& Button,
+                             const Pnt2f& Location,
+                             const Vec2f& Delta);
+
+    void produceKeyPressed(const KeyEventDetails::Key& TheKey,
+                           const UInt32& Modifiers);
+    void produceKeyReleased(const KeyEventDetails::Key& TheKey,
+                            const UInt32& Modifiers);
+    void produceKeyTyped(const KeyEventDetails::Key& TheKey,
+                         const UInt32& Modifiers);
+    
+    void produceUpdate(const Time& ElapsedTime);
+    
+    void produceWindowOpened(void);
+    void produceWindowClosing(void);
+    void produceWindowClosed(void);
+    void produceWindowIconified(void);
+    void produceWindowDeiconified(void);
+    void produceWindowActivated(void);
+    void produceWindowDeactivated(void);
+    void produceWindowEntered(void);
+    void produceWindowExited(void);
     /*=========================  PROTECTED  ===============================*/
 
   protected:
@@ -117,6 +256,7 @@ class OSG_WINDOW_DLLMAPPING PassiveWindow : public PassiveWindowBase
     /*! \name      Window system implementation functions                  */
     /*! \{                                                                 */
 
+    virtual void setCursor(void);
     /*! \}                                                                 */
     /*==========================  PRIVATE  ================================*/
 
@@ -126,6 +266,7 @@ class OSG_WINDOW_DLLMAPPING PassiveWindow : public PassiveWindowBase
     
     friend class FieldContainer;
     friend class PassiveWindowBase;
+    friend class PassiveViewport;
 
     static void initMethod(InitPhase ePhase);
     

@@ -75,8 +75,6 @@ OSG_BEGIN_NAMESPACE
 \***************************************************************************/
 
 /*! \class OSG::SolidBackground
-    \ingroup GrpSystemWindowBackgrounds
-
     A single colored background, see \ref PageSystemWindowBackgroundSolid for a
     description.
 
@@ -87,7 +85,7 @@ OSG_BEGIN_NAMESPACE
  *                        Field Documentation                              *
 \***************************************************************************/
 
-/*! \var Color3r         SolidBackgroundBase::_sfColor
+/*! \var Color3f         SolidBackgroundBase::_sfColor
     The background color.
 */
 
@@ -120,8 +118,8 @@ void SolidBackgroundBase::classDescInserter(TypeObject &oType)
     FieldDescriptionBase *pDesc = NULL;
 
 
-    pDesc = new SFColor3r::Description(
-        SFColor3r::getClassType(),
+    pDesc = new SFColor3f::Description(
+        SFColor3f::getClassType(),
         "color",
         "The background color.\n",
         ColorFieldId, ColorFieldMask,
@@ -160,42 +158,39 @@ SolidBackgroundBase::TypeObject SolidBackgroundBase::_type(
     "<?xml version=\"1.0\" ?>\n"
     "\n"
     "<FieldContainer\n"
-    "\tname=\"SolidBackground\"\n"
-    "\tparent=\"Background\"\n"
-    "\tlibrary=\"Window\"\n"
-    "\tstructure=\"concrete\"\n"
-    "\tpointerfieldtypes=\"single\"\n"
-    "\tsystemcomponent=\"true\"\n"
-    "\tparentsystemcomponent=\"true\"\n"
-    ">\n"
-    "\\ingroup GrpSystemWindowBackgrounds\n"
+    "   name=\"SolidBackground\"\n"
+    "   parent=\"Background\"\n"
+    "   library=\"Window\"\n"
+    "   structure=\"concrete\"\n"
+    "   pointerfieldtypes=\"single\"\n"
+    "   systemcomponent=\"true\"\n"
+    "   parentsystemcomponent=\"true\"\n"
+    "   docGroupBase=\"GrpWindowBackground\"\n"
+    "   >\n"
+    "  A single colored background, see \\ref PageSystemWindowBackgroundSolid for a\n"
+    "  description.\n"
     "\n"
-    "A single colored background, see \\ref PageSystemWindowBackgroundSolid for a\n"
-    "description.\n"
-    "\n"
-    "The color of the background is given by the _sfColor field.\n"
-    "\t<Field\n"
-    "\t\tname=\"color\"\n"
-    "\t\ttype=\"Color3r\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "        defaultValue=\"0.f, 0.f, 0.f\"\n"
-    "\t>\n"
+    "  The color of the background is given by the _sfColor field.\n"
+    "  <Field\n"
+    "\t name=\"color\"\n"
+    "\t type=\"Color3f\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "     defaultValue=\"0.f, 0.f, 0.f\"\n"
+    "\t >\n"
     "\tThe background color.\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"alpha\"\n"
-    "\t\ttype=\"Real32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"1.f\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"alpha\"\n"
+    "\t type=\"Real32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"1.f\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
     "\tAlpha value (to allow transparent clears).\n"
-    "\t</Field>\n"
+    "  </Field>\n"
     "</FieldContainer>\n",
-    "\\ingroup GrpSystemWindowBackgrounds\n"
-    "\n"
     "A single colored background, see \\ref PageSystemWindowBackgroundSolid for a\n"
     "description.\n"
     "\n"
@@ -222,14 +217,14 @@ UInt32 SolidBackgroundBase::getContainerSize(void) const
 /*------------------------- decorator get ------------------------------*/
 
 
-SFColor3r *SolidBackgroundBase::editSFColor(void)
+SFColor3f *SolidBackgroundBase::editSFColor(void)
 {
     editSField(ColorFieldMask);
 
     return &_sfColor;
 }
 
-const SFColor3r *SolidBackgroundBase::getSFColor(void) const
+const SFColor3f *SolidBackgroundBase::getSFColor(void) const
 {
     return &_sfColor;
 }
@@ -292,10 +287,12 @@ void SolidBackgroundBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (ColorFieldMask & whichField))
     {
+        editSField(ColorFieldMask);
         _sfColor.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (AlphaFieldMask & whichField))
     {
+        editSField(AlphaFieldMask);
         _sfAlpha.copyFromBin(pMem);
     }
 }
@@ -423,7 +420,7 @@ FieldContainerTransitPtr SolidBackgroundBase::shallowCopy(void) const
 
 SolidBackgroundBase::SolidBackgroundBase(void) :
     Inherited(),
-    _sfColor                  (Color3r(0.f, 0.f, 0.f)),
+    _sfColor                  (Color3f(0.f, 0.f, 0.f)),
     _sfAlpha                  (Real32(1.f))
 {
 }
@@ -445,8 +442,8 @@ SolidBackgroundBase::~SolidBackgroundBase(void)
 
 GetFieldHandlePtr SolidBackgroundBase::getHandleColor           (void) const
 {
-    SFColor3r::GetHandlePtr returnValue(
-        new  SFColor3r::GetHandle(
+    SFColor3f::GetHandlePtr returnValue(
+        new  SFColor3f::GetHandle(
              &_sfColor,
              this->getType().getFieldDesc(ColorFieldId),
              const_cast<SolidBackgroundBase *>(this)));
@@ -456,8 +453,8 @@ GetFieldHandlePtr SolidBackgroundBase::getHandleColor           (void) const
 
 EditFieldHandlePtr SolidBackgroundBase::editHandleColor          (void)
 {
-    SFColor3r::EditHandlePtr returnValue(
-        new  SFColor3r::EditHandle(
+    SFColor3f::EditHandlePtr returnValue(
+        new  SFColor3f::EditHandle(
              &_sfColor,
              this->getType().getFieldDesc(ColorFieldId),
              this));

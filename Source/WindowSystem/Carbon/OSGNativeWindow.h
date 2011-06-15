@@ -44,10 +44,17 @@
 
 #include "OSGCarbonWindow.h"
 
+#ifndef OSG_DO_DOC
+
 OSG_BEGIN_NAMESPACE
+
+/*! \ingroup GrpWindowCarbonObj
+ */
 
 typedef CarbonWindow NativeWindow;
 
 OSG_END_NAMESPACE
+
+#endif
 
 #endif // _OSGNATIVEWINDOW_H_

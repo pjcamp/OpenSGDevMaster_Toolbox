@@ -113,10 +113,12 @@ void ClusterWindow::dump(      UInt32    ,
     SLOG << "Dump ClusterWindow NI" << std::endl;
 }
 
-void (*ClusterWindow::getFunctionByName(const Char8 *))()
+#if 0
+void (*ClusterWindow::getFunctionByName(const Char8 *s))()
 {
     return NULL;
 }
+#endif
 
 /*! init cluster window. connect to all servers
  */
@@ -594,6 +596,10 @@ bool ClusterWindow::swap(void)
     return this->doSwap();
 }
 
+void ClusterWindow::terminate (void)
+{
+}
+
 void ClusterWindow::doActivate(void)
 {
 }
@@ -628,6 +634,11 @@ void ClusterWindow::doRenderAllViewports(RenderActionBase *action)
     {
         clientRender(action);
     }
+}
+
+bool ClusterWindow::hasContext(void)
+{
+    return true;
 }
 
 void ClusterWindow::doFrameInit(bool reinitExtFuctions)

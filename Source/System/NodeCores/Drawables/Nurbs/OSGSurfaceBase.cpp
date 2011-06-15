@@ -93,11 +93,11 @@ OSG_BEGIN_NAMESPACE
     The surface dimension in V
 */
 
-/*! \var Real            SurfaceBase::_mfKnotsU
+/*! \var Real32          SurfaceBase::_mfKnotsU
     The surface knots in U direction
 */
 
-/*! \var Real            SurfaceBase::_mfKnotsV
+/*! \var Real32          SurfaceBase::_mfKnotsV
     The surface knots in V direction
 */
 
@@ -105,7 +105,7 @@ OSG_BEGIN_NAMESPACE
     The control points for the surface
 */
 
-/*! \var Real            SurfaceBase::_sfError
+/*! \var Real32          SurfaceBase::_sfError
     The approximation error for the tessellation
 */
 
@@ -121,11 +121,11 @@ OSG_BEGIN_NAMESPACE
     The dimensions for the trimming curves
 */
 
-/*! \var Pnt3r           SurfaceBase::_mfCurveControlPoints
+/*! \var Pnt3f           SurfaceBase::_mfCurveControlPoints
     The control points for the trimming curves
 */
 
-/*! \var Real            SurfaceBase::_mfKnots
+/*! \var Real32          SurfaceBase::_mfKnots
     The knotvectors for the trimming curves
 */
 
@@ -204,8 +204,8 @@ void SurfaceBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new MFReal::Description(
-        MFReal::getClassType(),
+    pDesc = new MFReal32::Description(
+        MFReal32::getClassType(),
         "knotsU",
         "The surface knots in U direction\n",
         KnotsUFieldId, KnotsUFieldMask,
@@ -216,8 +216,8 @@ void SurfaceBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new MFReal::Description(
-        MFReal::getClassType(),
+    pDesc = new MFReal32::Description(
+        MFReal32::getClassType(),
         "knotsV",
         "The surface knots in V direction\n",
         KnotsVFieldId, KnotsVFieldMask,
@@ -240,8 +240,8 @@ void SurfaceBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new SFReal::Description(
-        SFReal::getClassType(),
+    pDesc = new SFReal32::Description(
+        SFReal32::getClassType(),
         "error",
         "The approximation error for the tessellation\n",
         ErrorFieldId, ErrorFieldMask,
@@ -288,8 +288,8 @@ void SurfaceBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new MFPnt3r::Description(
-        MFPnt3r::getClassType(),
+    pDesc = new MFPnt3f::Description(
+        MFPnt3f::getClassType(),
         "curveControlPoints",
         "The control points for the trimming curves\n",
         CurveControlPointsFieldId, CurveControlPointsFieldMask,
@@ -300,8 +300,8 @@ void SurfaceBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new MFReal::Description(
-        MFReal::getClassType(),
+    pDesc = new MFReal32::Description(
+        MFReal32::getClassType(),
         "knots",
         "The knotvectors for the trimming curves\n",
         KnotsFieldId, KnotsFieldMask,
@@ -391,179 +391,180 @@ SurfaceBase::TypeObject SurfaceBase::_type(
     "<?xml version=\"1.0\"?>\n"
     "\n"
     "<FieldContainer\n"
-    "    name=\"Surface\"\n"
-    "    parent=\"Geometry\"\n"
-    "    library=\"Drawable\"\n"
-    "    pointerfieldtypes=\"both\"\n"
-    "    structure=\"concrete\"\n"
-    "    systemcomponent=\"true\"\n"
-    "    parentsystemcomponent=\"true\"\n"
-    "    decoratable=\"false\"\n"
-    "    isNodeCore=\"true\"\n"
-    ">\n"
-    "This is the OpenSG NURBS surface node. It supports an arbitrary number of\n"
-    "trimming curves. The interface lets you define both rational and nonrational\n"
-    "surfaces, and you can also vary rational and nonrational trimming curves.\n"
-    "    <Field\n"
-    "        name=\"dimU\"\n"
-    "        type=\"UInt32\"\n"
-    "        cardinality=\"single\"\n"
-    "        visibility=\"external\"\n"
-    "        defaultValue=\"0\"\n"
-    "        access=\"public\"\n"
-    "    >\n"
+    "   name=\"Surface\"\n"
+    "   parent=\"Geometry\"\n"
+    "   library=\"Drawable\"\n"
+    "   pointerfieldtypes=\"both\"\n"
+    "   structure=\"concrete\"\n"
+    "   systemcomponent=\"true\"\n"
+    "   parentsystemcomponent=\"true\"\n"
+    "   decoratable=\"false\"\n"
+    "   isNodeCore=\"true\"\n"
+    "   docGroupBase=\"GrpDrawablesNurbs\"\n"
+    "   >\n"
+    "  This is the OpenSG NURBS surface node. It supports an arbitrary number of\n"
+    "  trimming curves. The interface lets you define both rational and nonrational\n"
+    "  surfaces, and you can also vary rational and nonrational trimming curves.\n"
+    "  <Field\n"
+    "     name=\"dimU\"\n"
+    "     type=\"UInt32\"\n"
+    "     cardinality=\"single\"\n"
+    "     visibility=\"external\"\n"
+    "     defaultValue=\"0\"\n"
+    "     access=\"public\"\n"
+    "     >\n"
     "    The surface dimension in U\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"dimV\"\n"
-    "        type=\"UInt32\"\n"
-    "        cardinality=\"single\"\n"
-    "        visibility=\"external\"\n"
-    "        defaultValue=\"0\"\n"
-    "        access=\"public\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"dimV\"\n"
+    "     type=\"UInt32\"\n"
+    "     cardinality=\"single\"\n"
+    "     visibility=\"external\"\n"
+    "     defaultValue=\"0\"\n"
+    "     access=\"public\"\n"
+    "     >\n"
     "    The surface dimension in V\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"knotsU\"\n"
-    "        type=\"Real\"\n"
-    "        cardinality=\"multi\"\n"
-    "        visibility=\"external\"\n"
-    "        access=\"public\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"knotsU\"\n"
+    "     type=\"Real32\"\n"
+    "     cardinality=\"multi\"\n"
+    "     visibility=\"external\"\n"
+    "     access=\"public\"\n"
+    "     >\n"
     "    The surface knots in U direction\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"knotsV\"\n"
-    "        type=\"Real\"\n"
-    "        cardinality=\"multi\"\n"
-    "        visibility=\"external\"\n"
-    "        access=\"public\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"knotsV\"\n"
+    "     type=\"Real32\"\n"
+    "     cardinality=\"multi\"\n"
+    "     visibility=\"external\"\n"
+    "     access=\"public\"\n"
+    "     >\n"
     "    The surface knots in V direction\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"controlPoints\"\n"
-    "        type=\"GeoVectorProperty\"\n"
-    "        cardinality=\"single\"\n"
-    "        visibility=\"external\"\n"
-    "        access=\"public\"\n"
-    "        category=\"childpointer\"\n"
-    "        childParentType=\"FieldContainer\"\n"
-    "        linkParentField=\"Parents\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"controlPoints\"\n"
+    "     type=\"GeoVectorProperty\"\n"
+    "     cardinality=\"single\"\n"
+    "     visibility=\"external\"\n"
+    "     access=\"public\"\n"
+    "     category=\"childpointer\"\n"
+    "     childParentType=\"FieldContainer\"\n"
+    "     linkParentField=\"Parents\"\n"
+    "     >\n"
     "    The control points for the surface\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"error\"\n"
-    "        type=\"Real\"\n"
-    "        cardinality=\"single\"\n"
-    "        visibility=\"external\"\n"
-    "        defaultValue=\"0.5\"\n"
-    "        access=\"public\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"error\"\n"
+    "     type=\"Real32\"\n"
+    "     cardinality=\"single\"\n"
+    "     visibility=\"external\"\n"
+    "     defaultValue=\"0.5\"\n"
+    "     access=\"public\"\n"
+    "     >\n"
     "    The approximation error for the tessellation\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"numCurves\"\n"
-    "        type=\"UInt32\"\n"
-    "        cardinality=\"single\"\n"
-    "        visibility=\"external\"\n"
-    "        defaultValue=\"0\"\n"
-    "        access=\"protected\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"numCurves\"\n"
+    "     type=\"UInt32\"\n"
+    "     cardinality=\"single\"\n"
+    "     visibility=\"external\"\n"
+    "     defaultValue=\"0\"\n"
+    "     access=\"protected\"\n"
+    "     >\n"
     "    The number of trimming curves\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"knotLengths\"\n"
-    "        type=\"UInt32\"\n"
-    "        cardinality=\"multi\"\n"
-    "        visibility=\"external\"\n"
-    "        access=\"protected\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"knotLengths\"\n"
+    "     type=\"UInt32\"\n"
+    "     cardinality=\"multi\"\n"
+    "     visibility=\"external\"\n"
+    "     access=\"protected\"\n"
+    "     >\n"
     "    The knotlengths for the trimming curves\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"dimensions\"\n"
-    "        type=\"UInt32\"\n"
-    "        cardinality=\"multi\"\n"
-    "        visibility=\"external\"\n"
-    "        access=\"protected\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"dimensions\"\n"
+    "     type=\"UInt32\"\n"
+    "     cardinality=\"multi\"\n"
+    "     visibility=\"external\"\n"
+    "     access=\"protected\"\n"
+    "     >\n"
     "    The dimensions for the trimming curves\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"curveControlPoints\"\n"
-    "        type=\"Pnt3r\"\n"
-    "        cardinality=\"multi\"\n"
-    "        visibility=\"external\"\n"
-    "        access=\"protected\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"curveControlPoints\"\n"
+    "     type=\"Pnt3f\"\n"
+    "     cardinality=\"multi\"\n"
+    "     visibility=\"external\"\n"
+    "     access=\"protected\"\n"
+    "     >\n"
     "    The control points for the trimming curves\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"knots\"\n"
-    "        type=\"Real\"\n"
-    "        cardinality=\"multi\"\n"
-    "        visibility=\"external\"\n"
-    "        access=\"protected\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"knots\"\n"
+    "     type=\"Real32\"\n"
+    "     cardinality=\"multi\"\n"
+    "     visibility=\"external\"\n"
+    "     access=\"protected\"\n"
+    "     >\n"
     "    The knotvectors for the trimming curves\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"curvesPerLoop\"\n"
-    "        type=\"UInt32\"\n"
-    "        cardinality=\"multi\"\n"
-    "        visibility=\"external\"\n"
-    "        access=\"protected\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"curvesPerLoop\"\n"
+    "     type=\"UInt32\"\n"
+    "     cardinality=\"multi\"\n"
+    "     visibility=\"external\"\n"
+    "     access=\"protected\"\n"
+    "     >\n"
     "    Specifies the number of trimming curves in each trimming curve loop\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"isDelaunay\"\n"
-    "        type=\"bool\"\n"
-    "        cardinality=\"single\"\n"
-    "        visibility=\"external\"\n"
-    "        defaultValue=\"false\"\n"
-    "        access=\"public\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"isDelaunay\"\n"
+    "     type=\"bool\"\n"
+    "     cardinality=\"single\"\n"
+    "     visibility=\"external\"\n"
+    "     defaultValue=\"false\"\n"
+    "     access=\"public\"\n"
+    "     >\n"
     "    Whether to use Delaunay triangulation. Default is no, because it's faster\n"
     "    and slightly more robust numerically, but produces a somewhat less \"nice\"\n"
     "    triangulation. Set to true, if you want Delaunay triangulation. The number\n"
     "    of triangles generated is the same in both modes.\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"textureControlPoints\"\n"
-    "        type=\"GeoVectorProperty\"\n"
-    "        cardinality=\"single\"\n"
-    "        visibility=\"external\"\n"
-    "        access=\"public\"\n"
-    "        category=\"childpointer\"\n"
-    "        childParentType=\"FieldContainer\"\n"
-    "        linkParentField=\"Parents\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"textureControlPoints\"\n"
+    "     type=\"GeoVectorProperty\"\n"
+    "     cardinality=\"single\"\n"
+    "     visibility=\"external\"\n"
+    "     access=\"public\"\n"
+    "     category=\"childpointer\"\n"
+    "     childParentType=\"FieldContainer\"\n"
+    "     linkParentField=\"Parents\"\n"
+    "     >\n"
     "    The control points for textures (always 2D)\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"dirtyMask\"\n"
-    "        type=\"UInt32\"\n"
-    "        cardinality=\"single\"\n"
-    "        visibility=\"external\"\n"
-    "        defaultValue=\"0\"\n"
-    "        access=\"protected\"\n"
-    "    >\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "        name=\"surfaceGLId\"\n"
-    "        type=\"Int32\"\n"
-    "        cardinality=\"single\"\n"
-    "        visibility=\"internal\"\n"
-    "        defaultValue=\"0\"\n"
-    "        access=\"protected\"\n"
-    "        fieldFlags=\"FClusterLocal\"\n"
-    "    >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"dirtyMask\"\n"
+    "     type=\"UInt32\"\n"
+    "     cardinality=\"single\"\n"
+    "     visibility=\"external\"\n"
+    "     defaultValue=\"0\"\n"
+    "     access=\"protected\"\n"
+    "     >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"surfaceGLId\"\n"
+    "     type=\"Int32\"\n"
+    "     cardinality=\"single\"\n"
+    "     visibility=\"internal\"\n"
+    "     defaultValue=\"0\"\n"
+    "     access=\"protected\"\n"
+    "     fieldFlags=\"FClusterLocal\"\n"
+    "     >\n"
     "    Surface GL Id, internal use.\n"
-    "    </Field>\n"
+    "  </Field>\n"
     "</FieldContainer>\n",
     "This is the OpenSG NURBS surface node. It supports an arbitrary number of\n"
     "trimming curves. The interface lets you define both rational and nonrational\n"
@@ -616,27 +617,27 @@ const SFUInt32 *SurfaceBase::getSFDimV(void) const
 }
 
 
-MFReal *SurfaceBase::editMFKnotsU(void)
+MFReal32 *SurfaceBase::editMFKnotsU(void)
 {
     editMField(KnotsUFieldMask, _mfKnotsU);
 
     return &_mfKnotsU;
 }
 
-const MFReal *SurfaceBase::getMFKnotsU(void) const
+const MFReal32 *SurfaceBase::getMFKnotsU(void) const
 {
     return &_mfKnotsU;
 }
 
 
-MFReal *SurfaceBase::editMFKnotsV(void)
+MFReal32 *SurfaceBase::editMFKnotsV(void)
 {
     editMField(KnotsVFieldMask, _mfKnotsV);
 
     return &_mfKnotsV;
 }
 
-const MFReal *SurfaceBase::getMFKnotsV(void) const
+const MFReal32 *SurfaceBase::getMFKnotsV(void) const
 {
     return &_mfKnotsV;
 }
@@ -655,14 +656,14 @@ SFUnrecChildGeoVectorPropertyPtr *SurfaceBase::editSFControlPoints  (void)
     return &_sfControlPoints;
 }
 
-SFReal *SurfaceBase::editSFError(void)
+SFReal32 *SurfaceBase::editSFError(void)
 {
     editSField(ErrorFieldMask);
 
     return &_sfError;
 }
 
-const SFReal *SurfaceBase::getSFError(void) const
+const SFReal32 *SurfaceBase::getSFError(void) const
 {
     return &_sfError;
 }
@@ -707,27 +708,27 @@ const MFUInt32 *SurfaceBase::getMFDimensions(void) const
 }
 
 
-MFPnt3r *SurfaceBase::editMFCurveControlPoints(void)
+MFPnt3f *SurfaceBase::editMFCurveControlPoints(void)
 {
     editMField(CurveControlPointsFieldMask, _mfCurveControlPoints);
 
     return &_mfCurveControlPoints;
 }
 
-const MFPnt3r *SurfaceBase::getMFCurveControlPoints(void) const
+const MFPnt3f *SurfaceBase::getMFCurveControlPoints(void) const
 {
     return &_mfCurveControlPoints;
 }
 
 
-MFReal *SurfaceBase::editMFKnots(void)
+MFReal32 *SurfaceBase::editMFKnots(void)
 {
     editMField(KnotsFieldMask, _mfKnots);
 
     return &_mfKnots;
 }
 
-const MFReal *SurfaceBase::getMFKnots(void) const
+const MFReal32 *SurfaceBase::getMFKnots(void) const
 {
     return &_mfKnots;
 }
@@ -954,66 +955,82 @@ void SurfaceBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (DimUFieldMask & whichField))
     {
+        editSField(DimUFieldMask);
         _sfDimU.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DimVFieldMask & whichField))
     {
+        editSField(DimVFieldMask);
         _sfDimV.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (KnotsUFieldMask & whichField))
     {
+        editMField(KnotsUFieldMask, _mfKnotsU);
         _mfKnotsU.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (KnotsVFieldMask & whichField))
     {
+        editMField(KnotsVFieldMask, _mfKnotsV);
         _mfKnotsV.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ControlPointsFieldMask & whichField))
     {
+        editSField(ControlPointsFieldMask);
         _sfControlPoints.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ErrorFieldMask & whichField))
     {
+        editSField(ErrorFieldMask);
         _sfError.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (NumCurvesFieldMask & whichField))
     {
+        editSField(NumCurvesFieldMask);
         _sfNumCurves.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (KnotLengthsFieldMask & whichField))
     {
+        editMField(KnotLengthsFieldMask, _mfKnotLengths);
         _mfKnotLengths.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DimensionsFieldMask & whichField))
     {
+        editMField(DimensionsFieldMask, _mfDimensions);
         _mfDimensions.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (CurveControlPointsFieldMask & whichField))
     {
+        editMField(CurveControlPointsFieldMask, _mfCurveControlPoints);
         _mfCurveControlPoints.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (KnotsFieldMask & whichField))
     {
+        editMField(KnotsFieldMask, _mfKnots);
         _mfKnots.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (CurvesPerLoopFieldMask & whichField))
     {
+        editMField(CurvesPerLoopFieldMask, _mfCurvesPerLoop);
         _mfCurvesPerLoop.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (IsDelaunayFieldMask & whichField))
     {
+        editSField(IsDelaunayFieldMask);
         _sfIsDelaunay.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (TextureControlPointsFieldMask & whichField))
     {
+        editSField(TextureControlPointsFieldMask);
         _sfTextureControlPoints.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DirtyMaskFieldMask & whichField))
     {
+        editSField(DirtyMaskFieldMask);
         _sfDirtyMask.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (SurfaceGLIdFieldMask & whichField))
     {
+        editSField(SurfaceGLIdFieldMask);
         _sfSurfaceGLId.copyFromBin(pMem);
     }
 }
@@ -1148,7 +1165,7 @@ SurfaceBase::SurfaceBase(void) :
     _sfControlPoints          (this,
                           ControlPointsFieldId,
                           GeoVectorProperty::ParentsFieldId),
-    _sfError                  (Real(0.5)),
+    _sfError                  (Real32(0.5)),
     _sfNumCurves              (UInt32(0)),
     _mfKnotLengths            (),
     _mfDimensions             (),
@@ -1210,7 +1227,7 @@ bool SurfaceBase::unlinkChild(
 
         if(pTypedChild != NULL)
         {
-            if(pTypedChild == _sfControlPoints.getValue())
+            if(_sfControlPoints.getValue() == pTypedChild)
             {
                 editSField(ControlPointsFieldMask);
 
@@ -1219,8 +1236,15 @@ bool SurfaceBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("SurfaceBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }
@@ -1235,7 +1259,7 @@ bool SurfaceBase::unlinkChild(
 
         if(pTypedChild != NULL)
         {
-            if(pTypedChild == _sfTextureControlPoints.getValue())
+            if(_sfTextureControlPoints.getValue() == pTypedChild)
             {
                 editSField(TextureControlPointsFieldMask);
 
@@ -1244,8 +1268,15 @@ bool SurfaceBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("SurfaceBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }
@@ -1323,8 +1354,8 @@ EditFieldHandlePtr SurfaceBase::editHandleDimV           (void)
 
 GetFieldHandlePtr SurfaceBase::getHandleKnotsU          (void) const
 {
-    MFReal::GetHandlePtr returnValue(
-        new  MFReal::GetHandle(
+    MFReal32::GetHandlePtr returnValue(
+        new  MFReal32::GetHandle(
              &_mfKnotsU,
              this->getType().getFieldDesc(KnotsUFieldId),
              const_cast<SurfaceBase *>(this)));
@@ -1334,8 +1365,8 @@ GetFieldHandlePtr SurfaceBase::getHandleKnotsU          (void) const
 
 EditFieldHandlePtr SurfaceBase::editHandleKnotsU         (void)
 {
-    MFReal::EditHandlePtr returnValue(
-        new  MFReal::EditHandle(
+    MFReal32::EditHandlePtr returnValue(
+        new  MFReal32::EditHandle(
              &_mfKnotsU,
              this->getType().getFieldDesc(KnotsUFieldId),
              this));
@@ -1348,8 +1379,8 @@ EditFieldHandlePtr SurfaceBase::editHandleKnotsU         (void)
 
 GetFieldHandlePtr SurfaceBase::getHandleKnotsV          (void) const
 {
-    MFReal::GetHandlePtr returnValue(
-        new  MFReal::GetHandle(
+    MFReal32::GetHandlePtr returnValue(
+        new  MFReal32::GetHandle(
              &_mfKnotsV,
              this->getType().getFieldDesc(KnotsVFieldId),
              const_cast<SurfaceBase *>(this)));
@@ -1359,8 +1390,8 @@ GetFieldHandlePtr SurfaceBase::getHandleKnotsV          (void) const
 
 EditFieldHandlePtr SurfaceBase::editHandleKnotsV         (void)
 {
-    MFReal::EditHandlePtr returnValue(
-        new  MFReal::EditHandle(
+    MFReal32::EditHandlePtr returnValue(
+        new  MFReal32::EditHandle(
              &_mfKnotsV,
              this->getType().getFieldDesc(KnotsVFieldId),
              this));
@@ -1401,8 +1432,8 @@ EditFieldHandlePtr SurfaceBase::editHandleControlPoints  (void)
 
 GetFieldHandlePtr SurfaceBase::getHandleError           (void) const
 {
-    SFReal::GetHandlePtr returnValue(
-        new  SFReal::GetHandle(
+    SFReal32::GetHandlePtr returnValue(
+        new  SFReal32::GetHandle(
              &_sfError,
              this->getType().getFieldDesc(ErrorFieldId),
              const_cast<SurfaceBase *>(this)));
@@ -1412,8 +1443,8 @@ GetFieldHandlePtr SurfaceBase::getHandleError           (void) const
 
 EditFieldHandlePtr SurfaceBase::editHandleError          (void)
 {
-    SFReal::EditHandlePtr returnValue(
-        new  SFReal::EditHandle(
+    SFReal32::EditHandlePtr returnValue(
+        new  SFReal32::EditHandle(
              &_sfError,
              this->getType().getFieldDesc(ErrorFieldId),
              this));
@@ -1501,8 +1532,8 @@ EditFieldHandlePtr SurfaceBase::editHandleDimensions     (void)
 
 GetFieldHandlePtr SurfaceBase::getHandleCurveControlPoints (void) const
 {
-    MFPnt3r::GetHandlePtr returnValue(
-        new  MFPnt3r::GetHandle(
+    MFPnt3f::GetHandlePtr returnValue(
+        new  MFPnt3f::GetHandle(
              &_mfCurveControlPoints,
              this->getType().getFieldDesc(CurveControlPointsFieldId),
              const_cast<SurfaceBase *>(this)));
@@ -1512,8 +1543,8 @@ GetFieldHandlePtr SurfaceBase::getHandleCurveControlPoints (void) const
 
 EditFieldHandlePtr SurfaceBase::editHandleCurveControlPoints(void)
 {
-    MFPnt3r::EditHandlePtr returnValue(
-        new  MFPnt3r::EditHandle(
+    MFPnt3f::EditHandlePtr returnValue(
+        new  MFPnt3f::EditHandle(
              &_mfCurveControlPoints,
              this->getType().getFieldDesc(CurveControlPointsFieldId),
              this));
@@ -1526,8 +1557,8 @@ EditFieldHandlePtr SurfaceBase::editHandleCurveControlPoints(void)
 
 GetFieldHandlePtr SurfaceBase::getHandleKnots           (void) const
 {
-    MFReal::GetHandlePtr returnValue(
-        new  MFReal::GetHandle(
+    MFReal32::GetHandlePtr returnValue(
+        new  MFReal32::GetHandle(
              &_mfKnots,
              this->getType().getFieldDesc(KnotsFieldId),
              const_cast<SurfaceBase *>(this)));
@@ -1537,8 +1568,8 @@ GetFieldHandlePtr SurfaceBase::getHandleKnots           (void) const
 
 EditFieldHandlePtr SurfaceBase::editHandleKnots          (void)
 {
-    MFReal::EditHandlePtr returnValue(
-        new  MFReal::EditHandle(
+    MFReal32::EditHandlePtr returnValue(
+        new  MFReal32::EditHandle(
              &_mfKnots,
              this->getType().getFieldDesc(KnotsFieldId),
              this));

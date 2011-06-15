@@ -51,18 +51,21 @@
 OSG_BEGIN_NAMESPACE
 
 
-/*! \brief The OpenSG NURBS node.
- */
-
 //---------------------------------------------------------------------------
 // Forward Declarations
 //---------------------------------------------------------------------------
+
 class CNurbsPatchSurface;
 class BSplineTrimmedSurface;
 class BSplineTensorSurface;
 class SimplePolygon;
 class BSplineCurve2D;
 
+/*! \brief The OpenSG NURBS node.
+    \ingroup GrpDrawablesNurbsObj
+    \ingroup GrpLibOSGDrawables
+    \includebasedoc
+ */
 
 class OSG_DRAWABLE_DLLMAPPING Surface : public SurfaceBase
 {
@@ -83,12 +86,12 @@ class OSG_DRAWABLE_DLLMAPPING Surface : public SurfaceBase
 
     void addCurve(      UInt32               dim,
                   const std::vector<Real64> &knots,
-                  const std::vector<Pnt2r > &controlpoints,
+                  const std::vector<Pnt2f > &controlpoints,
                         bool                 newloop       = false);
 
     void addCurve(      UInt32               dim,
                   const std::vector<Real64>& knots,
-                  const std::vector<Pnt3r >& controlpoints,
+                  const std::vector<Pnt3f >& controlpoints,
                         bool                 newloop       = false);
 
     void removeCurves(void);

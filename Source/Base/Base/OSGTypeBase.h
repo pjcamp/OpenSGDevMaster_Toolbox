@@ -187,8 +187,8 @@ class OSG_BASE_DLLMAPPING TypeBase
     //   instance functions
     //-----------------------------------------------------------------------
 
-    TypeBase(const Char8  *szName,
-             const Char8  *szParentName,
+    TypeBase(const std::string             &szName, 
+             const std::string             &szParentName,
              const UInt32  uiNamespace = GlobalNamespace);
 
     virtual ~TypeBase(void);

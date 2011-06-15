@@ -83,7 +83,7 @@ OSG_BEGIN_NAMESPACE
  *                        Field Documentation                              *
 \***************************************************************************/
 
-/*! \var Vec3r           DirectionalLightBase::_sfDirection
+/*! \var Vec3f           DirectionalLightBase::_sfDirection
     
 */
 
@@ -107,8 +107,8 @@ void DirectionalLightBase::classDescInserter(TypeObject &oType)
     FieldDescriptionBase *pDesc = NULL;
 
 
-    pDesc = new SFVec3r::Description(
-        SFVec3r::getClassType(),
+    pDesc = new SFVec3f::Description(
+        SFVec3f::getClassType(),
         "direction",
         "",
         DirectionFieldId, DirectionFieldMask,
@@ -135,25 +135,26 @@ DirectionalLightBase::TypeObject DirectionalLightBase::_type(
     "<?xml version=\"1.0\" ?>\n"
     "\n"
     "<FieldContainer\n"
-    "\tname=\"DirectionalLight\"\n"
-    "\tparent=\"Light\"\n"
-    "\tlibrary=\"Group\"\n"
-    "\tstructure=\"concrete\"\n"
-    "\tpointerfieldtypes=\"none\"\n"
-    "\tsystemcomponent=\"true\"\n"
-    "\tparentsystemcomponent=\"true\"\n"
-    "    isNodeCore=\"true\"\n"
-    ">\n"
-    "DirectionalLight is an infinitely distant lightsource. Its only\n"
-    "attribute is the light's direction.\n"
-    "\t<Field\n"
-    "\t\tname=\"direction\"\n"
-    "\t\ttype=\"Vec3r\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "                defaultValue=\"0.f,0.f,1.f\"\n"
-    "\t>\n"
-    "\t</Field>\n"
+    "   name=\"DirectionalLight\"\n"
+    "   parent=\"Light\"\n"
+    "   library=\"Group\"\n"
+    "   structure=\"concrete\"\n"
+    "   pointerfieldtypes=\"none\"\n"
+    "   systemcomponent=\"true\"\n"
+    "   parentsystemcomponent=\"true\"\n"
+    "   isNodeCore=\"true\"\n"
+    "   docGroupBase=\"GrpGroupLight\"\n"
+    "   >\n"
+    "  DirectionalLight is an infinitely distant lightsource. Its only\n"
+    "  attribute is the light's direction.\n"
+    "  <Field\n"
+    "\t name=\"direction\"\n"
+    "\t type=\"Vec3f\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "     defaultValue=\"0.f,0.f,1.f\"\n"
+    "\t >\n"
+    "  </Field>\n"
     "</FieldContainer>\n",
     "DirectionalLight is an infinitely distant lightsource. Its only\n"
     "attribute is the light's direction.\n"
@@ -179,14 +180,14 @@ UInt32 DirectionalLightBase::getContainerSize(void) const
 /*------------------------- decorator get ------------------------------*/
 
 
-SFVec3r *DirectionalLightBase::editSFDirection(void)
+SFVec3f *DirectionalLightBase::editSFDirection(void)
 {
     editSField(DirectionFieldMask);
 
     return &_sfDirection;
 }
 
-const SFVec3r *DirectionalLightBase::getSFDirection(void) const
+const SFVec3f *DirectionalLightBase::getSFDirection(void) const
 {
     return &_sfDirection;
 }
@@ -228,6 +229,7 @@ void DirectionalLightBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (DirectionFieldMask & whichField))
     {
+        editSField(DirectionFieldMask);
         _sfDirection.copyFromBin(pMem);
     }
 }
@@ -355,7 +357,7 @@ FieldContainerTransitPtr DirectionalLightBase::shallowCopy(void) const
 
 DirectionalLightBase::DirectionalLightBase(void) :
     Inherited(),
-    _sfDirection              (Vec3r(0.f,0.f,1.f))
+    _sfDirection              (Vec3f(0.f,0.f,1.f))
 {
 }
 
@@ -375,8 +377,8 @@ DirectionalLightBase::~DirectionalLightBase(void)
 
 GetFieldHandlePtr DirectionalLightBase::getHandleDirection       (void) const
 {
-    SFVec3r::GetHandlePtr returnValue(
-        new  SFVec3r::GetHandle(
+    SFVec3f::GetHandlePtr returnValue(
+        new  SFVec3f::GetHandle(
              &_sfDirection,
              this->getType().getFieldDesc(DirectionFieldId),
              const_cast<DirectionalLightBase *>(this)));
@@ -386,8 +388,8 @@ GetFieldHandlePtr DirectionalLightBase::getHandleDirection       (void) const
 
 EditFieldHandlePtr DirectionalLightBase::editHandleDirection      (void)
 {
-    SFVec3r::EditHandlePtr returnValue(
-        new  SFVec3r::EditHandle(
+    SFVec3f::EditHandlePtr returnValue(
+        new  SFVec3f::EditHandle(
              &_sfDirection,
              this->getType().getFieldDesc(DirectionFieldId),
              this));

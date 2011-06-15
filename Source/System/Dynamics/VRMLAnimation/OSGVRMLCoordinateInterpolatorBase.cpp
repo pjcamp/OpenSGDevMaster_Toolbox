@@ -162,6 +162,7 @@ VRMLCoordinateInterpolatorBase::TypeObject VRMLCoordinateInterpolatorBase::_type
     "   isNodeCore=\"true\"\n"
     "   isBundle=\"false\"\n"
     "   parentFields=\"none\"\n"
+    "   docGroupBase=\"GrpDynamicsVRMLAnimation\"\n"
     "   >\n"
     "  <Field\n"
     "     name=\"keyValue\"\n"
@@ -278,10 +279,12 @@ void VRMLCoordinateInterpolatorBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (KeyValueFieldMask & whichField))
     {
+        editMField(KeyValueFieldMask, _mfKeyValue);
         _mfKeyValue.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (OutValueFieldMask & whichField))
     {
+        editMField(OutValueFieldMask, _mfOutValue);
         _mfOutValue.copyFromBin(pMem);
     }
 }

@@ -51,6 +51,7 @@
 #include "OSGIOStream.h"
 
 #include <limits>
+#include <boost/lexical_cast.hpp>
 
 // The undef's are needed otherwise the numeric_limits won't work (GV)
 
@@ -112,7 +113,7 @@ struct TypeTraitsTemplateBase : public TypeTraitsBase
     static void putToStream(const LookupTypeT &val,
                                   OutStream   &str)
     {
-        str << val;
+        str << boost::lexical_cast<std::string>(val);
     }
 
 #ifdef OSG_1_COMPAT
@@ -227,7 +228,7 @@ struct TypeTraits<bool> : public TypeTraitsTemplateBase<bool>
     static void putToString  (const bool        &val,
                                     std::string &out)
     {
-        if(val)
+        if(val == true)
         {
             out.append("TRUE");
         }
@@ -237,10 +238,10 @@ struct TypeTraits<bool> : public TypeTraitsTemplateBase<bool>
         }
     }
 
-    static void putToStream(const bool     &val,
+    static void putToStream(const bool      &val,
                                   OutStream &str)
     {
-        if(val)
+        if(val == true)
         {
             str << "TRUE";
         }
@@ -1139,11 +1140,7 @@ struct TypeTraits<Real32> : public TypeTraitsTemplateBase<Real32>
     static void putToString(const Real32       val,
                                   std::string &out)
     {
-        Char8 buffer[20];
-
-        sprintf(buffer, "%e", val);
-
-        out.append(buffer);
+        out.append(boost::lexical_cast<std::string>(val));
     }
 };
 
@@ -1340,11 +1337,7 @@ struct TypeTraits<Real64> : public TypeTraitsTemplateBase<Real64>
     static void putToString(const Real64       val,
                                   std::string &out)
     {
-        Char8 buffer[25];
-
-        sprintf(buffer, "%e", val);
-
-        out.append(buffer);
+        out.append(boost::lexical_cast<std::string>(val));
     }
 };
 
@@ -1361,6 +1354,11 @@ struct TypeTraits<Real128> : public TypeTraitsTemplateBase<Real128>
 
     static const  bool               IsPOD       = true;
     static const  MathTypeProperties MathProp    = RealValue;
+
+    static        Real64             getDefaultEps (void)
+    {
+        return 1E-24;
+    }
 
     static        Real128             getZeroElement(void)
     {
@@ -1414,11 +1412,7 @@ struct TypeTraits<Real128> : public TypeTraitsTemplateBase<Real128>
     static void putToString(const Real128      val,
                                   std::string &out)
     {
-        Char8 buffer[25];
-
-        sprintf(buffer, "%Le", val);
-
-        out.append(buffer);
+        out.append(boost::lexical_cast<std::string>(val));
     }
 };
 

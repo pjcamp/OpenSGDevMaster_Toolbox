@@ -41,13 +41,17 @@
 
 #include "OSGRenderOptionsBase.h"
 
-#ifdef OSG_EMBEDDED
-#define GL_FILL 0x1B02
-#endif
-
 OSG_BEGIN_NAMESPACE
 
 class RenderActionBase;
+
+/*! \brief RenderOptions class. See \ref PageSystemWindowRenderOptions
+    for a description. 
+
+  \ingroup GrpSystemWindowBase
+  \ingroup GrpLibOSGSystem
+  \includebasedoc
+ */
 
 class OSG_SYSTEM_DLLMAPPING RenderOptions : public RenderOptionsBase
 {

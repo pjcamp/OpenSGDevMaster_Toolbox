@@ -58,6 +58,9 @@ OSG_BEGIN_NAMESPACE
 // forward decl
 class domInstanceController;
 class ColladaInstanceController;
+class ColladaAnimation;
+class daeGeometry;
+
 OSG_GEN_MEMOBJPTR(ColladaInstanceController);
 
 class OSG_FILEIO_DLLMAPPING ColladaController : public ColladaInstantiableElement
@@ -105,12 +108,14 @@ class OSG_FILEIO_DLLMAPPING ColladaController : public ColladaInstantiableElemen
 	const	SkinInfo &getSkinInfo	(void);
 
 	bool	hasSkin					(void);
-	bool	hasMorph				(void);
-/*
+
 	struct MorphInfo {
-		// NIY
+		std::vector<Real32> weights;
+		std::vector<domGeometry *> targets;
+		domGeometry * source;
+        domMorphMethodType    method;
 	};
-*/
+	bool	hasMorph				(void);
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
@@ -126,10 +131,12 @@ class OSG_FILEIO_DLLMAPPING ColladaController : public ColladaInstantiableElemen
 	void readSkin(domSkin *skin);
 	void readMorph(domMorph *morph);
 
-	// stolen from ColladaGeometry to help with material binding
-	void handleBindMaterial( const ColladaGeometry::GeoInfo &geoInfo, 
-							 Geometry *geo, 
+	// function to help with material binding
+	void handleBindMaterial( Geometry *geo, 
 							 ColladaInstanceController *colInstCont);
+
+	GeometryTransitPtr handleGeometry(	domGeometryRef geometry, 
+										ColladaInstanceElement *colInstElem );
 
 	const ColladaGeometry::BindInfo       
 		*findBind      (const ColladaGeometry::BindStore       &store,
@@ -141,13 +148,18 @@ class OSG_FILEIO_DLLMAPPING ColladaController : public ColladaInstantiableElemen
 					    UInt32                 inSet,
 					    UInt32                &offset     );
 
+    NodeTransitPtr createJointFromNode(domNode *node);
+
 	bool _hasSkin;
 	bool _hasMorph;
+
 	SkinInfo _mSkin;
+	MorphInfo _mMorph;
     GeometryRefPtr _sourceMesh;
 	ColladaGeometryRefPtr _sourceColGeo;
 
-    
+    ColladaAnimation *_animation;
+
 	static ColladaElementRegistrationHelper _regHelper;
 
 };

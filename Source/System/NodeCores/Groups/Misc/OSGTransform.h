@@ -52,9 +52,10 @@
 OSG_BEGIN_NAMESPACE
 
 /*! \brief Transform provides one matrix to transform objects.
-    \ingroup GrpSystemNodeCoresMisc
+    \ingroup GrpGroupMiscObj
+    \ingroup GrpLibOSGGroup
     \includebasedoc
-*/
+ */
 
 class OSG_GROUP_DLLMAPPING Transform : public TransformBase
 {
@@ -75,7 +76,7 @@ class OSG_GROUP_DLLMAPPING Transform : public TransformBase
     /*! \name                   Transformation                             */
     /*! \{                                                                 */
 
-    virtual void accumulateMatrix(Matrixr &result);
+    virtual void accumulateMatrix(Matrix &result);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -125,10 +126,8 @@ class OSG_GROUP_DLLMAPPING Transform : public TransformBase
     /*! \name              Intersect & Render                              */
     /*! \{                                                                 */
 
-#ifndef OSG_EMBEDDED
     ActionBase::ResultE     intersectEnter(Action    *action);
     ActionBase::ResultE     intersectLeave(Action    *action);
-#endif
 
     ActionBase::ResultE     renderEnter   (Action    *action);
     ActionBase::ResultE     renderLeave   (Action    *action);

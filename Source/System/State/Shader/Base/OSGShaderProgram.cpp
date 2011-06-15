@@ -525,7 +525,18 @@ UInt32 ShaderProgram::handleGL(DrawEnv                 *pEnv,
         {
             GLuint uiShader = GLuint(pWin->getGLObjectId(getGLId()));
 
-            if(uiShader == 0)
+#ifdef OSG_DEBUG
+            if(mode == Window::initialize && uiShader != 0)
+            {
+                FWARNING(("ShaderProgram::handleGL: "
+                          "Initialize with non-zero GL object Id.\n"));
+
+                uiShader = 0;
+            }
+#endif
+
+//            if(uiShader == 0)
+            if(mode == Window::initialize)
             {      
                 OSGGETGLFUNC(OSGglCreateShaderProc,
                              osgGlCreateShader,

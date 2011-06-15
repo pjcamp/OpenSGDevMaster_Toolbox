@@ -74,6 +74,13 @@ struct FieldContainerFactoryDesc
     }
 };
 
+/*! \brief Accessible via #TypeFactory
+    \ingroup GrpBaseBaseTypeSystem
+    \ingroup GrpBaseBase
+    \ingroup GrpLibOSGBase
+    \nohierarchy
+ */
+
 class OSG_BASE_DLLMAPPING DerivedFieldContainerTypeIterator
 {
   public:
@@ -237,9 +244,7 @@ class OSG_BASE_DLLMAPPING FieldContainerFactoryBase :
     /*! \name                      Fields                                  */
     /*! \{                                                                 */
 
-#ifndef OSG_EMBEDDED
     LockRefPtr         _pStoreLock;
-#endif
 
     ContainerStore     _vContainerStore;
 
@@ -289,14 +294,6 @@ class OSG_BASE_DLLMAPPING FieldContainerFactoryBase :
     /*!\brief prohibit default function (move to 'public' if needed) */
     void operator =(const FieldContainerFactoryBase &source);
 };
-
-#if defined(WIN32)
-#    if !defined(OSG_COMPILE_FIELDCONTAINERFACTORY)
-//OSG_SYSTEM_EXPIMP_TMPL
-//template
-//class OSG_SYSTEM_DLLMAPPING SingletonHolder<FieldContainerFactoryBase>;
-#    endif
-#endif
 
 /*! \typedef OSG::SingletonHolder<OSG::FieldContainerFactoryBase> FieldContainerFactory;
     \ingroup GrpBaseFieldContainerBase

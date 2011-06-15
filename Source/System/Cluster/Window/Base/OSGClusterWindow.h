@@ -56,6 +56,11 @@ class ClusterNetwork;
 OSG_GEN_MEMOBJPTR(ClusterNetwork);
 class RenderActionBase;
 
+/*! \ingroup GrpClusterWindowObj
+    \ingroup GrpLibOSGCluster
+    \includebasedoc
+ */
+
 class OSG_CLUSTER_DLLMAPPING ClusterWindow : public ClusterWindowBase
 {
   private:
@@ -87,7 +92,9 @@ class OSG_CLUSTER_DLLMAPPING ClusterWindow : public ClusterWindowBase
     /*! \name            GL implementation functions                       */
     /*! \{                                                                 */
 
+#if 0
     virtual void(*getFunctionByName (const Char8 *s))();
+#endif
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -106,6 +113,8 @@ class OSG_CLUSTER_DLLMAPPING ClusterWindow : public ClusterWindowBase
     virtual void activate  (void);
     virtual void deactivate(void);
     virtual bool swap      (void);
+
+    virtual void terminate (void);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -152,6 +161,9 @@ class OSG_CLUSTER_DLLMAPPING ClusterWindow : public ClusterWindowBase
     /*---------------------------------------------------------------------*/
     /*! \name                   Exceptions                                 */
     /*! \{                                                                 */
+
+    /*! \nohierarchy
+     */
 
     class OSG_CLUSTER_DLLMAPPING AsyncCancel : public Exception 
     {
@@ -216,7 +228,9 @@ class OSG_CLUSTER_DLLMAPPING ClusterWindow : public ClusterWindowBase
     virtual void  doDeactivate        (void                          );
     virtual bool  doSwap              (void                          );
 
-    virtual void  doRenderAllViewports(RenderActionBase *action);
+    virtual void  doRenderAllViewports(RenderActionBase *action      );
+
+    virtual bool  hasContext          (void                          );
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -230,6 +244,7 @@ class OSG_CLUSTER_DLLMAPPING ClusterWindow : public ClusterWindowBase
     /*==========================  PRIVATE  ================================*/
 
   private:
+
     /*---------------------------------------------------------------------*/
     /*! \name               private members                                */
     /*! \{                                                                 */

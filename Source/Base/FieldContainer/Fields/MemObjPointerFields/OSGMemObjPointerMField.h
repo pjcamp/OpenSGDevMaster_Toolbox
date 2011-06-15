@@ -70,7 +70,7 @@ class MemObjPointerMFieldConstIterator;
 /* PointerMFieldIterator<PtrTypeT>                                           */
 /*---------------------------------------------------------------------------*/
 
-/*! \ingroup GrpBaseFieldContainerFields
+/*! \ingroup GrpBaseMemoryObjectsFields
     \ingroup GrpLibOSGBase
     \nohierarchy
  */
@@ -262,7 +262,7 @@ MemObjPointerMFieldIterator<PtrTypeT,
 /* PointerMFieldConstIterator<PtrTypeT>                                      */
 /*---------------------------------------------------------------------------*/
 
-/*! \ingroup GrpBaseFieldContainerFields
+/*! \ingroup GrpBaseMemoryObjectsFields
     \ingroup GrpLibOSGBase
     \nohierarchy
  */
@@ -451,11 +451,12 @@ MemObjPointerMFieldConstIterator<PtrTypeT, RefCountPolicyT, iNamespace>
 
 
 #ifndef OSG_CLEAN_FCFIELDS
+
 /*-------------------------------------------------------------------------*/
 /* WeakMFieldReferenceProxy<PtrTypeT>                                      */
 /*-------------------------------------------------------------------------*/
 
-/*! \ingroup GrpBaseFieldContainerFields
+/*! \ingroup GrpBaseMemoryObjectsFields
     \ingroup GrpLibOSGBase
     \nohierarchy
  */
@@ -529,7 +530,7 @@ class MemObjPointerMFieldReferenceProxy
 /* WeakPointerMField<FieldConfigT>                                           */
 /*---------------------------------------------------------------------------*/
 
-/*! \ingroup GrpBaseFieldContainerFields
+/*! \ingroup GrpBaseMemoryObjectsFields
     \ingroup GrpLibOSGBase
  */
 
@@ -794,6 +795,23 @@ class MemObjPointerMField :
 
     static FieldType _fieldType;
 
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name FieldDesc creation                                           */
+    /*! \{                                                                 */
+
+    static FieldDescriptionBase *
+        createFieldDescription   (const Char8                *szFieldname,
+                                        UInt32                uiFieldFlags,
+                                        FieldEditMethod       fEditMethod,
+                                        FieldGetMethod        fGetMethod  );
+
+    static FieldDescriptionBase *
+        createIdxFieldDescription(const Char8                *szFieldname,
+                                        UInt32                uiFieldFlags,
+                                        FieldIndexEditMethod  fEditMethod,
+                                        FieldIndexGetMethod   fGetMethod  );
+    
     /*! \}                                                                 */
     /*==========================  PRIVATE  ================================*/
 

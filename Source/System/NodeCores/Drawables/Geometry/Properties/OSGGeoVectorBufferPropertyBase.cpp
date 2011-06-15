@@ -249,6 +249,7 @@ GeoVectorBufferPropertyBase::TypeObject GeoVectorBufferPropertyBase::_type(
     "   parentsystemcomponent=\"true\"\n"
     "   decoratable=\"false\"\n"
     "   childFields=\"both\"\n"
+    "   docGroupBase=\"GrpDrawablesGeometry\"\n"
     "   >\n"
     "  <Field\n"
     "     name=\"stride\"\n"
@@ -482,26 +483,32 @@ void GeoVectorBufferPropertyBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (StrideFieldMask & whichField))
     {
+        editSField(StrideFieldMask);
         _sfStride.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (FormatFieldMask & whichField))
     {
+        editSField(FormatFieldMask);
         _sfFormat.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (FormatSizeFieldMask & whichField))
     {
+        editSField(FormatSizeFieldMask);
         _sfFormatSize.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DimensionFieldMask & whichField))
     {
+        editSField(DimensionFieldMask);
         _sfDimension.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (VectorTypeFieldMask & whichField))
     {
+        editSField(VectorTypeFieldMask);
         _sfVectorType.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (SizeFieldMask & whichField))
     {
+        editSField(SizeFieldMask);
         _sfSize.copyFromBin(pMem);
     }
 }

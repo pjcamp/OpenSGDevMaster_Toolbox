@@ -60,6 +60,7 @@
 #include "OSGWindow.h"
 #include "OSGCamera.h"
 #include "OSGForeground.h"
+#include "OSGFrameBufferObject.h"
 
 #include "OSGTraversalValidator.h"
 
@@ -336,22 +337,22 @@ void Viewport::render(RenderActionBase *action)
 {
     _pTravValidator->incEventCounter();
  
-    if(this->getTravMask() == 0x0000)
+    if( getTravMask() == 0x0000 || !getEnabled())
         return;
 
     if(getCamera() == NULL)
     {
-        SWARNING << "Viewport::render: no camera!" << std::endl;
+        SWARNING << "Viewport::render: no Camera, can not render!" << std::endl;
         return;
     }
     if(getBackground() == NULL)
     {
-        SWARNING << "Viewport::render: no Background!" << std::endl;
+        SWARNING << "Viewport::render: no Background, can not render!" << std::endl;
         return;
     }
     if(getRoot() == NULL)
     {
-        SWARNING << "Viewport::render: no root!" << std::endl;
+        SWARNING << "Viewport::render: no root, can not render!" << std::endl;
         return;
     }
 
@@ -375,12 +376,46 @@ void Viewport::render(RenderActionBase *action)
 
         oEnv.setWindow(action->getWindow());
 
+        Matrix m, t;
+        getCamera()->getProjection          ( m,
+                                           getPixelWidth (),
+                                           getPixelHeight());
+        getCamera()->getProjectionTranslation( t,
+                                           getPixelWidth (),
+                                           getPixelHeight());
+        oEnv.setupProjection(m,t);
+
+        getCamera()->getViewing( m,
+                             getPixelWidth (),
+                             getPixelHeight());
+        oEnv.setupViewing   (m);
+
         oEnv.setTileFullSize(getCamera()->tileGetFullSize());
         oEnv.setTileRegion  (getCamera()->tileGetRegion  ());
 		oEnv.setAction         ( action );
+        oEnv.setViewportDimension(getPixelLeft(),
+                                  getPixelBottom(),
+                                  getPixelRight(),
+                                  getPixelTop(),
+                                  isFullWindow());
 
         for(UInt16 i=0; i < getMFForegrounds()->size(); i++)
-            getForegrounds(i)->draw(&oEnv, this);
+        {
+            Foreground        *pForeground = getForegrounds(i);
+            FrameBufferObject *pTarget     = this->getTarget();
+
+            if(pTarget != NULL)
+            {
+                pTarget->activate(&oEnv);
+            }
+
+            pForeground->draw(&oEnv);
+
+            if(pTarget != NULL)
+            {
+                pTarget->deactivate(&oEnv);
+            }
+        }
     }
     else
     {
@@ -406,9 +441,29 @@ void Viewport::renderForegrounds(Window *pWin)
 
     oEnv.setTileFullSize(getCamera()->tileGetFullSize());
     oEnv.setTileRegion  (getCamera()->tileGetRegion  ());
+    oEnv.setViewportDimension(getPixelLeft(),
+                              getPixelBottom(),
+                              getPixelRight(),
+                              getPixelTop(),
+                              isFullWindow());
 
     for(UInt16 i=0; i < getMFForegrounds()->size(); i++)
-        getForegrounds(i)->draw(&oEnv, this);
+    {
+        Foreground        *pForeground = getForegrounds(i);
+        FrameBufferObject *pTarget     = this->getTarget();
+
+        if(pTarget != NULL)
+        {
+            pTarget->activate(&oEnv);
+        }
+
+        pForeground->draw(&oEnv);
+
+        if(pTarget != NULL)
+        {
+            pTarget->deactivate(&oEnv);
+        }
+    }
 }
 
 bool Viewport::isPassive(void)

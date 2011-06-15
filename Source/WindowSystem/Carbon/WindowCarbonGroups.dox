@@ -1,0 +1,32 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! \defgroup GrpLibOSGWindowCarbon libOSGWindowCarbon
+    \ingroup GrpByLib
+ */
+
+/*! \defgroup GrpWindowCarbon OpenSG Window Carbon Library
+
+    \brief Contains Window Carbon classes
+
+    See \ref PageWindowCarbon for details.
+ */
+
+//*******************************************************************
+// Carbon
+//*******************************************************************
+
+/*! \defgroup GrpWindowCarbonObj Window
+    \ingroup GrpWindowCarbon
+ */
+
+/*! \defgroup GrpWindowCarbonFieldTraits Field Traits
+    \ingroup GrpWindowCarbon
+ */
+/*! \defgroup GrpWindowCarbonFieldSFields Single-Field
+    \ingroup GrpWindowCarbon
+ */
+/*! \defgroup GrpWindowCarbonFieldMFields Multi-Fields
+    \ingroup GrpWindowCarbon
+ */

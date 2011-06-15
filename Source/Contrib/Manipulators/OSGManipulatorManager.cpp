@@ -44,6 +44,7 @@
 #include "OSGBaseTypes.h"
 
 #include "OSGManipulatorManager.h"
+#include "OSGIntersectAction.h"
 
 OSG_BEGIN_NAMESPACE
 
@@ -59,19 +60,21 @@ NodeTransitPtr ManipulatorManager::createManipulator(const ManipulatorType type)
     {
         case ROTATE:
             _maniC = RotateManipulator::create();
+            _maniC->setManipulatorScreenDepth(_depth);  
             break;
         case SCALE:
             _maniC = ScaleManipulator::create();
+            _maniC->setManipulatorScreenDepth(_depth);  
             break;
         case TRANSLATE:
-            _maniC = MoveManipulator::create();    
+            _maniC = MoveManipulator::create();  
+            _maniC->setManipulatorScreenDepth(_depth);  
             break;
     }
     
     _currentType = type;
 
     maniN->setCore(_maniC);
-    commitChanges();
 
     return maniN;
 }
@@ -95,6 +98,24 @@ void ManipulatorManager::setUniformScale(bool value)
 {
     _uniformScale = value;
 }
+void   ManipulatorManager::setManipulatorScreenDepth   (Real32 depth)
+{
+    _depth = depth;
+    if(_maniC != NULL)
+    {
+        _maniC->setManipulatorScreenDepth(_depth);
+    }
+}
+
+Real32 ManipulatorManager::getManipulatorScreenDepth   (void        ) const
+{
+    return _depth;
+}
+
+ManipulatorManager::ManipulatorType ManipulatorManager::getManipulatorType(void) const
+{
+    return _currentType;
+}
 
 // TODO: 
 void ManipulatorManager::changeManipulator(const ManipulatorType type)
@@ -117,14 +138,17 @@ void ManipulatorManager::changeManipulator(const ManipulatorType type)
                 case TRANSLATE:
                     _maniC = MoveManipulator::create();
                     _maniC->setLength(len);
+                    _maniC->setManipulatorScreenDepth(_depth);
                     break;
                 case ROTATE:
                     _maniC = RotateManipulator::create();
                     _maniC->setLength(len);
+                    _maniC->setManipulatorScreenDepth(_depth);
                     break;
                 case SCALE:
                     _maniC = ScaleManipulator::create();
                     _maniC->setLength(len);
+                    _maniC->setManipulatorScreenDepth(_depth);
                     dynamic_pointer_cast<ScaleManipulator>(_maniC)->setUniform(_uniformScale);
                     break;
             }
@@ -157,14 +181,11 @@ void ManipulatorManager::setViewport(Viewport * const value)
     _viewport = value;
 }
 
-bool ManipulatorManager::isActive()
-{
-    return _maniC->getActive();
-}
-
 void ManipulatorManager::mouseMove(const Int16 x,
                                    const Int16 y)
 {
+    if(getTarget() == NULL) return;
+
     _maniC->mouseMove(x, y);
 }
 
@@ -172,6 +193,8 @@ void ManipulatorManager::mouseButtonPress(const UInt16 uiButton,
                                           const Int16 x,
                                           const Int16 y      )
 {
+    if(getTarget() == NULL) return;
+
     _maniC->mouseButtonPress(uiButton, x, y);
 }
 
@@ -179,29 +202,30 @@ void ManipulatorManager::mouseButtonRelease(const UInt16 uiButton,
                                             const Int16 x,
                                             const Int16 y      )
 {
+    if(getTarget() == NULL) return;
+
     _maniC->mouseButtonRelease(uiButton, x, y);
 }
 
 bool ManipulatorManager::startManip(Node *n)
 {
-    if ( _maniC->hasSubHandle(n) )
-    {
-        _maniC->startManip(n);
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    if(getTarget() == NULL) return false;
+
+    _maniC->startManip(n);
+    return _maniC->isManipulating();
 }
 
 void ManipulatorManager::cancelManip(void)
 {
+    if(getTarget() == NULL) return;
+
     _maniC->cancelManip();
 }
 
 void ManipulatorManager::endManip(void)
 {
+    if(getTarget() == NULL) return;
+
     _maniC->endManip();
 }
 
@@ -213,6 +237,59 @@ bool ManipulatorManager::isManipulating(void) const
 void ManipulatorManager::setLength(const Vec3f& len)
 {
     _maniC->setLength(len);
+}
+    
+void ManipulatorManager::handleMouseMoveTest(const Int16  x,
+                                             const Int16  y)
+{
+    if(getTarget() == NULL) return;
+
+    if(isManipulating())
+    {
+        return;
+    }
+
+    Line l;
+
+    getManipulator()->getViewport()->getCamera()->calcViewRay(l, x, y, *getManipulator()->getViewport());
+
+    boost::scoped_ptr<IntersectAction> act(IntersectAction::create());
+
+    act->setLine( l );
+    act->apply( dynamic_cast<Node*>(_maniC->getParents().front()) );
+    act->setTravMask(Manipulator::ALL_AXIS_TRAV_MASK);
+
+    if (act->didHit())
+    {
+        getManipulator()->rolloverHandle(act->getHitObject());
+    }
+    else if(getManipulator()->isRolledOver())
+    {
+        getManipulator()->exitHandle();
+    }
+
+}
+
+void ManipulatorManager::handleMouseSelectionTest(const UInt16 uiButton,
+                                                  const Int16 x,
+                                                  const Int16 y      )
+{
+    if(getTarget() == NULL) return;
+
+    Line l;
+
+    getManipulator()->getViewport()->getCamera()->calcViewRay(l, x, y, *getManipulator()->getViewport());
+
+    boost::scoped_ptr<IntersectAction> act(IntersectAction::create());
+
+    act->setLine( l );
+    act->apply( dynamic_cast<Node*>(_maniC->getParents().front()) );
+    act->setTravMask(Manipulator::ALL_AXIS_TRAV_MASK);
+
+    if ( (act->didHit()) && (startManip( act->getHitObject()) ) )
+    {
+        mouseButtonPress(uiButton, x, y);
+    }
 }
 
 

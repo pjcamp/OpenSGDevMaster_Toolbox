@@ -42,7 +42,7 @@
 
 #include "OSGColladaEffect.h"
 
-#ifdef OSG_WITH_COLLADA
+#if defined(OSG_WITH_COLLADA) || defined(OSG_DO_DOC)
 
 #include "OSGColladaLog.h"
 #include "OSGColladaGlobal.h"
@@ -217,7 +217,7 @@ ColladaEffect::createInstance(ColladaInstanceElement *colInstElem)
     return retVal;
 }
 
-/*! Return parameter of the effect (\c <newparam> tags) with the given \a name.
+/*! Return parameter of the effect (\c &lt;newparam&gt; tags) with the given \a name.
  */
 daeElement *
 ColladaEffect::findDOMParam(const std::string &name) const
@@ -239,8 +239,8 @@ ColladaEffect::findDOMParam(const std::string &name) const
     return NULL;
 }
 
-/*! Return the loader element for the parameter of the effect (\c <newparam>
-    tags) with the given \a name.
+/*! Return the loader element for the parameter of the effect (\c
+    &lt;newparam&gt; tags) with the given \a name.
  */
 ColladaElement *
 ColladaEffect::findParam(const std::string &name) const
@@ -271,7 +271,7 @@ ColladaEffect::~ColladaEffect(void)
 {
 }
 
-/*! Fills internal data structures for \c <profile_COMMON>.
+/*! Fills internal data structures for \c &lt;profile_COMMON&gt;.
     This mainly collects relevant parameters so they can be looked up
     efficiently when creating an instance of this effect.
  */
@@ -419,8 +419,8 @@ ColladaEffect::readProfileCG(domProfile_CG *prof)
 	//
 }
 
-/*! Create an OpenSG material that matches this \c <profile_COMMON> material
-    (to the extent possible).
+/*! Create an OpenSG material that matches this \c &lt;profile_COMMON&gt;
+    material (to the extent possible).
  */
 MaterialTransitPtr
 ColladaEffect::createInstanceProfileCommon(
@@ -1168,11 +1168,22 @@ ColladaEffect::createInstanceProfileCG(
 			cgfxFileLocation = std::string(cur->getUrl().originalStr());
 			// check if the url points to something in the collada file (denoted by a #).  If it DOESN'T, then it is the file
 			// path to the .cgfx file used for this effect
-			if(cgfxFileLocation[0] != '#')
-			{  /* we assume this is the location of a cgfx file
-				  so we use it to create the material */
-				foundFilepath = true;
-				break;
+	
+			UInt32 loc;
+			if( (loc = cgfxFileLocation.find_last_of('.')) != std::string::npos)
+			{
+				if(cgfxFileLocation.substr(loc).compare(".cgfx") == 0 &&  cgfxFileLocation[0] != '#')
+				{  /* we assume this is the location of a cgfx file
+					  so we use it to create the material */
+					foundFilepath = true;
+					break;
+				}
+				else if(cgfxFileLocation.substr(loc).compare(".cg") == 0)
+				{
+					SWARNING << "ColladaEffect::createInstanceProfileCG: CG effects are not supported. " 
+							 << "Must use CgFX instead."  << std::endl;
+					break;
+				}
 			}
 		}
 		if(foundFilepath)

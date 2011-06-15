@@ -306,6 +306,8 @@ void TraversalValidationHandlerMixin<ParentT>::copyFromBin(
 
     if(FieldBits::NoField != (UpdateModeFieldMask & whichField))
     {
+        Self::editSField(UpdateModeFieldMask);
+
         _sfUpdateMode.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (RequestRunFieldMask & whichField))
@@ -314,6 +316,8 @@ void TraversalValidationHandlerMixin<ParentT>::copyFromBin(
     }
     if(FieldBits::NoField != (DestroyedFunctorsFieldMask & whichField))
     {
+        Self::editMField(DestroyedFunctorsFieldMask, _mfDestroyedFunctors);
+
         _mfDestroyedFunctors.copyFromBin(pMem);
     }
 }
@@ -341,7 +345,7 @@ TraversalValidationHandlerMixin<ParentT>::TraversalValidationHandlerMixin(void):
 
 template <class ParentT> inline
 TraversalValidationHandlerMixin<ParentT>::TraversalValidationHandlerMixin(
-    const TraversalValidationHandlerMixin &source) :
+    const Self &source) :
 
      Inherited          (source                     ),
     _iDataSlotId        (-1                         ),

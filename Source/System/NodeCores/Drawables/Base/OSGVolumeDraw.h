@@ -59,22 +59,42 @@ class RenderPartition;
 /*! \name                   Draw Functions                             */
 /*! \{                                                                 */
 
+/*! \ingroup GrpSystemNodeCoreDrawablesFuncs
+ */
 OSG_SYSTEM_DLLMAPPING void drawVolume(const Volume           &volume);
+
+/*! \ingroup GrpSystemNodeCoreDrawablesFuncs
+ */
 OSG_SYSTEM_DLLMAPPING void drawVolume(const BoxVolume        &volume);
+
+/*! \ingroup GrpSystemNodeCoreDrawablesFuncs
+ */
 OSG_SYSTEM_DLLMAPPING void drawVolume(const SphereVolume     &volume);
+
+/*! \ingroup GrpSystemNodeCoreDrawablesFuncs
+ */
 OSG_SYSTEM_DLLMAPPING void drawVolume(const FrustumVolume    &volume);
+
+/*! \ingroup GrpSystemNodeCoreDrawablesFuncs
+ */
 OSG_SYSTEM_DLLMAPPING void drawVolume(const CylinderVolume   &volume);
 
+/*! \ingroup GrpSystemNodeCoreDrawablesFuncs
+ */
 OSG_SYSTEM_DLLMAPPING void dropVolume(      RenderActionBase *action, 
                                             Node             *node,
-                                            Color3r           col   );
+                                            Color3f           col   );
+/*! \ingroup GrpSystemNodeCoreDrawablesFuncs
+ */
 OSG_SYSTEM_DLLMAPPING void dropVolume(      RenderPartition  *part, 
                                             Node             *node,
-                                            Color3r           col   );
+                                            Color3f           col   );
 
+/*! \ingroup GrpSystemNodeCoreDrawablesFuncs
+ */
 OSG_SYSTEM_DLLMAPPING void dropVolume(      RenderActionBase *action, 
                                       const BoxVolume        &volume,
-                                            Color3r           col   );
+                                            Color3f           col   );
 
 /*! \}                                                                 */
 /*---------------------------------------------------------------------*/

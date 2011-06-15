@@ -41,7 +41,7 @@
 
 #include "OSGConfig.h"
 
-#ifdef OSG_WITH_COLLADA
+#if defined(OSG_WITH_COLLADA) || defined(OSG_DO_DOC)
 
 #include "OSGColladaInstantiableElement.h"
 #include "OSGColladaElementFactoryHelper.h"
@@ -66,6 +66,9 @@ OSG_BEGIN_NAMESPACE
 // forward decl
 class ColladaVisualScene;
 
+/*! \ingroup GrpFileIOCollada
+    \nohierarchy
+ */
 
 class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
 {
@@ -138,14 +141,17 @@ class OSG_FILEIO_DLLMAPPING ColladaNode : public ColladaInstantiableElement
     void appendXForm(Node *xformN);
     void appendChild(Node *childN);
 
+	bool checkForAnimations(daeElement *elem);
+
     static ColladaElementRegistrationHelper _regHelper;
 
     NodeUnrecPtr _topN;
     NodeUnrecPtr _bottomN;
 
     ColladaVisualScene* _visualScene;
-
-	FieldAnimation * _animation;
+	
+	// if there is an animation corresponding to this node, it is kept here.
+	ColladaAnimation* _animation;
 };
 
 OSG_GEN_MEMOBJPTR(ColladaNode);

@@ -48,8 +48,11 @@
 OSG_BEGIN_NAMESPACE
 
 /*! \brief Foreground class for grabbing the viewport into an image. See \ref 
-    PageSystemWindowForegroundGrab for a description.
-*/
+           PageSystemWindowForegroundGrab for a description.
+    \ingroup GrpWindowForegroundObj
+    \ingroup GrpLibOSGWindow
+    \includebasedoc
+ */
 
 class OSG_WINDOW_DLLMAPPING GrabForeground : public GrabForegroundBase
 {
@@ -82,7 +85,7 @@ class OSG_WINDOW_DLLMAPPING GrabForeground : public GrabForegroundBase
     /*! \name                   draw                                       */
     /*! \{                                                                 */
 
-    virtual void draw(DrawEnv *pEnv, Viewport *port);
+    virtual void draw(DrawEnv *pEnv);
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/

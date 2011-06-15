@@ -1,0 +1,32 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! \defgroup GrpLibOSGWindowQt4 libOSGWindowQt4
+    \ingroup GrpByLib
+ */
+
+/*! \defgroup GrpWindowQt4 OpenSG Window Qt4 Library
+
+    \brief Contains Window Qt4 classes
+
+    See \ref PageWindowQt4 for details.
+ */
+
+//*******************************************************************
+// Qt4
+//*******************************************************************
+
+/*! \defgroup GrpWindowQt4Obj Window
+    \ingroup GrpWindowQt4
+ */
+
+/*! \defgroup GrpWindowQt4FieldTraits Field Traits
+    \ingroup GrpWindowQt4
+ */
+/*! \defgroup GrpWindowQt4FieldSFields Single-Field
+    \ingroup GrpWindowQt4
+ */
+/*! \defgroup GrpWindowQt4FieldMFields Multi-Fields
+    \ingroup GrpWindowQt4
+ */

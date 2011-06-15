@@ -330,14 +330,17 @@ void ShaderExecutableVarChunkBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (ProgramVarChunksFieldMask & whichField))
     {
+        editMField(ProgramVarChunksFieldMask, _mfProgramVarChunks);
         _mfProgramVarChunks.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (VariablesFieldMask & whichField))
     {
+        editSField(VariablesFieldMask);
         _sfVariables.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (VariableLocationsFieldMask & whichField))
     {
+        editMField(VariableLocationsFieldMask, _mfVariableLocations);
         _mfVariableLocations.copyFromBin(pMem);
     }
 }
@@ -504,7 +507,7 @@ bool ShaderExecutableVarChunkBase::unlinkChild(
 
         if(pTypedChild != NULL)
         {
-            if(pTypedChild == _sfVariables.getValue())
+            if(_sfVariables.getValue() == pTypedChild)
             {
                 editSField(VariablesFieldMask);
 
@@ -513,8 +516,15 @@ bool ShaderExecutableVarChunkBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("ShaderExecutableVarChunkBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }

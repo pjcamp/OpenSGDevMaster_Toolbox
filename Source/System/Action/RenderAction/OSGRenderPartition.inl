@@ -204,6 +204,18 @@ void RenderPartition::setBackground(Background *pBackground)
 }
 
 inline
+void RenderPartition::pushToForegrounds(Foreground *pForeground)
+{
+    _vpForegrounds.push_back(pForeground);
+}
+
+inline
+void RenderPartition::clearForegrounds(void)
+{
+    _vpForegrounds.clear();
+}
+
+inline
 void RenderPartition::setupProjection(const Matrix4f &projection,
                                       const Matrix4f &translation)
 {
@@ -346,6 +358,12 @@ inline
 Real32 RenderPartition::getFar(void)
 {
     return _oDrawEnv.getCameraFar();
+}
+
+inline
+UInt32 RenderPartition::getLightState(void) const
+{
+    return _uiLightState;
 }
 
 inline

@@ -97,10 +97,10 @@ const FieldType &CLASSNAME< T1, T2 >::getClassType(void)                     \
 
 
 
-#define OSG_FIELDTRAITS_GETTYPE(CLASSNAME)        \
-DataType &FieldTraits< CLASSNAME >::getType(void) \
-{                                                 \
-    return _type;                                 \
+#define OSG_FIELDTRAITS_GETTYPE(CLASSNAME)                \
+DataType &FieldTraits< CLASSNAME >::getType(void)         \
+{                                                         \
+    return _type;                                         \
 }
 
 #define OSG_FIELDTRAITS_GETTYPE_NS(CLASSNAME, NAMESPACE)     \
@@ -144,7 +144,9 @@ FieldType CLASSNAME< T1 , T2, T3 >::_fieldType = FieldType( \
     SFieldTraits::getSPName(),                              \
     SFieldTraits::getType (),                               \
     FieldType::SingleField,                                 \
-    Self::Class)
+    Self::Class,                                            \
+    &Self::createFieldDescription,                          \
+    &Self::createIdxFieldDescription)
 
 #define OSG_MFIELDTYPE_INST(CLASSNAME, T1, T2, T3)          \
 template<>                                                  \
@@ -185,39 +187,47 @@ FieldType MField< T1 , T2 >::_fieldType(                 \
 #define OSG_SFIELDTYPE_INST(CLASSNAME, T1, T2, T3)       \
 template<>                                               \
 FieldType CLASSNAME< T1 , T2, T3 >::_fieldType(          \
-    SFieldTraits::getSName(),                            \
-    SFieldTraits::getSPName(),                           \
-    SFieldTraits::getType (),                            \
-    FieldType::SingleField,                              \
-    Self::Class)
+     SFieldTraits::getSName(),                           \
+     SFieldTraits::getSPName(),                          \
+     SFieldTraits::getType (),                           \
+     FieldType::SingleField,                             \
+     Self::Class,                                        \
+    &Self::createFieldDescription,                       \
+    &Self::createIdxFieldDescription)
 
 #define OSG_SFIELDTYPE_INST_X(CLASSNAME, T1, T2, T3)     \
 template<>                                               \
 FieldType CLASSNAME< T1 , T2, T3 >::_fieldType(          \
-    SFieldTraits::getSName< T2 >(),                      \
-    SFieldTraits::getSPName(),                           \
-    SFieldTraits::getType (),                            \
-    FieldType::SingleField,                              \
-    Self::Class)
+     SFieldTraits::getSName< T2 >(),                     \
+     SFieldTraits::getSPName(),                          \
+     SFieldTraits::getType (),                           \
+     FieldType::SingleField,                             \
+     Self::Class,                                        \
+    &Self::createFieldDescription,                       \
+    &Self::createIdxFieldDescription)
 
 
 #define OSG_MFIELDTYPE_INST(CLASSNAME, T1, T2, T3)       \
 template<>                                               \
 FieldType CLASSNAME< T1 , T2, T3 >::_fieldType(          \
-    MFieldTraits::getMName(),                            \
-    MFieldTraits::getMPName(),                           \
-    MFieldTraits::getType (),                            \
-    FieldType::MultiField,                               \
-    Self::Class)
+     MFieldTraits::getMName(),                           \
+     MFieldTraits::getMPName(),                          \
+     MFieldTraits::getType (),                           \
+     FieldType::MultiField,                              \
+     Self::Class,                                        \
+    &Self::createFieldDescription,                       \
+    &Self::createIdxFieldDescription)
 
 #define OSG_MFIELDTYPE_INST_X(CLASSNAME, T1, T2, T3)     \
 template<>                                               \
 FieldType CLASSNAME< T1 , T2, T3 >::_fieldType(          \
-    MFieldTraits::getMName< T2 >(),                      \
-    MFieldTraits::getMPName(),                           \
-    MFieldTraits::getType (),                            \
-    FieldType::MultiField,                               \
-    Self::Class)
+     MFieldTraits::getMName< T2 >(),                     \
+     MFieldTraits::getMPName(),                          \
+     MFieldTraits::getType (),                           \
+     FieldType::MultiField,                              \
+     Self::Class,                                        \
+    &Self::createFieldDescription,                       \
+    &Self::createIdxFieldDescription)
 
 #endif
 
@@ -301,40 +311,86 @@ const Char8 *FieldTraits<                                  \
     return "MFUnrefd"#PTRCLASSNAME;                        \
 }
 
-
-#define OSG_FIELDCONTAINER_FIELDS_INST(PTRCLASS, PTRCLASSNAME)       \
-                                                                     \
-typedef                                                              \
-  PointerMField<PTRCLASS,                                            \
-                RecordedRefCountPolicy  > MFRec##PTRCLASSNAME;       \
-                                                                     \
-typedef                                                              \
-  PointerMField<PTRCLASS,                                            \
-                UnrecordedRefCountPolicy> MFUnrec##PTRCLASSNAME;     \
-                                                                     \
-typedef                                                              \
-  PointerMField<PTRCLASS,                                            \
-                WeakRefCountPolicy      > MFWeak##PTRCLASSNAME;      \
-                                                                     \
-typedef                                                              \
-  PointerMField<PTRCLASS,                                            \
-                NoRefCountPolicy        > MFUncounted##PTRCLASSNAME; \
-                                                                     \
-typedef                                                              \
-  PointerSField<PTRCLASS,                                            \
-                RecordedRefCountPolicy  > SFRec##PTRCLASSNAME;       \
-                                                                     \
-typedef                                                              \
-  PointerSField<PTRCLASS,                                            \
-                UnrecordedRefCountPolicy> SFUnrec##PTRCLASSNAME;     \
-                                                                     \
-typedef                                                              \
-  PointerSField<PTRCLASS,                                            \
-                WeakRefCountPolicy      > SFWeak##PTRCLASSNAME;      \
-                                                                     \
-typedef                                                              \
-  PointerSField<PTRCLASS,                                            \
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+ 
+#define OSG_FIELDCONTAINER_FIELDS_INST(PTRCLASS, PTRCLASSNAME, DGRP, DLIB) \
+                                                                           \
+typedef                                                                    \
+  PointerMField<PTRCLASS,                                                  \
+                RecordedRefCountPolicy  > MFRec##PTRCLASSNAME;             \
+                                                                           \
+typedef                                                                    \
+  PointerMField<PTRCLASS,                                                  \
+                UnrecordedRefCountPolicy> MFUnrec##PTRCLASSNAME;           \
+                                                                           \
+typedef                                                                    \
+  PointerMField<PTRCLASS,                                                  \
+                WeakRefCountPolicy      > MFWeak##PTRCLASSNAME;            \
+                                                                           \
+typedef                                                                    \
+  PointerMField<PTRCLASS,                                                  \
+                NoRefCountPolicy        > MFUncounted##PTRCLASSNAME;       \
+                                                                           \
+typedef                                                                    \
+  PointerSField<PTRCLASS,                                                  \
+                RecordedRefCountPolicy  > SFRec##PTRCLASSNAME;             \
+                                                                           \
+typedef                                                                    \
+  PointerSField<PTRCLASS,                                                  \
+                UnrecordedRefCountPolicy> SFUnrec##PTRCLASSNAME;           \
+                                                                           \
+typedef                                                                    \
+  PointerSField<PTRCLASS,                                                  \
+                WeakRefCountPolicy      > SFWeak##PTRCLASSNAME;            \
+                                                                           \
+typedef                                                                    \
+  PointerSField<PTRCLASS,                                                  \
                 NoRefCountPolicy        > SFUncounted##PTRCLASSNAME
+
+#else
+
+#define OSG_FIELDCONTAINER_FIELDS_INST(PTRCLASS, PTRCLASSNAME, DGRP, DLIB) \
+/*! \ingroup DGRP##FieldMFields \ingroup DLIB */                           \
+struct MFRec##PTRCLASSNAME :                                               \
+    public PointerMField<PTRCLASS,                                         \
+                         RecordedRefCountPolicy  > {};                     \
+                                                                           \
+/*! \ingroup DGRP##FieldMFields \ingroup DLIB */                           \
+struct MFUnrec##PTRCLASSNAME :                                             \
+    public PointerMField<PTRCLASS,                                         \
+                         UnrecordedRefCountPolicy> {};                     \
+                                                                           \
+/*! \ingroup DGRP##FieldMFields \ingroup DLIB */                           \
+struct MFWeak##PTRCLASSNAME :                                              \
+    public PointerMField<PTRCLASS,                                         \
+                         WeakRefCountPolicy      > {};                     \
+                                                                           \
+/*! \ingroup DGRP##FieldMFields \ingroup DLIB */                           \
+struct MFUncounted##PTRCLASSNAME :                                         \
+    public PointerMField<PTRCLASS,                                         \
+                         NoRefCountPolicy        > {};                     \
+                                                                           \
+/*! \ingroup DGRP##FieldSFields \ingroup DLIB */                           \
+struct SFRec##PTRCLASSNAME :                                               \
+    public PointerSField<PTRCLASS,                                         \
+                         RecordedRefCountPolicy  > {};                     \
+                                                                           \
+/*! \ingroup DGRP##FieldSFields \ingroup DLIB */                           \
+struct SFUnrec##PTRCLASSNAME :                                             \
+    public PointerSField<PTRCLASS,                                         \
+                         UnrecordedRefCountPolicy> {};                     \
+                                                                           \
+/*! \ingroup DGRP##FieldSFields \ingroup DLIB */                           \
+struct SFWeak##PTRCLASSNAME :                                              \
+    public PointerSField<PTRCLASS,                                         \
+                         WeakRefCountPolicy      > {};                     \
+                                                                           \
+/*! \ingroup DGRP##FieldSFields \ingroup DLIB */                           \
+struct SFUncounted##PTRCLASSNAME :                                         \
+    public PointerSField<PTRCLASS,                                         \
+                         NoRefCountPolicy        > {}
+
+#endif
 
 
 #endif /* _OSGEXPORTDEFINES_H_ */

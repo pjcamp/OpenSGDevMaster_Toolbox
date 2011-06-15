@@ -43,7 +43,7 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include <OSGConfig.h>
+#include "OSGConfig.h"
 
 #include "OSGWIN32Window.h"
 
@@ -142,7 +142,7 @@ void  WIN32Window::mainLoop(void)
     StatTimeStampElem *LoopTimeStatElem;
     while (_RunMainLoop)
     {
-        if(!_Active)
+        /*if(!_Active)
         {
             WaitMessage();
             while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -151,7 +151,7 @@ void  WIN32Window::mainLoop(void)
             }
         }
         else
-        {
+        {*/
             LoopTimeStatElem = StatCollector::getGlobalElem(WindowEventProducer::statWindowLoopTime);
             if(LoopTimeStatElem)
             {
@@ -178,7 +178,7 @@ void  WIN32Window::mainLoop(void)
             {
                 LoopTimeStatElem->stop();
             }
-        }
+        //}
     }
 
     if (getFullscreen())								// Are We In Fullscreen Mode?
@@ -1155,10 +1155,10 @@ std::vector<BoostPath> WIN32Window::openFileDialog(const std::string& WindowTitl
                 FilterString[FilterSize] = ';';
                 ++FilterSize;
             }
-            FilterString[FilterSize] = '*';
+            /*FilterString[FilterSize] = '*';
             ++FilterSize;
             FilterString[FilterSize] = '.';
-            ++FilterSize;
+            ++FilterSize;*/
             for(UInt32 i(0) ; i<SplitVec[j].size(); ++i)
             {
                 FilterString[FilterSize] = SplitVec[j][i];
@@ -1182,23 +1182,22 @@ std::vector<BoostPath> WIN32Window::openFileDialog(const std::string& WindowTitl
 
 
 	OPENFILENAME ofn;       // common dialog box structure
-    const UInt32 MAX_FILE_STING_SIZE = 300;
-	char szFile[MAX_FILE_STING_SIZE];       // buffer for file name
+	CHAR szFile[MAX_PATH];
+    szFile[0] = '\0';       // buffer for file name
+    //strcpy(szFile, InitialDir.string().c_str());       // buffer for file name
 
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = getHwnd();
 	ofn.lpstrFile = szFile;
-	// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-	// use the contents of szFile to initialize itself.
-	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = sizeof(szFile);
 	ofn.lpstrFilter = FilterString;
 	ofn.nFilterIndex = 1;
 	ofn.lpstrTitle = WindowTitleLPC;
 	ofn.lpstrInitialDir = InitialDirLPC;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	//ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
 	// Display the Open dialog box. 
     
@@ -1209,12 +1208,14 @@ std::vector<BoostPath> WIN32Window::openFileDialog(const std::string& WindowTitl
     // GetOpenFileName stuffs
 
 
-	if (GetOpenFileName(&ofn)==TRUE)
+	if (GetOpenFileName(&ofn)==TRUE ||
+        CommDlgExtendedError() != 0)
 	{
         Result.push_back(BoostPath(ofn.lpstrFile));
 	}
 	else
 	{
+        SWARNING << "Problem opening OpenFile dialog: " << std::hex << CommDlgExtendedError() << std::endl;
 	}
     SetCurrentDirectory(currentdir);
 
@@ -1262,26 +1263,27 @@ Window* WIN32Window::initWindow(void)
 {
 	WindowRefPtr MyWindow = Inherited::initWindow();
     //Create the Win32 Window
-    WNDCLASS  wndClass;
-    HWND           hwnd;
-
-    // Win32 Init
-    memset(&wndClass, 0, sizeof(wndClass));
+    WNDCLASSEX  wndClass;
     
     std::string ClassName("OpenSG Window");
+    wndClass.cbSize = sizeof(WNDCLASSEX);
     wndClass.style		= CS_HREDRAW | CS_VREDRAW | CS_OWNDC;		// Redraw On Move, And Own DC For Window
 	wndClass.lpfnWndProc		= (WNDPROC) WIN32Window::staticWndProc;				// WndProc Handles Messages
 	wndClass.cbClsExtra		= 0;						// No Extra Window Data
 	wndClass.cbWndExtra		= 0;						// No Extra Window Data
 	wndClass.hInstance		= GetModuleHandle(NULL);					// Set The Instance
-	wndClass.hIcon		= LoadIcon(NULL, IDI_WINLOGO);			// Load The Default Icon
-	//wndClass.hCursor		= LoadCursor(NULL, IDC_ARROW);			// Load The Arrow Pointer
+	wndClass.hIcon		    = LoadIcon(wndClass.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));			// Load The Default Icon
+	wndClass.hCursor		= NULL;//LoadCursor(NULL, IDC_ARROW);			// Load The Arrow Pointer
 	wndClass.hbrBackground	= NULL;						// No Background Required For GL
 	wndClass.lpszMenuName		= NULL;						// We Don't Want A Menu
 	wndClass.lpszClassName	= ClassName.c_str();
+    wndClass.hIconSm        = LoadIcon(wndClass.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
 
-    if (!RegisterClass(&wndClass)) 
+
+    if (!RegisterClassEx(&wndClass)) 
     {
+        DWORD Error = GetLastError();
+        SFATAL << "Failed To Register The Window Class: " << Error << std::endl;
         MessageBox(NULL,"Failed To Register The Window Class.","ERROR",MB_OK|MB_ICONEXCLAMATION);
         return NULL;
     }
@@ -1343,6 +1345,7 @@ Window* WIN32Window::initWindow(void)
     //ShowCursor(true);						// Show/Hide Mouse Pointer
 
     // Create a Window
+    HWND           hwnd;
     hwnd = CreateWindowEx(	dwExStyle,				// Extended Style For The Window
 				ClassName.c_str(),				// Class Name
 				"Temp",					// Window Title
@@ -1902,31 +1905,6 @@ void WIN32Window::terminate(void)
      }
 }
 
-void WIN32Window::activate  (void)
-{
-    if((_sfDrawMode.getValue() & PartitionDrawMask) == SequentialPartitionDraw)
-    {
-        this->doActivate();
-    }
-}
-
-void WIN32Window::deactivate(void)
-{
-    if((_sfDrawMode.getValue() & PartitionDrawMask) == SequentialPartitionDraw)
-    {
-        this->doDeactivate();
-    }
-}
-
-bool WIN32Window::swap      (void)
-{
-    if((_sfDrawMode.getValue() & PartitionDrawMask) == SequentialPartitionDraw)
-    {
-        return this->doSwap();
-    }
-
-    return false;
-}
 
 /*! activate the window: set the HDC and bind the OGL context
 */
@@ -1964,4 +1942,10 @@ bool WIN32Window::doSwap(void)
 
     return SwapBuffers(getHdc());
 }
+
+bool WIN32Window::hasContext(void)
+{
+    return (this->getHglrc() != NULL);
+}
+
 OSG_END_NAMESPACE

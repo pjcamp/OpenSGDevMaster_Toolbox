@@ -61,9 +61,6 @@ OSG_USING_NAMESPACE
 // To modify it, please change the .fcd file (OSGGeoProperty.fcd) and
 // regenerate the base file.
 
-/*! \fn GeoProperty::
- */
-
 /*! \fn UInt32  GeoProperty::getFormat    (void)
     Returns the OpenGL type constant identifying the data type of the
     properties values.
@@ -254,7 +251,6 @@ UInt32 GeoProperty::handleGL(DrawEnv                 *pEnv,
                              Window::GLObjectStatusE  mode,
                              UInt32                   uiOptions)
 {
-#ifndef OSG_EMBEDDED
     GLuint  glid;
     Window *win = pEnv->getWindow();
 
@@ -309,7 +305,6 @@ UInt32 GeoProperty::handleGL(DrawEnv                 *pEnv,
         SWARNING << "GeoProperty(" << this << "::handleGL: Illegal mode: "
                  << mode << " for id " << id << std::endl;
     }
-#endif
 
     return 0;
 }
@@ -318,7 +313,6 @@ void GeoProperty::handleDestroyGL(DrawEnv                 *pEnv,
                                UInt32                   id, 
                                Window::GLObjectStatusE  mode)
 {
-#ifndef OSG_EMBEDDED
     GLuint glid;
     Window *win = pEnv->getWindow();
 
@@ -330,6 +324,8 @@ void GeoProperty::handleDestroyGL(DrawEnv                 *pEnv,
         glid = win->getGLObjectId(id);
 
         osgGlDeleteBuffers(1, &glid);
+
+        win->setGLObjectId(id, 0);
     }
     else if(mode == Window::finaldestroy)
     {
@@ -340,7 +336,6 @@ void GeoProperty::handleDestroyGL(DrawEnv                 *pEnv,
         SWARNING << "GeoProperty::handleDestroyGL: Illegal mode: "
                  << mode << " for id " << id << std::endl;
     }
-#endif
 }
 
 /*-------------------------- Comparison -----------------------------------*/

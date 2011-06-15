@@ -46,7 +46,7 @@
 #include "OSGConfig.h"
 
 // Forget everything if we're not doing a Mac OS X compile
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(OSG_DO_DOC)
 
 #include <AGL/agl.h>
 #include <boost/algorithm/string.hpp>
@@ -167,8 +167,6 @@ OSG_BEGIN_NAMESPACE
  *                           Class variables                               *
 \***************************************************************************/
 
-CarbonWindow::CarbonWindowToProducerMap CarbonWindow::_CarbonWindowToProducerMap;
-
 /***************************************************************************\
  *                           Class methods                                 *
 \***************************************************************************/
@@ -189,56 +187,37 @@ void CarbonWindow::initMethod(InitPhase ePhase)
 
 OSStatus CarbonWindow::eventHandler(EventHandlerCallRef nextHandler, EventRef event, void *userData)
 {
-    UInt32 WindowId(*static_cast<UInt32*>(userData));
-        
-   if(_CarbonWindowToProducerMap.find(WindowId) != _CarbonWindowToProducerMap.end())
-   {
-      return _CarbonWindowToProducerMap[WindowId]->internalEventHandler(nextHandler, event,
-                           userData);
-   }
-   else
-   {
-        return eventNotHandledErr;
-   }
-}
+    CarbonWindow* TheWindow(static_cast<CarbonWindow*>(userData));
 
-UInt32 CarbonWindow::getUndefinedWindowId(void)
-{
-    UInt32 i(1);
-    while(_CarbonWindowToProducerMap.find(i) != _CarbonWindowToProducerMap.end())
+    if(TheWindow != NULL)
     {
-        ++i;
+        return TheWindow->internalEventHandler(nextHandler,
+                                               event,
+                                               userData);
     }
-    return i;
+    else
+    {
+        return eventNotHandledErr;
+    }
 }
 
 void  CarbonWindow::mainLoop(void)
 {
-	// Main loop ( event dispatching )
+    // Main loop ( event dispatching )
     EventRef theEvent;    
     EventTargetRef theTarget;    
     theTarget = GetEventDispatcherTarget(); 
-    while (true)
+    while (_IsWindowOpen)
     {
+        update();
+        draw();
+
         while  ( ReceiveNextEvent(0, NULL,0 /*kEventDurationForever*/ ,true,
-                                 &theEvent)== noErr)
+                                  &theEvent)== noErr)
         {
             SendEventToEventTarget (theEvent, theTarget);        
             ReleaseEvent(theEvent);
-            
         }
-	
-        CarbonWindowToProducerMap::iterator MapItor;
-        for( MapItor = _CarbonWindowToProducerMap.begin(); MapItor != _CarbonWindowToProducerMap.end(); ++MapItor)
-        {
-            MapItor->second->update();
-            MapItor->second->draw();
-        }
-        if(_CarbonWindowToProducerMap.size() == 0)
-        {
-            break;
-        }
-
     }
 }
 
@@ -254,14 +233,14 @@ void CarbonWindow::setShowCursor(bool show)
         ShowCursor();
     }
     else
-	{
+    {
         HideCursor();
-	}
+    }
 }
 
 bool CarbonWindow::getShowCursor() const
 {
-	return CGCursorIsVisible();
+    return CGCursorIsVisible();
 }
 
 void CarbonWindow::setAttachMouseToCursor(bool attach)
@@ -272,7 +251,7 @@ void CarbonWindow::setAttachMouseToCursor(bool attach)
 
 bool CarbonWindow::getAttachMouseToCursor(void) const
 {
-	return _AttachMouseToCursor;
+    return _AttachMouseToCursor;
 }
 
 
@@ -304,7 +283,7 @@ int AEDescToFSSpec(const AEDesc* desc, FSSpec* fsspec) {
     // If AEDesc isn't already an FSSpec, convert it to one
     if ( desc->descriptorType != typeFSS ) {
         if ( ( err = AECoerceDesc(desc, typeFSS, &coerceDesc) ) == noErr ) {
-        // Get FSSpec out of AEDesc
+            // Get FSSpec out of AEDesc
             err = AEGetDescData(&coerceDesc, fsspec, sizeof(FSSpec));
             AEDisposeDesc(&coerceDesc);
         }
@@ -323,22 +302,22 @@ static OSStatus PathToFSSpec(const char *path, FSSpec &spec) {
     OSStatus err;
     FSRef ref;
     if ((err = FSPathMakeRef((const UInt8*)path, &ref, NULL)) != noErr) {
-    return(err);
+        return(err);
     }
     // FSRef -> FSSpec
     if ((err = FSGetCatalogInfo(&ref, kFSCatInfoNone, NULL, NULL, &spec,
-                                     NULL)) != noErr) {
-    return(err);
+                                NULL)) != noErr) {
+        return(err);
     }
     return(noErr);
 }
 
 std::vector<BoostPath> CarbonWindow::openFileDialog(const std::string& WindowTitle,
-		const std::vector<FileDialogFilter>& Filters,
-		const BoostPath& InitialDir,
-		bool AllowMultiSelect)
+                                                    const std::vector<FileDialogFilter>& Filters,
+                                                    const BoostPath& InitialDir,
+                                                    bool AllowMultiSelect)
 {
-	std::vector<BoostPath, std::allocator<BoostPath> > FilesToOpen;
+    std::vector<BoostPath, std::allocator<BoostPath> > FilesToOpen;
     OSStatus status;
     NavDialogRef OpenFileDialog;
 
@@ -349,38 +328,38 @@ std::vector<BoostPath> CarbonWindow::openFileDialog(const std::string& WindowTit
     if(status != noErr)
     {
         SWARNING << "CarbonWindow::openFileDialog: NavGetDefaultDialogCreationOptions Error: "<< status << std::endl;
-	    return FilesToOpen;
+        return FilesToOpen;
     }
 
-   // Make the window app-wide modal
-   dialogOptions.modality = kWindowModalityAppModal;
-   dialogOptions.parentWindow = _WindowRef;
-   dialogOptions.windowTitle = CFStringCreateWithCString(NULL, WindowTitle.c_str(), WindowTitle.size());
-   if(AllowMultiSelect)
-   {
-       dialogOptions.optionFlags = dialogOptions.optionFlags | kNavAllowMultipleFiles;
-   }
-   else
-   {
-       dialogOptions.optionFlags = dialogOptions.optionFlags ^ kNavAllowMultipleFiles;
-   }
-   
-   status = NavCreateGetFileDialog (
-       &dialogOptions,
-       NULL,
-       NULL,//_EventHandlerUPP,
-       NULL,
-       NULL,//NavObjectFilterUPP inFilterProc,
-       NULL,//void *inClientData,
-       &OpenFileDialog);
-    
+    // Make the window app-wide modal
+    dialogOptions.modality = kWindowModalityAppModal;
+    dialogOptions.parentWindow = _WindowRef;
+    dialogOptions.windowTitle = CFStringCreateWithCString(NULL, WindowTitle.c_str(), WindowTitle.size());
+    if(AllowMultiSelect)
+    {
+        dialogOptions.optionFlags = dialogOptions.optionFlags | kNavAllowMultipleFiles;
+    }
+    else
+    {
+        dialogOptions.optionFlags = dialogOptions.optionFlags ^ kNavAllowMultipleFiles;
+    }
+
+    status = NavCreateGetFileDialog (
+                                     &dialogOptions,
+                                     NULL,
+                                     NULL,//_EventHandlerUPP,
+                                     NULL,
+                                     NULL,//NavObjectFilterUPP inFilterProc,
+                                     NULL,//void *inClientData,
+                                     &OpenFileDialog);
+
     if(status != noErr)
     {
         NavDialogDispose(OpenFileDialog);
         SWARNING << "CarbonWindow::openFileDialog: NavCreateGetFileDialog Error: "<< status << std::endl;
-	    return FilesToOpen;
+        return FilesToOpen;
     }
-    
+
     // Image Browser can open files with the ".imagebrowser" extension
     CFMutableArrayRef identifiers = CFArrayCreateMutable( kCFAllocatorDefault,
                                                           0,
@@ -389,7 +368,7 @@ std::vector<BoostPath> CarbonWindow::openFileDialog(const std::string& WindowTit
     {
         NavDialogDispose(OpenFileDialog);
         SWARNING << "CarbonWindow::openFileDialog: CFArrayCreateMutable Error: NULL " <<  std::endl;
-	    return FilesToOpen;
+        return FilesToOpen;
     }
 
     //Initial directory 
@@ -399,7 +378,7 @@ std::vector<BoostPath> CarbonWindow::openFileDialog(const std::string& WindowTit
     {
         NavDialogDispose(OpenFileDialog);
         SWARNING << "CarbonWindow::openFileDialog: PathToFSSpec Error: "<< status << std::endl;
-	    return FilesToOpen;
+        return FilesToOpen;
     }
 
     AEDesc DefaultLocationAEDesc;
@@ -408,63 +387,63 @@ std::vector<BoostPath> CarbonWindow::openFileDialog(const std::string& WindowTit
     {
         NavDialogDispose(OpenFileDialog);
         SWARNING << "CarbonWindow::openFileDialog: AECreateDesc Error: "<< status << std::endl;
-	    return FilesToOpen;
+        return FilesToOpen;
     }
     status = NavCustomControl( OpenFileDialog, kNavCtlSetLocation, &DefaultLocationAEDesc );
     if(status != noErr)
     {
         NavDialogDispose(OpenFileDialog);
         SWARNING << "CarbonWindow::openFileDialog: NavCustomControl Error: "<< status << std::endl;
-	    return FilesToOpen;
+        return FilesToOpen;
     }
     AEDisposeDesc(&DefaultLocationAEDesc);
 
     //Filters
     //for(std::vector<FileDialogFilter>::const_iterator Itor(Filters.begin()) ; Itor != Filters.end(); ++Itor)
     //{
-        ////Split the Filters
-        //typedef std::vector< std::string > split_vector_type;
-        
-        //split_vector_type SplitVec;
-        //boost::split( SplitVec, Itor->getFilter(), boost::is_any_of(";,") );
+    ////Split the Filters
+    //typedef std::vector< std::string > split_vector_type;
 
-        //for(UInt32 j(0) ; j<SplitVec.size() ; ++j)
-        //{
-            //if(j != 0)
-            //{
-                //CFStringRef ExtStr = CFStringCreateWithCString(NULL,
-                                                            //SplitVec[j].c_str(),
-                                                            //SplitVec[j].size());
-                //CFStringRef extUTI= UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension,
-                                                                          //ExtStr,
-                                                                          //kUTTypeData);
-                //CFArrayAppendValue( identifiers, extUTI );
+    //split_vector_type SplitVec;
+    //boost::split( SplitVec, Itor->getFilter(), boost::is_any_of(";,") );
 
-            //}
-        //}
-        ////if(Itor->getFilter().compare("*") != 0)
-        ////{
-            ////CFStringRef FilterCFString = UTTypeCreatePreferredIdentifierForTag( kUTTagClassFilenameExtension, CFStringCreateWithCString(NULL, Itor->getFilter().c_str(), Itor->getFilter().size()),kUTTypeData );
+    //for(UInt32 j(0) ; j<SplitVec.size() ; ++j)
+    //{
+    //if(j != 0)
+    //{
+    //CFStringRef ExtStr = CFStringCreateWithCString(NULL,
+    //SplitVec[j].c_str(),
+    //SplitVec[j].size());
+    //CFStringRef extUTI= UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension,
+    //ExtStr,
+    //kUTTypeData);
+    //CFArrayAppendValue( identifiers, extUTI );
 
-            ////if(FilterCFString == NULL)
-            ////{
-                ////NavDialogDispose(OpenFileDialog);
-                ////SWARNING << "CarbonWindow::openFileDialog: UTTypeCreatePreferredIdentifierForTag Error: NULL " <<  std::endl;
-                ////return FilesToOpen;
-            ////}
-            //////Itor->getName();
-            ////CFArrayAppendValue( identifiers, FilterCFString );
-        ////}
     //}
-    
+    //}
+    ////if(Itor->getFilter().compare("*") != 0)
+    ////{
+    ////CFStringRef FilterCFString = UTTypeCreatePreferredIdentifierForTag( kUTTagClassFilenameExtension, CFStringCreateWithCString(NULL, Itor->getFilter().c_str(), Itor->getFilter().size()),kUTTypeData );
+
+    ////if(FilterCFString == NULL)
+    ////{
+    ////NavDialogDispose(OpenFileDialog);
+    ////SWARNING << "CarbonWindow::openFileDialog: UTTypeCreatePreferredIdentifierForTag Error: NULL " <<  std::endl;
+    ////return FilesToOpen;
+    ////}
+    //////Itor->getName();
+    ////CFArrayAppendValue( identifiers, FilterCFString );
+    ////}
+    //}
+
     //status = NavDialogSetFilterTypeIdentifiers( OpenFileDialog, identifiers );
     //if(status != noErr)
     //{
-        //NavDialogDispose(OpenFileDialog);
-        //SWARNING << "CarbonWindow::openFileDialog: NavDialogRun Error: "<< status << std::endl;
-        //return FilesToOpen;
+    //NavDialogDispose(OpenFileDialog);
+    //SWARNING << "CarbonWindow::openFileDialog: NavDialogRun Error: "<< status << std::endl;
+    //return FilesToOpen;
     //}
- 
+
     //Open the dialog
     status = NavDialogRun(OpenFileDialog);
     if(status != noErr)
@@ -484,7 +463,7 @@ std::vector<BoostPath> CarbonWindow::openFileDialog(const std::string& WindowTit
         NavDisposeReply(&replyRecord);
         return FilesToOpen;
     }
-    
+
     //Other Errors
     if(status != noErr)
     {
@@ -515,18 +494,18 @@ std::vector<BoostPath> CarbonWindow::openFileDialog(const std::string& WindowTit
         }
     }
     NavDisposeReply(&replyRecord);
-    
+
     return FilesToOpen;
 }
 
 BoostPath CarbonWindow::saveFileDialog(const std::string& DialogTitle,
-                const std::vector<FileDialogFilter>& Filters,
-                const std::string& InitialFile,
-                const BoostPath& InitialDirectory,
-                bool PromptForOverwrite
-                )
+                                       const std::vector<FileDialogFilter>& Filters,
+                                       const std::string& InitialFile,
+                                       const BoostPath& InitialDirectory,
+                                       bool PromptForOverwrite
+                                      )
 {
-	BoostPath FileToSave;
+    BoostPath FileToSave;
     OSStatus status;
     NavDialogRef SaveFileDialog;
 
@@ -537,45 +516,45 @@ BoostPath CarbonWindow::saveFileDialog(const std::string& DialogTitle,
     if(status != noErr)
     {
         SWARNING << "CarbonWindow::saveFileDialog: NavGetDefaultDialogCreationOptions Error: "<< status << std::endl;
-	    return FileToSave;
+        return FileToSave;
     }
 
-   // Make the window app-wide modal
-   dialogOptions.modality = kWindowModalityAppModal;
-   dialogOptions.parentWindow = _WindowRef;
-   dialogOptions.optionFlags = kNavDefaultNavDlogOptions;
-   dialogOptions.windowTitle = CFStringCreateWithCString(NULL, DialogTitle.c_str(), DialogTitle.size());
-   if(PromptForOverwrite)
-   {
-       dialogOptions.optionFlags = dialogOptions.optionFlags ^ kNavDontConfirmReplacement;
-   }
-   else
-   {
-       dialogOptions.optionFlags = dialogOptions.optionFlags | kNavDontConfirmReplacement;
-   }
-   
-   status = NavCreatePutFileDialog (
-       &dialogOptions,
-       kUnknownType,
-       kUnknownType,
-       NULL,
-       NULL,
-       &SaveFileDialog);
-    
+    // Make the window app-wide modal
+    dialogOptions.modality = kWindowModalityAppModal;
+    dialogOptions.parentWindow = _WindowRef;
+    dialogOptions.optionFlags = kNavDefaultNavDlogOptions;
+    dialogOptions.windowTitle = CFStringCreateWithCString(NULL, DialogTitle.c_str(), DialogTitle.size());
+    if(PromptForOverwrite)
+    {
+        dialogOptions.optionFlags = dialogOptions.optionFlags ^ kNavDontConfirmReplacement;
+    }
+    else
+    {
+        dialogOptions.optionFlags = dialogOptions.optionFlags | kNavDontConfirmReplacement;
+    }
+
+    status = NavCreatePutFileDialog (
+                                     &dialogOptions,
+                                     kUnknownType,
+                                     kUnknownType,
+                                     NULL,
+                                     NULL,
+                                     &SaveFileDialog);
+
     if(status != noErr)
     {
         NavDialogDispose(SaveFileDialog);
         SWARNING << "CarbonWindow::saveFileDialog: NavCreateGetFileDialog Error: "<< status << std::endl;
-	    return FileToSave;
+        return FileToSave;
     }
-    
+
     // Image Browser can open files with the ".imagebrowser" extension
     CFMutableArrayRef identifiers = CFArrayCreateMutable( kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks );
     if(identifiers == NULL)
     {
         NavDialogDispose(SaveFileDialog);
         SWARNING << "CarbonWindow::saveFileDialog: CFArrayCreateMutable Error: NULL " <<  std::endl;
-	    return FileToSave;
+        return FileToSave;
     }
 
     //Initial directory 
@@ -585,7 +564,7 @@ BoostPath CarbonWindow::saveFileDialog(const std::string& DialogTitle,
     {
         NavDialogDispose(SaveFileDialog);
         SWARNING << "CarbonWindow::saveFileDialog: PathToFSSpec Error: "<< status << std::endl;
-	    return FileToSave;
+        return FileToSave;
     }
     AEDesc DefaultLocationAEDesc;
     status = AECreateDesc(typeFSS, &spec, sizeof(FSSpec), &DefaultLocationAEDesc);
@@ -593,24 +572,24 @@ BoostPath CarbonWindow::saveFileDialog(const std::string& DialogTitle,
     {
         NavDialogDispose(SaveFileDialog);
         SWARNING << "CarbonWindow::saveFileDialog: AECreateDesc Error: "<< status << std::endl;
-	    return FileToSave;
+        return FileToSave;
     }
     status = NavCustomControl( SaveFileDialog, kNavCtlSetLocation, &DefaultLocationAEDesc );
     if(status != noErr)
     {
         NavDialogDispose(SaveFileDialog);
         SWARNING << "CarbonWindow::saveFileDialog: NavCustomControl Error: "<< status << std::endl;
-	    return FileToSave;
+        return FileToSave;
     }
     AEDisposeDesc(&DefaultLocationAEDesc);
-    
+
     //Initial filename
     status = NavDialogSetSaveFileName(SaveFileDialog,CFStringCreateWithCString(NULL, InitialFile.c_str(), InitialFile.size()));
     if(status != noErr)
     {
         NavDialogDispose(SaveFileDialog);
         SWARNING << "CarbonWindow::saveFileDialog: NavDialogSetSaveFileName Error: "<< status << std::endl;
-	    return FileToSave;
+        return FileToSave;
     }
 
 
@@ -632,16 +611,16 @@ BoostPath CarbonWindow::saveFileDialog(const std::string& DialogTitle,
             CFArrayAppendValue( identifiers, FilterCFString );
         }
     }
-    
+
     // filter by UTI
     //status = NavDialogSetFilterTypeIdentifiers( SaveFileDialog, identifiers );
     //if(status != noErr)
     //{
-        //NavDialogDispose(SaveFileDialog);
-        //SWARNING << "CarbonWindow::saveFileDialog: NavDialogRun Error: "<< status << std::endl;
-        //return FileToSave;
+    //NavDialogDispose(SaveFileDialog);
+    //SWARNING << "CarbonWindow::saveFileDialog: NavDialogRun Error: "<< status << std::endl;
+    //return FileToSave;
     //}
- 
+
     //Open the dialog
     status = NavDialogRun(SaveFileDialog);
     if(status != noErr)
@@ -661,7 +640,7 @@ BoostPath CarbonWindow::saveFileDialog(const std::string& DialogTitle,
         NavDisposeReply(&replyRecord);
         return FileToSave;
     }
-    
+
     //Other Errors
     if(status != noErr)
     {
@@ -696,361 +675,363 @@ BoostPath CarbonWindow::saveFileDialog(const std::string& DialogTitle,
 
     //Filename
     CFStringRef SaveFileCFString = NavDialogGetSaveFileName(SaveFileDialog);
-	char FileName[1024];
-	CFStringGetCString(SaveFileCFString, FileName, sizeof(FileName), 0);
+    char FileName[1024];
+    CFStringGetCString(SaveFileCFString, FileName, sizeof(FileName), 0);
     FileToSave                   = FileToSave / BoostPath(FileName);
 
     return FileToSave;
 }
 
-CGKeyCode CarbonWindow::getKeyCode(KeyEvent::Key TheKey)
+CGKeyCode CarbonWindow::getKeyCode(KeyEventDetails::Key TheKey)
 {
     switch(TheKey)
     {
-	////Alphabet
-    case KeyEvent::KEY_A:
-      return KeyA;
-      break;
-    case KeyEvent::KEY_B:
-      return KeyB;
-      break;
-    case KeyEvent::KEY_C:
-      return KeyC;
-      break;
-    case KeyEvent::KEY_D:
-      return KeyD;
-      break;
-    case KeyEvent::KEY_E:
-      return KeyE;
-      break;
-    case KeyEvent::KEY_F:
-      return KeyF;
-      break;
-    case KeyEvent::KEY_G:
-      return KeyG;
-      break;
-    case KeyEvent::KEY_H:
-      return KeyH;
-      break;
-    case KeyEvent::KEY_I:
-      return KeyI;
-      break;
-    case KeyEvent::KEY_J:
-      return KeyJ;
-      break;
-    case KeyEvent::KEY_K:
-      return KeyK;
-      break;
-    case KeyEvent::KEY_L:
-      return KeyL;
-      break;
-    case KeyEvent::KEY_M:
-      return KeyM;
-      break;
-    case KeyEvent::KEY_N:
-      return KeyN;
-      break;
-    case KeyEvent::KEY_O:
-      return KeyO;
-      break;
-    case KeyEvent::KEY_P:
-      return KeyP;
-      break;
-    case KeyEvent::KEY_Q:
-      return KeyQ;
-      break;
-    case KeyEvent::KEY_R:
-      return KeyR;
-      break;
-    case KeyEvent::KEY_S:
-      return KeyS;
-      break;
-    case KeyEvent::KEY_T:
-      return KeyT;
-      break;
-    case KeyEvent::KEY_U:
-      return KeyU;
-      break;
-    case KeyEvent::KEY_V:
-      return KeyV;
-      break;
-    case KeyEvent::KEY_W:
-      return KeyW;
-      break;
-    case KeyEvent::KEY_X:
-      return KeyX;
-      break;
-    case KeyEvent::KEY_Y:
-      return KeyY;
-      break;
-    case KeyEvent::KEY_Z:
-      return KeyZ;
-      break;
-    //Numbers
-    case KeyEvent::KEY_0:
-      return Key0;
-      break;
-    case KeyEvent::KEY_1:
-      return Key1;
-      break;
-    case KeyEvent::KEY_2:
-      return Key2;
-      break;
-    case KeyEvent::KEY_3:
-      return Key3;
-      break;
-    case KeyEvent::KEY_4:
-      return Key4;
-      break;
-    case KeyEvent::KEY_5:
-      return Key5;
-      break;
-    case KeyEvent::KEY_6:
-      return Key6;
-      break;
-    case KeyEvent::KEY_7:
-      return Key7;
-      break;
-    case KeyEvent::KEY_8:
-      return Key8;
-      break;
-    case KeyEvent::KEY_9:
-      return Key9;
-      break;
+        ////Alphabet
+        case KeyEventDetails::KEY_A:
+            return KeyA;
+            break;
+        case KeyEventDetails::KEY_B:
+            return KeyB;
+            break;
+        case KeyEventDetails::KEY_C:
+            return KeyC;
+            break;
+        case KeyEventDetails::KEY_D:
+            return KeyD;
+            break;
+        case KeyEventDetails::KEY_E:
+            return KeyE;
+            break;
+        case KeyEventDetails::KEY_F:
+            return KeyF;
+            break;
+        case KeyEventDetails::KEY_G:
+            return KeyG;
+            break;
+        case KeyEventDetails::KEY_H:
+            return KeyH;
+            break;
+        case KeyEventDetails::KEY_I:
+            return KeyI;
+            break;
+        case KeyEventDetails::KEY_J:
+            return KeyJ;
+            break;
+        case KeyEventDetails::KEY_K:
+            return KeyK;
+            break;
+        case KeyEventDetails::KEY_L:
+            return KeyL;
+            break;
+        case KeyEventDetails::KEY_M:
+            return KeyM;
+            break;
+        case KeyEventDetails::KEY_N:
+            return KeyN;
+            break;
+        case KeyEventDetails::KEY_O:
+            return KeyO;
+            break;
+        case KeyEventDetails::KEY_P:
+            return KeyP;
+            break;
+        case KeyEventDetails::KEY_Q:
+            return KeyQ;
+            break;
+        case KeyEventDetails::KEY_R:
+            return KeyR;
+            break;
+        case KeyEventDetails::KEY_S:
+            return KeyS;
+            break;
+        case KeyEventDetails::KEY_T:
+            return KeyT;
+            break;
+        case KeyEventDetails::KEY_U:
+            return KeyU;
+            break;
+        case KeyEventDetails::KEY_V:
+            return KeyV;
+            break;
+        case KeyEventDetails::KEY_W:
+            return KeyW;
+            break;
+        case KeyEventDetails::KEY_X:
+            return KeyX;
+            break;
+        case KeyEventDetails::KEY_Y:
+            return KeyY;
+            break;
+        case KeyEventDetails::KEY_Z:
+            return KeyZ;
+            break;
+            //Numbers
+        case KeyEventDetails::KEY_0:
+            return Key0;
+            break;
+        case KeyEventDetails::KEY_1:
+            return Key1;
+            break;
+        case KeyEventDetails::KEY_2:
+            return Key2;
+            break;
+        case KeyEventDetails::KEY_3:
+            return Key3;
+            break;
+        case KeyEventDetails::KEY_4:
+            return Key4;
+            break;
+        case KeyEventDetails::KEY_5:
+            return Key5;
+            break;
+        case KeyEventDetails::KEY_6:
+            return Key6;
+            break;
+        case KeyEventDetails::KEY_7:
+            return Key7;
+            break;
+        case KeyEventDetails::KEY_8:
+            return Key8;
+            break;
+        case KeyEventDetails::KEY_9:
+            return Key9;
+            break;
 
-    //Other
-    case KeyEvent::KEY_MINUS:
-      return KeyMinus;
-      break;
-    case KeyEvent::KEY_EQUALS:
-      return KeyEquals;
-      break;
-    case KeyEvent::KEY_BACK_QUOTE:
-      return KeyBackquote;
-      break;
-    case KeyEvent::KEY_TAB:
-      return KeyTab;
-      break;
-    case KeyEvent::KEY_SPACE:
-      return KeySpacebar;
-      break;
-    case KeyEvent::KEY_OPEN_BRACKET:
-      return KeyLeftBracket;
-      break;
-    case KeyEvent::KEY_CLOSE_BRACKET:
-      return KeyRightBracket;
-      break;
-    case KeyEvent::KEY_SEMICOLON:
-      return KeySemicolon;
-      break;
-    case KeyEvent::KEY_COMMA:
-      return KeyComma;
-      break;
-    case KeyEvent::KEY_PERIOD:
-      return KeyPeriod;
-      break;
-    case KeyEvent::KEY_BACK_SLASH:
-      return KeyBackslash;
-      break;
-    case KeyEvent::KEY_APOSTROPHE:
-      return KeyApostrophe;
-      break;
-    case KeyEvent::KEY_SLASH:
-      return KeySlash;
-      break;
+            //Other
+        case KeyEventDetails::KEY_MINUS:
+            return KeyMinus;
+            break;
+        case KeyEventDetails::KEY_EQUALS:
+            return KeyEquals;
+            break;
+        case KeyEventDetails::KEY_BACK_QUOTE:
+            return KeyBackquote;
+            break;
+        case KeyEventDetails::KEY_TAB:
+            return KeyTab;
+            break;
+        case KeyEventDetails::KEY_SPACE:
+            return KeySpacebar;
+            break;
+        case KeyEventDetails::KEY_OPEN_BRACKET:
+            return KeyLeftBracket;
+            break;
+        case KeyEventDetails::KEY_CLOSE_BRACKET:
+            return KeyRightBracket;
+            break;
+        case KeyEventDetails::KEY_SEMICOLON:
+            return KeySemicolon;
+            break;
+        case KeyEventDetails::KEY_COMMA:
+            return KeyComma;
+            break;
+        case KeyEventDetails::KEY_PERIOD:
+            return KeyPeriod;
+            break;
+        case KeyEventDetails::KEY_BACK_SLASH:
+            return KeyBackslash;
+            break;
+        case KeyEventDetails::KEY_APOSTROPHE:
+            return KeyApostrophe;
+            break;
+        case KeyEventDetails::KEY_SLASH:
+            return KeySlash;
+            break;
 
-    //Non-visible
-    case KeyEvent::KEY_ESCAPE:
-      return KeyEscape;
-      break;
-    case KeyEvent::KEY_SHIFT:
-      return KeyShift;
-      break;
-    case KeyEvent::KEY_CONTROL:
-      return KeyControl;
-      break;
-    case KeyEvent::KEY_META:
-      return KeyMacCommand;
-      break;
-    case KeyEvent::KEY_ALT:
-      return KeyMenu;
-      break;
-    case KeyEvent::KEY_ENTER:
-      return KeyReturn;
-      break;
-    //case KeyEvent::KEY_CANCEL:
-      //return KeyCancel;
-    //  break;
-    case KeyEvent::KEY_CLEAR:
-      return KeyClear;
-      break;
-    //case KeyEvent::KEY_PAUSE:
-      //return KeyPause;
-    //  break;
-    case KeyEvent::KEY_CAPS_LOCK:
-      return KeyCapsLock;
-      break;
-    case KeyEvent::KEY_END:
-      return KeyEnd;
-      break;
-    case KeyEvent::KEY_HOME:
-      return KeyHome;
-      break;
-    case KeyEvent::KEY_PAGE_UP:
-      return KeyPageUp;
-      break;
-    case KeyEvent::KEY_PAGE_DOWN:
-      return KeyPageDown;
-      break;
-    case KeyEvent::KEY_UP:
-      return KeyUp;
-      break;
-    case KeyEvent::KEY_DOWN:
-      return KeyDown;
-      break;
-    case KeyEvent::KEY_LEFT:
-      return KeyLeft;
-      break;
-    case KeyEvent::KEY_RIGHT:
-      return KeyRight;
-      break;
-    //case KeyEvent::KEY_PRINTSCREEN:
-      //return KeySNAPSHOT;
-    //  break;
-    //case KeyEvent::KEY_INSERT:
-      //return KeyInsert;
-    //  break;
-    case KeyEvent::KEY_DELETE:
-      return KeyDelete;
-      break;
-    case KeyEvent::KEY_HELP:
-      return KeyHelp;
-      break;
-    //case KeyEvent::KEY_NUM_LOCK:
-      //return KeyNUMLOCK;
-    //  break;
-    //case KeyEvent::KEY_SCROLL_LOCK:
-      //return KeySCROLL;
-    //  break;
-    case KeyEvent::KEY_BACK_SPACE:
-      return KeyBackspace;
-      break;
+            //Non-visible
+        case KeyEventDetails::KEY_ESCAPE:
+            return KeyEscape;
+            break;
+        case KeyEventDetails::KEY_SHIFT:
+            return KeyShift;
+            break;
+        case KeyEventDetails::KEY_CONTROL:
+            return KeyControl;
+            break;
+        case KeyEventDetails::KEY_META:
+            return KeyMacCommand;
+            break;
+        case KeyEventDetails::KEY_ALT:
+            return KeyMenu;
+            break;
+        case KeyEventDetails::KEY_ENTER:
+            return KeyReturn;
+            break;
+            //case KeyEventDetails::KEY_CANCEL:
+            //return KeyCancel;
+            //  break;
+        case KeyEventDetails::KEY_CLEAR:
+            return KeyClear;
+            break;
+            //case KeyEventDetails::KEY_PAUSE:
+            //return KeyPause;
+            //  break;
+        case KeyEventDetails::KEY_CAPS_LOCK:
+            return KeyCapsLock;
+            break;
+        case KeyEventDetails::KEY_END:
+            return KeyEnd;
+            break;
+        case KeyEventDetails::KEY_HOME:
+            return KeyHome;
+            break;
+        case KeyEventDetails::KEY_PAGE_UP:
+            return KeyPageUp;
+            break;
+        case KeyEventDetails::KEY_PAGE_DOWN:
+            return KeyPageDown;
+            break;
+        case KeyEventDetails::KEY_UP:
+            return KeyUp;
+            break;
+        case KeyEventDetails::KEY_DOWN:
+            return KeyDown;
+            break;
+        case KeyEventDetails::KEY_LEFT:
+            return KeyLeft;
+            break;
+        case KeyEventDetails::KEY_RIGHT:
+            return KeyRight;
+            break;
+            //case KeyEventDetails::KEY_PRINTSCREEN:
+            //return KeySNAPSHOT;
+            //  break;
+            //case KeyEventDetails::KEY_INSERT:
+            //return KeyInsert;
+            //  break;
+        case KeyEventDetails::KEY_DELETE:
+            return KeyDelete;
+            break;
+        case KeyEventDetails::KEY_HELP:
+            return KeyHelp;
+            break;
+            //case KeyEventDetails::KEY_NUM_LOCK:
+            //return KeyNUMLOCK;
+            //  break;
+            //case KeyEventDetails::KEY_SCROLL_LOCK:
+            //return KeySCROLL;
+            //  break;
+        case KeyEventDetails::KEY_BACK_SPACE:
+            return KeyBackspace;
+            break;
 
-    //Function Keys
-    case KeyEvent::KEY_F1:
-      return KeyF1;
-      break;
-    case KeyEvent::KEY_F2:
-      return KeyF2;
-      break;
-    case KeyEvent::KEY_F3:
-      return KeyF3;
-      break;
-    case KeyEvent::KEY_F4:
-      return KeyF4;
-      break;
-    case KeyEvent::KEY_F5:
-      return KeyF5;
-      break;
-    case KeyEvent::KEY_F6:
-      return KeyF6;
-      break;
-    case KeyEvent::KEY_F7:
-      return KeyF7;
-      break;
-    case KeyEvent::KEY_F8:
-      return KeyF8;
-      break;
-    case KeyEvent::KEY_F9:
-      return KeyF9;
-      break;
-    case KeyEvent::KEY_F10:
-      return KeyF10;
-      break;
-    case KeyEvent::KEY_F11:
-      return KeyF11;
-      break;
-    case KeyEvent::KEY_F12:
-      return KeyF12;
-      break;
-      
-    //Numpad Keys
-    case KeyEvent::KEY_NUMPAD_0:
-      return KeyNum0;
-      break;
-    case KeyEvent::KEY_NUMPAD_1:
-      return KeyNum1;
-      break;
-    case KeyEvent::KEY_NUMPAD_2:
-      return KeyNum2;
-      break;
-    case KeyEvent::KEY_NUMPAD_3:
-      return KeyNum3;
-      break;
-    case KeyEvent::KEY_NUMPAD_4:
-      return KeyNum4;
-      break;
-    case KeyEvent::KEY_NUMPAD_5:
-      return KeyNum5;
-      break;
-    case KeyEvent::KEY_NUMPAD_6:
-      return KeyNum6;
-      break;
-    case KeyEvent::KEY_NUMPAD_7:
-      return KeyNum7;
-      break;
-    case KeyEvent::KEY_NUMPAD_8:
-      return KeyNum8;
-      break;
-    case KeyEvent::KEY_NUMPAD_9:
-      return KeyNum9;
-      break;
-    case KeyEvent::KEY_MULTIPLY:
-      return KeyMultiply;
-      break;
-    case KeyEvent::KEY_ADD:
-      return KeyAdd;
-      break;
-    case KeyEvent::KEY_SUBTRACT:
-      return KeySubtract;
-      break;
-    case KeyEvent::KEY_DIVIDE:
-      return KeyDivide;
-      break;
-    case KeyEvent::KEY_DECIMAL:
-      return KeyDecimal;
-      break;
-    case KeyEvent::KEY_NUMPAD_EQUALS:
-      return KeyNumEqual;
-      break;
-	
-    case KeyEvent::KEY_UNKNOWN:
-	default:
-	  return 0;
-	}
+            //Function Keys
+        case KeyEventDetails::KEY_F1:
+            return KeyF1;
+            break;
+        case KeyEventDetails::KEY_F2:
+            return KeyF2;
+            break;
+        case KeyEventDetails::KEY_F3:
+            return KeyF3;
+            break;
+        case KeyEventDetails::KEY_F4:
+            return KeyF4;
+            break;
+        case KeyEventDetails::KEY_F5:
+            return KeyF5;
+            break;
+        case KeyEventDetails::KEY_F6:
+            return KeyF6;
+            break;
+        case KeyEventDetails::KEY_F7:
+            return KeyF7;
+            break;
+        case KeyEventDetails::KEY_F8:
+            return KeyF8;
+            break;
+        case KeyEventDetails::KEY_F9:
+            return KeyF9;
+            break;
+        case KeyEventDetails::KEY_F10:
+            return KeyF10;
+            break;
+        case KeyEventDetails::KEY_F11:
+            return KeyF11;
+            break;
+        case KeyEventDetails::KEY_F12:
+            return KeyF12;
+            break;
+
+            //Numpad Keys
+        case KeyEventDetails::KEY_NUMPAD_0:
+            return KeyNum0;
+            break;
+        case KeyEventDetails::KEY_NUMPAD_1:
+            return KeyNum1;
+            break;
+        case KeyEventDetails::KEY_NUMPAD_2:
+            return KeyNum2;
+            break;
+        case KeyEventDetails::KEY_NUMPAD_3:
+            return KeyNum3;
+            break;
+        case KeyEventDetails::KEY_NUMPAD_4:
+            return KeyNum4;
+            break;
+        case KeyEventDetails::KEY_NUMPAD_5:
+            return KeyNum5;
+            break;
+        case KeyEventDetails::KEY_NUMPAD_6:
+            return KeyNum6;
+            break;
+        case KeyEventDetails::KEY_NUMPAD_7:
+            return KeyNum7;
+            break;
+        case KeyEventDetails::KEY_NUMPAD_8:
+            return KeyNum8;
+            break;
+        case KeyEventDetails::KEY_NUMPAD_9:
+            return KeyNum9;
+            break;
+        case KeyEventDetails::KEY_MULTIPLY:
+            return KeyMultiply;
+            break;
+        case KeyEventDetails::KEY_ADD:
+            return KeyAdd;
+            break;
+        case KeyEventDetails::KEY_SUBTRACT:
+            return KeySubtract;
+            break;
+        case KeyEventDetails::KEY_DIVIDE:
+            return KeyDivide;
+            break;
+        case KeyEventDetails::KEY_DECIMAL:
+            return KeyDecimal;
+            break;
+        case KeyEventDetails::KEY_NUMPAD_EQUALS:
+            return KeyNumEqual;
+            break;
+
+        case KeyEventDetails::KEY_UNKNOWN:
+        default:
+            return 0;
+    }
 }
 
-KeyEvent::KeyState CarbonWindow::getKeyState(KeyEvent::Key TheKey) const
+KeyEventDetails::KeyState CarbonWindow::getKeyState(KeyEventDetails::Key TheKey) const
 {
     if(CGEventSourceKeyState(kCGEventSourceStateCombinedSessionState,getKeyCode(TheKey)))
-	{
-        return KeyEvent::KEY_STATE_DOWN;
-	}
-	else
-	{
-		return KeyEvent::KEY_STATE_UP;
-	}
+    {
+        return KeyEventDetails::KEY_STATE_DOWN;
+    }
+    else
+    {
+        return KeyEventDetails::KEY_STATE_UP;
+    }
 }
 
 Window* CarbonWindow::initWindow(void)
 {
-	WindowUnrecPtr MyWindow = Inherited::initWindow();
-    
+    OSStatus ErrCode;
+
+    WindowUnrecPtr MyWindow = Inherited::initWindow();
+
     attachWindow();
-    
+
     EventTypeSpec eventList[] =
     {
-		{ kEventClassKeyboard, kEventRawKeyDown},
+        { kEventClassKeyboard, kEventRawKeyDown},
         { kEventClassKeyboard, kEventRawKeyRepeat},
         { kEventClassKeyboard, kEventRawKeyUp},
         { kEventClassKeyboard, kEventRawKeyModifiersChanged},
@@ -1070,23 +1051,68 @@ Window* CarbonWindow::initWindow(void)
         { kEventClassWindow, kEventAppActivated },
         { kEventClassWindow, kEventAppDeactivated },
     };
-    InstallWindowEventHandler(_WindowRef, _EventHandlerUPP, GetEventTypeCount(eventList), eventList, &(_WindowId), 0);
+    if(getFullscreen())
+    {
+        ErrCode = InstallApplicationEventHandler(_EventHandlerUPP,
+                                                 GetEventTypeCount(eventList),
+                                                 eventList,
+                                                 this,
+                                                 0);
+    }
+    else
+    {
+        ErrCode = InstallWindowEventHandler(_WindowRef,
+                                            _EventHandlerUPP,
+                                            GetEventTypeCount(eventList),
+                                            eventList,
+                                            this,
+                                            0);
+    }
+    if(ErrCode != noErr)
+    {
+        SFATAL << "Error calling InstallWindowEventHandler(): " 
+               << GetMacOSStatusErrorString(ErrCode) << " : "
+               << GetMacOSStatusCommentString(ErrCode)
+               << ", Error code: "                   << ErrCode << std::endl;
+    }
 
     // Initialize OpenGL
-    GLint attribs[] = { AGL_RGBA, AGL_DOUBLEBUFFER, AGL_DEPTH_SIZE, 16, AGL_STENCIL_SIZE, 8, AGL_ACCELERATED, AGL_NO_RECOVERY, AGL_NONE };
-    //GLint attribs[] = { AGL_RGBA, AGL_DOUBLEBUFFER, AGL_DEPTH_SIZE, 16, AGL_STENCIL_SIZE, 8,  AGL_NONE };
-    AGLPixelFormat pixelFormat = aglChoosePixelFormat(0, 0, attribs);
+    GLint attribs[] = {
+        AGL_RGBA,
+        AGL_DOUBLEBUFFER,
+        //AGL_DEPTH_SIZE,   16,
+        AGL_DEPTH_SIZE,   24,
+        AGL_STENCIL_SIZE,  8,
+        AGL_ACCELERATED,
+        AGL_NO_RECOVERY,
+        AGL_NONE
+    };
+    AGLPixelFormat pixelFormat = aglChoosePixelFormat(NULL, 0, attribs);
     if (pixelFormat == 0)
+    {
         SFATAL << "Cannot choose pixel format" << std::endl;
+    }
     _Context = aglCreateContext(pixelFormat, 0);
     aglDestroyPixelFormat(pixelFormat);
     if (_Context == 0)
+    {
         SFATAL << "Cannot create context" << std::endl;
-    aglSetWindowRef(_Context,_WindowRef);
-    
-    //Attach Window
+    }
+
+    if(getFullscreen())
+    {
+        aglSetCurrentContext(_Context);
+        aglSetFullScreen(_Context,0,0,0,0);
+        GLint displayCaps [3];
+        aglGetInteger (_Context, AGL_FULLSCREEN, displayCaps);
+        resize(displayCaps[0],displayCaps[1]);
+    }
+    else
+    {
+        aglSetWindowRef(_Context,_WindowRef);
+    }
     setContext(_Context);
-	
+
     return MyWindow;
 }
 
@@ -1096,24 +1122,24 @@ OSStatus CarbonWindow::internalEventHandler(EventHandlerCallRef nextHandler, Eve
     ::UInt32 eventClass = GetEventClass(event);
     switch (eventClass)
     {
-    // Mouse events
-    case kEventClassMouse:
-		return handleMouseEvent(nextHandler, event, userData);
+        // Mouse events
+        case kEventClassMouse:
+            return handleMouseEvent(nextHandler, event, userData);
 
-    // Key press events
-    case kEventClassKeyboard:
-		return handleKeyEvent(nextHandler, event, userData);
+            // Key press events
+        case kEventClassKeyboard:
+            return handleKeyEvent(nextHandler, event, userData);
 
-    // Window events
-    case kEventClassWindow:
-		return handleWindowEvent(nextHandler, event, userData);
+            // Window events
+        case kEventClassWindow:
+            return handleWindowEvent(nextHandler, event, userData);
 
-    //App events
-    case kEventClassApplication:
-		return handleAppEvent(nextHandler, event, userData);
+            //App events
+        case kEventClassApplication:
+            return handleAppEvent(nextHandler, event, userData);
 
-    default:
-        return eventNotHandledErr;
+        default:
+            return eventNotHandledErr;
     }   
     return noErr;
 }
@@ -1123,30 +1149,46 @@ OSStatus CarbonWindow::handleMouseEvent(EventHandlerCallRef nextHandler, EventRe
 {
     OSStatus err;
 
-    // Get the window
-    WindowRef window;
-    err = GetEventParameter(event, kEventParamWindowRef, typeWindowRef, 0, sizeof(window), 0, &window);
-    if (err != noErr)
-        return err;
+    if(!getFullscreen())
+    {
+        // Get the window
+        WindowRef window;
+        err = GetEventParameter(event, kEventParamWindowRef, typeWindowRef, 0, sizeof(window), 0, &window);
+        if (err != noErr)
+        {
+            return err;
+        }
 
-    SetPortWindowPort(window);
+        SetPortWindowPort(window);
+    }
 
     // Get the location of the cursor
     ::HIPoint location;
-    err = GetEventParameter(event, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(location), 0, &location);
+    if(getFullscreen())
+    {
+        err = GetEventParameter(event, kEventParamMouseLocation, typeHIPoint, 0, sizeof(location), 0, &location);
+    }
+    else
+    {
+        err = GetEventParameter(event, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(location), 0, &location);
+        location.y -= 22.0f;
+    }
     if (err != noErr)
-        //std::vector<BoostPath, std::allocator<BoostPath> >;
+    {
         return err;
-    location.y -= 22.0f;
+    }
 
     //Check that the mouse is withing the content area
-    WindowPartCode part;
-    GetEventParameter (event, kEventParamWindowPartCode, typeWindowPartCode,
-            NULL, sizeof(part), NULL, &part);
-
-    if(part != inContent)
+    if(!getFullscreen())
     {
-        return eventNotHandledErr;
+        WindowPartCode part;
+        GetEventParameter (event, kEventParamWindowPartCode, typeWindowPartCode,
+                           NULL, sizeof(part), NULL, &part);
+
+        if(part != inContent)
+        {
+            return eventNotHandledErr;
+        }
     }
 
     // Handle the different kinds of events
@@ -1161,14 +1203,16 @@ OSStatus CarbonWindow::handleMouseEvent(EventHandlerCallRef nextHandler, EventRe
                 ::HIPoint delta;
                 err = GetEventParameter(event, kEventParamMouseDelta, typeHIPoint, 0, sizeof(delta), 0, &delta);
                 if (err != noErr)
+                {
                     return err;
+                }
                 MouseDelta.setValues(delta.x,delta.y);
             }
             break;
     }
 
     //Get Mouse Button
-    MouseEvent::MouseButton TheMouseButton;
+    MouseEventDetails::MouseButton TheMouseButton;
     switch(eventKind)
     {
         case kEventMouseDown:
@@ -1179,42 +1223,44 @@ OSStatus CarbonWindow::handleMouseEvent(EventHandlerCallRef nextHandler, EventRe
                 EventMouseButton mouseButton;
                 err = GetEventParameter(event, kEventParamMouseButton, typeMouseButton, 0, sizeof(mouseButton), 0, &mouseButton);
                 if (err != noErr)
+                {
                     return err;
+                }
 
                 switch (mouseButton)
                 {
                     case kEventMouseButtonPrimary: // left button
-                        TheMouseButton = MouseEvent::BUTTON1;
+                        TheMouseButton = MouseEventDetails::BUTTON1;
                         break;
                     case kEventMouseButtonSecondary: // right button
-                        TheMouseButton = MouseEvent::BUTTON3;
+                        TheMouseButton = MouseEventDetails::BUTTON3;
                         break;
                     case kEventMouseButtonTertiary: // middle button
-                        TheMouseButton = MouseEvent::BUTTON2;
+                        TheMouseButton = MouseEventDetails::BUTTON2;
                         break;
                     case 4:
-                        TheMouseButton = MouseEvent::BUTTON4;
+                        TheMouseButton = MouseEventDetails::BUTTON4;
                         break;
                     case 5:
-                        TheMouseButton = MouseEvent::BUTTON5;
+                        TheMouseButton = MouseEventDetails::BUTTON5;
                         break;
                     case 6:
-                        TheMouseButton = MouseEvent::BUTTON6;
+                        TheMouseButton = MouseEventDetails::BUTTON6;
                         break;
                     case 7:
-                        TheMouseButton = MouseEvent::BUTTON7;
+                        TheMouseButton = MouseEventDetails::BUTTON7;
                         break;
                     case 8:
-                        TheMouseButton = MouseEvent::BUTTON8;
+                        TheMouseButton = MouseEventDetails::BUTTON8;
                         break;
                     case 9:
-                        TheMouseButton = MouseEvent::BUTTON9;
+                        TheMouseButton = MouseEventDetails::BUTTON9;
                         break;
                     case 10:
-                        TheMouseButton = MouseEvent::BUTTON10;
+                        TheMouseButton = MouseEventDetails::BUTTON10;
                         break;
                     default:
-                        TheMouseButton = MouseEvent::NO_BUTTON;
+                        TheMouseButton = MouseEventDetails::NO_BUTTON;
                         break;
                 }
                 break;
@@ -1251,12 +1297,12 @@ OSStatus CarbonWindow::handleMouseEvent(EventHandlerCallRef nextHandler, EventRe
                 SInt32 delta;
 
                 err = GetEventParameter( event, kEventParamMouseWheelAxis, 
-                        typeMouseWheelAxis, NULL, sizeof(axis), NULL, &axis );
+                                         typeMouseWheelAxis, NULL, sizeof(axis), NULL, &axis );
                 if (err != noErr)
                     return err;
 
                 err = GetEventParameter( event, kEventParamMouseWheelDelta, 
-                        typeLongInteger, NULL, sizeof(delta), NULL, &delta );
+                                         typeLongInteger, NULL, sizeof(delta), NULL, &delta );
                 if (err != noErr)
                     return err;
 
@@ -1292,64 +1338,75 @@ OSStatus CarbonWindow::handleWindowEvent(EventHandlerCallRef nextHandler, EventR
     ::UInt32 eventKind = GetEventKind(event);
     switch (eventKind)
     {
-    // Quit the application when the user closes the window
-    case kEventWindowClosed:
-            aglDestroyContext(_Context);
+        case kEventWindowClosed:
             produceWindowClosing();
             DisposeEventHandlerUPP(_EventHandlerUPP);
-            _CarbonWindowToProducerMap.erase(_CarbonWindowToProducerMap.find(_WindowId));
             produceWindowClosed();
+            _IsWindowOpen = false;
             return noErr;
-		  break;
-    
-	 // Quit the application when the user closes the window
-    case kEventWindowClose:
-          disposeWindow();
-        return noErr;
-		  break;
+            break;
 
-    case kEventWindowCollapsed:
-		  produceWindowIconified();
-        return noErr;
-		  break;
+            // Quit the application when the user closes the window
+        case kEventWindowClose:
+            disposeWindow();
+            return noErr;
+            break;
 
-    case kEventWindowExpanded:
-		  produceWindowDeiconified();
-        return noErr;
-		  break;
+        case kEventWindowCollapsed:
+            produceWindowIconified();
+            return noErr;
+            break;
 
-    // Draw the contents of the window
-    case kEventWindowDrawContent:
-        internalDraw();
-        return noErr;
+        case kEventWindowExpanded:
+            produceWindowDeiconified();
+            return noErr;
+            break;
 
-    case kEventWindowBoundsChanged:
-        {
-            // Update the GL context
-            aglUpdateContext(getContext());
+            // Draw the contents of the window
+        case kEventWindowDrawContent:
+            internalDraw();
+            return noErr;
 
-            // Find out if we have a move or a resize situation
-            ::UInt32 attributes;
-            GetEventParameter(event, kEventParamAttributes, typeUInt32, 0, sizeof(attributes), 0, &attributes);
-
-            if ((attributes & kWindowBoundsChangeSizeChanged) != 0)
+        case kEventWindowBoundsChanged:
             {
-                // Get the new bounds of the window
-                Rect bounds;
-                GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, 0, sizeof(Rect), 0, &bounds);
+                // Update the GL context
+                aglUpdateContext(getContext());
 
-                // Resize the OpenSG Window
-                GLsizei width = bounds.right - bounds.left;
-                GLsizei height = bounds.bottom - bounds.top;
-				resize(width, height );
-				internalReshape(Vec2f(width, height));
+                // Find out if we have a move or a resize situation
+                ::UInt32 attributes;
+                GetEventParameter(event, kEventParamAttributes, typeUInt32, 0, sizeof(attributes), 0, &attributes);
+
+                if ((attributes & kWindowBoundsChangeSizeChanged) != 0)
+                {
+                    GLsizei width, height;
+                    if(getFullscreen())
+                    {
+                        aglSetCurrentContext(_Context);
+                        aglSetFullScreen(_Context,0,0,0,0);
+                        GLint displayCaps [3];
+                        aglGetInteger (_Context, AGL_FULLSCREEN, displayCaps);
+                        width = displayCaps[0];
+                        height = displayCaps[1];
+                    }
+                    else
+                    {
+                        // Get the new bounds of the window
+                        Rect bounds;
+                        GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, 0, sizeof(Rect), 0, &bounds);
+
+                        // Resize the OpenSG Window
+                        width = bounds.right - bounds.left;
+                        height = bounds.bottom - bounds.top;
+                    }
+                    resize(width, height );
+                    internalReshape(Vec2f(width, height));
+                }
+
+                return noErr;
             }
 
-            return noErr;
-        }
-
-    default:
-        return eventNotHandledErr;
+        default:
+            return eventNotHandledErr;
     }
 }
 
@@ -1367,496 +1424,496 @@ OSStatus CarbonWindow::handleAppEvent(EventHandlerCallRef nextHandler, EventRef 
     ::UInt32 eventKind = GetEventKind(event);
     switch (eventKind)
     {
-    case kEventAppActivated:
-		  produceWindowActivated();
-        return noErr;
-		  break;
+        case kEventAppActivated:
+            produceWindowActivated();
+            return noErr;
+            break;
 
-    case kEventAppDeactivated:
-		  produceWindowDeactivated();
-        return noErr;
-		  break;
-	 }
+        case kEventAppDeactivated:
+            produceWindowDeactivated();
+            return noErr;
+            break;
+    }
 }
 
 OSStatus CarbonWindow::handleKeyEvent(EventHandlerCallRef nextHandler, EventRef event, void *userData)
 {
     OSStatus err;
 
-	::UInt32 key;
-	err = GetEventParameter(event, kEventParamKeyCode, typeUInt32, 0, sizeof(key), 0, &key);
-	if (err != noErr)
-		return err;
-	
-	
-	::UInt32 keyModifiers;
-	err = GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0, sizeof(keyModifiers), 0, &keyModifiers);
-	if (err != noErr)
-		return err;
-		
+    ::UInt32 key;
+    err = GetEventParameter(event, kEventParamKeyCode, typeUInt32, 0, sizeof(key), 0, &key);
+    if (err != noErr)
+        return err;
+
+
+    ::UInt32 keyModifiers;
+    err = GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0, sizeof(keyModifiers), 0, &keyModifiers);
+    if (err != noErr)
+        return err;
+
     ::UInt32 eventKind = GetEventKind(event);
-	switch(eventKind)
-	{
-		case kEventRawKeyDown:
-			produceKeyPressed(determineKey(key),determineKeyModifiers(keyModifiers));				
-			break;
-		case kEventRawKeyUp:
-			produceKeyReleased(determineKey(key),determineKeyModifiers(keyModifiers));
-			break;
-		case kEventRawKeyRepeat:
-			produceKeyPressed(determineKey(key),determineKeyModifiers(keyModifiers));
-			break;
-		case kEventRawKeyModifiersChanged:
-			if((determineKeyModifiers(keyModifiers) & KeyEvent::KEY_MODIFIER_META) &&
-			   !(_modifierKeyState & KeyEvent::KEY_MODIFIER_META))
-			{
-				//Meta key pressed
-				produceKeyPressed(KeyEvent::KEY_META, determineKeyModifiers(keyModifiers));
-			}
-			if(!(determineKeyModifiers(keyModifiers) & KeyEvent::KEY_MODIFIER_META) &&
-			   (_modifierKeyState & KeyEvent::KEY_MODIFIER_META))
-			{
-				//Meta key released
-				produceKeyReleased(KeyEvent::KEY_META, determineKeyModifiers(keyModifiers));
-			}
-			if((determineKeyModifiers(keyModifiers) & KeyEvent::KEY_MODIFIER_ALT) &&
-			   !(_modifierKeyState & KeyEvent::KEY_MODIFIER_ALT))
-			{
-				//Alt key pressed
-				produceKeyPressed(KeyEvent::KEY_ALT, determineKeyModifiers(keyModifiers));
-			}
-			if(!(determineKeyModifiers(keyModifiers) & KeyEvent::KEY_MODIFIER_ALT) &&
-			   (_modifierKeyState & KeyEvent::KEY_MODIFIER_ALT))
-			{
-				//Alt key released
-				produceKeyReleased(KeyEvent::KEY_ALT, determineKeyModifiers(keyModifiers));
-			}
-			if((determineKeyModifiers(keyModifiers) & KeyEvent::KEY_MODIFIER_CONTROL) &&
-			   !(_modifierKeyState & KeyEvent::KEY_MODIFIER_CONTROL))
-			{
-				//Control key pressed
-				produceKeyPressed(KeyEvent::KEY_CONTROL, determineKeyModifiers(keyModifiers));
-			}
-			if(!(determineKeyModifiers(keyModifiers) & KeyEvent::KEY_MODIFIER_CONTROL) &&
-			   (_modifierKeyState & KeyEvent::KEY_MODIFIER_CONTROL))
-			{
-				//Control key released
-				produceKeyReleased(KeyEvent::KEY_CONTROL, determineKeyModifiers(keyModifiers));
-			}
-			_modifierKeyState = determineKeyModifiers(keyModifiers);
-			break;
-		default:
-			break;
-	}
+    switch(eventKind)
+    {
+        case kEventRawKeyDown:
+            produceKeyPressed(determineKey(key),determineKeyModifiers(keyModifiers));				
+            break;
+        case kEventRawKeyUp:
+            produceKeyReleased(determineKey(key),determineKeyModifiers(keyModifiers));
+            break;
+        case kEventRawKeyRepeat:
+            produceKeyPressed(determineKey(key),determineKeyModifiers(keyModifiers));
+            break;
+        case kEventRawKeyModifiersChanged:
+            if((determineKeyModifiers(keyModifiers) & KeyEventDetails::KEY_MODIFIER_META) &&
+               !(_modifierKeyState & KeyEventDetails::KEY_MODIFIER_META))
+            {
+                //Meta key pressed
+                produceKeyPressed(KeyEventDetails::KEY_META, determineKeyModifiers(keyModifiers));
+            }
+            if(!(determineKeyModifiers(keyModifiers) & KeyEventDetails::KEY_MODIFIER_META) &&
+               (_modifierKeyState & KeyEventDetails::KEY_MODIFIER_META))
+            {
+                //Meta key released
+                produceKeyReleased(KeyEventDetails::KEY_META, determineKeyModifiers(keyModifiers));
+            }
+            if((determineKeyModifiers(keyModifiers) & KeyEventDetails::KEY_MODIFIER_ALT) &&
+               !(_modifierKeyState & KeyEventDetails::KEY_MODIFIER_ALT))
+            {
+                //Alt key pressed
+                produceKeyPressed(KeyEventDetails::KEY_ALT, determineKeyModifiers(keyModifiers));
+            }
+            if(!(determineKeyModifiers(keyModifiers) & KeyEventDetails::KEY_MODIFIER_ALT) &&
+               (_modifierKeyState & KeyEventDetails::KEY_MODIFIER_ALT))
+            {
+                //Alt key released
+                produceKeyReleased(KeyEventDetails::KEY_ALT, determineKeyModifiers(keyModifiers));
+            }
+            if((determineKeyModifiers(keyModifiers) & KeyEventDetails::KEY_MODIFIER_CONTROL) &&
+               !(_modifierKeyState & KeyEventDetails::KEY_MODIFIER_CONTROL))
+            {
+                //Control key pressed
+                produceKeyPressed(KeyEventDetails::KEY_CONTROL, determineKeyModifiers(keyModifiers));
+            }
+            if(!(determineKeyModifiers(keyModifiers) & KeyEventDetails::KEY_MODIFIER_CONTROL) &&
+               (_modifierKeyState & KeyEventDetails::KEY_MODIFIER_CONTROL))
+            {
+                //Control key released
+                produceKeyReleased(KeyEventDetails::KEY_CONTROL, determineKeyModifiers(keyModifiers));
+            }
+            _modifierKeyState = determineKeyModifiers(keyModifiers);
+            break;
+        default:
+            break;
+    }
 
     return noErr;
 }
 
 UInt32 CarbonWindow::determineKeyModifiers(::UInt32 keyModifiers)
 {
-   UInt32 Modifiers = 0;
+    UInt32 Modifiers = 0;
 
-   if(keyModifiers & shiftKey)
-   {
-      Modifiers |= KeyEvent::KEY_MODIFIER_SHIFT;
-   }
-   if(keyModifiers & controlKey)
-   {
-      Modifiers |= KeyEvent::KEY_MODIFIER_CONTROL;
-   }
-   if(keyModifiers & optionKey)
-   {
-      Modifiers |= KeyEvent::KEY_MODIFIER_ALT;
-   }
-   if(keyModifiers & alphaLock)
-   {
-      Modifiers |= KeyEvent::KEY_MODIFIER_CAPS_LOCK;
-   }
-   if(keyModifiers & cmdKey)
-   {
-      Modifiers |= KeyEvent::KEY_MODIFIER_META;
-   }
-   //if(GetKeyState(VK_NUMLOCK)>0)
-   //{
-   //   Modifiers |= KeyEvent::KEY_MODIFIER_NUM_LOCK;
-   //}
-   //if(GetKeyState(VK_SCROLL)>0)
-   //{
-   //   Modifiers |= KeyEvent::KEY_MODIFIER_SCROLL_LOCK;
-   //}
-   return Modifiers;
+    if(keyModifiers & shiftKey)
+    {
+        Modifiers |= KeyEventDetails::KEY_MODIFIER_SHIFT;
+    }
+    if(keyModifiers & controlKey)
+    {
+        Modifiers |= KeyEventDetails::KEY_MODIFIER_CONTROL;
+    }
+    if(keyModifiers & optionKey)
+    {
+        Modifiers |= KeyEventDetails::KEY_MODIFIER_ALT;
+    }
+    if(keyModifiers & alphaLock)
+    {
+        Modifiers |= KeyEventDetails::KEY_MODIFIER_CAPS_LOCK;
+    }
+    if(keyModifiers & cmdKey)
+    {
+        Modifiers |= KeyEventDetails::KEY_MODIFIER_META;
+    }
+    //if(GetKeyState(VK_NUMLOCK)>0)
+    //{
+    //   Modifiers |= KeyEventDetails::KEY_MODIFIER_NUM_LOCK;
+    //}
+    //if(GetKeyState(VK_SCROLL)>0)
+    //{
+    //   Modifiers |= KeyEventDetails::KEY_MODIFIER_SCROLL_LOCK;
+    //}
+    return Modifiers;
 }
 
-KeyEvent::Key CarbonWindow::determineKey(::UInt32 key)
+KeyEventDetails::Key CarbonWindow::determineKey(::UInt32 key)
 {
-    KeyEvent::Key OSGKey;
-	switch(key)
-	{
-	//Alphabet
-	case KeyA:
-	  OSGKey = KeyEvent::KEY_A;
-	  break;
-	case KeyB:
-	  OSGKey = KeyEvent::KEY_B;
-	  break;
-	case KeyC:
-	  OSGKey = KeyEvent::KEY_C;
-	  break;
-	case KeyD:
-	  OSGKey = KeyEvent::KEY_D;
-	  break;
-	case KeyE:
-	  OSGKey = KeyEvent::KEY_E;
-	  break;
-	case KeyF:
-	  OSGKey = KeyEvent::KEY_F;
-	  break;
-	case KeyG:
-	  OSGKey = KeyEvent::KEY_G;
-	  break;
-	case KeyH:
-	  OSGKey = KeyEvent::KEY_H;
-	  break;
-	case KeyI:
-	  OSGKey = KeyEvent::KEY_I;
-	  break;
-	case KeyJ:
-	  OSGKey = KeyEvent::KEY_J;
-	  break;
-	case KeyK:
-	  OSGKey = KeyEvent::KEY_K;
-	  break;
-	case KeyL:
-	  OSGKey = KeyEvent::KEY_L;
-	  break;
-	case KeyM:
-	  OSGKey = KeyEvent::KEY_M;
-	  break;
-	case KeyN:
-	  OSGKey = KeyEvent::KEY_N;
-	  break;
-	case KeyO:
-	  OSGKey = KeyEvent::KEY_O;
-	  break;
-	case KeyP:
-	  OSGKey = KeyEvent::KEY_P;
-	  break;
-	case KeyQ:
-	  OSGKey = KeyEvent::KEY_Q;
-	  break;
-	case KeyR:
-	  OSGKey = KeyEvent::KEY_R;
-	  break;
-	case KeyS:
-	  OSGKey = KeyEvent::KEY_S;
-	  break;
-	case KeyT:
-	  OSGKey = KeyEvent::KEY_T;
-	  break;
-	case KeyU:
-	  OSGKey = KeyEvent::KEY_U;
-	  break;
-	case KeyV:
-	  OSGKey = KeyEvent::KEY_V;
-	  break;
-	case KeyW:
-	  OSGKey = KeyEvent::KEY_W;
-	  break;
-	case KeyX:
-	  OSGKey = KeyEvent::KEY_X;
-	  break;
-	case KeyY:
-	  OSGKey = KeyEvent::KEY_Y;
-	  break;
-	case KeyZ:
-	  OSGKey = KeyEvent::KEY_Z;
-	  break;
-	//Numbers
-	case Key0:
-	  OSGKey = KeyEvent::KEY_0;
-	  break;
-	case Key1:
-	  OSGKey = KeyEvent::KEY_1;
-	  break;
-	case Key2:
-	  OSGKey = KeyEvent::KEY_2;
-	  break;
-	case Key3:
-	  OSGKey = KeyEvent::KEY_3;
-	  break;
-	case Key4:
-	  OSGKey = KeyEvent::KEY_4;
-	  break;
-	case Key5:
-	  OSGKey = KeyEvent::KEY_5;
-	  break;
-	case Key6:
-	  OSGKey = KeyEvent::KEY_6;
-	  break;
-	case Key7:
-	  OSGKey = KeyEvent::KEY_7;
-	  break;
-	case Key8:
-	  OSGKey = KeyEvent::KEY_8;
-	  break;
-	case Key9:
-	  OSGKey = KeyEvent::KEY_9;
-	  break;
+    KeyEventDetails::Key OSGKey;
+    switch(key)
+    {
+        //Alphabet
+        case KeyA:
+            OSGKey = KeyEventDetails::KEY_A;
+            break;
+        case KeyB:
+            OSGKey = KeyEventDetails::KEY_B;
+            break;
+        case KeyC:
+            OSGKey = KeyEventDetails::KEY_C;
+            break;
+        case KeyD:
+            OSGKey = KeyEventDetails::KEY_D;
+            break;
+        case KeyE:
+            OSGKey = KeyEventDetails::KEY_E;
+            break;
+        case KeyF:
+            OSGKey = KeyEventDetails::KEY_F;
+            break;
+        case KeyG:
+            OSGKey = KeyEventDetails::KEY_G;
+            break;
+        case KeyH:
+            OSGKey = KeyEventDetails::KEY_H;
+            break;
+        case KeyI:
+            OSGKey = KeyEventDetails::KEY_I;
+            break;
+        case KeyJ:
+            OSGKey = KeyEventDetails::KEY_J;
+            break;
+        case KeyK:
+            OSGKey = KeyEventDetails::KEY_K;
+            break;
+        case KeyL:
+            OSGKey = KeyEventDetails::KEY_L;
+            break;
+        case KeyM:
+            OSGKey = KeyEventDetails::KEY_M;
+            break;
+        case KeyN:
+            OSGKey = KeyEventDetails::KEY_N;
+            break;
+        case KeyO:
+            OSGKey = KeyEventDetails::KEY_O;
+            break;
+        case KeyP:
+            OSGKey = KeyEventDetails::KEY_P;
+            break;
+        case KeyQ:
+            OSGKey = KeyEventDetails::KEY_Q;
+            break;
+        case KeyR:
+            OSGKey = KeyEventDetails::KEY_R;
+            break;
+        case KeyS:
+            OSGKey = KeyEventDetails::KEY_S;
+            break;
+        case KeyT:
+            OSGKey = KeyEventDetails::KEY_T;
+            break;
+        case KeyU:
+            OSGKey = KeyEventDetails::KEY_U;
+            break;
+        case KeyV:
+            OSGKey = KeyEventDetails::KEY_V;
+            break;
+        case KeyW:
+            OSGKey = KeyEventDetails::KEY_W;
+            break;
+        case KeyX:
+            OSGKey = KeyEventDetails::KEY_X;
+            break;
+        case KeyY:
+            OSGKey = KeyEventDetails::KEY_Y;
+            break;
+        case KeyZ:
+            OSGKey = KeyEventDetails::KEY_Z;
+            break;
+            //Numbers
+        case Key0:
+            OSGKey = KeyEventDetails::KEY_0;
+            break;
+        case Key1:
+            OSGKey = KeyEventDetails::KEY_1;
+            break;
+        case Key2:
+            OSGKey = KeyEventDetails::KEY_2;
+            break;
+        case Key3:
+            OSGKey = KeyEventDetails::KEY_3;
+            break;
+        case Key4:
+            OSGKey = KeyEventDetails::KEY_4;
+            break;
+        case Key5:
+            OSGKey = KeyEventDetails::KEY_5;
+            break;
+        case Key6:
+            OSGKey = KeyEventDetails::KEY_6;
+            break;
+        case Key7:
+            OSGKey = KeyEventDetails::KEY_7;
+            break;
+        case Key8:
+            OSGKey = KeyEventDetails::KEY_8;
+            break;
+        case Key9:
+            OSGKey = KeyEventDetails::KEY_9;
+            break;
 
-	//Other
-	case KeyMinus:
-	  OSGKey = KeyEvent::KEY_MINUS;
-	  break;
-	case KeyEquals:
-	  OSGKey = KeyEvent::KEY_EQUALS;
-	  break;
-	case KeyBackquote:
-	  OSGKey = KeyEvent::KEY_BACK_QUOTE;
-	  break;
-	case KeyTab:
-	  OSGKey = KeyEvent::KEY_TAB;
-	  break;
-	case KeySpacebar:
-	  OSGKey = KeyEvent::KEY_SPACE;
-	  break;
-	case KeyLeftBracket:
-	  OSGKey = KeyEvent::KEY_OPEN_BRACKET;
-	  break;
-	case KeyRightBracket:
-	  OSGKey = KeyEvent::KEY_CLOSE_BRACKET;
-	  break;
-	case KeySemicolon:
-	  OSGKey = KeyEvent::KEY_SEMICOLON;
-	  break;
-	case KeyComma:
-	  OSGKey = KeyEvent::KEY_COMMA;
-	  break;
-	case KeyPeriod:
-	  OSGKey = KeyEvent::KEY_PERIOD;
-	  break;
-	case KeyBackslash:
-	  OSGKey = KeyEvent::KEY_BACK_SLASH;
-	  break;
-	case KeyApostrophe:
-	  OSGKey = KeyEvent::KEY_APOSTROPHE;
-	  break;
-	case KeySlash:
-	  OSGKey = KeyEvent::KEY_SLASH;
-	  break;
+            //Other
+        case KeyMinus:
+            OSGKey = KeyEventDetails::KEY_MINUS;
+            break;
+        case KeyEquals:
+            OSGKey = KeyEventDetails::KEY_EQUALS;
+            break;
+        case KeyBackquote:
+            OSGKey = KeyEventDetails::KEY_BACK_QUOTE;
+            break;
+        case KeyTab:
+            OSGKey = KeyEventDetails::KEY_TAB;
+            break;
+        case KeySpacebar:
+            OSGKey = KeyEventDetails::KEY_SPACE;
+            break;
+        case KeyLeftBracket:
+            OSGKey = KeyEventDetails::KEY_OPEN_BRACKET;
+            break;
+        case KeyRightBracket:
+            OSGKey = KeyEventDetails::KEY_CLOSE_BRACKET;
+            break;
+        case KeySemicolon:
+            OSGKey = KeyEventDetails::KEY_SEMICOLON;
+            break;
+        case KeyComma:
+            OSGKey = KeyEventDetails::KEY_COMMA;
+            break;
+        case KeyPeriod:
+            OSGKey = KeyEventDetails::KEY_PERIOD;
+            break;
+        case KeyBackslash:
+            OSGKey = KeyEventDetails::KEY_BACK_SLASH;
+            break;
+        case KeyApostrophe:
+            OSGKey = KeyEventDetails::KEY_APOSTROPHE;
+            break;
+        case KeySlash:
+            OSGKey = KeyEventDetails::KEY_SLASH;
+            break;
 
-	//Non-visible
-	case KeyEscape:
-	  OSGKey = KeyEvent::KEY_ESCAPE;
-	  break;
-	case KeyShift:
-	  OSGKey = KeyEvent::KEY_SHIFT;
-	  break;
-	case KeyControl:
-	  OSGKey = KeyEvent::KEY_CONTROL;
-	  break;
-	case KeyMacCommand:
-	  OSGKey = KeyEvent::KEY_META;
-	  break;
-	case KeyMenu:
-	  OSGKey = KeyEvent::KEY_ALT;
-	  break;
-	case KeyReturn:
-	  OSGKey = KeyEvent::KEY_ENTER;
-	  break;
-	//case KeyCancel:
-	//  OSGKey = KeyEvent::KEY_CANCEL;
-	//  break;
-	case KeyClear:
-	  OSGKey = KeyEvent::KEY_CLEAR;
-	  break;
-	//case KeyPause:
-	//  OSGKey = KeyEvent::KEY_PAUSE;
-	//  break;
-	case KeyCapsLock:
-	  OSGKey = KeyEvent::KEY_CAPS_LOCK;
-	  break;
-	case KeyEnd:
-	  OSGKey = KeyEvent::KEY_END;
-	  break;
-	case KeyHome:
-	  OSGKey = KeyEvent::KEY_HOME;
-	  break;
-	case KeyPageUp:
-	  OSGKey = KeyEvent::KEY_PAGE_UP;
-	  break;
-	case KeyPageDown:
-	  OSGKey = KeyEvent::KEY_PAGE_DOWN;
-	  break;
-	case KeyUp:
-	  OSGKey = KeyEvent::KEY_UP;
-	  break;
-	case KeyDown:
-	  OSGKey = KeyEvent::KEY_DOWN;
-	  break;
-	case KeyLeft:
-	  OSGKey = KeyEvent::KEY_LEFT;
-	  break;
-	case KeyRight:
-	  OSGKey = KeyEvent::KEY_RIGHT;
-	  break;
-	//case KeySNAPSHOT:
-	//  OSGKey = KeyEvent::KEY_PRINTSCREEN;
-	//  break;
-	//case KeyInsert:
-	//  OSGKey = KeyEvent::KEY_INSERT;
-	//  break;
-	case KeyDelete:
-	  OSGKey = KeyEvent::KEY_DELETE;
-	  break;
-	case KeyHelp:
-	  OSGKey = KeyEvent::KEY_HELP;
-	  break;
-	//case KeyNUMLOCK:
-	//  OSGKey = KeyEvent::KEY_NUM_LOCK;
-	//  break;
-	//case KeySCROLL:
-	//  OSGKey = KeyEvent::KEY_SCROLL_LOCK;
-	//  break;
-	case KeyBackspace:
-	  OSGKey = KeyEvent::KEY_BACK_SPACE;
-	  break;
+            //Non-visible
+        case KeyEscape:
+            OSGKey = KeyEventDetails::KEY_ESCAPE;
+            break;
+        case KeyShift:
+            OSGKey = KeyEventDetails::KEY_SHIFT;
+            break;
+        case KeyControl:
+            OSGKey = KeyEventDetails::KEY_CONTROL;
+            break;
+        case KeyMacCommand:
+            OSGKey = KeyEventDetails::KEY_META;
+            break;
+        case KeyMenu:
+            OSGKey = KeyEventDetails::KEY_ALT;
+            break;
+        case KeyReturn:
+            OSGKey = KeyEventDetails::KEY_ENTER;
+            break;
+            //case KeyCancel:
+            //  OSGKey = KeyEventDetails::KEY_CANCEL;
+            //  break;
+        case KeyClear:
+            OSGKey = KeyEventDetails::KEY_CLEAR;
+            break;
+            //case KeyPause:
+            //  OSGKey = KeyEventDetails::KEY_PAUSE;
+            //  break;
+        case KeyCapsLock:
+            OSGKey = KeyEventDetails::KEY_CAPS_LOCK;
+            break;
+        case KeyEnd:
+            OSGKey = KeyEventDetails::KEY_END;
+            break;
+        case KeyHome:
+            OSGKey = KeyEventDetails::KEY_HOME;
+            break;
+        case KeyPageUp:
+            OSGKey = KeyEventDetails::KEY_PAGE_UP;
+            break;
+        case KeyPageDown:
+            OSGKey = KeyEventDetails::KEY_PAGE_DOWN;
+            break;
+        case KeyUp:
+            OSGKey = KeyEventDetails::KEY_UP;
+            break;
+        case KeyDown:
+            OSGKey = KeyEventDetails::KEY_DOWN;
+            break;
+        case KeyLeft:
+            OSGKey = KeyEventDetails::KEY_LEFT;
+            break;
+        case KeyRight:
+            OSGKey = KeyEventDetails::KEY_RIGHT;
+            break;
+            //case KeySNAPSHOT:
+            //  OSGKey = KeyEventDetails::KEY_PRINTSCREEN;
+            //  break;
+            //case KeyInsert:
+            //  OSGKey = KeyEventDetails::KEY_INSERT;
+            //  break;
+        case KeyDelete:
+            OSGKey = KeyEventDetails::KEY_DELETE;
+            break;
+        case KeyHelp:
+            OSGKey = KeyEventDetails::KEY_HELP;
+            break;
+            //case KeyNUMLOCK:
+            //  OSGKey = KeyEventDetails::KEY_NUM_LOCK;
+            //  break;
+            //case KeySCROLL:
+            //  OSGKey = KeyEventDetails::KEY_SCROLL_LOCK;
+            //  break;
+        case KeyBackspace:
+            OSGKey = KeyEventDetails::KEY_BACK_SPACE;
+            break;
 
-	//Function Keys
-	case KeyF1:
-	  OSGKey = KeyEvent::KEY_F1;
-	  break;
-	case KeyF2:
-	  OSGKey = KeyEvent::KEY_F2;
-	  break;
-	case KeyF3:
-	  OSGKey = KeyEvent::KEY_F3;
-	  break;
-	case KeyF4:
-	  OSGKey = KeyEvent::KEY_F4;
-	  break;
-	case KeyF5:
-	  OSGKey = KeyEvent::KEY_F5;
-	  break;
-	case KeyF6:
-	  OSGKey = KeyEvent::KEY_F6;
-	  break;
-	case KeyF7:
-	  OSGKey = KeyEvent::KEY_F7;
-	  break;
-	case KeyF8:
-	  OSGKey = KeyEvent::KEY_F8;
-	  break;
-	case KeyF9:
-	  OSGKey = KeyEvent::KEY_F9;
-	  break;
-	case KeyF10:
-	  OSGKey = KeyEvent::KEY_F10;
-	  break;
-	case KeyF11:
-	  OSGKey = KeyEvent::KEY_F11;
-	  break;
-	case KeyF12:
-	  OSGKey = KeyEvent::KEY_F12;
-	  break;
-	  
-	//Numpad Keys
-	case KeyNum0:
-	  OSGKey = KeyEvent::KEY_NUMPAD_0;
-	  break;
-	case KeyNum1:
-	  OSGKey = KeyEvent::KEY_NUMPAD_1;
-	  break;
-	case KeyNum2:
-	  OSGKey = KeyEvent::KEY_NUMPAD_2;
-	  break;
-	case KeyNum3:
-	  OSGKey = KeyEvent::KEY_NUMPAD_3;
-	  break;
-	case KeyNum4:
-	  OSGKey = KeyEvent::KEY_NUMPAD_4;
-	  break;
-	case KeyNum5:
-	  OSGKey = KeyEvent::KEY_NUMPAD_5;
-	  break;
-	case KeyNum6:
-	  OSGKey = KeyEvent::KEY_NUMPAD_6;
-	  break;
-	case KeyNum7:
-	  OSGKey = KeyEvent::KEY_NUMPAD_7;
-	  break;
-	case KeyNum8:
-	  OSGKey = KeyEvent::KEY_NUMPAD_8;
-	  break;
-	case KeyNum9:
-	  OSGKey = KeyEvent::KEY_NUMPAD_9;
-	  break;
-	case KeyMultiply:
-	  OSGKey = KeyEvent::KEY_MULTIPLY;
-	  break;
-	case KeyAdd:
-	  OSGKey = KeyEvent::KEY_ADD;
-	  break;
-	case KeySubtract:
-	  OSGKey = KeyEvent::KEY_SUBTRACT;
-	  break;
-	case KeyDivide:
-	  OSGKey = KeyEvent::KEY_DIVIDE;
-	  break;
-	case KeyDecimal:
-	  OSGKey = KeyEvent::KEY_DECIMAL;
-	  break;
-	case KeyNumEqual:
-	  OSGKey = KeyEvent::KEY_NUMPAD_EQUALS;
-	  break;
-	  
-	default:
-	  OSGKey = KeyEvent::KEY_UNKNOWN;
-	  break;
-	}
-	return OSGKey;
+            //Function Keys
+        case KeyF1:
+            OSGKey = KeyEventDetails::KEY_F1;
+            break;
+        case KeyF2:
+            OSGKey = KeyEventDetails::KEY_F2;
+            break;
+        case KeyF3:
+            OSGKey = KeyEventDetails::KEY_F3;
+            break;
+        case KeyF4:
+            OSGKey = KeyEventDetails::KEY_F4;
+            break;
+        case KeyF5:
+            OSGKey = KeyEventDetails::KEY_F5;
+            break;
+        case KeyF6:
+            OSGKey = KeyEventDetails::KEY_F6;
+            break;
+        case KeyF7:
+            OSGKey = KeyEventDetails::KEY_F7;
+            break;
+        case KeyF8:
+            OSGKey = KeyEventDetails::KEY_F8;
+            break;
+        case KeyF9:
+            OSGKey = KeyEventDetails::KEY_F9;
+            break;
+        case KeyF10:
+            OSGKey = KeyEventDetails::KEY_F10;
+            break;
+        case KeyF11:
+            OSGKey = KeyEventDetails::KEY_F11;
+            break;
+        case KeyF12:
+            OSGKey = KeyEventDetails::KEY_F12;
+            break;
+
+            //Numpad Keys
+        case KeyNum0:
+            OSGKey = KeyEventDetails::KEY_NUMPAD_0;
+            break;
+        case KeyNum1:
+            OSGKey = KeyEventDetails::KEY_NUMPAD_1;
+            break;
+        case KeyNum2:
+            OSGKey = KeyEventDetails::KEY_NUMPAD_2;
+            break;
+        case KeyNum3:
+            OSGKey = KeyEventDetails::KEY_NUMPAD_3;
+            break;
+        case KeyNum4:
+            OSGKey = KeyEventDetails::KEY_NUMPAD_4;
+            break;
+        case KeyNum5:
+            OSGKey = KeyEventDetails::KEY_NUMPAD_5;
+            break;
+        case KeyNum6:
+            OSGKey = KeyEventDetails::KEY_NUMPAD_6;
+            break;
+        case KeyNum7:
+            OSGKey = KeyEventDetails::KEY_NUMPAD_7;
+            break;
+        case KeyNum8:
+            OSGKey = KeyEventDetails::KEY_NUMPAD_8;
+            break;
+        case KeyNum9:
+            OSGKey = KeyEventDetails::KEY_NUMPAD_9;
+            break;
+        case KeyMultiply:
+            OSGKey = KeyEventDetails::KEY_MULTIPLY;
+            break;
+        case KeyAdd:
+            OSGKey = KeyEventDetails::KEY_ADD;
+            break;
+        case KeySubtract:
+            OSGKey = KeyEventDetails::KEY_SUBTRACT;
+            break;
+        case KeyDivide:
+            OSGKey = KeyEventDetails::KEY_DIVIDE;
+            break;
+        case KeyDecimal:
+            OSGKey = KeyEventDetails::KEY_DECIMAL;
+            break;
+        case KeyNumEqual:
+            OSGKey = KeyEventDetails::KEY_NUMPAD_EQUALS;
+            break;
+
+        default:
+            OSGKey = KeyEventDetails::KEY_UNKNOWN;
+            break;
+    }
+    return OSGKey;
 }
 
 void CarbonWindow::setPosition(Pnt2f Pos)
 {
-	::Rect GlobalBounds;
-	GetWindowBounds(_WindowRef, kWindowStructureRgn, &GlobalBounds);
-	
-	Vec3s Size(GlobalBounds.right - GlobalBounds.left, GlobalBounds.bottom - GlobalBounds.top);
-	GlobalBounds.left = Pos.x();
-	GlobalBounds.top = Pos.y();
-	GlobalBounds.right = GlobalBounds.left + Size.x();
-	GlobalBounds.bottom = GlobalBounds.top + Size.y();
-	SetWindowBounds(_WindowRef,kWindowStructureRgn, &GlobalBounds);
+    ::Rect GlobalBounds;
+    GetWindowBounds(_WindowRef, kWindowStructureRgn, &GlobalBounds);
+
+    Vec3s Size(GlobalBounds.right - GlobalBounds.left, GlobalBounds.bottom - GlobalBounds.top);
+    GlobalBounds.left = Pos.x();
+    GlobalBounds.top = Pos.y();
+    GlobalBounds.right = GlobalBounds.left + Size.x();
+    GlobalBounds.bottom = GlobalBounds.top + Size.y();
+    SetWindowBounds(_WindowRef,kWindowStructureRgn, &GlobalBounds);
 }
 
 Pnt2f CarbonWindow::getPosition(void) const
 {
-	::Rect GlobalBounds;
-	GetWindowBounds(_WindowRef, kWindowStructureRgn, &GlobalBounds);
+    ::Rect GlobalBounds;
+    GetWindowBounds(_WindowRef, kWindowStructureRgn, &GlobalBounds);
     return Pnt2f(GlobalBounds.left, GlobalBounds.top);
 }
 
 
 void CarbonWindow::setSize(Vec2us Size)
 {
-	::Rect GlobalBounds;
-	GetWindowBounds(_WindowRef, kWindowStructureRgn, &GlobalBounds);
-	
-	GlobalBounds.right = GlobalBounds.left + Size.x();
-	GlobalBounds.bottom = GlobalBounds.top + Size.y();
-	SetWindowBounds(_WindowRef,kWindowStructureRgn, &GlobalBounds);
+    ::Rect GlobalBounds;
+    GetWindowBounds(_WindowRef, kWindowStructureRgn, &GlobalBounds);
+
+    GlobalBounds.right = GlobalBounds.left + Size.x();
+    GlobalBounds.bottom = GlobalBounds.top + Size.y();
+    SetWindowBounds(_WindowRef,kWindowStructureRgn, &GlobalBounds);
 }
 
 Vec2f CarbonWindow::getSize(void) const
 {
-	::Rect GlobalBounds;
-	GetWindowBounds(_WindowRef, kWindowStructureRgn, &GlobalBounds);
+    ::Rect GlobalBounds;
+    GetWindowBounds(_WindowRef, kWindowStructureRgn, &GlobalBounds);
     return Vec2f(GlobalBounds.right - GlobalBounds.left, GlobalBounds.bottom - GlobalBounds.top);
 }
 
 void CarbonWindow::setFocused(bool Focused)
 {
-	ActivateWindow(_WindowRef, Focused);
+    ActivateWindow(_WindowRef, Focused);
 }
 
 bool CarbonWindow::getFocused(void) const
@@ -1866,14 +1923,14 @@ bool CarbonWindow::getFocused(void) const
 
 void CarbonWindow::setVisible(bool Visible)
 {
-	if(Visible)
-	{
-		ShowWindow(_WindowRef);
-	}
-	else
-	{
-		HideWindow(_WindowRef);
-	}
+    if(Visible)
+    {
+        ShowWindow(_WindowRef);
+    }
+    else
+    {
+        HideWindow(_WindowRef);
+    }
 }
 
 bool CarbonWindow::getVisible(void) const
@@ -1883,7 +1940,7 @@ bool CarbonWindow::getVisible(void) const
 
 void CarbonWindow::setIconify(bool Iconify)
 {
-	CollapseWindow(_WindowRef, Iconify);
+    CollapseWindow(_WindowRef, Iconify);
 }
 
 bool CarbonWindow::getIconify(void) const
@@ -1893,23 +1950,23 @@ bool CarbonWindow::getIconify(void) const
 
 void CarbonWindow::setFullscreen(bool Fullscreen)
 {
-	if(Fullscreen)
-	{
-		::Ptr      _OldScreenState;
-      assert(false && "Not Implemented");
-		//CGCaptureAllDisplays();
-		//BeginFullScreen(&_OldScreenState, NULL, 0, 0, &_WindowRef, NULL, 0);
-	}
-	else
-	{
-		//EndFullScreen(NULL, NULL);
-	}
+    _IsFullscreen = Fullscreen;
+    //if()
+    //{
+    //::Ptr      _OldScreenState;
+    //assert(false && "Not Implemented");
+    ////CGCaptureAllDisplays();
+    ////BeginFullScreen(&_OldScreenState, NULL, 0, 0, &_WindowRef, NULL, 0);
+    //}
+    //else
+    //{
+    ////EndFullScreen(NULL, NULL);
+    //}
 }
 
 bool CarbonWindow::getFullscreen(void) const
 {
-    //TODO: Implement
-    assert(false && "Not Implemented");
+    //return _IsFullscreen;
     return false;
 }
 
@@ -1920,35 +1977,35 @@ void CarbonWindow::setTitle(const std::string& TitleText)
 
 std::string CarbonWindow::getTitle(void)
 {
-	CFStringRef AppleString;
-	CopyWindowTitleAsCFString(_WindowRef, &AppleString);
-	char value[1024];
-	CFStringGetCString(AppleString, value, sizeof(value), 0);
-	CFRelease(AppleString);
-	
+    CFStringRef AppleString;
+    CopyWindowTitleAsCFString(_WindowRef, &AppleString);
+    char value[1024];
+    CFStringGetCString(AppleString, value, sizeof(value), 0);
+    CFRelease(AppleString);
+
     return std::string(value);
 }
 
 void CarbonWindow::setRisizable(bool IsResizable)
 {
-	//_WindowRef->kWindowResizableAttribute = (1L << 4);
+    //_WindowRef->kWindowResizableAttribute = (1L << 4);
 
-	
+
     //TODO: Implement
     assert(false && "Not Implemented");
-	
+
 }
 
 bool CarbonWindow::getRisizable(void)
 {
-	WindowAttributes Attributes;
-	GetWindowAttributes(_WindowRef, &Attributes);
-	
+    WindowAttributes Attributes;
+    GetWindowAttributes(_WindowRef, &Attributes);
+
     //TODO: Implement
-	
-    
+
+
     return (Attributes & kWindowResizableAttribute);
-	
+
 }
 
 void CarbonWindow::setDrawBorder(bool DrawBorder)
@@ -1985,15 +2042,6 @@ void CarbonWindow::update(void)
 
 bool CarbonWindow::attachWindow(void)
 {
-    assert(_WindowId != 0);
-    
-    if(_CarbonWindowToProducerMap.find(_WindowId) != _CarbonWindowToProducerMap.end())
-    {
-        return false;
-    }
-    
-    _CarbonWindowToProducerMap[_WindowId] = CarbonWindowUnrecPtr(this);
-    
     return true;
 }
 
@@ -2004,10 +2052,10 @@ UInt32 CarbonWindow::getKeyModifiers(void) const
 
 Pnt2f CarbonWindow::getMousePosition(void) const
 {
-	::Point MousePositioon;
-	GetGlobalMouse(&MousePositioon);
-	
-	//SetPortWindowPort(_WindowRef);
+    ::Point MousePositioon;
+    GetGlobalMouse(&MousePositioon);
+
+    //SetPortWindowPort(_WindowRef);
 
     return Pnt2f(MousePositioon.h, MousePositioon.v-22.0f) - Vec2f(getPosition());
 }
@@ -2017,7 +2065,7 @@ std::string CarbonWindow::getClipboard(void) const
 {
     OSStatus            err = noErr;
     std::string Result("");
-    
+
     //Create clipboard reference
     PasteboardRef theClipboard;
     err = PasteboardCreate( kPasteboardClipboard, &theClipboard );
@@ -2077,8 +2125,8 @@ std::string CarbonWindow::getClipboard(void) const
             CFIndex                 flavorDataSize;
 
             flavorType = (CFStringRef)CFArrayGetValueAtIndex( flavorTypeArray,// 6
-                                                                 flavorIndex );
- 
+                                                              flavorIndex );
+
 
             if (UTTypeConformsTo(flavorType, CFSTR("public.utf8-plain-text")))// 7
             {
@@ -2091,14 +2139,14 @@ std::string CarbonWindow::getClipboard(void) const
                     CFRelease (theClipboard);
                     return Result;
                 }
-                
+
                 flavorDataSize = CFDataGetLength( flavorData );
 
                 for( short dataIndex = 0; dataIndex < flavorDataSize; ++dataIndex )
                 {
                     Result += *(CFDataGetBytePtr( flavorData ) + dataIndex);
                 }
-                
+
                 CFRelease (flavorData);
             }
         }
@@ -2126,7 +2174,7 @@ void CarbonWindow::putClipboard(const std::string Value)
     TXNOffset           start, end;
     Handle              dataHandle;
     CFDataRef           textData = NULL;
-     
+
 
     //Clear clipboard
     err = PasteboardClear( theClipboard );
@@ -2140,8 +2188,8 @@ void CarbonWindow::putClipboard(const std::string Value)
     syncFlags = PasteboardSynchronize( theClipboard );
     //if(!(syncFlags&kPasteboardModified))
     //{
-        //SWARNING << "CarbonWindow::putClipboard: PasteboardSynchronize Error: kPasteboardModified "<< badPasteboardSyncErr << std::endl;
-        //return;
+    //SWARNING << "CarbonWindow::putClipboard: PasteboardSynchronize Error: kPasteboardModified "<< badPasteboardSyncErr << std::endl;
+    //return;
     //}
     if(!(syncFlags&kPasteboardClientIsOwner))
     {
@@ -2153,8 +2201,8 @@ void CarbonWindow::putClipboard(const std::string Value)
     textData = CFDataCreate( NULL, reinterpret_cast<const UInt8*>(Value.c_str()), Value.size() );
 
     err = PasteboardPutItemFlavor( theClipboard, (PasteboardItemID)1,
-                        CFSTR("public.utf8-plain-text"),
-                        textData, 0 );
+                                   CFSTR("public.utf8-plain-text"),
+                                   textData, 0 );
     if(err != noErr)
     {
         SWARNING << "CarbonWindow::putClipboard: PasteboardPutItemFlavor Error: "<< err << std::endl;
@@ -2166,27 +2214,30 @@ void CarbonWindow::putClipboard(const std::string Value)
 }
 
 void CarbonWindow::openWindow(const Pnt2f& ScreenPosition,
-				   const Vec2f& Size,
-				   const std::string& WindowName)
+                              const Vec2f& Size,
+                              const std::string& WindowName)
 {
     SetWindowTitleWithCFString(_WindowRef, CFStringCreateWithCString(NULL, WindowName.c_str(),WindowName.size()));
-   
+
     init();
     deactivate();
-    
-    // Show window
-    RepositionWindow(_WindowRef, 0, kWindowCascadeOnMainScreen);
-    setPosition(ScreenPosition);
 
-    //For some reason the Viewport is not set up right unless I force the window to resize
-    //there must be a better way of doing this
-    setSize(Vec2us(Size[0],Size[1])+Vec2us(-1,0));
-    setSize(Vec2us(Size[0],Size[1]));
-    
-    ShowWindow(_WindowRef);
-	produceWindowOpened();
+    if(!getFullscreen())
+    {
+        // Show window
+        RepositionWindow(_WindowRef, 0, kWindowCascadeOnMainScreen);
+        setPosition(ScreenPosition);
+
+        //For some reason the Viewport is not set up right unless I force the window to resize
+        //there must be a better way of doing this
+        setSize(Vec2us(Size[0],Size[1])+Vec2us(-1,0));
+        setSize(Vec2us(Size[0],Size[1]));
+
+        ShowWindow(_WindowRef);
+    }
+    produceWindowOpened();
     _modifierKeyState = getKeyModifiers();
-	
+    _IsWindowOpen = true;
 }
 
 void CarbonWindow::closeWindow(void)
@@ -2201,9 +2252,9 @@ void CarbonWindow::disposeWindow(void)
 
 void CarbonWindow::setCursor(void)
 {
-	ThemeCursor c;
-	switch(getCursorType())
-	{
+    ThemeCursor c;
+    switch(getCursorType())
+    {
         case CURSOR_HAND:
             c = kThemePointingHandCursor;
             break;
@@ -2235,22 +2286,22 @@ void CarbonWindow::setCursor(void)
         default:
             c = kThemeArrowCursor;
             break;
-	}
-	SetThemeCursor(c);
+    }
+    SetThemeCursor(c);
 }
 
 /*-------------------------------------------------------------------------*\
  -  private                                                                 -
 \*-------------------------------------------------------------------------*/
 
-void OSG::CarbonWindow::onCreate(const CarbonWindow *source)
+void CarbonWindow::onCreate(const CarbonWindow *source)
 {
     Inherited::onCreate(source);
 
     // Don't add the prototype instances to the list
     if(GlobalSystemState != Running)
         return;
-   
+
     if(source != NULL)
     {
         // Create window
@@ -2259,37 +2310,56 @@ void OSG::CarbonWindow::onCreate(const CarbonWindow *source)
             kWindowStandardDocumentAttributes |
             kWindowLiveResizeAttribute |
             kWindowStandardHandlerAttribute;
-        Rect contentRect;
-        SetRect(&contentRect, 0, 0, 400, 400);
-        
-        CreateNewWindow(kDocumentWindowClass, windowAttrs, &contentRect, &window);
-        
+        Rect nullRect;
+        SetRect(&nullRect, 0, 0, 1, 1);
+
+        CreateNewWindow(kDocumentWindowClass, windowAttrs, &nullRect, &window);
+        //CreateNewWindow(kOverlayWindowClass, windowAttrs, &contentRect, &window);
+
         // Install event handler
         _EventHandlerUPP = NewEventHandlerUPP(eventHandler);
-        
+
         _WindowRef = window;
-        _WindowId = getUndefinedWindowId();
     }
 }
 
 /*! instance deletion
 */
 
-void OSG::CarbonWindow::onDestroy(UInt32 uiContainerId)
+void CarbonWindow::onDestroy(UInt32 uiContainerId)
 {
 
     Inherited::onDestroy(uiContainerId);
 }
 
+void CarbonWindow::onDestroyAspect(UInt32  uiContainerId,
+                                   UInt32  uiAspect     )
+{
+    Inherited::onDestroyAspect(uiContainerId,uiAspect);
+
+    if(_Context != 0)
+    {
+        aglSetCurrentContext( NULL );
+        aglDestroyContext(_Context);
+    }
+}
+
+
 /*----------------------- constructors & destructors ----------------------*/
 
 CarbonWindow::CarbonWindow(void) :
-    Inherited()
+    Inherited(),
+    _Context(0),
+    _IsWindowOpen(false),
+    _AttachMouseToCursor(true)
 {
 }
 
 CarbonWindow::CarbonWindow(const CarbonWindow &source) :
-    Inherited(source)
+    Inherited(source),
+    _Context(0),
+    _IsWindowOpen(false),
+    _AttachMouseToCursor(true)
 {
 }
 
@@ -2300,14 +2370,14 @@ CarbonWindow::~CarbonWindow(void)
 /*----------------------------- class specific ----------------------------*/
 
 void CarbonWindow::changed(ConstFieldMaskArg whichField, 
-                            UInt32            origin,
-                            BitVector         details)
+                           UInt32            origin,
+                           BitVector         details)
 {
     Inherited::changed(whichField, origin, details);
 }
 
 void CarbonWindow::dump(      UInt32    ,
-                         const BitVector ) const
+                              const BitVector ) const
 {
     SLOG << "Dump CarbonWindow NI" << std::endl;
 }
@@ -2321,38 +2391,9 @@ void CarbonWindow::init(GLInitFunctor oFunc)
     Inherited::init(oFunc);
 }
 
-// activate the window: bind the OGL context
-void CarbonWindow::activate( void )
+void CarbonWindow::terminate(void)
 {
-    if((_sfDrawMode.getValue() & 
-         PartitionDrawMask               ) == SequentialPartitionDraw)
-    {
-        this->doActivate();
-    }
 }
-
-// activate the window: bind the OGL context
-void CarbonWindow::deactivate( void )
-{
-    if((_sfDrawMode.getValue() & 
-         PartitionDrawMask               ) == SequentialPartitionDraw)
-    {
-        this->doDeactivate();
-    }
-}
-
-// swap front and back buffers
-bool CarbonWindow::swap( void )
-{
-    if((_sfDrawMode.getValue() &
-         PartitionDrawMask               ) == SequentialPartitionDraw)
-    {
-        this->doSwap();
-    }
-
-    return true;
-}
-
 
 // activate the window: bind the OGL context
 void CarbonWindow::doActivate( void )
@@ -2373,6 +2414,10 @@ bool CarbonWindow::doSwap( void )
     return true;
 }
 
+bool CarbonWindow::hasContext(void)
+{
+    return (this->getContext() != NULL);
+}
 
 OSG_END_NAMESPACE
 

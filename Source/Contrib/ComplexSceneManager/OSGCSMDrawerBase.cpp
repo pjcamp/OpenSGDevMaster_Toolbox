@@ -398,14 +398,17 @@ void CSMDrawerBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (WindowsFieldMask & whichField))
     {
+        editMField(WindowsFieldMask, _mfWindows);
         _mfWindows.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DisplayStringFieldMask & whichField))
     {
+        editSField(DisplayStringFieldMask);
         _sfDisplayString.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (AspectFieldMask & whichField))
     {
+        editSField(AspectFieldMask);
         _sfAspect.copyFromBin(pMem);
     }
 }
@@ -556,8 +559,15 @@ bool CSMDrawerBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("CSMDrawerBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }

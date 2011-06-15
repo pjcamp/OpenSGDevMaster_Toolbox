@@ -150,6 +150,7 @@ MultiCoreBase::TypeObject MultiCoreBase::_type(
     "   pointerfieldtypes=\"both\"\n"
     "   systemcomponent=\"true\"\n"
     "   parentsystemcomponent=\"true\"\n"
+    "   docGroupBase=\"GrpSystemNodeCoreGroups\"\n"
     "   >\n"
     "  <Field\n"
     "     name=\"cores\"\n"
@@ -297,6 +298,7 @@ void MultiCoreBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (CoresFieldMask & whichField))
     {
+        editMField(CoresFieldMask, _mfCores);
         _mfCores.copyFromBin(pMem);
     }
 }
@@ -470,8 +472,15 @@ bool MultiCoreBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("MultiCoreBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }

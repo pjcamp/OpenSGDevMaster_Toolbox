@@ -42,6 +42,7 @@
 #include "OSGConfig.h"
 
 #include "OSGHardwareContextTask.h"
+#include "OSGFieldContainer.h"
 
 #include "OSGMField.ins"
 
@@ -300,8 +301,9 @@ void HardwareContextTaskQueue::runAndClearQueue(HardwareContext *pContext,
     _qTaskStore.clear();
 }
 
-DataType FieldTraits<HardwareContextTaskRefPtr>::_type(
-    "HardwareContextTaskRefPtr", NULL);
+DataType FieldTraits<
+             HardwareContextTaskRefPtr>::_type("HardwareContextTaskRefPtr", 
+                                               "");
 
 OSG_FIELDTRAITS_GETTYPE(HardwareContextTaskRefPtr)
 

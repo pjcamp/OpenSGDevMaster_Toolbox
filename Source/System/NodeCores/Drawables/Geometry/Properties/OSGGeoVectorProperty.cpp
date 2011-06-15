@@ -171,61 +171,15 @@ GeoVectorProperty::~GeoVectorProperty(void)
 {
 }
 
-#if 0
-/*-------------------- Arbitrary Type Interface Methods ------------------*/
-
-/*! Returns the value at index \a index in \a val after converting it to
-    Vec3f.
-    There is no range check for \a index, it must be in [0, size()[.
-
-    \note This is a convenience function and therefore not the most efficient
-    way to access property values. It is more efficient to obtain a pointer
-    or reference to the stored field an modify it directly.
-
-    \param[out] val Value at the given index.
-    \param[in] index Index of the element to access.
- */
-void GeoVectorProperty::getValue(      Vec3f  &val,
-                                 const UInt32  index) const
-{
-    MaxTypeT ival;
-    getValue(ival, index);
-    GeoConvert::convertOut(val, ival, 1, 0);
-}
-
-/*! Sets the value at index \a index to \a val.
-    There is no range check for \a index, it must be in [0, size()[.
-
-    \note This is a convenience function and therefore not the most efficient
-    way to access property values. It is more efficient to obtain a pointer
-    or reference to the stored field an modify it directly.
-
-    \param[in] val Value to set the element at the given index to.
-    \param[in] index Index of the element to set.
-*/
-void GeoVectorProperty::setValue(const Vec3f  &val,
-                                 const UInt32  index )
-{
-    MaxTypeT ival;
-    GeoConvert::convertIn(ival, val, 1, 0);
-    setValue(ival, index);
-}
-#endif
-
 /*! State Chunk handling */
 
 GLenum GeoVectorProperty::getBufferType(void)
 {
-#ifndef OSG_EMBEDDED
     return GL_ARRAY_BUFFER_ARB;
-#else
-    return GL_NONE;
-#endif
 }
 
 void GeoVectorProperty::activate(DrawEnv *pEnv, UInt32 slot)
 {
-#ifndef OSG_EMBEDDED
     Window *win = pEnv->getWindow();
     bool isGeneric = (slot >= 16);  // !!!HACK. needs to be replaced for 2.0
     slot &= 15;
@@ -358,19 +312,36 @@ void GeoVectorProperty::activate(DrawEnv *pEnv, UInt32 slot)
             case 14: 
             case 15:
             {
-                OSGGETGLFUNCBYID( OSGglClientActiveTextureARB,
-                                  osgGlClientActiveTextureARB,
-                                 _funcglClientActiveTextureARB,
-                                  win);
+                if(win->hasExtension(_extMultitexture))
+                {
+                    OSGGETGLFUNCBYID( OSGglClientActiveTextureARB,
+                                      osgGlClientActiveTextureARB,
+                                      _funcglClientActiveTextureARB,
+                                      win);
 
-                osgGlClientActiveTextureARB(GL_TEXTURE0_ARB + slot - 8);
+                    osgGlClientActiveTextureARB(GL_TEXTURE0_ARB + slot - 8);
 
-                glTexCoordPointer(getDimension(), 
-                                  getFormat   (),
-                                  getStride   (),
-                                  pData         );
+                    glTexCoordPointer(getDimension(),
+                                      getFormat   (),
+                                      getStride   (),
+                                      pData         );
 
-                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                }
+                else if(slot == 8)
+                {
+                    glTexCoordPointer(getDimension(),
+                                      getFormat   (),
+                                      getStride   (),
+                                      pData         );
+
+                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                }
+                else
+                {
+                    SWARNING << "GeoVectorProperty::activate: Window "
+                             << "has no Multi Texture extension" << std::endl;
+                }
             }
             break;
 
@@ -384,7 +355,6 @@ void GeoVectorProperty::activate(DrawEnv *pEnv, UInt32 slot)
             osgGlBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
         }
     }
-#endif
 }
 
 void GeoVectorProperty::changeFrom(DrawEnv    *pEnv,
@@ -404,7 +374,6 @@ void GeoVectorProperty::changeFrom(DrawEnv    *pEnv,
 
 void GeoVectorProperty::deactivate(DrawEnv *pEnv, UInt32 slot)
 {
-#ifndef OSG_EMBEDDED
     Window *win = pEnv->getWindow();
     bool isGeneric = (slot >= 16);  // !!!HACK. needs to be replaced for 2.0
     slot &= 15;
@@ -447,14 +416,26 @@ void GeoVectorProperty::deactivate(DrawEnv *pEnv, UInt32 slot)
             case 14: 
             case 15:
             {
-                OSGGETGLFUNCBYID( OSGglClientActiveTextureARB,
-                                  osgGlClientActiveTextureARB,
-                                 _funcglClientActiveTextureARB,
-                                  win);
+                if(win->hasExtension(_extMultitexture))
+                {
+                    OSGGETGLFUNCBYID( OSGglClientActiveTextureARB,
+                                      osgGlClientActiveTextureARB,
+                                      _funcglClientActiveTextureARB,
+                                      win);
                 
-                osgGlClientActiveTextureARB(GL_TEXTURE0_ARB + slot - 8);
+                    osgGlClientActiveTextureARB(GL_TEXTURE0_ARB + slot - 8);
 
-                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                }
+                else if(slot == 8)
+                {
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                }
+                else
+                {
+                    SWARNING << "GeoVectorProperty::deactivate: Window "
+                             << "has no Multi Texture extension" << std::endl;
+                }
             }
             break;
 
@@ -464,7 +445,6 @@ void GeoVectorProperty::deactivate(DrawEnv *pEnv, UInt32 slot)
                 break;
         }
     }
-#endif
 }
 
 

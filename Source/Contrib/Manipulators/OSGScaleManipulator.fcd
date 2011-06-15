@@ -24,14 +24,13 @@ The ScaleHandle is used for scaling objects. It consist of three axis which can 
       Uniform/Non-uniform scaling.
     </Field>
 	<Field
-		name="handleUniformNode"
-		type="Node"
-        category="pointer"
-		cardinality="single"
+		name="uniformGeometries"
+		type="Geometry"
+		category="pointer"
+		cardinality="multi"
 		visibility="internal"
-		access="public"
+		access="protected"
 	>
-	The node for the uniform-handle geometry
 	</Field>
 	<Field
 		name="transUniformNode"

@@ -83,7 +83,7 @@ OSG_BEGIN_NAMESPACE
  *                        Field Documentation                              *
 \***************************************************************************/
 
-/*! \var Matrixr         TransformBase::_sfMatrix
+/*! \var Matrix          TransformBase::_sfMatrix
     The transformation matrix.
 */
 
@@ -115,8 +115,8 @@ void TransformBase::classDescInserter(TypeObject &oType)
     FieldDescriptionBase *pDesc = NULL;
 
 
-    pDesc = new SFMatrixr::Description(
-        SFMatrixr::getClassType(),
+    pDesc = new SFMatrix::Description(
+        SFMatrix::getClassType(),
         "matrix",
         "The transformation matrix.\n",
         MatrixFieldId, MatrixFieldMask,
@@ -143,25 +143,26 @@ TransformBase::TypeObject TransformBase::_type(
     "<?xml version=\"1.0\" ?>\n"
     "\n"
     "<FieldContainer\n"
-    "\tname=\"Transform\"\n"
-    "\tparent=\"Group\"\n"
-    "\tlibrary=\"Group\"\n"
-    "\tstructure=\"concrete\"\n"
-    "\tpointerfieldtypes=\"both\"\n"
-    "\tsystemcomponent=\"true\"\n"
-    "\tparentsystemcomponent=\"true\"\n"
-    "    isNodeCore=\"true\"\n"
-    ">\n"
-    "The basic Transformation class. Just keeps a single matrix. For more complex\n"
-    "behaviour, see its descendents.\n"
-    "\t<Field\n"
-    "\t\tname=\"matrix\"\n"
-    "\t\ttype=\"Matrixr\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t>\n"
+    "   name=\"Transform\"\n"
+    "   parent=\"Group\"\n"
+    "   library=\"Group\"\n"
+    "   structure=\"concrete\"\n"
+    "   pointerfieldtypes=\"both\"\n"
+    "   systemcomponent=\"true\"\n"
+    "   parentsystemcomponent=\"true\"\n"
+    "   isNodeCore=\"true\"\n"
+    "   docGroupBase=\"GrpGroupMisc\"\n"
+    "   >\n"
+    "  The basic Transformation class. Just keeps a single matrix. For more complex\n"
+    "  behaviour, see its descendents.\n"
+    "  <Field\n"
+    "\t name=\"matrix\"\n"
+    "\t type=\"Matrix\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t >\n"
     "\tThe transformation matrix.\n"
-    "\t</Field>\n"
+    "  </Field>\n"
     "</FieldContainer>\n",
     "The basic Transformation class. Just keeps a single matrix. For more complex\n"
     "behaviour, see its descendents.\n"
@@ -187,14 +188,14 @@ UInt32 TransformBase::getContainerSize(void) const
 /*------------------------- decorator get ------------------------------*/
 
 
-SFMatrixr *TransformBase::editSFMatrix(void)
+SFMatrix *TransformBase::editSFMatrix(void)
 {
     editSField(MatrixFieldMask);
 
     return &_sfMatrix;
 }
 
-const SFMatrixr *TransformBase::getSFMatrix(void) const
+const SFMatrix *TransformBase::getSFMatrix(void) const
 {
     return &_sfMatrix;
 }
@@ -236,6 +237,7 @@ void TransformBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (MatrixFieldMask & whichField))
     {
+        editSField(MatrixFieldMask);
         _sfMatrix.copyFromBin(pMem);
     }
 }
@@ -383,8 +385,8 @@ TransformBase::~TransformBase(void)
 
 GetFieldHandlePtr TransformBase::getHandleMatrix          (void) const
 {
-    SFMatrixr::GetHandlePtr returnValue(
-        new  SFMatrixr::GetHandle(
+    SFMatrix::GetHandlePtr returnValue(
+        new  SFMatrix::GetHandle(
              &_sfMatrix,
              this->getType().getFieldDesc(MatrixFieldId),
              const_cast<TransformBase *>(this)));
@@ -394,8 +396,8 @@ GetFieldHandlePtr TransformBase::getHandleMatrix          (void) const
 
 EditFieldHandlePtr TransformBase::editHandleMatrix         (void)
 {
-    SFMatrixr::EditHandlePtr returnValue(
-        new  SFMatrixr::EditHandle(
+    SFMatrix::EditHandlePtr returnValue(
+        new  SFMatrix::EditHandle(
              &_sfMatrix,
              this->getType().getFieldDesc(MatrixFieldId),
              this));

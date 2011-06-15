@@ -627,38 +627,47 @@ void CSMClusterWindowBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (ClientWindowFieldMask & whichField))
     {
+        editSField(ClientWindowFieldMask);
         _sfClientWindow.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (RenderClientFieldMask & whichField))
     {
+        editSField(RenderClientFieldMask);
         _sfRenderClient.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ServersFieldMask & whichField))
     {
+        editMField(ServersFieldMask, _mfServers);
         _mfServers.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ServerIdsFieldMask & whichField))
     {
+        editMField(ServerIdsFieldMask, _mfServerIds);
         _mfServerIds.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ServerRowsFieldMask & whichField))
     {
+        editSField(ServerRowsFieldMask);
         _sfServerRows.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ConnectionTypeFieldMask & whichField))
     {
+        editSField(ConnectionTypeFieldMask);
         _sfConnectionType.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ClusterModeFieldMask & whichField))
     {
+        editSField(ClusterModeFieldMask);
         _sfClusterMode.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ComposerFieldMask & whichField))
     {
+        editSField(ComposerFieldMask);
         _sfComposer.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (OptionsFieldMask & whichField))
     {
+        editSField(OptionsFieldMask);
         _sfOptions.copyFromBin(pMem);
     }
 }
@@ -814,7 +823,7 @@ bool CSMClusterWindowBase::unlinkChild(
 
         if(pTypedChild != NULL)
         {
-            if(pTypedChild == _sfClientWindow.getValue())
+            if(_sfClientWindow.getValue() == pTypedChild)
             {
                 editSField(ClientWindowFieldMask);
 
@@ -823,8 +832,15 @@ bool CSMClusterWindowBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("CSMClusterWindowBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }
@@ -839,7 +855,7 @@ bool CSMClusterWindowBase::unlinkChild(
 
         if(pTypedChild != NULL)
         {
-            if(pTypedChild == _sfOptions.getValue())
+            if(_sfOptions.getValue() == pTypedChild)
             {
                 editSField(OptionsFieldMask);
 
@@ -848,8 +864,15 @@ bool CSMClusterWindowBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("CSMClusterWindowBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }

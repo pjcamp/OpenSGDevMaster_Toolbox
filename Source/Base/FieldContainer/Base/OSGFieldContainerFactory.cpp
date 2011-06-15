@@ -81,9 +81,7 @@ const FieldContainerFactoryBase::ContainerStore &FieldContainerFactoryBase::getF
 
 FieldContainerFactoryBase::FieldContainerFactoryBase(void) :
      Inherited      ("FieldContainerFactory"),
-#ifndef OSG_EMBEDDED
     _pStoreLock     (NULL                   ),
-#endif
     _vContainerStore(                       ),
     _pMapper        (NULL                   )
 {
@@ -94,9 +92,7 @@ FieldContainerFactoryBase::FieldContainerFactoryBase(
     const Char8 *szFactoryName) :
 
      Inherited      (szFactoryName),
-#ifndef OSG_EMBEDDED
     _pStoreLock     (NULL         ),
-#endif
 	_vContainerStore(             ),
     _pMapper        (NULL         )
 {
@@ -118,7 +114,6 @@ bool FieldContainerFactoryBase::initialize(void)
     if(this->_bInitialized == true)
         return true;
 
-#ifndef OSG_EMBEDDED
     _pStoreLock = ThreadManager::the()->getLock("ContainerFactory::slock",
                                                 false);
 
@@ -130,20 +125,15 @@ bool FieldContainerFactoryBase::initialize(void)
     }
     else
     {
-#endif
         return Inherited::initialize();
-#ifndef OSG_EMBEDDED
     }
-#endif
 }
 
 bool FieldContainerFactoryBase::terminate(void)
 {
     bool returnValue = Inherited::terminate();
 
-#ifndef OSG_EMBEDDED
     _pStoreLock = NULL;
-#endif
 
     this->_bInitialized = false;
 
@@ -198,9 +188,7 @@ UInt32 FieldContainerFactoryBase::registerContainer(
 
     UInt32 returnValue = 0;
 
-#ifndef OSG_EMBEDDED
     _pStoreLock->acquire();
-#endif
 
 #ifdef OSG_MT_CPTR_ASPECT
     ContainerHandlerP pHandler = NULL;
@@ -215,9 +203,7 @@ UInt32 FieldContainerFactoryBase::registerContainer(
 
     returnValue = _vContainerStore.size() - 1;
 
-#ifndef OSG_EMBEDDED
     _pStoreLock->release();
-#endif
 
     return returnValue;
 }
@@ -236,9 +222,7 @@ possible with this function to verify pointers from other threads/aspects.
 
 Int32 FieldContainerFactoryBase::findContainer(ContainerPtr ptr) const
 {
-#ifndef OSG_EMBEDDED
     _pStoreLock->acquire();
-#endif
 
     ContainerStore::const_iterator it, end;
     Int32 id = 0;
@@ -258,9 +242,7 @@ Int32 FieldContainerFactoryBase::findContainer(ContainerPtr ptr) const
         }
     }
 
-#ifndef OSG_EMBEDDED
     _pStoreLock->release();
-#endif
 
     return returnValue;
 }
@@ -270,6 +252,8 @@ Int32 FieldContainerFactoryBase::findContainer(ContainerPtr ptr) const
 
 void FieldContainerFactoryBase::dump(void)
 {
+    _pStoreLock->acquire();
+
     ContainerStoreIt sI = _vContainerStore.begin();
     ContainerStoreIt sE = _vContainerStore.end  ();
     
@@ -300,6 +284,8 @@ void FieldContainerFactoryBase::dump(void)
             }
         }
     }
+
+    _pStoreLock->release();
 }
 
 DerivedFieldContainerTypeIterator 

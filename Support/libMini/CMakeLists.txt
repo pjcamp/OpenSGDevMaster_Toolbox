@@ -4,8 +4,11 @@ IF(OSGLibMiniSrcDir)
 
   PROJECT(OSGLibMini)
 
-  SET(${PROJECT_NAME}SharedTarget osgmini)
-  SET(${PROJECT_NAME}StaticTarget osgmini)
+  IF(WIN32)
+    SET(${PROJECT_NAME}StaticTarget libosgmini)
+  ELSE(WIN32)
+    SET(${PROJECT_NAME}StaticTarget osgmini)
+  ENDIF(WIN32)
 
   SET(OSG_LIBMINI_SRCS ${OSGLibMiniSrcDir}/mini.cpp 
                        ${OSGLibMiniSrcDir}/miniOGL.cpp
@@ -62,7 +65,7 @@ IF(OSGLibMiniSrcDir)
                       ${OSGLibMiniSrcDir}/minisort.h 
                       ${OSGLibMiniSrcDir}/ministring.h
                       ${OSGLibMiniSrcDir}/mini.h 
-                      ${OSGLibMiniSrcDir}/miniOGL.h
+#                      ${OSGLibMiniSrcDir}/miniOGL.h
 	                  ${OSGLibMiniSrcDir}/miniv3f.h
                       ${OSGLibMiniSrcDir}/miniv3d.h 
                       ${OSGLibMiniSrcDir}/miniv4f.h 
@@ -110,35 +113,45 @@ IF(OSGLibMiniSrcDir)
 
   SET(OSGLIBMINI_DEF )
 
-#  INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/libtiff)
-#  INCLUDE_DIRECTORIES(${OSGZLibSrcDir})
-#  INCLUDE_DIRECTORIES(${OSGJpegLibSrcDir})
+  INCLUDE_DIRECTORIES(${OSGLibMiniSrcDir})
+  INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/External/mini)
 
-#  IF(BUILD_SHARED_LIBS)
-#    ADD_LIBRARY(${${PROJECT_NAME}SharedTarget} SHARED ${OSG_TIFFLIB_SRCS}
-#                                                      ${OSGTiffLibSrcDir}/libtiff/libtiff.def)
+  IF(EXISTS ${OSGLibMiniSrcDir}/GL)
+    EXECUTE_PROCESS(
+      COMMAND "${CMAKE_COMMAND}" -E copy_directory "${OSGLibMiniSrcDir}/GL" "${OSGLibMiniSrcDir}/GL.org")
+    EXECUTE_PROCESS(
+      COMMAND "${CMAKE_COMMAND}" -E remove_directory "${OSGLibMiniSrcDir}/GL")
+  ENDIF()
 
-#    SET_TARGET_PROPERTIES(${${PROJECT_NAME}SharedTarget} PROPERTIES
-#                          DEBUG_POSTFIX "D")
+  IF(WIN32)
+    IF(EXISTS "${OSGLibMiniSrcDir}/miniOGL.h")
+      EXECUTE_PROCESS(
+        COMMAND "${CMAKE_COMMAND}" -E rename "${OSGLibMiniSrcDir}/miniOGL.h" "${OSGLibMiniSrcDir}/miniOGL.h.in")
+    ENDIF()
 
-#    SET(OSGTIFFLIB_DEF_SHARED ${OSGTIFFLIB_DEF};ZLIB_DLL)
+    FILE(READ "${OSGLibMiniSrcDir}/miniOGL.h.in" _MINIOGL_FILE_IN)
 
-#    SET_TARGET_PROPERTIES(${${PROJECT_NAME}SharedTarget} PROPERTIES
-#                          COMPILE_DEFINITIONS "${OSGTIFFLIB_DEF_SHARED}")
+    string(REPLACE "#include <GL/glext.h>"
+                   "#include \"miniGLext.h\"" _MINIOGL_FILE_IN_P1 "${_MINIOGL_FILE_IN}")
 
-#    TARGET_LINK_LIBRARIES(${${PROJECT_NAME}SharedTarget} osgzlib)
-#    TARGET_LINK_LIBRARIES(${${PROJECT_NAME}SharedTarget} libosgjpg)
+    FILE(WRITE "${CMAKE_BINARY_DIR}/External/mini/miniOGL.h.proc" "${_MINIOGL_FILE_IN_P1}")
 
-#    INSTALL(TARGETS ${${PROJECT_NAME}SharedTarget}
-#                CONFIGURATIONS Release Debug
-#                RUNTIME DESTINATION bin
-#                LIBRARY DESTINATION lib
-#                ARCHIVE DESTINATION lib)
+    EXECUTE_PROCESS(
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_BINARY_DIR}/External/mini/miniOGL.h.proc" "${CMAKE_BINARY_DIR}/External/mini/miniOGL.h")
 
-#  ENDIF(BUILD_SHARED_LIBS)
+    EXECUTE_PROCESS(
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${OSGLibMiniSrcDir}/GL.org/glext.h" "${CMAKE_BINARY_DIR}/External/mini/miniGLext.h")
+
+    SET(OSG_LIBMINI_HDR ${OSG_LIBMINI_HDR} ${CMAKE_BINARY_DIR}/External/mini/miniOGL.h)
+    SET(OSG_LIBMINI_HDR ${OSG_LIBMINI_HDR} ${CMAKE_BINARY_DIR}/External/mini/miniGLext.h)
+  ELSE(WIN32)
+    SET(OSG_LIBMINI_HDR ${OSG_LIBMINI_HDR} ${OSGLibMiniSrcDir}/miniOGL.h)
+  ENDIF(WIN32)
 
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(${${PROJECT_NAME}StaticTarget} STATIC ${OSG_LIBMINI_SRCS})
+
+    ADD_DEPENDENCIES(ALL_STANDARD_BUILD ${${PROJECT_NAME}StaticTarget})
 
     IF(WIN32)
       SET_TARGET_PROPERTIES(${${PROJECT_NAME}StaticTarget} PROPERTIES

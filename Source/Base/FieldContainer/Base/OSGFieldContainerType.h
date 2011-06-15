@@ -87,9 +87,9 @@ class OSG_BASE_DLLMAPPING FieldContainerType : public ReflexiveContainerType
     /*! \name                   Constructors                               */
     /*! \{                                                                 */
 
-    FieldContainerType(const Char8                *szName,
-                       const Char8                *szParentName       = NULL,
-                       const Char8                *szGroupName        = NULL,
+    FieldContainerType(const std::string           &szName, 
+                       const std::string           &szParentName      = "",
+                       const std::string           &szGroupName       = "",
                        const UInt32                uiNameSpace        =    0,
                              PrototypeCreateF      fPrototypeCreate   = NULL,
                              InitContainerF        fInitMethod        = NULL,

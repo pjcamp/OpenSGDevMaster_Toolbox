@@ -48,8 +48,11 @@
 OSG_BEGIN_NAMESPACE
 
 /*! \brief Foreground class for grabbing the viewport into a texture. See \ref 
-    PageSystemWindowForegroundTextureGrab for a description.
-*/
+           PageSystemWindowForegroundTextureGrab for a description.
+    \ingroup GrpWindowForegroundObj
+    \ingroup GrpLibOSGWindow
+    \includebasedoc
+ */
 
 class OSG_WINDOW_DLLMAPPING TextureGrabForeground : 
     public TextureGrabForegroundBase
@@ -83,7 +86,7 @@ class OSG_WINDOW_DLLMAPPING TextureGrabForeground :
     /*! \name                   draw                                       */
     /*! \{                                                                 */
 
-    virtual void draw(DrawEnv *pEnv, Viewport *port);
+    virtual void draw(DrawEnv *pEnv);
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/

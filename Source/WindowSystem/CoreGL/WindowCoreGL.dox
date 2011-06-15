@@ -1,0 +1,13 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! 
+
+   \if separate
+     \page PageWindowCoreGL Window CoreGL Documentation
+   \else
+     \page PageWindowCoreGL Window CoreGL
+   \endif
+
+ */

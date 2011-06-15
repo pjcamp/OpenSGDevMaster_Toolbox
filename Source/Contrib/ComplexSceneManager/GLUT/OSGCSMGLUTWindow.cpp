@@ -153,17 +153,29 @@ void CSMGLUTWindow::csmGlutMouseMotionHandler(Int32 x,
 /*----------------------- constructors & destructors ----------------------*/
 
 CSMGLUTWindow::CSMGLUTWindow(void) :
-    Inherited()
+     Inherited (  ),
+    _iGlutWinId(-1)
 {
 }
 
 CSMGLUTWindow::CSMGLUTWindow(const CSMGLUTWindow &source) :
-    Inherited(source)
+     Inherited (source),
+    _iGlutWinId(-1    )
 {
 }
 
 CSMGLUTWindow::~CSMGLUTWindow(void)
 {
+}
+
+void CSMGLUTWindow::terminateGLContext(void)
+{
+    if(_pWindow != NULL)
+    {
+        _pWindow->terminate();
+    }
+
+    glutDestroyWindow(_iGlutWinId);
 }
 
 /*----------------------------- class specific ----------------------------*/
@@ -223,9 +235,9 @@ bool CSMGLUTWindow::init(void)
                            Int32(this->getYSize()));
     }
 
-    Int32 iWinId = glutCreateWindow("OpenSG - CSM");
+    _iGlutWinId = glutCreateWindow("OpenSG - CSM");
 
-    pGLUTWindow->setGlutId(iWinId);
+    pGLUTWindow->setGlutId(_iGlutWinId);
 
     if(this->getXSize() > 0.f && this->getYSize() > 0.f)
     {

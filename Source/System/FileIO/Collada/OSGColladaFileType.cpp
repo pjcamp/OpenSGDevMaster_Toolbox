@@ -42,7 +42,7 @@
 
 #include "OSGColladaFileType.h"
 
-#ifdef OSG_WITH_COLLADA
+#if defined(OSG_WITH_COLLADA) || defined(OSG_DO_DOC)
 
 #include "OSGColladaGlobal.h"
 #include "OSGColladaOptions.h"
@@ -82,6 +82,8 @@ ColladaFileType::read(
     colGlobal->setOptions(colOpts);
 
     rootN = colGlobal->read(is, fileNameOrExtension);
+
+    commitChanges();
 
     return rootN;
 }

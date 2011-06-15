@@ -52,8 +52,11 @@ class DrawEnv;
 class Window;
 
 /*! \brief Viewport class for color channel selection. See \ref 
-    PageSystemWindowViewports for a description.
-*/
+    PageSystemFBOBuffer for a description.
+    \ingroup GrpSystemWindowFBOObj
+    \ingroup GrpLibOSGSystem
+    \includebasedoc
+ */
 
 class OSG_SYSTEM_DLLMAPPING FrameBufferObject : 
     public FrameBufferObjectBase
@@ -133,6 +136,7 @@ class OSG_SYSTEM_DLLMAPPING FrameBufferObject :
     /*! \{                                                                 */
 
     static UInt32 _uiFramebuffer_object_extension;
+    static UInt32 _uiPackedDepthStencilExtension;
 
     static UInt32 _uiFuncGenFramebuffers;
     static UInt32 _uiFuncCheckFramebufferStatus;

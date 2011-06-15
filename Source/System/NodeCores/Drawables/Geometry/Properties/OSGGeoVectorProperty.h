@@ -52,7 +52,10 @@ class DrawEnv;
 
 /*! \brief GeoVectorProperty class. See \ref
            PageWindowGLUTGeoVectorProperty for a description.
-*/
+    \ingroup GrpDrawablesGeometryProperties
+    \ingroup GrpLibOSGDrawables
+    \includebasedoc
+ */
 
 class OSG_DRAWABLE_DLLMAPPING GeoVectorProperty :
     public GeoVectorPropertyBase
@@ -69,11 +72,8 @@ class OSG_DRAWABLE_DLLMAPPING GeoVectorProperty :
     /*! \name        Arbitrary Type Interface Methods                      */
     /*! \{                                                                 */
 
-#ifndef OSG_EMBEDDED
     typedef Vec4d MaxTypeT;
-#else
-    typedef Vec4f MaxTypeT;
-#endif
+
     // MSVC 7.0 is a little weird about template member methods, that's why
     // the code has to be here...
 
@@ -150,16 +150,6 @@ class OSG_DRAWABLE_DLLMAPPING GeoVectorProperty :
     virtual void   clear       (void          )       = 0;
     virtual void   resize      (size_t newsize)       = 0;
     virtual UInt32 size        (void          ) const = 0;
-
-    /*! \}                                                                 */
-    /*---------------------------------------------------------------------*/
-    /*! \name       Some special case methods for efficiency               */
-    /*! \{                                                                 */
-
-#if 0
-    virtual void getValue(      Vec3f    &val, const UInt32 index ) const;
-    virtual void setValue(const Vec3f    &val, const UInt32 index );
-#endif
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

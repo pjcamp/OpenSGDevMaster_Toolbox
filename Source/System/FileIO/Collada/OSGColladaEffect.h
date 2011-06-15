@@ -41,7 +41,7 @@
 
 #include "OSGConfig.h"
 
-#ifdef OSG_WITH_COLLADA
+#if defined(OSG_WITH_COLLADA) || defined(OSG_DO_DOC)
 
 #include "OSGColladaInstantiableElement.h"
 #include "OSGColladaElementFactoryHelper.h"
@@ -80,6 +80,9 @@ OSG_GEN_CONTAINERPTR(BlendChunk);
 class DepthChunk;
 OSG_GEN_CONTAINERPTR(DepthChunk);
 
+/*! \ingroup GrpFileIOCollada
+    \nohierarchy
+ */
 
 class OSG_FILEIO_DLLMAPPING ColladaEffect : public ColladaInstantiableElement
 {
@@ -126,6 +129,8 @@ class OSG_FILEIO_DLLMAPPING ColladaEffect : public ColladaInstantiableElement
     /*! \{                                                                 */
 
     // <sampler2D> DOM and loader objects
+    /*! \nohierarchy
+     */
     struct ParamSampler2D
     {
         ColladaSampler2DRefPtr    colSampler2D;
@@ -133,6 +138,8 @@ class OSG_FILEIO_DLLMAPPING ColladaEffect : public ColladaInstantiableElement
     };
 
     // <surface> DOM and loader objects
+    /*! \nohierarchy
+     */
     struct ParamSurface
     {
         ColladaSurfaceRefPtr    colSurface;

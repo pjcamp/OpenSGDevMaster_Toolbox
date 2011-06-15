@@ -61,9 +61,9 @@ OSG_BEGIN_NAMESPACE
 // doxygen can't find these
 #ifndef OSG_DO_DOC 
 
-//DataType FieldTraits<EGLDisplay>::_type("EGLDisplay", NULL);
-DataType FieldTraits<EGLSurface>::_type("EGLSurface", NULL);
-DataType FieldTraits<EGLContext>::_type("EGLContext", NULL);
+//DataType FieldTraits<EGLDisplay>::_type("EGLDisplay", "");
+DataType FieldTraits<EGLSurface>::_type("EGLSurface", "");
+DataType FieldTraits<EGLContext>::_type("EGLContext", "");
 
 
 #endif

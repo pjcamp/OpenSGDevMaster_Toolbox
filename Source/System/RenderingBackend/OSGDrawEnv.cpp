@@ -117,7 +117,7 @@ DrawEnv::~DrawEnv(void)
 {
 }
 
-Matrixr DrawEnv::calcTileDecorationMatrix(void) const
+Matrix DrawEnv::calcTileDecorationMatrix(void) const
 {
     Vec4f vTileRegion = this->getTileRegion();
 
@@ -347,7 +347,7 @@ void DrawEnv::activate(State         *pState,
     StateOverride::ChunkStoreIt          overIt = pOverride->begin();
 
     Int32                     ind  = 0;
-    UInt32                    cind = osgMin(State::SkipNumChunks, 
+    SizeT                     cind = osgMin(State::SkipNumChunks, 
                                             pState->getMFChunks()->size());
 
 
@@ -774,7 +774,7 @@ void DrawEnv::deactivate(State         *pState,
     StateOverride::ChunkStoreIt          overIt = pOverride->begin();
 
     Int32                     ind  = 0;
-    UInt32                    cind = osgMin(State::SkipNumChunks, 
+    SizeT                     cind = osgMin(State::SkipNumChunks, 
                                             pState->getMFChunks()->size());
 
     OSG_SKIP_IT(cIt, cind);

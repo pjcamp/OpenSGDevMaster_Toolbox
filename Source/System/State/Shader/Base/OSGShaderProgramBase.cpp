@@ -240,7 +240,7 @@ void ShaderProgramBase::classDescInserter(TypeObject &oType)
         "",
         ParentsFieldId, ParentsFieldMask,
         true,
-        (Field::MFDefaultFlags | Field::FStdAccess),
+        (Field::FClusterLocal),
         static_cast     <FieldEditMethodSig>(&ShaderProgram::invalidEditField),
         static_cast     <FieldGetMethodSig >(&ShaderProgram::invalidGetField));
 
@@ -274,113 +274,114 @@ ShaderProgramBase::TypeObject ShaderProgramBase::_type(
     "<?xml version=\"1.0\"?>\n"
     "\n"
     "<FieldContainer\n"
-    "   name=\"ShaderProgram\"\n"
-    "   parent=\"FieldContainer\"\n"
-    "   library=\"System\"\n"
-    "   structure=\"concrete\"\n"
-    "   pointerfieldtypes=\"both\"\n"
-    "   systemcomponent=\"true\"\n"
-    "   parentsystemcomponent=\"true\"\n"
-    "   decoratable=\"false\"\n"
-    "   useLocalIncludes=\"false\"\n"
-    "   docGroupBase=\"GrpSystemShader\"\n"
-    "   >\n"
-    "\n"
-    "  <Field\n"
-    "     name=\"shaderType\"\n"
-    "     type=\"GLenum\"\n"
-    "     cardinality=\"single\"\n"
-    "     visibility=\"external\"\n"
-    "     defaultValue=\"GL_NONE\"\n"
-    "     defaultHeader=\"&quot;OSGGL.h&quot;\"\n"
-    "     access=\"public\"\n"
+    "     name=\"ShaderProgram\"\n"
+    "     parent=\"FieldContainer\"\n"
+    "     library=\"System\"\n"
+    "     structure=\"concrete\"\n"
+    "     pointerfieldtypes=\"both\"\n"
+    "     systemcomponent=\"true\"\n"
+    "     parentsystemcomponent=\"true\"\n"
+    "     decoratable=\"false\"\n"
+    "     useLocalIncludes=\"false\"\n"
+    "     docGroupBase=\"GrpSystemShader\"\n"
     "     >\n"
-    "  </Field>\n"
     "\n"
-    "  <Field\n"
-    "     name=\"program\"\n"
-    "     type=\"std::string\"\n"
-    "     cardinality=\"single\"\n"
-    "     visibility=\"external\"\n"
-    "     access=\"public\"\n"
-    "     >\n"
-    "  </Field>\n"
+    "    <Field\n"
+    "         name=\"shaderType\"\n"
+    "         type=\"GLenum\"\n"
+    "         cardinality=\"single\"\n"
+    "         visibility=\"external\"\n"
+    "         defaultValue=\"GL_NONE\"\n"
+    "         defaultHeader=\"&quot;OSGGL.h&quot;\"\n"
+    "         access=\"public\"\n"
+    "         >\n"
+    "    </Field>\n"
     "\n"
-    "  <Field\n"
-    "\t name=\"GLId\"\n"
-    "\t type=\"UInt32\"\n"
-    "\t cardinality=\"single\"\n"
-    "\t visibility=\"internal\"\n"
-    "\t access=\"public\"\n"
-    "\t defaultValue=\"0\"\n"
-    "     fieldFlags=\"FClusterLocal\"\n"
-    "\t >\n"
-    "  </Field>\n"
+    "    <Field\n"
+    "         name=\"program\"\n"
+    "         type=\"std::string\"\n"
+    "         cardinality=\"single\"\n"
+    "         visibility=\"external\"\n"
+    "         access=\"public\"\n"
+    "         >\n"
+    "    </Field>\n"
     "\n"
-    "  <Field\n"
-    "\t name=\"variables\"\n"
-    "\t type=\"ShaderProgramVariables\"\n"
-    "\t cardinality=\"single\"\n"
-    "\t visibility=\"external\"\n"
-    "\t access=\"public\"\n"
-    "     category=\"childpointer\"\n"
-    "     childParentType=\"FieldContainer\"\n"
-    "     linkParentField=\"Parents\"\n"
-    "\t >\n"
-    "\tfragment program object\n"
-    "  </Field>\n"
+    "    <Field\n"
+    "         name=\"GLId\"\n"
+    "         type=\"UInt32\"\n"
+    "         cardinality=\"single\"\n"
+    "         visibility=\"internal\"\n"
+    "         access=\"public\"\n"
+    "         defaultValue=\"0\"\n"
+    "         fieldFlags=\"FClusterLocal\"\n"
+    "         >\n"
+    "    </Field>\n"
     "\n"
-    "  <Field\n"
-    "     name=\"parameter\"\n"
-    "     type=\"ShaderParameter\"\n"
-    "     cardinality=\"multi\"\n"
-    "     visibility=\"external\"\n"
-    "     access=\"public\"\n"
-    "     >\n"
-    "  </Field>\n"
+    "    <Field\n"
+    "         name=\"variables\"\n"
+    "         type=\"ShaderProgramVariables\"\n"
+    "         cardinality=\"single\"\n"
+    "         visibility=\"external\"\n"
+    "         access=\"public\"\n"
+    "         category=\"childpointer\"\n"
+    "         childParentType=\"FieldContainer\"\n"
+    "         linkParentField=\"Parents\"\n"
+    "         >\n"
+    "        fragment program object\n"
+    "    </Field>\n"
     "\n"
-    "  <Field\n"
-    "\t name=\"cgFrontEnd\"\n"
-    "\t type=\"bool\"\n"
-    "\t cardinality=\"single\"\n"
-    "\t visibility=\"external\"\n"
-    "\t defaultValue=\"false\"\n"
-    "\t access=\"public\"\n"
-    "\t >\n"
-    "  </Field>\n"
-    "  \n"
-    "  <Field\n"
-    "\t name=\"pointSize\"\n"
-    "\t type=\"bool\"\n"
-    "\t cardinality=\"single\"\n"
-    "\t visibility=\"external\"\n"
-    "\t defaultValue=\"false\"\n"
-    "\t access=\"public\"\n"
-    "\t >\n"
-    "\tFlag to set whether the shader can change the point size.\n"
-    "  </Field>\n"
+    "    <Field\n"
+    "         name=\"parameter\"\n"
+    "         type=\"ShaderParameter\"\n"
+    "         cardinality=\"multi\"\n"
+    "         visibility=\"external\"\n"
+    "         access=\"public\"\n"
+    "         >\n"
+    "    </Field>\n"
     "\n"
-    "  <Field\n"
-    "\t name=\"parents\"\n"
-    "\t type=\"FieldContainer\"\n"
-    "\t cardinality=\"multi\"\n"
-    "\t visibility=\"internal\"\n"
-    "\t access=\"none\"\n"
-    "     category=\"parentpointer\"\n"
-    "\t >\n"
-    "  </Field> \n"
-    " \n"
-    "  <Field\n"
-    "\t name=\"destroyedFunctors\"\n"
-    "\t type=\"ChangedFunctorCallback\"\n"
-    "\t cardinality=\"multi\"\n"
-    "\t visibility=\"internal\"\n"
-    "\t access=\"none\"\n"
-    "     defaultHeader=\"OSGChangedFunctorMFields.h\"\n"
-    "     fieldFlags=\"FClusterLocal\"\n"
-    "\t >\n"
-    "  </Field> \n"
-    " \n"
+    "    <Field\n"
+    "         name=\"cgFrontEnd\"\n"
+    "         type=\"bool\"\n"
+    "         cardinality=\"single\"\n"
+    "         visibility=\"external\"\n"
+    "         defaultValue=\"false\"\n"
+    "         access=\"public\"\n"
+    "         >\n"
+    "    </Field>\n"
+    "\n"
+    "    <Field\n"
+    "         name=\"pointSize\"\n"
+    "         type=\"bool\"\n"
+    "         cardinality=\"single\"\n"
+    "         visibility=\"external\"\n"
+    "         defaultValue=\"false\"\n"
+    "         access=\"public\"\n"
+    "         >\n"
+    "        Flag to set whether the shader can change the point size.\n"
+    "    </Field>\n"
+    "\n"
+    "    <Field\n"
+    "         name=\"parents\"\n"
+    "         type=\"FieldContainer\"\n"
+    "         cardinality=\"multi\"\n"
+    "         visibility=\"internal\"\n"
+    "         access=\"none\"\n"
+    "         category=\"parentpointer\"\n"
+    "         fieldFlags=\"FClusterLocal\"\n"
+    "         >\n"
+    "    </Field>\n"
+    "\n"
+    "    <Field\n"
+    "         name=\"destroyedFunctors\"\n"
+    "         type=\"ChangedFunctorCallback\"\n"
+    "         cardinality=\"multi\"\n"
+    "         visibility=\"internal\"\n"
+    "         access=\"none\"\n"
+    "         defaultHeader=\"OSGChangedFunctorMFields.h\"\n"
+    "         fieldFlags=\"FClusterLocal\"\n"
+    "         >\n"
+    "    </Field>\n"
+    "\n"
     "</FieldContainer>\n",
     ""
     );
@@ -598,38 +599,47 @@ void ShaderProgramBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (ShaderTypeFieldMask & whichField))
     {
+        editSField(ShaderTypeFieldMask);
         _sfShaderType.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ProgramFieldMask & whichField))
     {
+        editSField(ProgramFieldMask);
         _sfProgram.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (GLIdFieldMask & whichField))
     {
+        editSField(GLIdFieldMask);
         _sfGLId.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (VariablesFieldMask & whichField))
     {
+        editSField(VariablesFieldMask);
         _sfVariables.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ParameterFieldMask & whichField))
     {
+        editMField(ParameterFieldMask, _mfParameter);
         _mfParameter.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (CgFrontEndFieldMask & whichField))
     {
+        editSField(CgFrontEndFieldMask);
         _sfCgFrontEnd.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (PointSizeFieldMask & whichField))
     {
+        editSField(PointSizeFieldMask);
         _sfPointSize.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ParentsFieldMask & whichField))
     {
+        editMField(ParentsFieldMask, _mfParents);
         _mfParents.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DestroyedFunctorsFieldMask & whichField))
     {
+        editMField(DestroyedFunctorsFieldMask, _mfDestroyedFunctors);
         _mfDestroyedFunctors.copyFromBin(pMem);
     }
 }
@@ -843,8 +853,15 @@ bool ShaderProgramBase::unlinkParent(
                 return true;
             }
 
-            FWARNING(("ShaderProgramBase::unlinkParent: "
-                      "Child <-> Parent link inconsistent.\n"));
+            SWARNING << "Child (["          << this
+                     << "] id ["            << this->getId()
+                     << "] type ["          << this->getType().getCName()
+                     << "] parentFieldId [" << parentFieldId
+                     << "]) - Parent (["    << pParent
+                     << "] id ["            << pParent->getId()
+                     << "] type ["          << pParent->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }
@@ -870,7 +887,7 @@ bool ShaderProgramBase::unlinkChild(
 
         if(pTypedChild != NULL)
         {
-            if(pTypedChild == _sfVariables.getValue())
+            if(_sfVariables.getValue() == pTypedChild)
             {
                 editSField(VariablesFieldMask);
 
@@ -879,8 +896,15 @@ bool ShaderProgramBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("ShaderProgramBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }

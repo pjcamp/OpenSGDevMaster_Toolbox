@@ -48,8 +48,11 @@
 OSG_BEGIN_NAMESPACE
 
 /*! \brief InverseTransform class. See \ref
-    PageSystemInverseTransform for a description.
-*/
+           PageSystemInverseTransform for a description.
+    \ingroup GrpGroupMiscObj
+    \ingroup GrpLibOSGGroup
+    \includebasedoc
+ */
 
 class OSG_GROUP_DLLMAPPING InverseTransform : public InverseTransformBase
 {
@@ -74,17 +77,17 @@ class OSG_GROUP_DLLMAPPING InverseTransform : public InverseTransformBase
     /*! \name               calc the inverse matrix                        */
     /*! \{                                                                 */
 
-    void initMatrix(const Matrixr        &mToWorld);
+    void initMatrix(const Matrix        &mToWorld);
 
-    void calcMatrix(const Matrixr        &mToWorld,
-                          Matrixr        &mResult);
+    void calcMatrix(const Matrix        &mToWorld,
+                          Matrix        &mResult);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name                   Transformation                             */
     /*! \{                                                                 */
 
-    virtual void accumulateMatrix(Matrixr &result);
+    virtual void accumulateMatrix(Matrix &result);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -127,10 +130,8 @@ class OSG_GROUP_DLLMAPPING InverseTransform : public InverseTransformBase
     /*! \name              Draw & Intersect & Render                       */
     /*! \{                                                                 */
 
-#ifndef OSG_EMBEDDED
     Action::ResultE intersectEnter(Action *action);
     Action::ResultE intersectLeave(Action *action);
-#endif
 
     Action::ResultE renderEnter   (Action *action);
     Action::ResultE renderLeave   (Action *action);
@@ -150,7 +151,7 @@ class OSG_GROUP_DLLMAPPING InverseTransform : public InverseTransformBase
     friend class FieldContainer;
     friend class InverseTransformBase;
 
-    Matrixr _invWorld;
+    Matrix _invWorld;
 
     // prohibit default functions (move to 'public' if you need one)
     void operator =(const InverseTransform &source);

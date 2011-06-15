@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 
 <FieldContainer
-	name="Viewport"
-	parent="AttachmentContainer"
-	library="System"
-	pointerfieldtypes="both"
-	structure="concrete"
-	systemcomponent="true"
-	parentsystemcomponent="true"
-        childFields="multi"
->
-\ingroup GrpSystemWindowsViewports
+   name="Viewport"
+   parent="AttachmentContainer"
+   library="System"
+   pointerfieldtypes="both"
+   structure="concrete"
+   systemcomponent="true"
+   parentsystemcomponent="true"
+   childFields="multi"
+   docGroupBase="GrpSystemWindow"
+   >
 
 A Viewport is a part of the Window it is attached to used for rendering. See
 \ref PageSystemWindowViewports for a description.
@@ -139,7 +139,17 @@ all the different ClusterWindows!
 	   access="public"
        defaultValue="TypeTraits&lt;UInt32&gt;::getMax()"
 	   >
-	  The foreground additions to the rendered image.
+	  The traversal mask to be used by the RenderAction.
+	</Field>
+	<Field
+	   name="enabled"
+	   type="bool"
+	   cardinality="single"
+	   visibility="external"
+	   access="public"
+       defaultValue="true"
+	   >
+	  Enabled is used to turn the rendering of a viewport on and off.
 	</Field>
 	<Field
 	   name="drawTime"
@@ -165,9 +175,10 @@ all the different ClusterWindows!
 	   name="renderOptions"
 	   type="RenderOptionsPtr"
 	   cardinality="single"
-	   visibility="internal"
+	   visibility="external"
 	   access="public"
        defaultValue="NULL"
 	   >
+       An optional grouping of various render options that are used by the RenderAction.
 	</Field>
 </FieldContainer>

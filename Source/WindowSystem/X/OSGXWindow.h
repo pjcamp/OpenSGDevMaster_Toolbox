@@ -51,7 +51,11 @@ typedef unsigned long  KeySym;
 
 OSG_BEGIN_NAMESPACE
 
-/*! \brief X Window class. See \ref PageWindowX for a description. */
+/*! \brief X Window class. See \ref PageWindowX for a description. 
+    \ingroup GrpWindowXObj
+    \ingroup GrpLibOSGWindowX
+    \includebasedoc
+ */
 
 class OSG_WINDOWX_DLLMAPPING XWindow : public XWindowBase
 {
@@ -79,10 +83,6 @@ class OSG_WINDOWX_DLLMAPPING XWindow : public XWindowBase
     /*---------------------------------------------------------------------*/
     /*! \name                      Redefined                               */
     /*! \{                                                                 */
-
-    virtual void activate  (void);
-    virtual void deactivate(void);
-    virtual bool swap      (void);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -268,6 +268,8 @@ class OSG_WINDOWX_DLLMAPPING XWindow : public XWindowBase
     virtual void doActivate  (void);
     virtual void doDeactivate(void);
     virtual bool doSwap      (void);
+
+    virtual bool hasContext  (void);
 
     /*! \}                                                                 */
 	virtual void setCursor(void);

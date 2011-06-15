@@ -120,7 +120,7 @@ void CgFXTechniqueBase::classDescInserter(TypeObject &oType)
         "renderPassStates",
         "",
         RenderPassStatesFieldId, RenderPassStatesFieldMask,
-        false,
+        true,
         (Field::MFDefaultFlags | Field::FNullCheckAccess),
         static_cast<FieldEditMethodSig>(&CgFXTechnique::editHandleRenderPassStates),
         static_cast<FieldGetMethodSig >(&CgFXTechnique::getHandleRenderPassStates));
@@ -337,6 +337,7 @@ void CgFXTechniqueBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (RenderPassStatesFieldMask & whichField))
     {
+        editMField(RenderPassStatesFieldMask, _mfRenderPassStates);
         _mfRenderPassStates.copyFromBin(pMem);
     }
 }

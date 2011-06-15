@@ -77,6 +77,7 @@
 #include "OSGWindow.h"
 
 #include "OSGRenderActionBase.h"
+#include "OSGRenderActionTask.h"
 
 #include "OSGTraversalValidator.h"
 
@@ -99,90 +100,6 @@ OSG_BEGIN_NAMESPACE
 // OSGWindowBase.cpp file.
 // To modify it, please change the .fcd file (OSGWindow.fcd) and
 // regenerate the base file.
-/*! \page PageSystemOGLObjects OpenGL Objects & Extension Handling
-
-\section PageSystemOGLObj OpenGL Objects
-
-OpenGL objects are an important way to manage data and speed up repetitive use.
-OpenGL objects in OpenSG include everything that can be stored inside
-OpenGL, most prominently display lists and texture objects.
-
-Handling OpenGL objects in a multi-window and possibly multi-pipe environment
-becomes an interesting problem. As the different windows may show different
-parts of a scene or different scenes alltogether the actually used and defined
-set of OpenGL objects should include only what's necessary to reduce the
-consumed ressources.
-
-To do that OpenGL objects are managed by the OpenSG Windows. Before they are
-used they have to be registered with the OSG::Window class. This is a static
-operation on the Window class, as it affects all exisiting Windows. Multiple
-objects can be registered in one call, and they will receive consecutive
-object ids. The ids are assigned by the object manager. It can not be queried
-from OpenGL, as the thread which creates the objects usually doesn't have a
-valid OpenGL context. As a consequence you should not use OpenGL-assigned ids,
-as they might interfere with OpenSGs handling of ids.
-
-Part of the registration is to provide an update OSG::Functor, which is called
-whenever the object needs to be updated. This functor gets passed the id and
-status of the object and has to execute the correct function. There are a
-number of stati that the functor has to handle.
-
-The first time it is called the status be OSG::Window::GLObjectE::initialize.
-The functor has to create the necessary OpenGL ressources and initialize the
-OpenGL object. For a texture object this is the definition of the image via
-glTexImage(). 
-
-When the object changes there are two cases to distinguish. In the simple case
-the object has changed significantly, needing a
-OSG::Window::GLObjectE::reinitialize. For textures this would be changing the
-filter or changing the image size. Both of these actions necessitate a
-recreation of the actual texture object. If only the data of the image changes
-this can be handledmore efficiently via glTexSubImage() calls, which is an
-example for a OSG::Window::GLObjectE::refresh. The OSG::Window is responsible
-for keeping track of the current of the objects, and thus it has to be
-notified whenever the state of the OpenSG object underlying an OpenGL has
-changed, necessitating either a refresh or a reinitialize. This can be done by
-calling the static OSG::Window::refreshGLObject or
-OSG::Window::reinitializeGLObject methods. The object will be flagged as
-changed in all Windows and at the next validate time it will be
-refreshed/recreated.
-
-Before an object can be used it has to be validated. This has to be done when
-the OpenGL context is valid and should usually be done just before the object
-is used. If the object is still valid, nothing happens. The
-OSG::Window::validateObject method is inline and thus the overhead of calling
-it before every use is minimal.
-
-When an object is not needed any more is needs to be destroyed. The
-destruction can be started via OSG::Window::destroyGLObject. It will actually
-be executed the next time a Window has finished rendering (i.e. its
-OSG::Window::frameExit() function is called). The object's functor will be
-called for the OSG::Window::GLObjectE::destroy state, and it should free
-context-specific resources. After this has happened for all Windows it will be
-called one final time with OSG::Window::GLObjectE::finaldestroy. Here
-context-independent resources can be freed.
-
-\section PageSystemOGLExt OpenGL Extensions
-
-The situation with OpenGL extensions is similar to the one with OpenGL objects:
-as the thread that initializes things probably has no OpenGL context, it cannot
-call the necessary OpenGL functions directly. Further complicating matters is
-the fact that in systems with multiple graohics cards they may not all be of
-the same type, and thus might support different extensions.
-
-To handle these situations the extensions themselves and the extension
-functions need to be registered and accessed using the OSG::Window. The
-registration (OSG::Window::registerExtension, OSG::Window::registerFunction)
-just needs the names and returns a handle that has to be be used to access the
-extensions/functions. This registration can be done from any thread.
-
-When using the extension/function it is necessary to check if it supported on
-the currently active OpenGL context. To speed this up the Window caches the
-test results and provides the OSG::Window::hasExtension method to check it.
-To access the functions OSG::Window::getFunction method can be used. It is not
-advisable to store the received extension functions, as there is no guarantee
-that the pointer will be the same for different contexts.
-*/
 
 // Window-sytem specific virtual functions
 
@@ -227,7 +144,6 @@ Int32               OSG::Window::_currentWindowId = 0;
 
 // GLobject handling
 
-#ifndef OSG_EMBEDDED
 /*! The lock used to mutex access of the GLObjects' reference count. One 
   should be enough for all of them, as they are pretty rarely changed, only 
   when they are used for the first time.
@@ -240,7 +156,6 @@ LockRefPtr                            OSG::Window::_GLObjectLock = NULL;
  */
 
 LockRefPtr                            OSG::Window::_staticWindowLock = NULL;
-#endif
 
 /*! Global list of all GL Objects used in the system. See \ref
   PageSystemOGLObjects for a description.
@@ -289,14 +204,19 @@ void OSG::Window::initMethod(InitPhase ePhase)
 
 bool OSG::Window::cleanup(void)
 {
-#ifndef OSG_EMBEDDED
     _staticWindowLock = NULL;
     _GLObjectLock     = NULL;
-#endif
+
+    GLObject *pCurr = NULL;
 
     for(UInt32 i = 0; i < _glObjects.size(); ++i)
     {
-        delete _glObjects[i];
+        if(_glObjects[i] != pCurr)
+        {
+            pCurr = _glObjects[i];
+
+            delete _glObjects[i];
+        }
     }
 
     return true;
@@ -326,7 +246,6 @@ OSG::Window::Window(void) :
     _availExtensions    (    ),
     _extFunctions       (    ),
     _availConstants     (    ),
-    _numAvailConstants  (    ),
     _windowId           (  -1),
     _pTravValidator     (NULL),
     _pShaderCache       (NULL),
@@ -336,6 +255,8 @@ OSG::Window::Window(void) :
     _pFrameInitTask     (NULL),
     _pFrameExitTask     (NULL),
     _pActivateTask      (NULL),
+    _pDeactivateTask    (NULL),
+    _pGLFinishTask      (NULL),
     _oEnv               (    )
 {
     // only called for prototypes, no need to init them
@@ -354,7 +275,6 @@ OSG::Window::Window(const Window &source) :
     _availExtensions    (                              ),
     _extFunctions       (                              ),
     _availConstants     (                              ),
-    _numAvailConstants  (                             0),
     _windowId           (                            -1),
     _pTravValidator     (NULL                          ),
     _pShaderCache       (NULL                          ),
@@ -363,6 +283,8 @@ OSG::Window::Window(const Window &source) :
     _pFrameInitTask     (NULL                          ),
     _pFrameExitTask     (NULL                          ),
     _pActivateTask      (NULL                          ),
+    _pDeactivateTask    (NULL                          ),
+    _pGLFinishTask      (NULL                          ),
     _oEnv               (                              )
 {       
     _oEnv.setWindow(this);
@@ -477,17 +399,20 @@ void OSG::Window::onDestroyAspect(UInt32  uiContainerId,
     _pTravValidator = NULL;
     _pShaderCache   = NULL;
 
-    _pWaitTask      = NULL;
-    _pSwapTask      = NULL;
-    _pFrameInitTask = NULL;
-    _pFrameExitTask = NULL;
-    _pActivateTask  = NULL;
-
     if(_pAspectStore->getRefCount() == 1 && _pContextThread != NULL)
     {
         if(_pContextThread->isRunning() == true)
         {
-            fprintf(stderr, "Terminate context thread %p\n", this);
+            fprintf(stderr, "Terminate context thread %p %p\n", 
+                    this,
+                    _pContextThread.get());
+
+            if(0x0000 != (_sfDrawMode.getValue() & ExternalContext))
+            {
+                this->doDeactivate();
+               
+                _pContextThread->queueTask(_pActivateTask);
+            }
 
             _pContextThread->queueTask(
                 new WindowDrawTask(WindowDrawTask::EndThread));
@@ -497,7 +422,8 @@ void OSG::Window::onDestroyAspect(UInt32  uiContainerId,
         else
         {
             if((_sfDrawMode.getValue() & PartitionDrawMask) == 
-                                                       SequentialPartitionDraw)
+                                                     SequentialPartitionDraw &&
+               this->hasContext() == true)
             {
                 doActivate  ();
                 doFrameExit (); // after frame cleanup: delete dead GL objects
@@ -505,6 +431,14 @@ void OSG::Window::onDestroyAspect(UInt32  uiContainerId,
             }
         }
     }
+
+    _pWaitTask       = NULL;
+    _pSwapTask       = NULL;
+    _pFrameInitTask  = NULL;
+    _pFrameExitTask  = NULL;
+    _pActivateTask   = NULL;
+    _pDeactivateTask = NULL;
+    _pGLFinishTask   = NULL;
 
     _pContextThread = NULL;
 
@@ -517,7 +451,6 @@ void OSG::Window::staticAcquire(void)
     if(GlobalSystemState != Running)
         return;
         
-#ifndef OSG_EMBEDDED
     if(_staticWindowLock == NULL)
     {
         _staticWindowLock =
@@ -527,7 +460,6 @@ void OSG::Window::staticAcquire(void)
         addPostFactoryExitFunction(&Window::cleanup);
     }
     _staticWindowLock->acquire();
-#endif
 }
 
 void OSG::Window::staticRelease(void)
@@ -536,9 +468,7 @@ void OSG::Window::staticRelease(void)
     if(GlobalSystemState != Running)
         return;
         
-#ifndef OSG_EMBEDDED
     _staticWindowLock->release();
-#endif
 }
 
 /*-------------------------------------------------------------------------*\
@@ -700,20 +630,22 @@ UInt32 OSG::Window::validateGLObject(UInt32   osgId,
 
     if(osgId >= _lastValidate.size()) // can happen if multi-threading
     {
-/*
-        _lastValidate.insert(_lastValidate.end(), 
-                             osgId + 1 - _lastValidate.size(),
-                             0);
- */
         _lastValidate.resize(osgId + 1, 0);
     }
     
     if(osgId >= _mfGlObjectLastReinitialize.size())
     {
-        editMField( GlObjectLastReinitializeFieldId, 
-                   _mfGlObjectLastReinitialize     );
+        editMField( GlObjectLastReinitializeFieldId,
+                   _mfGlObjectLastReinitialize      );
 
         _mfGlObjectLastReinitialize.resize(osgId + 1, 0);
+    }
+
+    if(osgId >= _mfGlObjectLastRefresh.size())
+    {
+        editMField(GlObjectLastRefreshFieldId, _mfGlObjectLastRefresh);
+
+        _mfGlObjectLastRefresh.resize(osgId + 1, 0);
     }
 
     FDEBUG(("Window 0x%p (event %d,ri:%d,rf:%d): "
@@ -1040,10 +972,11 @@ void OSG::Window::destroyGLObject(UInt32 osgId, UInt32 num)
             // this can happen if a GLObject is temporarily created in one
             // aspect, used there and then discarded without ever being
             // synced to other aspects.
+            // if it can happen and nothing is wrong we don't warn. (GV)
 
-#ifdef OSG_DEBUG
-            FWARNING(("Window::destroyGLObject: id %d + num %d exceed "
-                      "registered objects size %d!\n", osgId, num, 
+#ifdef OSG_DEBUGX
+            FWARNING(("Window(%p)::destroyGLObject: id %d + num %d exceed "
+                      "registered objects size %d!\n", pWin, osgId, num, 
                       pWin->_mfGlObjectLastReinitialize.size()));
 #endif
             continue;
@@ -1304,7 +1237,16 @@ void OSG::Window::doTerminate(void)
     {
         if(_pContextThread->isRunning() == true)
         {
-            fprintf(stderr, "Terminate draw thread %p\n", this);
+            fprintf(stderr, "Terminate draw thread %p | %p\n", 
+                    this,
+                    _pActivateTask.get());
+
+            if(0x0000 != (_sfDrawMode.getValue() & ExternalContext))
+            {
+                this->doDeactivate();
+
+                _pContextThread->queueTask(_pActivateTask);
+            }
 
             _pContextThread->queueTask(
                 new WindowDrawTask(WindowDrawTask::EndThread));
@@ -1343,12 +1285,10 @@ void OSG::Window::doFrameInit(bool reinitExtFuctions)
     {
         ignoreEnvDone = true;
 
-#ifndef OSG_EMBEDDED
         Char8 *p = getenv("OSG_IGNORE_EXTENSIONS");
         
         if(p)
             ignoreExtensions(p);
-#endif
     }
     
     // get version/extensions and split them
@@ -1482,8 +1422,9 @@ void OSG::Window::doFrameInit(bool reinitExtFuctions)
                 _commonExtensions[s] = false;
                 FPDEBUG(("IGN "));
             }
+
+            FPDEBUG(("\n"));
         }
-        FPDEBUG(("\n"));
         staticRelease();
     }
     
@@ -1524,26 +1465,27 @@ void OSG::Window::doFrameInit(bool reinitExtFuctions)
         _extFunctions.push_back(func);
     }
 
-#ifndef OSG_EMBEDDED
     // any new constants registered ? 
-    while(_registeredConstants.size() > _numAvailConstants)
-    {   
-        for(std::vector<GLenum>::iterator it = _registeredConstants.begin() + 
-                                               _numAvailConstants;
-            it != _registeredConstants.end();
-            ++it)
-        {
-            Vec2f val(unknownConstant, unknownConstant); 
-            glGetFloatv(*it, static_cast<GLfloat*>(val.getValues()));
-            _availConstants[*it] = val;
-            FDEBUG(("Window(%p): Constant 0x%x value is %.3f %.3f\n", this,
-                    *it, val[0], val[1]));
-        }
-        _numAvailConstants = _registeredConstants.size();
+    while(_registeredConstants.size() > _availConstants.size())
+    {
+        std::vector<GLenum>::const_iterator cIt  =
+            _registeredConstants.begin() + _availConstants.size();
+        std::vector<GLenum>::const_iterator cEnd =
+            _registeredConstants.end  ();
 
-        glGetError(); // clear the error flag 
+        for(; cIt != cEnd; ++cIt)
+        {
+            Vec2f val(unknownConstant, unknownConstant);
+
+            glGetFloatv(*cIt, static_cast<GLfloat *>(val.getValues()));
+            _availConstants[*cIt] = val;
+
+            FDEBUG(("Window(%p): Constant 0x%x value is %.3f %.3f\n", this,
+                    *cIt, val[0], val[1]));
+        }
+
+        glGetError();
     }
-#endif
 
     _pTravValidator->incEventCounter();
 }
@@ -1590,6 +1532,11 @@ void OSG::Window::doFrameExit(void)
             _glObjects[i]->getDestroyFunctor()(&_oEnv, i, destroy);
             doResetGLObjectStatus(i, n);
 
+            for(UInt32 j = 0; j < n ; j++)
+            {
+                this->setGLObjectId(i+j, 0);
+            }   
+
             if((rc = _glObjects[ i ]->decRefCounter()) <= 0)
             {           
                 // call functor with the final-flag
@@ -1605,7 +1552,6 @@ void OSG::Window::doFrameExit(void)
             for(UInt32 j = 0; j < n ; j++)
             {
                 _glObjects[i+j] = NULL;
-                this->setGLObjectId(i+j, 0);
             }   
         }
 
@@ -1640,15 +1586,10 @@ void OSG::Window::doFrameExit(void)
         
         while((glerr = glGetError()) != GL_NO_ERROR)
         {
-#ifndef OSG_EMBEDDED
             FWARNING(("Window::frameExit: Caught stray OpenGL "
                       "error %s (%#x).\n",
                       gluErrorString(glerr),
                       glerr));
-#else
-            FWARNING(("Window::frameExit: Caught stray OpenGL error %#x.\n",
-                      glerr));
-#endif
 
 #ifndef OSG_DEBUG
             FWARNING(("Rerun with debug-libraries to get more accurate "
@@ -1914,10 +1855,10 @@ void OSG::Window::setupGL( void )
     glEnable   (GL_NORMALIZE );
     
     // switch off default light
-    Real nul[4]={0.f,0.f,0.f,0.f};
+    Real32 nul[4]={0.f,0.f,0.f,0.f};
 
-    GLP::glLightfv(GL_LIGHT0, GL_DIFFUSE,  nul);
-    GLP::glLightfv(GL_LIGHT0, GL_SPECULAR, nul);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE,  nul);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, nul);
     
     _sfRendererInfo.getValue().assign(
         reinterpret_cast<const char *>(glGetString(GL_VERSION)));
@@ -1980,6 +1921,11 @@ void OSG::Window::render(RenderActionBase *action)
     else if((_sfDrawMode.getValue() & PartitionDrawMask) == 
                                                          ParallelPartitionDraw)
     {
+        if(0x0000 != (_sfDrawMode.getValue() & ExternalContext))
+        {
+            this->doDeactivate();
+        }
+
         OSG_ASSERT(_pContextThread != NULL);
 
         if(_pContextThread->isRunning() == false)
@@ -2008,15 +1954,16 @@ void OSG::Window::render(RenderActionBase *action)
         {
             setupTasks();
         }
-//        fprintf(stderr, "Window::render::ParallelPartitionDraw NI\n");
 
 #ifdef OSG_WIN_QUEUE_ALL
         _pContextThread->queueTask(_pWaitTask);
 #endif
 
-        if(this->getKeepContextActive() == false)
-            this->doDeactivate();
-        
+        if(0x0000 != (_sfDrawMode.getValue() & ExternalContext))
+        {
+            _pContextThread->queueTask(_pActivateTask );
+        }
+
         _pContextThread->queueTask(_pFrameInitTask);
 
         if(_mfDrawTasks.empty() == false)
@@ -2042,13 +1989,48 @@ void OSG::Window::render(RenderActionBase *action)
         _pWaitTask->waitForBarrier();
 #endif
         
-        _pContextThread->queueTask(_pSwapTask     );
-        
+        if(0x0000 == (_sfDrawMode.getValue() & PassiveContext))
+        {
+            _pContextThread->queueTask(_pSwapTask);
+        }
+
         _pContextThread->queueTask(_pFrameExitTask);
         
-        _pContextThread->queueTask(_pWaitTask     );
+        if(0x0000 == (_sfDrawMode.getValue() & ExternalContext))
+        {
+            _pContextThread->queueTask(_pWaitTask     );
 
-        _pWaitTask->waitForBarrier();
+            _pWaitTask->waitForBarrier();
+        }
+        else
+        {
+            if(0x0000 != (_sfDrawMode.getValue() & PassiveContext))
+            {
+                if(action->getUseGLFinish() == false)
+                {
+                    if(_pGLFinishTask == NULL)
+                    {
+                        _pGLFinishTask = 
+                            new RenderActionTask(
+                                RenderActionTask::HandleGLFinishNoWait);
+                    }
+
+                    _pContextThread->queueTask(_pGLFinishTask);
+                }
+            }
+
+            if(_pDeactivateTask == NULL)
+            {
+                _pDeactivateTask = 
+                    new WindowDrawTask(WindowDrawTask::DeactivateAndWait);
+            }
+            
+            _pContextThread->queueTask(_pDeactivateTask);
+
+            _pDeactivateTask->waitForBarrier();
+
+            this->doActivate();
+        }
     }
     else
     {
@@ -2204,6 +2186,42 @@ void OSG::Window::runFrameExit(void)
     }
 }
 
+void Window::activate(void)
+{
+    if((_sfDrawMode.getValue() & PartitionDrawMask) == SequentialPartitionDraw)
+    {
+        if(0x0000 == (_sfDrawMode.getValue() & PassiveContext))
+        {
+            this->doActivate();
+        }
+    }
+}
+
+void Window::deactivate(void)
+{
+    if((_sfDrawMode.getValue() & PartitionDrawMask) == SequentialPartitionDraw)
+    {
+        if(0x0000 == (_sfDrawMode.getValue() & PassiveContext))
+        {
+            this->doDeactivate();
+        }
+    }
+}
+
+// swap front and back buffers
+bool Window::swap(void)
+{
+    if((_sfDrawMode.getValue() & PartitionDrawMask) == SequentialPartitionDraw)
+    {
+        if(0x0000 == (_sfDrawMode.getValue() & PassiveContext))
+        {
+            return this->doSwap();
+        }        
+    }
+
+    return true;
+}
+
 void OSG::Window::frameInit(void)
 {
     if((_sfDrawMode.getValue() & PartitionDrawMask) == SequentialPartitionDraw)
@@ -2236,13 +2254,13 @@ void OSG::Window::renderAllViewports(RenderActionBase *action)
 
 void OSG::Window::doRenderAllViewports(RenderActionBase *action)
 {
-    MFUnrecChildViewportPtr::const_iterator portIt  = getMFPort()->begin();
-    MFUnrecChildViewportPtr::const_iterator portEnd = getMFPort()->end();
-    Int32                                   iVPId   = 0;
-
     if(action != NULL)
     {
         commitChanges();
+
+        MFUnrecChildViewportPtr::const_iterator portIt  = getMFPort()->begin();
+        MFUnrecChildViewportPtr::const_iterator portEnd = getMFPort()->end();
+        Int32                                   iVPId   = 0;
 
         action->setWindow(this);
         
@@ -2406,8 +2424,25 @@ void OSG::Window::dump(      UInt32    OSG_CHECK_ARG(uiIndent),
     SLOG << "Dump Window NI" << std::endl;
 }
 
+void Window::staticDump(void)
+{
+    fprintf(stderr, "Window::sdump %zd %zd\n",
+            _glObjects.size(),
+            _glObjects.capacity());
+
+    for(UInt32 i = 0; i < _glObjects.size(); ++i)
+    {
+        fprintf(stderr, "gl[%d] = %p\n", i, _glObjects[i]);
+    }
+}
+
 void Window::resolveLinks(void)
 {
+    if(_pShaderCache != NULL)
+    {
+        _pShaderCache->clear();
+    }
+
     Inherited::resolveLinks();
 }
 
@@ -2438,9 +2473,18 @@ void Window::queueTask(DrawTask *pTask)
         if((_sfDrawMode.getValue() & PartitionDrawMask) == 
                                                          ParallelPartitionDraw)
         {
-            OSG_ASSERT(_pContextThread != NULL);
+            if(0x0000 != (_sfDrawMode.getValue() & ExternalContext))
+            {
+                editMField(DrawTasksFieldMask, _mfDrawTasks);
 
-            _pContextThread->queueTask(pTask);
+                _mfDrawTasks.push_back(pTask);
+            }
+            else
+            {
+                OSG_ASSERT(_pContextThread != NULL);
+
+                _pContextThread->queueTask(pTask);
+            }
         }
         else
         {

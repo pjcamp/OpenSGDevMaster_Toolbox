@@ -58,7 +58,7 @@ OSG_BEGIN_NAMESPACE
 
 DataType FieldTraits<RenderActionFunctorCallback     >::_type(
     "RenderActionFunctorCallback",
-    NULL);
+    "");
 
 OSG_FIELDTRAITS_GETTYPE   (RenderActionFunctorCallback     )
 

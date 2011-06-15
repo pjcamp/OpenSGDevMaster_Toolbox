@@ -41,10 +41,16 @@
 
 OSG_BEGIN_NAMESPACE
 
+/*! \ingroup GrpUtilNavigation
+    \ingroup GrpLibOSGUtil
+ */
+
 class OSG_UTIL_DLLMAPPING NavigatorBase
 {
     /*==========================  PUBLIC  =================================*/
+
   public:
+
     /*---------------------------------------------------------------------*/
     /*! \name                      Types                                   */
     /*! \{                                                                 */
@@ -54,6 +60,7 @@ class OSG_UTIL_DLLMAPPING NavigatorBase
         TRACKBALL=0,
         FLY,
         WALK,
+        NAVBALL,
         NONE,
         USER
     };

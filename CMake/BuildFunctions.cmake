@@ -124,6 +124,7 @@ MACRO(OSG_SELECT_PROJECT)
     IF(OSGBUILD_${PROJECT_NAME})
         MESSAGE(STATUS "Processing ${PROJECT_NAME}")
     ELSE(OSGBUILD_${PROJECT_NAME})
+        OSG_MSG("Skipping ${PROJECT_NAME}")
         RETURN()
     ENDIF(OSGBUILD_${PROJECT_NAME})
 
@@ -194,6 +195,8 @@ MACRO(OSG_SELECT_PROJECT)
     SET(${PROJECT_NAME}_INL_PATTERNS)
 
     SET(${PROJECT_NAME}_SUFFIX)
+
+    SET(${PROJECT_NAME}_NO_DOC)
 
 ENDMACRO(OSG_SELECT_PROJECT)
 
@@ -333,12 +336,62 @@ FUNCTION(OSG_STORE_PROJECT_DEPENDENCIES)
     FILE(APPEND ${${PROJECT_NAME}_CONFIG_FILE}
         " ],\n")
 
+    # global dependencies
+    FOREACH(DEPLIB ${OSG_GLOBAL_DEP_LIBS})
+        OSG_EXTRACT_LIB_AND_LIBDIR("${${DEPLIB}}" LIBS LIBDIRS)
+
+        FOREACH(LIB ${LIBS})
+            # if the lib is an import target, get the location and
+            # split that into library name and path
+
+            IF(TARGET ${LIB})
+                GET_TARGET_PROPERTY(_LIB_LOCATION ${LIB} IMPORTED_LOCATION)
+
+                OSG_EXTRACT_LIB_AND_LIBDIR("${_LIB_LOCATION}" _LIBS _LIBDIRS)
+
+                LIST(APPEND DEPLIBS    ${_LIBS})
+                LIST(APPEND DEPLIBDIRS ${_LIBDIRS})
+            ELSE(TARGET ${LIB})
+                LIST(APPEND DEPLIBS ${LIB})
+            ENDIF(TARGET ${LIB})
+        ENDFOREACH(LIB)
+
+        LIST(APPEND DEPLIBDIRS ${LIBDIRS})
+    ENDFOREACH(DEPLIB)
+
+    FOREACH(DEPLIBDIR ${OSG_GLOBAL_DEP_LIBDIR})
+        OSG_EXTRACT_LIBDIR("${${DEPLIBDIR}}" LIBDIRS)
+
+        LIST(APPEND DEPLIBDIRS ${LIBDIRS})
+    ENDFOREACH(DEPLIBDIR)
+
+    FOREACH(DEPINCDIR ${OSG_GLOBAL_DEP_INCDIR})
+        OSG_EXTRACT_INCDIR("${${DEPINCDIR}}" INCDIRS)
+
+        LIST(APPEND DEPINCDIRS ${INCDIRS})
+    ENDFOREACH(DEPINCDIR)
+
     # External libraries this lib depends on
     # we build lists of libs, libdirs and incdirs then write them
     FOREACH(DEPLIB ${${PROJECT_NAME}_DEP_LIB})
         OSG_EXTRACT_LIB_AND_LIBDIR("${${DEPLIB}}" LIBS LIBDIRS)
 
-        LIST(APPEND DEPLIBS ${LIBS})
+        FOREACH(LIB ${LIBS})
+            # if the lib is an import target, get the location and
+            # split that into library name and path
+
+            IF(TARGET ${LIB})
+                GET_TARGET_PROPERTY(_LIB_LOCATION ${LIB} IMPORTED_LOCATION)
+
+                OSG_EXTRACT_LIB_AND_LIBDIR("${_LIB_LOCATION}" _LIBS _LIBDIRS)
+
+                LIST(APPEND DEPLIBS    ${_LIBS})
+                LIST(APPEND DEPLIBDIRS ${_LIBDIRS})
+            ELSE(TARGET ${LIB})
+                LIST(APPEND DEPLIBS ${LIB})
+            ENDIF(TARGET ${LIB})
+        ENDFOREACH(LIB)
+
         LIST(APPEND DEPLIBDIRS ${LIBDIRS})
     ENDFOREACH(DEPLIB)
 
@@ -848,8 +901,13 @@ FUNCTION(OSG_SETUP_LIBRARY_BUILD PROJ_DEFINE)
 
     ## LINK_DIRS have to go first, before the ADD_LIB statement
 
+    FOREACH(LIBDIR ${OSG_GLOBAL_DEP_LIBDIR})
+        OSG_MSG("  (global) - library dir ${LIBDIR} = ${${LIBDIR}}")
+        LINK_DIRECTORIES(${${LIBDIR}})
+    ENDFOREACH(LIBDIR)
+
     FOREACH(LIBDIR ${${PROJECT_NAME}_DEP_LIBDIR})
-        OSG_MSG("  library dir ${LIBDIR} = ${${LIBDIR}}")
+        OSG_MSG("  (global) - library dir ${LIBDIR} = ${${LIBDIR}}")
         LINK_DIRECTORIES(${${LIBDIR}})
     ENDFOREACH(LIBDIR)
 
@@ -891,6 +949,7 @@ FUNCTION(OSG_SETUP_LIBRARY_BUILD PROJ_DEFINE)
                             SUFFIX ${${PROJECT_NAME}_SUFFIX})
 
     ENDIF(${PROJECT_NAME}_SUFFIX)
+
     # dependencies - OpenSG
     OSG_GET_ALL_DEP_OSG_LIB(
         "${${PROJECT_NAME}_DEP_OSG_LIB}" DEP_OSG_LIST DEP_MISSING_LIST)
@@ -921,19 +980,36 @@ FUNCTION(OSG_SETUP_LIBRARY_BUILD PROJ_DEFINE)
         TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OSGDEP})
     ENDFOREACH(OSGDEP)
 
+    # dependencies - global
+    FOREACH(INCDIR ${OSG_GLOBAL_DEP_INCDIR})
+        OSG_MSG("  (global) - include dir ${INCDIR} = ${${INCDIR}}")
+        INCLUDE_DIRECTORIES(${${INCDIR}})
+    ENDFOREACH(INCDIR)
+
+    FOREACH(LIB ${OSG_GLOBAL_DEP_LIBS})
+        OSG_MSG("  (global) - library ${LIB} = ${${LIB}}")
+        TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${${LIB}})
+    ENDFOREACH(LIB)
+
+    IF(OSG_GLOBAL_DEP_DEFS)
+        OSG_MSG("  (global) - definitions = ${OSG_GLOBAL_DEP_DEFS}")
+        SET_PROPERTY(TARGET ${PROJECT_NAME}
+            APPEND PROPERTY COMPILE_DEFINITIONS ${OSG_GLOBAL_DEP_DEFS})
+    ENDIF(OSG_GLOBAL_DEP_DEFS)
+
     # dependencies - External
     FOREACH(INCDIR ${${PROJECT_NAME}_DEP_INCDIR})
-        OSG_MSG("  include dir ${INCDIR} = ${${INCDIR}}")
+        OSG_MSG("  (external) - include dir ${INCDIR} = ${${INCDIR}}")
         INCLUDE_DIRECTORIES(${${INCDIR}})
     ENDFOREACH(INCDIR)
 
     FOREACH(LIB ${${PROJECT_NAME}_DEP_LIB})
-        OSG_MSG("  library ${LIB} = ${${LIB}}")
+        OSG_MSG("  (external) - library ${LIB} = ${${LIB}}")
         TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${${LIB}})
     ENDFOREACH(LIB)
 
     IF(${PROJECT_NAME}_DEP_DEFS)
-        OSG_MSG("  definitions = ${${PROJECT_NAME}_DEP_DEFS}")
+        OSG_MSG("  (external) - definitions = ${${PROJECT_NAME}_DEP_DEFS}")
         SET_PROPERTY(TARGET ${PROJECT_NAME}
             APPEND PROPERTY COMPILE_DEFINITIONS ${${PROJECT_NAME}_DEP_DEFS})
     ENDIF(${PROJECT_NAME}_DEP_DEFS)
@@ -1161,25 +1237,36 @@ FUNCTION(OSG_SETUP_TEST_BUILD)
         INCLUDE_DIRECTORIES(${${OSGTESTDEP}_INC})
     ENDFOREACH(OSGTESTDEP)
 
+    # dependencies - global
+    FOREACH(INCDIR ${OSG_GLOBAL_DEP_INCDIR})
+        OSG_MSG("  (global) - include dir ${INCDIR} = ${${INCDIR}}")
+        INCLUDE_DIRECTORIES(${${INCDIR}})
+    ENDFOREACH(INCDIR)
+
+    FOREACH(LIBDIR ${OSG_GLOBAL_DEP_LIBDIR})
+        OSG_MSG("  (global) - library dir ${LIBDIR} = ${${LIBDIR}}")
+        LINK_DIRECTORIES(${${LIBDIR}})
+    ENDFOREACH(LIBDIR)
+
     # dependencies - External
     FOREACH(INCDIR ${${PROJECT_NAME}_DEP_INCDIR})
-        OSG_MSG("  include dir ${INCDIR} = ${${INCDIR}}")
+        OSG_MSG("  (external) - include dir ${INCDIR} = ${${INCDIR}}")
         INCLUDE_DIRECTORIES(${${INCDIR}})
     ENDFOREACH(INCDIR)
 
     FOREACH(LIBDIR ${${PROJECT_NAME}_DEP_LIBDIR})
-        OSG_MSG("  library dir ${LIBDIR} = ${${LIBDIR}}")
+        OSG_MSG("  (external) - library dir ${LIBDIR} = ${${LIBDIR}}")
         LINK_DIRECTORIES(${${LIBDIR}})
     ENDFOREACH(LIBDIR)
 
     # dependencies - test External
     FOREACH(INCDIR ${${PROJECT_NAME}_DEP_TEST_INCDIR})
-        OSG_MSG("  test - include dir ${INCDIR} = ${${INCDIR}}")
+        OSG_MSG("  (test) - include dir ${INCDIR} = ${${INCDIR}}")
         INCLUDE_DIRECTORIES(${${INCDIR}})
     ENDFOREACH(INCDIR)
 
     FOREACH(LIBDIR ${${PROJECT_NAME}_DEP_TEST_LIBDIR})
-        OSG_MSG("  test - library dir ${LIBDIR} = ${${LIBDIR}}")
+        OSG_MSG("  (test) - library dir ${LIBDIR} = ${${LIBDIR}}")
         LINK_DIRECTORIES(${${LIBDIR}})
     ENDFOREACH(LIBDIR)
 
@@ -1214,7 +1301,7 @@ FUNCTION(OSG_SETUP_TEST_BUILD)
         ENDFOREACH(OSGTESTDEP)
 
         FOREACH(LIB ${${PROJECT_NAME}_DEP_TEST_LIB})
-            OSG_MSG("  test - library ${LIB} = ${${LIB}}")
+            OSG_MSG("  (test) - library ${LIB} = ${${LIB}}")
             TARGET_LINK_LIBRARIES(${EXE} ${${LIB}})
         ENDFOREACH(LIB)
 
@@ -1223,7 +1310,7 @@ FUNCTION(OSG_SETUP_TEST_BUILD)
         ENDIF(NOT ${PROJECT_NAME}_NO_LIB)
 
         IF(${PROJECT_NAME}_DEP_DEFS)
-            OSG_MSG("  definitions ${PROJECT_NAME}_DEP_DEFS = ${${PROJECT_NAME}_DEP_DEFS}")
+            OSG_MSG("  (external) - definitions ${PROJECT_NAME}_DEP_DEFS = ${${PROJECT_NAME}_DEP_DEFS}")
             SET_PROPERTY(TARGET ${EXE} APPEND
                 PROPERTY COMPILE_DEFINITIONS ${${PROJECT_NAME}_DEP_DEFS})
         ENDIF(${PROJECT_NAME}_DEP_DEFS)
@@ -1234,7 +1321,7 @@ FUNCTION(OSG_SETUP_TEST_BUILD)
         ENDIF(${PROJECT_NAME}_CXXFLAGS)
 
         IF(${PROJECT_NAME}_DEP_TEST_DEFS)
-            OSG_MSG("  test - definitions ${PROJECT_NAME}_DEP_TEST_DEFS = ${${PROJECT_NAME}_DEP_TEST_DEFS}")
+            OSG_MSG("  (test) - definitions ${PROJECT_NAME}_DEP_TEST_DEFS = ${${PROJECT_NAME}_DEP_TEST_DEFS}")
             SET_PROPERTY(TARGET ${EXE} APPEND
                 PROPERTY COMPILE_DEFINITIONS ${${PROJECT_NAME}_DEP_TEST_DEFS})
         ENDIF(${PROJECT_NAME}_DEP_TEST_DEFS)
@@ -1291,14 +1378,25 @@ FUNCTION(OSG_SETUP_UNITTEST_BUILD)
         INCLUDE_DIRECTORIES(${${OSGDEP}_INC})
     ENDFOREACH(OSGDEP)
 
+    # dependencies global
+    FOREACH(INCDIR ${OSG_GLOBAL_DEP_INCDIR})
+        OSG_MSG("  (global) - include dir ${INCDIR} = ${${INCDIR}}")
+        INCLUDE_DIRECTORIES(${${INCDIR}})
+    ENDFOREACH(INCDIR)
+
+    FOREACH(LIBDIR ${OSG_GLOBAL_DEP_LIBDIR})
+        OSG_MSG("  (global) - library dir ${LIBDIR} = ${${LIBDIR}}")
+        LINK_DIRECTORIES(${${LIBDIR}})
+    ENDFOREACH(LIBDIR)
+
     # dependencies - unittest External
     FOREACH(INCDIR ${${PROJECT_NAME}_DEP_UNITTEST_INCDIR})
-        OSG_MSG("  unittest - include dir ${INCDIR} = ${${INCDIR}}")
+        OSG_MSG("  (unittest) - include dir ${INCDIR} = ${${INCDIR}}")
         INCLUDE_DIRECTORIES(${${INCDIR}})
     ENDFOREACH(INCDIR)
 
     FOREACH(LIBDIR ${${PROJECT_NAME}_DEP_UNITTEST_LIBDIR})
-        OSG_MSG("  unittest - library dir ${LIBDIR} = ${${LIBDIR}}")
+        OSG_MSG("  (unittest) - library dir ${LIBDIR} = ${${LIBDIR}}")
         LINK_DIRECTORIES(${${LIBDIR}})
     ENDFOREACH(LIBDIR)
 
@@ -1324,7 +1422,7 @@ FUNCTION(OSG_SETUP_UNITTEST_BUILD)
     ENDFOREACH(OSGDEP)
 
     FOREACH(LIB ${${PROJECT_NAME}_DEP_UNITTEST_LIB})
-        OSG_MSG("  unittest - library ${LIB} = ${${LIB}}")
+        OSG_MSG("  (unittest) - library ${LIB} = ${${LIB}}")
         TARGET_LINK_LIBRARIES("UnitTest${PROJECT_NAME}" ${${LIB}})
     ENDFOREACH(LIB)
 
@@ -1333,6 +1431,110 @@ FUNCTION(OSG_SETUP_UNITTEST_BUILD)
 
 ENDFUNCTION(OSG_SETUP_UNITTEST_BUILD)
 
+#############################################################################
+# perform default actions for pass OSGDOXYDOC
+
+FUNCTION(OSG_SETUP_SEPARATE_LIBS_DOXYDOC)
+    IF(NOT ${OSG_CMAKE_PASS} STREQUAL "OSGDOXYDOC")
+        RETURN()
+    ENDIF()
+
+    IF(${PROJECT_NAME}_NO_DOC)
+        RETURN()
+    ENDIF(${PROJECT_NAME}_NO_DOC)
+
+    # set up variables for the config file
+    SET(OSG_${PROJECT_NAME}_DOXY_CONFIGURATION_FILE_IN "${CMAKE_SOURCE_DIR}/Doc/opensg-doxy.in")
+    SET(OSG_${PROJECT_NAME}_DOC_DIRECTORY              "${OSG_DOXY_HTML_DIR}/${PROJECT_NAME}")
+    SET(OSG_${PROJECT_NAME}_DOXY_CONFIGURATION_FILE    "${CMAKE_BINARY_DIR}/Doc/${PROJECT_NAME}-doxy")
+
+    SET(OSG_${PROJECT_NAME}_DEP_DOXY_TAGFILES"")
+    SET(OSG_${PROJECT_NAME}_DOXY_TAGFILE     "${CMAKE_BINARY_DIR}/Doc/${PROJECT_NAME}_DOXYGEN_TAGS")
+    SET(OSG_${PROJECT_NAME}_DEP_DOCS         "")
+
+    # dependencies - OpenSG
+    OSG_GET_ALL_DEP_OSG_LIB("${${PROJECT_NAME}_DEP_OSG_LIB}" DEP_OSG_LIST DEP_MISSING_LIST)
+
+    FOREACH(OSGDEP ${DEP_OSG_LIST})
+        SET(OSG_${PROJECT_NAME}_DEP_DOXY_TAGFILES "${OSG_${PROJECT_NAME}_DEP_DOXY_TAGFILES} ./${OSGDEP}_DOXYGEN_TAGS=../../${OSGDEP}/html")
+        LIST(APPEND OSG_${PROJECT_NAME}_DEP_DOCS "${OSGDEP}Doc")
+    ENDFOREACH()
+
+    IF(OSG_${PROJECT_NAME}_DOXY_EXTERNAL_INCLUDE)
+
+      GET_FILENAME_COMPONENT(_OSG_DOC_INCLUDE ${OSG_${PROJECT_NAME}_DOXY_EXTERNAL_INCLUDE} NAME)
+
+      CONFIGURE_FILE("${OSG_${PROJECT_NAME}_DOXY_EXTERNAL_INCLUDE}"
+                     "${CMAKE_BINARY_DIR}/Doc/Include/${_OSG_DOC_INCLUDE}")
+
+    ENDIF()
+
+    IF(EXISTS "${CMAKE_BINARY_DIR}/Doc/Include/${PROJECT_NAME}.include")
+      SET(OSG_DOC_BASIC_INPUT "${CMAKE_BINARY_DIR}/Doc/Include/${PROJECT_NAME}.include")
+    ENDIF()
+
+    # write doxygen config file
+    CONFIGURE_FILE("${OSG_${PROJECT_NAME}_DOXY_CONFIGURATION_FILE_IN}"
+                   "${OSG_${PROJECT_NAME}_DOXY_CONFIGURATION_FILE}")
+
+    SET(OSG_DOC_BASIC_INPUT "${CMAKE_BINARY_DIR}/Doc/Include/OSGDummy.include")
+
+    IF(DOXYGEN_EXECUTABLE)
+        #ADD_CUSTOM_TARGET(DocUpload COMMAND unison -batch -ui text opensg_doc)
+        #ADD_DEPENDENCIES(DocUpload Doc)
+
+        SET(OSG_DOC_PIPES "")
+
+        IF(OSG_DOXY_STDOUT_LOG)
+          SET(OSG_DOC_PIPES > ${OSG_DOXY_STDOUT_LOG}.${PROJECT_NAME})
+        ENDIF(OSG_DOXY_STDOUT_LOG)
+
+        ADD_CUSTOM_TARGET(${PROJECT_NAME}DocOnly
+            VERBATIM
+            COMMAND ${DOXYGEN_EXECUTABLE} ${OSG_${PROJECT_NAME}_DOXY_CONFIGURATION_FILE} ${OSG_DOC_PIPES}
+            WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/Doc")
+
+        ADD_CUSTOM_TARGET(${PROJECT_NAME}Doc
+            VERBATIM
+            COMMAND ${DOXYGEN_EXECUTABLE} ${OSG_${PROJECT_NAME}_DOXY_CONFIGURATION_FILE} ${OSG_DOC_PIPES}
+            WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/Doc")
+
+        FOREACH(OSGDEPDOC ${OSG_${PROJECT_NAME}_DEP_DOCS})
+            ADD_DEPENDENCIES(${PROJECT_NAME}Doc ${OSGDEPDOC})
+        ENDFOREACH()
+
+        ADD_DEPENDENCIES(Doc ${PROJECT_NAME}Doc)
+    ENDIF()
+
+    INCLUDE(${${PROJECT_NAME}_BUILD_FILE})
+
+    FILE(APPEND ${OSG_${PROJECT_NAME}_DOXY_CONFIGURATION_FILE}
+        "# source code input files for ${PROJECT_NAME}\n\n")
+
+    FOREACH(INCDIR ${${PROJECT_NAME}_INC})
+        FILE(APPEND ${OSG_${PROJECT_NAME}_DOXY_CONFIGURATION_FILE}
+            "INPUT += ${INCDIR}\n")
+    ENDFOREACH()
+
+    FILE(APPEND ${OSG_${PROJECT_NAME}_DOXY_CONFIGURATION_FILE} "\n")
+
+    #Tree Code
+    STRING(REGEX MATCH OSGContrib*|OSGTest* _OSG_IS_CONTRIBLIB ${PROJECT_NAME})
+
+    STRING(REPLACE "OSG" "" LIBTREENAME "${PROJECT_NAME}")
+    STRING(REPLACE "Contrib" "" LIBTREENAME "${LIBTREENAME}")
+
+    IF(_OSG_IS_CONTRIBLIB)
+        FILE(APPEND "${OSG_DOXY_DOC_TREE_SCRIPT}"
+            "      insDoc(ContribNode, gLnk(\"R\", \"${LIBTREENAME}\", \"${OSG_DOXY_BASELIB_DOC_HTML_INDEX}/${PROJECT_NAME}/html/index.html\"))
+")
+    ELSE()
+        FILE(APPEND "${OSG_DOXY_DOC_TREE_SCRIPT}"
+            "      insDoc(CoreNode, gLnk(\"R\", \"${LIBTREENAME}\", \"${OSG_DOXY_BASELIB_DOC_HTML_INDEX}/${PROJECT_NAME}/html/index.html\"))
+")
+    ENDIF()
+
+ENDFUNCTION(OSG_SETUP_SEPARATE_LIBS_DOXYDOC)
 
 #############################################################################
 # perform default actions for pass OSGDOXYDOC
@@ -1341,6 +1543,11 @@ FUNCTION(OSG_SETUP_DOXYDOC)
     IF(NOT ${OSG_CMAKE_PASS} STREQUAL "OSGDOXYDOC")
         RETURN()
     ENDIF(NOT ${OSG_CMAKE_PASS} STREQUAL "OSGDOXYDOC")
+
+    IF(${PROJECT_NAME}_NO_DOC)
+        RETURN()
+    ENDIF(${PROJECT_NAME}_NO_DOC)
+
 
     INCLUDE(${${PROJECT_NAME}_BUILD_FILE})
 
@@ -1379,7 +1586,11 @@ FUNCTION(OSG_SETUP_PROJECT PROJ_DEFINE)
         OSG_SETUP_UNITTEST_BUILD()
 
     ELSEIF(OSG_CMAKE_PASS STREQUAL "OSGDOXYDOC")
-        OSG_SETUP_DOXYDOC()
+        IF(OSG_GENERATE_SEPARATE_LIB_DOC)
+            OSG_SETUP_SEPARATE_LIBS_DOXYDOC()
+        ELSE()
+            OSG_SETUP_DOXYDOC()
+        ENDIF()
 
     ENDIF(OSG_CMAKE_PASS STREQUAL "OSGSETUP")
 
@@ -1606,3 +1817,30 @@ MESSAGE(STATUS  "process ignore install ${OSG_IGNORE_INSTALL}")
     ENDFOREACH()
   ENDIF(OSG_IGNORE_INSTALL)
 ENDMACRO(OSG_CHECK_INSTALL)
+
+##########################################################################
+# Add Tutorial builds as tests
+#
+FUNCTION(OSG_ADD_TUTORIAL_TESTS TUTORIALS_NAME TUTORIAL_SOURCE_DIR)
+    IF(NOT OSGBUILD_UNITTESTS)
+        RETURN()
+    ENDIF()
+
+    FILE(GLOB TUTORIAL_SOURCES "${TUTORIAL_SOURCE_DIR}/[0-9][0-9]*.cpp")
+
+    FOREACH(TUTORIAL ${TUTORIAL_SOURCES})
+        #Get the path to the tutorial executable
+        STRING(LENGTH ${TUTORIAL} SOURCE_PATH_LENGTH)
+        MATH(EXPR SOURCE_PATH_LENGTH '${SOURCE_PATH_LENGTH}-4')
+        STRING(SUBSTRING ${TUTORIAL} 0 ${SOURCE_PATH_LENGTH} TUTORIAL_EXE_PATH )
+        SET(TUTORIAL_EXE_PATH "${TUTORIAL_EXE_PATH}${CMAKE_EXECUTABLE_SUFFIX}")
+
+        #Extract a short name for the tutorial test
+        STRING(REGEX MATCH "([0-9][0-9].*)[.]cpp" TUTORIAL_NAME ${TUTORIAL})
+        SET(TUTORIAL_NAME ${CMAKE_MATCH_1})
+
+        #Add a test to see if the tutorial exists
+        ADD_TEST(NAME "${TUTORIALS_NAME}-${TUTORIAL_NAME}"
+                 COMMAND test -e ${TUTORIAL_EXE_PATH})
+    ENDFOREACH()
+ENDFUNCTION()

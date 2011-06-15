@@ -129,7 +129,7 @@ void Window::setGLLibraryName(const Char8 *s)
 }
 
 /*! Return the version of OpenGL running in the Window in the form
-    0x<major><major><minor><minor>, e.g. 0x0201 for version 2.1.
+    0x&lt;major&gt;&lt;major&gt;&lt;minor&gt;&lt;minor&gt;, e.g. 0x0201 for version 2.1.
  */
 
 inline 
@@ -243,7 +243,6 @@ Window::GLObject::GLObject(GLObjectFunctor        funct,
 inline
 void Window::GLObject::acquireLock(void)
 {
-#ifndef OSG_EMBEDDED
     if(! _GLObjectLock)
     {
         _GLObjectLock =
@@ -251,17 +250,14 @@ void Window::GLObject::acquireLock(void)
     }
 
     _GLObjectLock->acquire();
-#endif
 }
 
 inline
 void Window::GLObject::releaseLock(void)
 {
-#ifndef OSG_EMBEDDED
     OSG_ASSERT(_GLObjectLock != NULL);
 
     _GLObjectLock->release();
-#endif
 }
 
 inline 
@@ -373,25 +369,6 @@ void Window::setDrawerType(UInt32 uiDrawerType)
 }
 
 inline
-void Window::setKeepContextActive(bool bVal)
-{
-    editSField(DrawModeFieldMask);
-
-    if(bVal == true)
-    {
-        _sfDrawMode.setValue(
-            (_sfDrawMode.getValue() & ~ContextMask) | KeepContextActive);
-
-    }
-    else
-    {
-        _sfDrawMode.setValue(
-            (_sfDrawMode.getValue() & ~ContextMask) | CycleContext);
-
-    }
-}
-
-inline
 UInt32 Window::getPartitionDrawMode(void) const
 {
     return _sfDrawMode.getValue() & PartitionDrawMask;
@@ -404,23 +381,13 @@ UInt32 Window::getDrawerType(void) const
 }
 
 inline
-bool Window::getKeepContextActive(void) const
-{
-    return (_sfDrawMode.getValue() & ContextMask) == KeepContextActive;
-}
-
-inline
 void DrawTask::setupContext(Window *pWindow)
 {
-    if(pWindow->getKeepContextActive() == false)
-        pWindow->doActivate();
 }
 
 inline
 void DrawTask::finalizeContext(Window *pWindow)
 {
-    if(pWindow->getKeepContextActive() == false)
-        pWindow->doDeactivate();
 }
 
 OSG_END_NAMESPACE

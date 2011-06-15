@@ -1,0 +1,32 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! \defgroup GrpLibOSGWindowCoreGL libOSGWindowCoreGL
+    \ingroup GrpByLib
+ */
+
+/*! \defgroup GrpWindowCoreGL OpenSG Window CoreGL Library
+
+    \brief Contains Window CoreGL classes
+
+    See \ref PageWindowCoreGL for details.
+ */
+
+//*******************************************************************
+// CoreGL
+//*******************************************************************
+
+/*! \defgroup GrpWindowCoreGLObj Window
+    \ingroup GrpWindowCoreGL
+ */
+
+/*! \defgroup GrpWindowCoreGLFieldTraits Field Traits
+    \ingroup GrpWindowCoreGL
+ */
+/*! \defgroup GrpWindowCoreGLFieldSFields Single-Field
+    \ingroup GrpWindowCoreGL
+ */
+/*! \defgroup GrpWindowCoreGLFieldMFields Multi-Fields
+    \ingroup GrpWindowCoreGL
+ */

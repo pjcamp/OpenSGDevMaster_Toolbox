@@ -63,7 +63,13 @@ void initializeAnimations(FCFileType::FCPtrStore container, WindowEventProducerR
 void display(SimpleSceneManager *mgr);
 void reshape(Vec2f Size, SimpleSceneManager *mgr);
 
-
+void keyPressed(KeyEventDetails* const details, WindowEventProducer* const win)
+{
+	if(details->getKey() == KeyEventDetails::KEY_Q && details->getModifiers() & KeyEventDetails::KEY_MODIFIER_COMMAND)
+	{
+		win->closeWindow();
+	}
+}
 void mousePressed(MouseEventDetails* const details, SimpleSceneManager *mgr)
 {
 	mgr->mouseButtonPress(details->getButton(), details->getLocation().x(), details->getLocation().y());
@@ -125,6 +131,7 @@ int main(int argc, char **argv)
 		TutorialWindow->connectMouseReleased(boost::bind(mouseReleased, _1, mgr));
 		TutorialWindow->connectMouseMoved(boost::bind(mouseMoved, _1, mgr));
 		TutorialWindow->connectMouseDragged(boost::bind(mouseDragged, _1, mgr));
+		TutorialWindow->connectKeyPressed(boost::bind(keyPressed,_1, TutorialWindow.get()));
 
         // load the scene
     
@@ -168,24 +175,24 @@ int main(int argc, char **argv)
         commitChanges();
     
 
-		TravMaskGraphOpRefPtr colMeshGrOp = TravMaskGraphOp::create();
+		//TravMaskGraphOpRefPtr colMeshGrOp = TravMaskGraphOp::create();
 		//colMeshGrOp->setSearchString("_Col");
 		// default values for this graph op will do fine.
-		bool result = colMeshGrOp->traverse(scene);
+		//bool result = colMeshGrOp->traverse(scene);
 		//colMeshGrOp->setSearchString("_Mid");
 		// result = colMeshGrOp->traverse(scene);
 		//colMeshGrOp->setSearchString("_Low");
 		// result = colMeshGrOp->traverse(scene);
-		std::cout << "Number of nodes hidden: " << colMeshGrOp->getNumChanged() << std::endl;
+		//std::cout << "Number of nodes hidden: " << colMeshGrOp->getNumChanged() << std::endl;
 
-		LODSetupGraphOpRefPtr LODSetupGrOp = LODSetupGraphOp::create();
+		/*LODSetupGraphOpRefPtr LODSetupGrOp = LODSetupGraphOp::create();
 		LODSetupGrOp->addLODInfo(0,20.0f,"_High");
 		LODSetupGrOp->addLODInfo(1,50.0f,"_Mid");
 		LODSetupGrOp->addLODInfo(3,100.0f,"_Low");
 
 		result = LODSetupGrOp->traverse(scene);
 
-		std::cout << "Number of LOD nodes set up: " << LODSetupGrOp->getNumLODSMade() << std::endl;
+		std::cout << "Number of LOD nodes set up: " << LODSetupGrOp->getNumLODSMade() << std::endl;*/
 
 		// tell the manager what to manage
 		mgr->setWindow(TutorialWindow );

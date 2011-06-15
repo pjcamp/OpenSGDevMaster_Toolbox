@@ -1,0 +1,13 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*!
+
+   \if separate
+     \page PageWindowGLUT Window GLUT Documentation
+   \else
+     \page PageWindowGLUT Window GLUT
+   \endif
+
+ */

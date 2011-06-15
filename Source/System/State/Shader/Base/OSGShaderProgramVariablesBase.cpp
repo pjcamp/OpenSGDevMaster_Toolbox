@@ -212,7 +212,7 @@ ShaderProgramVariablesBase::TypeObject ShaderProgramVariablesBase::_type(
     "\n"
     "     pushToFieldAs=\"addVariable\"\n"
     "     removeFromMFieldIndexAs=\"subVariable\"\n"
-    "     clearFieldAs=\"clearVariables\"        \n"
+    "     clearFieldAs=\"clearVariables\"\n"
     "     >\n"
     "  </Field>\n"
     "\n"
@@ -229,7 +229,7 @@ ShaderProgramVariablesBase::TypeObject ShaderProgramVariablesBase::_type(
     "\n"
     "     pushToFieldAs=\"addProceduralVariable\"\n"
     "     removeFromMFieldIndexAs=\"subProceduralVariable\"\n"
-    "     clearFieldAs=\"clearProceduralVariables\"        \n"
+    "     clearFieldAs=\"clearProceduralVariables\"\n"
     "     >\n"
     "  </Field>\n"
     "\n"
@@ -345,14 +345,17 @@ void ShaderProgramVariablesBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (VariablesFieldMask & whichField))
     {
+        editMField(VariablesFieldMask, _mfVariables);
         _mfVariables.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ProceduralVariablesFieldMask & whichField))
     {
+        editMField(ProceduralVariablesFieldMask, _mfProceduralVariables);
         _mfProceduralVariables.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (VariableChangedFieldMask & whichField))
     {
+        editMField(VariableChangedFieldMask, _mfVariableChanged);
         _mfVariableChanged.copyFromBin(pMem);
     }
 }
@@ -530,8 +533,15 @@ bool ShaderProgramVariablesBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("ShaderProgramVariablesBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }

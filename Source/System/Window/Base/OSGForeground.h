@@ -51,6 +51,10 @@ class DrawEnv;
 
 /*! \brief Foreground base class. See \ref 
     PageSystemWindowForegrounds for a description.
+
+  \ingroup GrpSystemWindowBase
+  \ingroup GrpLibOSGSystem
+  \includebasedoc
 */
 
 class OSG_SYSTEM_DLLMAPPING Foreground : public ForegroundBase
@@ -82,8 +86,7 @@ class OSG_SYSTEM_DLLMAPPING Foreground : public ForegroundBase
     /*! \name                   draw                                       */
     /*! \{                                                                 */
 
-    virtual void draw(DrawEnv  *pEnv, 
-                      Viewport *port  ) = 0;
+    virtual void draw(DrawEnv  *pEnv) = 0;
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/

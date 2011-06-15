@@ -61,8 +61,8 @@ class OSG_BASE_DLLMAPPING DataType : public TypeBase
     /*! \name                   Constructors                               */
     /*! \{                                                                 */
 
-    DataType(const Char8  *szName, 
-             const Char8  *szParentName,
+    DataType(const std::string             &szName, 
+             const std::string             &szParentName,
              const UInt32  uiNameSpace = GlobalNamespace);
     
     /*! \}                                                                 */

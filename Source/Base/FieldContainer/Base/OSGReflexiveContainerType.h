@@ -82,9 +82,9 @@ class OSG_BASE_DLLMAPPING ReflexiveContainerType : public DataType
     /*! \name                   Constructors                               */
     /*! \{                                                                 */
 
-    ReflexiveContainerType(const Char8                *szName,
-                           const Char8                *szParentName   = NULL,
-                           const Char8                *szGroupName    = NULL,
+    ReflexiveContainerType(const std::string           &szName, 
+                           const std::string           &szParentName  = "",
+                           const std::string           &szGroupName   = "",
                            const UInt32                uiNameSpace    =    0,
                                  InitalInsertDescFunc  descInsertFunc = NULL,
                                  bool                  bDescsAddable  = false,
@@ -205,7 +205,7 @@ class OSG_BASE_DLLMAPPING ReflexiveContainerType : public DataType
 
     DescVec              _vInitialDescs;
 
-	DescMap              _mDescMap;
+    DescMap              _mDescMap;
     DescVec              _vDescVec;
 
     InitalInsertDescFunc _descInsertFunc;
@@ -221,7 +221,7 @@ class OSG_BASE_DLLMAPPING ReflexiveContainerType : public DataType
             bool initParentFields(void);
 
 
-	virtual bool initialize      (void);
+    virtual bool initialize      (void);
     virtual void terminate       (void);
 
     /*! \}                                                                 */

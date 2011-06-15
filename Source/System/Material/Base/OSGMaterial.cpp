@@ -56,28 +56,6 @@ OSG_USING_NAMESPACE
 // To modify it, please change the .fcd file (OSGMaterial.fcd) and
 // regenerate the base file.
 
-/*! \fn OSG::Material::makeState()
-  
-  Creates an instance of a OSG::State that is used to represent the material.
-  This is used by the OSG::DrawAction.  
- */
-
-/*! \fn OSG::Material::rebuildState()
-  
-  Update the internal OSG::State. 
- */
-
-/*! \fn OSG::Material::getState()
-  
-  Access the internal OSG::State, used by the OSG::RenderAction.
- */
-
-/*! \fn OSG::Material::isTransparent()
-  
-  Check if the Material is transparent and thus has to be rendered afte the
-  opaque ones.
- */
-
 /***************************************************************************\
  *                           Class variables                               *
 \***************************************************************************/
@@ -209,9 +187,9 @@ PrimeMaterial *getDefaultMaterial(void)
     {
         _defaultMaterial = SimpleMaterial::create();
 
-        _defaultMaterial->setDiffuse  (Color3r(.7f,.7f,.5f));
-        _defaultMaterial->setAmbient  (Color3r(0.1f,0.1f,0.1f));
-        _defaultMaterial->setSpecular (Color3r(1.f,1.f,1.f));
+        _defaultMaterial->setDiffuse  (Color3f(.7f,.7f,.5f));
+        _defaultMaterial->setAmbient  (Color3f(0.1f,0.1f,0.1f));
+        _defaultMaterial->setSpecular (Color3f(1.f,1.f,1.f));
         _defaultMaterial->setShininess(20.f);
 
         addPreFactoryExitFunction(subRefDefaultMaterial);
@@ -238,7 +216,7 @@ PrimeMaterial *getDefaultUnlitMaterial(void)
     {
         _defaultUnlitMaterial = SimpleMaterial::create();
 
-        _defaultUnlitMaterial->setDiffuse(Color3r(1.f,1.f,.5f));
+        _defaultUnlitMaterial->setDiffuse(Color3f(1.f,1.f,.5f));
         _defaultUnlitMaterial->setLit(false);
 
         addPreFactoryExitFunction(subRefDefaultUnlitMaterial);
@@ -251,14 +229,16 @@ PrimeMaterial *getDefaultUnlitMaterial(void)
 
 bool subRefDefaultMaterial     (void)
 {
-    _defaultMaterial = NULL;
+//    _defaultMaterial = NULL;
+    _defaultMaterial.shutdownSetNull();
 
     return true;
 }
 
 bool subRefDefaultUnlitMaterial(void)
 {
-    _defaultUnlitMaterial = NULL;
+//    _defaultUnlitMaterial = NULL;
+    _defaultUnlitMaterial.shutdownSetNull();
 
     return true;
 }

@@ -56,6 +56,7 @@
 
 #include "OSGViewport.h"
 #include "OSGBackground.h"
+#include "OSGForegroundFields.h"
 #include "OSGMaterial.h"
 #include "OSGNamedPool.h"
 
@@ -80,7 +81,10 @@ class RenderAction;
 //---------------------------------------------------------------------------
 
 /*! \brief RenderPartition is the core class for keeping track of the actions 
-            necessary to draw a scene. 
+           necessary to draw a scene. 
+
+    \ingroup GrpSystemRenderAction
+    \ingroup GrpLibOSGSystem
  */
 
 class OSG_SYSTEM_DLLMAPPING RenderPartition : public RenderPartitionBase
@@ -185,6 +189,8 @@ class OSG_SYSTEM_DLLMAPPING RenderPartition : public RenderPartitionBase
     Window   *getWindow    (void                   );
 
     void      setBackground(Background *pBackground);
+    void      pushToForegrounds(Foreground *pForeground);
+    void      clearForegrounds(void);
   
     /*------------------------- your_operators ------------------------------*/
 
@@ -259,12 +265,12 @@ class OSG_SYSTEM_DLLMAPPING RenderPartition : public RenderPartitionBase
 
     void initVPMatricesFromCamera(void                           );
 
-    void setVPCameraMatrices     (const Matrixr &mFullprojection,
-                                  const Matrixr &mProjection,
-                                  const Matrixr &mProjectionTrans,
-                                  const Matrixr &mViewing,
-                                  const Matrixr &mToWorld,
-                                  const Matrixr &mWorldToScreen  );
+    void setVPCameraMatrices     (const Matrix  &mFullprojection,
+                                  const Matrix  &mProjection,
+                                  const Matrix  &mProjectionTrans,
+                                  const Matrix  &mViewing,
+                                  const Matrix  &mToWorld,
+                                  const Matrix  &mWorldToScreen  );
 
     /*------------------------- your_operators ------------------------------*/
 
@@ -303,8 +309,9 @@ class OSG_SYSTEM_DLLMAPPING RenderPartition : public RenderPartitionBase
    
     /*-------------------------- comparison ---------------------------------*/
 
-    Int32 allocateLightIndex(void);
-    void  releaseLightIndex (void);
+    Int32  allocateLightIndex(void);
+    void   releaseLightIndex (void);
+    UInt32 getLightState     (void) const;
 
     /*-------------------------- comparison ---------------------------------*/
 
@@ -398,6 +405,8 @@ class OSG_SYSTEM_DLLMAPPING RenderPartition : public RenderPartitionBase
     SimpleDrawCallback  _oSimpleDrawCallback;
 
     Background         *_pBackground;
+
+    std::vector<Foreground*> _vpForegrounds;
 
     // Transform
 

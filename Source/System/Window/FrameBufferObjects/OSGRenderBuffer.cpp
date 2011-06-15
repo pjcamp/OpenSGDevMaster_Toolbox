@@ -229,8 +229,15 @@ UInt32 RenderBuffer::handleGL(DrawEnv                 *pEnv,
 
         osgGlBindRenderbufferProc(GL_RENDERBUFFER_EXT, uiBufferId);
 
+        GLenum internalFormat = getInternalFormat();
+
+        if(internalFormat == GL_NONE && getImage() != NULL)
+        {
+            internalFormat = getImage()->getPixelFormat();
+        }
+
         osgGlRenderbufferStorageProc(GL_RENDERBUFFER_EXT,
-                                     getInternalFormat(), 
+                                     internalFormat,
                                      getWidth(), 
                                      getHeight());
     }
@@ -254,6 +261,8 @@ void RenderBuffer::handleDestroyGL(DrawEnv                 *pEnv,
                      _uiFuncDeleteRenderbuffers   );
 
         osgGlDeleteRenderbuffersProc(1, &uiBufferId);
+
+        pWindow->setGLObjectId(osgid, 0);
     }
     else if(mode == Window::finaldestroy)
     {
@@ -278,7 +287,15 @@ void RenderBuffer::processPreDeactivate (DrawEnv *pEnv, UInt32 index)
             
             pImg->set(pImg->getPixelFormat(),
                       pImg->getWidth      (),
-                      pImg->getHeight     ());
+                      pImg->getHeight     (),
+                      pImg->getDepth      (),
+                      pImg->getMipMapCount(),
+                      pImg->getFrameCount (),
+                      pImg->getFrameDelay (),
+                      NULL,
+                      pImg->getDataType   (),
+                      true,
+                      pImg->getSideCount  () );
         }
        
         // select GL_COLORATTACHMENTn and read data into image

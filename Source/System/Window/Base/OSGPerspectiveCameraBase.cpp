@@ -75,8 +75,6 @@ OSG_BEGIN_NAMESPACE
 \***************************************************************************/
 
 /*! \class OSG::PerspectiveCamera
-    \ingroup GrpSystemWindowCameras
-
     The Perspective Camera class, see \ref PageSystemWindowCameraPerspective for 
     a description.
 
@@ -183,15 +181,15 @@ PerspectiveCameraBase::TypeObject PerspectiveCameraBase::_type(
     "<?xml version=\"1.0\" ?>\n"
     "\n"
     "<FieldContainer\n"
-    "    name=\"PerspectiveCamera\"\n"
-    "    parent=\"Camera\"\n"
-    "    library=\"System\"\n"
-    "    structure=\"concrete\"\n"
-    "    pointerfieldtypes=\"both\"\n"
-    "    systemcomponent=\"true\"\n"
-    "    parentsystemcomponent=\"true\"\n"
-    ">\n"
-    "\\ingroup GrpSystemWindowCameras\n"
+    "   name=\"PerspectiveCamera\"\n"
+    "   parent=\"Camera\"\n"
+    "   library=\"System\"\n"
+    "   structure=\"concrete\"\n"
+    "   pointerfieldtypes=\"both\"\n"
+    "   systemcomponent=\"true\"\n"
+    "   parentsystemcomponent=\"true\"\n"
+    "   docGroupBase=\"GrpSystemWindow\"\n"
+    "   >\n"
     "\n"
     "The Perspective Camera class, see \\ref PageSystemWindowCameraPerspective for \n"
     "a description.\n"
@@ -227,8 +225,6 @@ PerspectiveCameraBase::TypeObject PerspectiveCameraBase::_type(
     "    The aspect ratio (i.e. width / height) of a pixel.\n"
     "    </Field>\n"
     "</FieldContainer>\n",
-    "\\ingroup GrpSystemWindowCameras\n"
-    "\n"
     "The Perspective Camera class, see \\ref PageSystemWindowCameraPerspective for \n"
     "a description.\n"
     "\n"
@@ -346,14 +342,17 @@ void PerspectiveCameraBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (FovFieldMask & whichField))
     {
+        editSField(FovFieldMask);
         _sfFov.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (FovModeFieldMask & whichField))
     {
+        editSField(FovModeFieldMask);
         _sfFovMode.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (AspectFieldMask & whichField))
     {
+        editSField(AspectFieldMask);
         _sfAspect.copyFromBin(pMem);
     }
 }

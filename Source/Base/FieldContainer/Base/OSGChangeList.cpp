@@ -153,7 +153,7 @@ void ChangeList::addUncommited(ContainerChangeEntry *pEntry)
 
 //BitVector ContainerChangeEntry::defaultVec = TypeTraits<BitVector>::BitsClear;
 
-void ContainerChangeEntry::commitChanges(void)
+void ContainerChangeEntry::commitChanges(UInt32 AdditionalChangeOrigin)
 {
 #ifdef OSG_ENABLE_VALGRIND_CHECKS
     VALGRIND_CHECK_VALUE_IS_DEFINED(uiContainerId);
@@ -180,7 +180,7 @@ void ContainerChangeEntry::commitChanges(void)
            whichField            |= *bvUncommittedChanges;
            *bvUncommittedChanges  = TypeTraits<BitVector>::BitsClear;
 
-           pTmp->changed      (tmpChanges, ChangedOrigin::Commit, 0);
+           pTmp->changed      (tmpChanges, ChangedOrigin::Commit | AdditionalChangeOrigin, 0);
         }
     }
 }
@@ -376,7 +376,7 @@ void ChangeList::addDelayedSubRef<WeakRefCountPolicy>(FieldContainer *pFC)
 }
 
 template<ChangeList::CommitFunction func> inline
-void ChangeList::doCommitChanges(void)
+void ChangeList::doCommitChanges(UInt32 AdditionalChangeOrigin)
 {
     if(_workStore.empty() == false)
     {
@@ -415,7 +415,7 @@ void ChangeList::doCommitChanges(void)
             
             if((*changesIt)->uiEntryDesc == ContainerChangeEntry::Change)
             {
-                ((*changesIt)->*func)();
+                ((*changesIt)->*func)(AdditionalChangeOrigin);
             }
             
             ++changesIt;
@@ -436,14 +436,14 @@ void ChangeList::doCommitChanges(void)
     }
 }
 
-void ChangeList::commitChanges(void)
+void ChangeList::commitChanges(UInt32 AdditionalChangeOrigin)
 {
-    doCommitChanges<&ContainerChangeEntry::commitChanges>();
+    doCommitChanges<&ContainerChangeEntry::commitChanges>(AdditionalChangeOrigin);
 }
 
-void ChangeList::commitChangesAndClear(void)
+void ChangeList::commitChangesAndClear(UInt32 AdditionalChangeOrigin)
 {
-    doCommitChanges<&ContainerChangeEntry::commitChanges>();
+    doCommitChanges<&ContainerChangeEntry::commitChanges>(AdditionalChangeOrigin);
     clear();
 }
 
@@ -504,6 +504,10 @@ void ChangeList::doApply(bool bClear)
                 pDst = pSrc->getType().createAspectCopy(pSrc,
                                                         (*ccIt)->uiContainerId);
 
+                Thread::getCurrentChangeList()->addCreated(
+                    (*ccIt)->uiContainerId, 
+                    TypeTraits<BitVector>::BitsClear);
+
 #ifndef SILENT_CPTR
                 fprintf(stderr, "Setup store for %d %p \n",
                         (*ccIt)->uiContainerId,
@@ -558,7 +562,7 @@ void ChangeList::doApply(bool bClear)
                 pSrc,
                 pSrc != NULL ? pSrc->getType().getCName() : "null",
                 pDst,
-                pDst != NULL ? pSrc->getType().getCName() : "null");
+                pDst != NULL ? pDst->getType().getCName() : "null");
 #endif
 
         if(pDst == NULL && 
@@ -571,7 +575,13 @@ void ChangeList::doApply(bool bClear)
                                                         (*cIt)->uiContainerId);
             
                 if(pDst != NULL) 
+                {
+                    Thread::getCurrentChangeList()->addCreated(
+                        (*cIt)->uiContainerId, 
+                        TypeTraits<BitVector>::BitsClear);
+
                     pDst->setupAspectStore(pHandler);
+                }
 
 #ifndef SILENT_CPTR
                 pHandler->dump();
@@ -590,7 +600,7 @@ void ChangeList::doApply(bool bClear)
                 pSrc,
                 pSrc != NULL ? pSrc->getType().getCName() : "null",
                 pDst,
-                pDst != NULL ? pSrc->getType().getCName() : "null",
+                pDst != NULL ? pDst->getType().getCName() : "null",
                 _uiAspect,
                 Thread::getCurrentAspect(),
                 pHandler);

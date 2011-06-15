@@ -46,7 +46,7 @@
 #include "OSGConfig.h"
 
 // Forget everything if we're not doing a Mac OS X compile
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(OSG_DO_DOC)
 
 #include "OSGCoreGLWindow.h"
 
@@ -123,53 +123,32 @@ void CoreGLWindow::init(GLInitFunctor oFunc)
     Inherited::init(oFunc);
 }
 
-// activate the window: bind the OGL context
-void CoreGLWindow::activate( void )
+void CoreGLWindow::terminate(void)
 {
-    if((_sfDrawMode.getValue() & 
-         PartitionDrawMask               ) == SequentialPartitionDraw)
-    {
-        this->doActivate();
-    }
 }
 
 // activate the window: bind the OGL context
-void CoreGLWindow::deactivate( void )
-{
-    if((_sfDrawMode.getValue() & 
-         PartitionDrawMask               ) == SequentialPartitionDraw)
-    {
-        this->doDeactivate();
-    }
-}
-
-// swap front and back buffers
-bool CoreGLWindow::swap( void )
-{
-    if((_sfDrawMode.getValue() & 
-         PartitionDrawMask               ) == SequentialPartitionDraw)
-    {
-        this->doSwap();
-    }
-}
-
-// activate the window: bind the OGL context
-void CoreGLWindow::doActivate( void )
+void CoreGLWindow::doActivate(void)
 {
     CGLSetCurrentContext(getContext());
 }
 
 // activate the window: bind the OGL context
-void CoreGLWindow::doDeactivate( void )
+void CoreGLWindow::doDeactivate(void)
 {
     CGLSetCurrentContext(0);
 }
 
 // swap front and back buffers
-bool CoreGLWindow::doSwap( void )
+bool CoreGLWindow::doSwap(void)
 {
     CGLFlushDrawable(getContext());
     return true;
+}
+
+bool CoreGLWindow::hasContext(void)
+{
+    return (this->getContext() != NULL);
 }
 
 OSG_END_NAMESPACE

@@ -1,0 +1,13 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*!
+
+   \if separate
+     \page PageWindowCocoa Window Cocoa Documentation
+   \else
+     \page PageWindowCocoa Window Cocoa
+   \endif
+
+ */

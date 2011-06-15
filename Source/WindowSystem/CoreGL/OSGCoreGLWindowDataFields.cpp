@@ -58,12 +58,7 @@
 
 OSG_BEGIN_NAMESPACE
 
-// doxygen can't find these
-#ifndef OSG_DO_DOC 
-
-DataType FieldTraits<CGLContextObj>::_type("CGLContextObj", NULL);
-
-#endif
+DataType FieldTraits<CGLContextObj>::_type("CGLContextObj", "");
 
 OSG_FIELDTRAITS_GETTYPE(CGLContextObj)
 

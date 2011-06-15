@@ -75,13 +75,12 @@ TextFaceFactoryBase::TextFaceFactoryBase(void)
       _pixmapFaceMap(),
       _txfFaceMap   ()
 {
-#if defined(_WIN32)
+#if defined(OSG_WITH_FT2)
+    _backend = new TextFT2Backend();
+#elif defined(_WIN32)
     _backend = new TextWIN32Backend();
 #elif defined(__APPLE__)
     _backend = new TextMacBackend();
-    //_backend = new TextFT2Backend();
-#elif defined(OSG_WITH_FT2)
-    _backend = new TextFT2Backend();
 #else
     _backend = 0;
 #endif

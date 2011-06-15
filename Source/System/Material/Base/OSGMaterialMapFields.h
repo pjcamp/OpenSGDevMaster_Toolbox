@@ -54,29 +54,39 @@ OSG_BEGIN_NAMESPACE
 
 class PrimeMaterial;
 
+/*! \ingroup GrpSystemMaterialFieldTraits
+ */
+
 typedef RenderPropertiesPool::Singleton::ValueType MaterialMapKey;
-//typedef UInt32 MaterialMapKey;
-//typedef RenderPropBitVector MaterialMapKey;
+
+/*! \ingroup GrpSystemMaterialFieldTraits
+ */
 
 typedef std::map<MaterialMapKey, PrimeMaterial *>  MaterialMap;
 
-typedef SField<MaterialMapKey> SFMaterialMapKey;
-typedef MField<MaterialMapKey> MFMaterialMapKey;
-
-#if !defined(OSG_DO_DOC) || (OSG_DOC_LEVEL >= 3)
-
-#ifdef OSG_DOC_FILES_IN_MODULE
-/*! \file OSGBaseFieldTraits.h
-    \ingroup GrpBaseField
-    \ingroup GrpBaseFieldTraits
-*/
-#endif
-
-/*! \ingroup GrpBaseFieldTraits
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+/*! \ingroup GrpSystemMaterialFieldSFields
  */
-#if !defined(OSG_DOC_DEV_TRAITS)
-/*! \hideinhierarchy */
+
+typedef SField<MaterialMapKey> SFMaterialMapKey;
+
+/*! \ingroup GrpSystemMaterialFieldMFields
+ */
+typedef MField<MaterialMapKey> MFMaterialMapKey;
+#else
+/*! \ingroup GrpSystemMaterialFieldSFields \ingroup GrpLibOSGSystem
+ */
+
+struct SFMaterialMapKey : public SField<MaterialMapKey> {};
+
+/*! \ingroup GrpSystemMaterialFieldMFields \ingroup GrpLibOSGSystem
+ */
+struct MFMaterialMapKey : public MField<MaterialMapKey> {};
 #endif
+
+/*! \ingroup GrpSystemMaterialFieldTraits
+    \ingroup GrpLibOSGSystem
+ */
 
 template <>
 struct FieldTraits<MaterialMap> : 
@@ -150,11 +160,21 @@ struct FieldTraits<MaterialMap> :
     }
 };
 
-#if !defined(OSG_DO_DOC) || defined(OSG_DOC_FIELD_TYPEDEFS) 
-/*! \ingroup GrpBaseFieldSingle */
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+/*! \ingroup GrpSystemMaterialFieldSFields
+ */
 
 typedef SField<MaterialMap> SFMaterialPtrMap;
+#else
+/*! \ingroup GrpSystemMaterialFieldSFields \ingroup GrpLibOSGSystem
+ */
+
+struct SFMaterialPtrMap : public SField<MaterialMap> {};
 #endif
+
+/*! \ingroup GrpSystemMaterialFieldHandle
+    \ingroup GrpLibOSGSystem
+ */
 
 template<>
 class OSG_SYSTEM_DLLMAPPING GetSFieldHandle<SFMaterialPtrMap> : 
@@ -212,6 +232,10 @@ class OSG_SYSTEM_DLLMAPPING GetSFieldHandle<SFMaterialPtrMap> :
     SFMaterialPtrMap const * operator ->(void);
     SFMaterialPtrMap const & operator * (void);
 };
+
+/*! \ingroup GrpSystemMaterialFieldHandle
+    \ingroup GrpLibOSGSystem
+ */
 
 template<>
 class OSG_SYSTEM_DLLMAPPING 
@@ -306,8 +330,6 @@ class OSG_SYSTEM_DLLMAPPING
         const TypeIdVector      &ignoreGroupIds = TypeIdVector ()) const;
 
 };
-
-#endif // !defined(OSG_DO_DOC) || (OSG_DOC_LEVEL >= 3)
 
 OSG_END_NAMESPACE
 

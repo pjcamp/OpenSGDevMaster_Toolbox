@@ -1,0 +1,28 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! 
+
+   \if separate
+     \page PageGroups Groups Documentation
+   \else
+     \page PageGroups Groups
+   \endif
+
+    \section PageGroupCallbackAlgorithm
+    \section PageGroupDoubleTransform
+    \section PageSystemInverseTransform
+    \section PageContribDataSolidMaterialChunkOverrideGroup
+    \section PageSystemMultiSwitch
+    \section PageSystemScreenGroup
+    \section PageGroupScreenLOD
+    \section PageGroupStageData
+    \section PageGroupCubeMapGenerator
+    \section PageGroupCubeMapGeneratorStageData
+    \section PageGroupDynamicStateGenerator
+    \section PageGroupDynamicStateGeneratorStageData
+    \section PageEffectGroupsShaderShadowMapEngine
+    \section PageEffectGroupsShaderShadowMapEngineData
+    \section PageGroupSimpleShadowMapEngineData
+ */

@@ -51,9 +51,13 @@ OSG_BEGIN_NAMESPACE
 
 /*! \brief PerfMonitorForeground class. See \ref
            PageUtilPerfMonitorForeground for a description.
+    \ingroup GrpUtilStatisticsObj
+    \ingroup GrpLibOSGUtil
+    \includebasedoc
 */
 
-class OSG_UTIL_DLLMAPPING PerfMonitorForeground : public PerfMonitorForegroundBase
+class OSG_UTIL_DLLMAPPING PerfMonitorForeground : 
+    public PerfMonitorForegroundBase
 {
   protected:
 
@@ -98,7 +102,7 @@ class OSG_UTIL_DLLMAPPING PerfMonitorForeground : public PerfMonitorForegroundBa
     /*! \name                   draw                                       */
     /*! \{                                                                 */
 
-    virtual void draw(DrawEnv *pEnv, Viewport *pPort);
+    virtual void draw(DrawEnv *pEnv);
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/

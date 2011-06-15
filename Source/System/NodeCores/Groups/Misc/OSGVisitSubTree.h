@@ -47,14 +47,24 @@
 
 OSG_BEGIN_NAMESPACE
 
-//! VisitSubTree
-//! \ingroup GrpSystemNodeCoresMisc
+/*! VisitSubTree
+    \ingroup GrpGroupMiscObj
+    \ingroup GrpLibOSGGroup
+    \includebasedoc
+ */
 
 class OSG_GROUP_DLLMAPPING VisitSubTree : public VisitSubTreeBase
 {
     /*==========================  PUBLIC  =================================*/
 
   public:
+
+    enum TravMaskMode
+    {
+        AndTravMask     = 0x0001,
+        OrTravMask      = 0x0002,
+        ReplaceTravMask = 0x0003
+    };
 
     /*---------------------------------------------------------------------*/
     /*! \name                       Sync                                   */
@@ -114,9 +124,7 @@ class OSG_GROUP_DLLMAPPING VisitSubTree : public VisitSubTreeBase
     /*! \name                   Intersect                                  */
     /*! \{                                                                 */
 
-#ifndef OSG_EMBEDDED
     ActionBase::ResultE intersect(Action *action);
-#endif
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

@@ -45,6 +45,7 @@
 #include "OSGConfig.h"
 
 #include "OSGRotateManipulatorBase.h"
+#include "OSGClipPlaneChunkFields.h"
 
 OSG_BEGIN_NAMESPACE
 
@@ -56,6 +57,11 @@ class OSG_CONTRIBGUI_DLLMAPPING RotateManipulator : public RotateManipulatorBase
 {
     /*==========================  PUBLIC  =================================*/
   public:
+    enum RotationMethod
+    {
+        ROLL_METHOD  = 0,
+        CRANK_METHOD = 1
+    };
 
     /*---------------------------------------------------------------------*/
     /*! \name                      Sync                                    */
@@ -74,6 +80,17 @@ class OSG_CONTRIBGUI_DLLMAPPING RotateManipulator : public RotateManipulatorBase
                       const BitVector  bvFlags  = 0) const;
 
     /*! \}                                                                 */
+
+    virtual void mouseMove(Int16        x,
+                           Int16        y);
+
+    virtual void mouseButtonPress(UInt16        button,
+                                   Int16        x,
+                                   Int16        y     );
+
+    virtual void mouseButtonRelease(UInt16      button,
+                                     Int16      x,
+                                     Int16      y     );
     /*=========================  PROTECTED  ===============================*/
   protected:
 
@@ -94,15 +111,29 @@ class OSG_CONTRIBGUI_DLLMAPPING RotateManipulator : public RotateManipulatorBase
     virtual ~RotateManipulator(void);
 
     /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                                                              */
+    /*! \{                                                                 */
 
-    virtual NodeTransitPtr makeHandleGeo();
-    virtual void           doMovement(      Transform   *t,
-                                      const Int32         coord,
-                                      const Real32        value,
-                                      const Vec3f        &translation,
-                                      const Quaternion   &rotation,
-                                      const Vec3f        &scaleFactor,
-                                      const Quaternion   &scaleOrientation);
+    void onCreate(const RotateManipulator* source = NULL);
+    void onDestroy(void);
+
+    /*! \}                                                                 */
+
+    virtual NodeTransitPtr makeHandleGeo(Real32 radius, UInt16 axis);
+    virtual NodeTransitPtr createAxisManipulator(UInt16 Axis);
+    virtual void createMaterials(void);
+
+    /*Pnt2f _TargetOriginInitialScreenPos;*/
+    RotationMethod _RotationMethod;
+    Quaternion _InitialRotation;
+    Pnt3f _TargetInitialOrigin;
+    Pnt3f _StartManipInitialPosition;
+
+    Vec3f _HandleRollDirection;
+    
+    //ClipPlaneChunkRecPtr _DefaultFrontClipPlane;
+    //ClipPlaneChunkRecPtr _DefaultBackClipPlane;
 
     /*==========================  PRIVATE  ================================*/
 private:

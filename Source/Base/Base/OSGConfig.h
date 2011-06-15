@@ -577,9 +577,6 @@
 # define OSG_STDEXCEPTION_NAMESPACE std
 # endif
 
-# define OSG_FIXED_PROFILE
-# define OSG_PROFILE_SET
-
 # endif // defined(_MSC_VER) && !defined(__ICL)
 
 
@@ -621,7 +618,7 @@
  
 # define OSG_TMPL_STATIC_MEMBER_NEEDS_CLASS_INSTANTIATION
 
-# define OSG_STATIC_MEMEBER_NEEDS_COPY_ASIGN_INIT
+//# define OSG_STATIC_MEMEBER_NEEDS_COPY_ASIGN_INIT
 
 # define OSG_MICROSOFT_DOTNET_COMPILER_HACKS
 
@@ -992,10 +989,6 @@
 #        define OSG_STDEXTENSION_NAMESPACE  std
 #    endif
 # endif
-#endif
-
-#ifndef OSG_PROFILE_SET
-# define OSG_FLOAT_PROFILE
 #endif
 
 #if defined(__sgi) || defined(__linux) || defined(__APPLE__) || \

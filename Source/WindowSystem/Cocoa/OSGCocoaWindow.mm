@@ -48,7 +48,11 @@
 // Forget everything if we're not doing a Mac OS X compile
 #ifdef __APPLE__
 
+#import <Cocoa/Cocoa.h>
+#import <AppKit/NSOpenGL.h>
+
 #include "OSGCocoaWindow.h"
+#include "OSGCocoaWindowWrapper.h"
 
 OSG_BEGIN_NAMESPACE
 
@@ -120,61 +124,36 @@ void CocoaWindow::dump(      UInt32    ,
 */
 void CocoaWindow::init(GLInitFunctor oFunc)
 {
-    this->doActivate();
-
     Inherited::init(oFunc);
+}
 
-    this->doDeactivate();
+void CocoaWindow::terminate(void)
+{
 }
 
 // activate the window: bind the OGL context
-void CocoaWindow::activate( void )
+void CocoaWindow::doActivate(void)
 {
-    if((_sfDrawMode.getValue() & 
-         PartitionDrawMask               ) == SequentialPartitionDraw)
-    {
-        this->doActivate();
-    }
+    [this->getContext() makeCurrentContext];
 }
 
 // activate the window: bind the OGL context
-void CocoaWindow::deactivate( void )
-{
-    if((_sfDrawMode.getValue() & 
-         PartitionDrawMask               ) == SequentialPartitionDraw)
-    {
-        this->doDeactivate();
-    }
-}
-
-// swap front and back buffers
-bool CocoaWindow::swap( void )
-{
-    if((_sfDrawMode.getValue() & 
-         PartitionDrawMask               ) == SequentialPartitionDraw)
-    {
-        this->doSwap();
-    }
-}
-
-
-// activate the window: bind the OGL context
-void CocoaWindow::doActivate( void )
-{
-    [getContext() makeCurrentContext];
-}
-
-// activate the window: bind the OGL context
-void CocoaWindow::doDeactivate( void )
+void CocoaWindow::doDeactivate(void)
 {
     [NSOpenGLContext clearCurrentContext];
 }
 
 // swap front and back buffers
-bool CocoaWindow::doSwap( void )
+bool CocoaWindow::doSwap(void)
 {
-    [getContext() flushBuffer];
+    [this->getContext() flushBuffer];
+
     return true;
+}
+
+bool CocoaWindow::hasContext(void)
+{
+    return (this->getContext() != NULL);
 }
 
 OSG_END_NAMESPACE

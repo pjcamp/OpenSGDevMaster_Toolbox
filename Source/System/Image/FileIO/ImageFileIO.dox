@@ -1,0 +1,13 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! 
+
+   \if separate
+     \page PageImageFileIO ImageFileIO Documentation
+   \else
+     \page PageImageFileIO ImageFileIO
+   \endif
+
+ */

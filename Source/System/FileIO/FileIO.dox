@@ -1,0 +1,14 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! 
+
+   \if separate
+     \page PageFileIO FileIO Documentation
+   \else
+     \page PageFileIO FileIO
+   \endif
+
+    \section PageFileIOVRMLAttachment
+ */

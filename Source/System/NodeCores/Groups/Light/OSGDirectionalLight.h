@@ -49,8 +49,10 @@
 OSG_BEGIN_NAMESPACE
 
 /*! \brief Directional light
-    \ingroup GrpSystemNodeCoresLights
-*/
+    \ingroup GrpGroupLightObj
+    \ingroup GrpLibOSGGroup
+    \includebasedoc
+ */
 
 class OSG_GROUP_DLLMAPPING DirectionalLight : public DirectionalLightBase
 {
@@ -72,7 +74,7 @@ class OSG_GROUP_DLLMAPPING DirectionalLight : public DirectionalLightBase
     void setDirection(      Real32  rX, 
                             Real32  rY, 
                             Real32  rZ);
-    void setDirection(const Vec3r  &direction);
+    void setDirection(const Vec3f  &direction);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

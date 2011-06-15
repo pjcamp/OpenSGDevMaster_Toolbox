@@ -60,13 +60,6 @@ OSG_USING_NAMESPACE
  *                            Description                                  *
 \***************************************************************************/
 
-/*! \class OSG::UnifyVerticesGraphOp
-    \ingroup GrpSystemNodeCoresDrawablesGeometry
-
-A class used to create indexed geometries.
-
-*/
-
 //! Register the GraphOp with the factory
 static bool registerOp(void)
 {
@@ -329,6 +322,10 @@ FieldContainer *SharePtrGraphOp::shareFC(FieldContainer *fc)
 
             continue;
         }
+
+        // skip non-pointer fields
+        if(fDesc->getFieldType().isPtrField() == false)
+            continue;
 
         // skip internal fields
         if(fDesc->isInternal() == true)

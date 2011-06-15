@@ -55,8 +55,6 @@ OSG_USING_NAMESPACE
 
 
 /*! \class OSG::OSGSceneFileType
-    \ingroup GrpSystemFileIO
-
  */
 
 /***************************************************************************\
@@ -120,6 +118,11 @@ NodeTransitPtr OSGSceneFileType::read(      std::istream &is,
     OSGLoader *_pFile = new OSGLoader(_endNodeFunctors);
 
     NodeTransitPtr returnValue = _pFile->scanStream(is, resolver);
+
+    if(returnValue->getNChildren() == 1)
+    {
+        returnValue = returnValue->getChild(0);
+    }
 
     delete _pFile;
 

@@ -1,0 +1,26 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! 
+
+   \if separate
+     \page PageEffectsGroups Effects Groups Documentation
+   \else
+     \page PageEffectsGroups Effects Groups
+   \endif
+
+    \section PageEffectGroupsColorDisplayFilter
+    \section PageGroupDisplayFilterStageData
+    \section PageEffectGroupsDisplayFilter
+    \section PageEffectGroupsDeferredShadingStage
+    \section PageEffectGroupsDeferredShadingStageData
+    \section PageEffectsDSLightChunk
+    \section PageEffectGroupsDisplayFilterGroup
+    \section PageEffectGroupsResolutionDisplayFilter
+    \section PageEffectGroupsDistortionDisplayFilter
+    \section PageEffectGroupsDisplayFilterStage
+    \section PageGroupShadowStageData
+    \section PageGroupFishEyeProjectorData
+    \section PageGroupHDRStageData
+ */

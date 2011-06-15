@@ -42,15 +42,18 @@
 #pragma once
 #endif
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(OSG_DO_DOC)
 
 #include "OSGCocoaWindowBase.h"
 
 OSG_BEGIN_NAMESPACE
 
 /*! \brief CocoaWindow class. See \ref
-           PageWindowCocoaCocoaWindow for a description.
-*/
+           PageWindowCocoa for a description.
+    \ingroup GrpWindowCocoaObj
+    \ingroup GrpLibOSGWindowCocoa
+    \includebasedoc
+ */
 
 class OSG_WINDOWCOCOA_DLLMAPPING CocoaWindow : public CocoaWindowBase
 {
@@ -84,10 +87,8 @@ class OSG_WINDOWCOCOA_DLLMAPPING CocoaWindow : public CocoaWindowBase
     /*! \name                Window functions                              */
     /*! \{                                                                 */
     
-    virtual void init      (GLInitFunctor oFunc = GLInitFunctor());
-    virtual void activate  (void                                 );
-    virtual void deactivate(void                                 );
-    virtual bool swap      (void                                 );
+    virtual void init     (GLInitFunctor oFunc = GLInitFunctor());
+    virtual void terminate(void                                 );
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
@@ -125,6 +126,7 @@ class OSG_WINDOWCOCOA_DLLMAPPING CocoaWindow : public CocoaWindowBase
     virtual void doActivate  (void);
     virtual void doDeactivate(void);
     virtual bool doSwap      (void);
+    virtual bool hasContext  (void);
 
     /*! \}                                                                 */
     /*==========================  PRIVATE  ================================*/

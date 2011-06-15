@@ -553,9 +553,21 @@ typedef long double Real128;
 typedef UInt64 BitVector;
 
 #ifndef OSG_WIN_TYPES
+
+/*! \var UInt32 RefCountStore;
+ *  \ingroup GrpBaseBaseBaseTypes
+ */
+
 typedef Int32 RefCountStore;
+
 #else
+
+/*! \var long RefCountStore;
+ *  \ingroup GrpBaseBaseBaseTypes
+ */
+
 typedef long RefCountStore;
+
 #endif
 
 /*! \var size_t SizeT;
@@ -577,24 +589,6 @@ typedef UInt8 *MemoryHandle;
  */
 
 typedef void *VoidP;
-
-#include "OSGFixed.h"
-
-#ifdef OSG_FLOAT_PROFILE
-
-/*! \var Real32 Real;
- *  \ingroup GrpBaseBaseBaseTypes
- */
-
-typedef Real32  Real;
-#else
-
-/*! \var Fixed32 Real;
- *  \ingroup GrpBaseBaseBaseTypes
- */
-
-typedef Fixed32 Real;
-#endif
 
 #if defined(OSG_EMBEDDED) && !defined(__linux)
 typedef std::wstring   tstring;
@@ -808,6 +802,8 @@ namespace RenderPropBitVectorSize
  */
 
 typedef RenderPropBitVectorSize::BitVectorSize RenderPropBitVector;
+
+#include "OSGFixed.h"
 
 OSG_END_NAMESPACE
 

@@ -105,6 +105,8 @@ OSG_OPTION(OSGCOMPAT_ENABLE_DEPRECATED_PROPS "" OFF)
 OSG_SET_CACHE(OSG_RENDERPROPERTY_BITS 64 STRING "")
 OSG_SET_CACHE(OSG_RENDERPROPERTY_UNIQUE_BITS 16 STRING "")
 
+OSG_OPTION(OSG_GENERATE_SEPARATE_LIB_DOC "Generate separate doxygen documentation for contrib libraries" OFF)
+OSG_OPTION(OSG_INSTALL_DOXYDOC "Install Doxygen documentation" OFF)
 
 SET(OSG_DOXY_DOC_TYPE "User" CACHE STRING
     "The type of documentation to generate (User, Developer, Trac)")
@@ -200,6 +202,17 @@ ENDIF()
 # External extensions
 #####################
 
+OSG_SET_CACHE(OSG_EXTRA_EXTERNAL_MODULES "" STRING
+              "Extra modules that OpenSG will try to import.")
+
+OSG_SET_CACHE(OSG_IGNORE_INSTALL "" STRING
+              "Extra modules that OpenSG will build but not installed.")
+
+OSG_SET_CACHE(OSG_EXTERNAL_MODULES_INCLUDE "" FILEPATH "Include file of extra modules")
+IF(EXISTS "${OSG_EXTERNAL_MODULES_INCLUDE}")
+    INCLUDE("${OSG_EXTERNAL_MODULES_INCLUDE}")
+ENDIF()
+
 FOREACH(EXTERNAL ${OSG_EXTRA_EXTERNAL_MODULES})
     OPTION(OSGBUILD_${EXTERNAL}
            "Build using ${EXTERNAL} module" OFF)
@@ -222,13 +235,8 @@ FOREACH(EXTERNAL ${OSG_EXTRA_EXTERNAL_MODULES})
     ENDIF()
 ENDFOREACH(EXTERNAL)
 
-OSG_SET_CACHE(OSG_EXTRA_EXTERNAL_MODULES "" STRING
-              "Extra modules that OpenSG will try to import.")
-
-OSG_SET_CACHE(OSG_IGNORE_INSTALL "" STRING
-              "Extra modules that OpenSG will build but not installed.")
-
 OSG_OPTION(OSG_LINK_EXTERNAL_MODULES_TO_CSM "" FALSE)
+
 
 ##############
 # Compiler
@@ -257,10 +265,39 @@ ENDIF()
 
 IF(NOT WIN32 AND NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Debug CACHE STRING
-      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+      "Choose the type of build, options are: Debug Release."
       FORCE)
 ENDIF(NOT WIN32 AND NOT CMAKE_BUILD_TYPE)
 
+IF(NOT WIN32) 
+  IF(NOT CMAKE_BUILD_TYPE STREQUAL "Debug"          AND 
+     NOT CMAKE_BUILD_TYPE STREQUAL "DebugGV"        AND
+     NOT CMAKE_BUILD_TYPE STREQUAL "Release"        AND
+     NOT CMAKE_BUILD_TYPE STREQUAL "ReleaseGV"      AND
+     NOT CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"   )
+
+    MESSAGE(FATAL_ERROR "incorrect build type ${CMAKE_BUILD_TYPE}.\n"
+                        "Please use either Release or Debug")
+
+  ENDIF()
+ELSEIF(NOT MSVC_IDE)
+
+  IF(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    SET(CMAKE_BUILD_TYPE DebugOpt CACHE STRING
+        "Choose the type of build, options are: ${CMAKE_CONFIGURATION_TYPES}."
+        FORCE)  
+  ENDIF()
+
+  IF(NOT CMAKE_BUILD_TYPE STREQUAL "Debug"    AND 
+     NOT CMAKE_BUILD_TYPE STREQUAL "DebugOpt" AND
+     NOT CMAKE_BUILD_TYPE STREQUAL "Release"  AND
+     NOT CMAKE_BUILD_TYPE STREQUAL "ReleaseNoOpt")
+
+    MESSAGE(FATAL_ERROR "incorrect build type ${CMAKE_BUILD_TYPE}.\n"
+                        "Please use on of ${CMAKE_CONFIGURATION_TYPES}")
+
+  ENDIF()
+ENDIF()
 
 IF(NOT OSG_COMPILER_DEFAULTS)
    INCLUDE(CMake/SetupCompiler.cmake)
@@ -283,6 +320,13 @@ OSG_CHECK_INSTALL()
 ##############################################################################
 # DEPENDENCIES
 ##############################################################################
+
+# Global include/library dirs, libs and definitions
+SET(OSG_GLOBAL_DEP_INCDIR "")
+SET(OSG_GLOBAL_DEP_LIBDIR "")
+SET(OSG_GLOBAL_DEP_LIBS   "")
+SET(OSG_GLOBAL_DEP_DEFS   "")
+
 
 #IF(WIN32)
   OSG_OPTION(OSG_USE_OSGSUPPORT_LIBS "" OFF)
@@ -336,7 +380,9 @@ IF(NOT OSG_BUILD_DEPENDEND)
 
 #    MESSAGE(STATUS "zlib: ${ZLIB_FOUND}")
 
-    IF(UNIX AND NOT APPLE)
+    OSG_OPTION(OSG_ENABLE_FREETYPE                        "Build OpenSG with Freetype support" OFF)
+    IF(OSG_ENABLE_FREETYPE)
+    #IF(UNIX AND NOT APPLE)
         #############
         #### Freetype
         #############
@@ -356,9 +402,11 @@ IF(NOT OSG_BUILD_DEPENDEND)
 
         OSG_ADD_OPT(FREETYPE_FOUND)
         OSG_ADD_OPT(FREETYPE_INCLUDE_DIR_freetype2)
+        OSG_ADD_OPT(FREETYPE_INCLUDE_DIR_ft2build)
+        OSG_ADD_OPT(FREETYPE_INCLUDE_DIR_ft2build)
         OSG_ADD_OPT(FONTCONFIG_LIBRARY)
         OSG_ADD_OPT(FREETYPE_LIBRARIES)
-    ENDIF(UNIX AND NOT APPLE)
+    ENDIF()
 
     ##############
     #### ImageLibs
@@ -458,20 +506,17 @@ IF(NOT OSG_BUILD_DEPENDEND)
     #### GLUT
     #############
 
-    IF(NOT APPLE)
-      OSG_CONFIGURE_GLUT()
+    OSG_CONFIGURE_GLUT()
 
-      IF(GLUT_FOUND)
-        OSG_SET(OSG_WITH_GLUT 1)
-        OSG_SET(OSG_GLUT_INC_DIR ${GLUT_INCLUDE_DIR})
-        OSG_SET(OSG_GLUT_LIBS ${GLUT_LIBRARIES})
-      ELSE(GLUT_FOUND)
-        OSG_SET(OSG_WITH_GLUT 0)
-        OSG_SET(OSG_GLUT_INC_DIR "")
-        OSG_SET(OSG_GLUT_LIBS "")
-      ENDIF(GLUT_FOUND)
-
-    ENDIF(NOT APPLE)
+    IF(GLUT_FOUND)
+      OSG_SET(OSG_WITH_GLUT 1)
+      OSG_SET(OSG_GLUT_INC_DIR ${GLUT_INCLUDE_DIR})
+      OSG_SET(OSG_GLUT_LIBS ${GLUT_LIBRARIES})
+    ELSE(GLUT_FOUND)
+      OSG_SET(OSG_WITH_GLUT 0)
+      OSG_SET(OSG_GLUT_INC_DIR "")
+      OSG_SET(OSG_GLUT_LIBS "")
+    ENDIF(GLUT_FOUND)
 
     #############
     #### QT
@@ -613,7 +658,8 @@ IF(OSG_GLOBAL_PREP AND EXISTS ${OSG_GLOBAL_PREP})
   INCLUDE(${OSG_GLOBAL_PREP})
 ENDIF(OSG_GLOBAL_PREP AND EXISTS ${OSG_GLOBAL_PREP})
 
-IF(APPLE AND OSG_CARBON_FRAMEWORK)
+IF(APPLE AND OSG_COCOA_FRAMEWORK)
+    #OSG_SET(OSG_NATIVE_WINDOW OSGWindowCocoa)
     OSG_SET(OSG_NATIVE_WINDOW OSGWindowCarbon)
 ELSEIF(WIN32)
     OSG_SET(OSG_NATIVE_WINDOW OSGWindowWIN32)
@@ -626,6 +672,11 @@ ENDIF()
 ###############
 #### Doxygen
 ###############
+
+IF(EXISTS "${OSG_SUPPORT_ROOT}/bin/doxygen" AND NOT DOXYGEN_EXECUTABLE)
+  SET(DOXYGEN_EXECUTABLE "${OSG_SUPPORT_ROOT}/bin/doxygen" 
+                         CACHE FILEPATH "doxygen executable (custom)" FORCE)
+ENDIF()
 
 FIND_PACKAGE(Doxygen)
 
@@ -713,6 +764,24 @@ ENDIF(OSGBUILD_UNITTESTS)
 #################
 # Documentation I
 #################
+SET(OSG_DOXY_HTML_DIR "${CMAKE_BINARY_DIR}/Doc/html")
+FILE(MAKE_DIRECTORY ${OSG_DOXY_HTML_DIR})
+
+IF(OSG_GENERATE_SEPARATE_LIB_DOC)
+    ADD_CUSTOM_TARGET(Doc)
+ENDIF()
+
+IF(DOXYGEN_EXECUTABLE)
+    SET(DOXYGEN_VERSION)
+    EXECUTE_PROCESS(COMMAND "${DOXYGEN_EXECUTABLE}" "--version"
+                    OUTPUT_VARIABLE DOXYGEN_VERSION
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    IF(DOXYGEN_VERSION STREQUAL "1.7.3")
+        MESSAGE(WARNING "Detected doxygen version 1.7.3, which is known to crash "
+                        "when building OpenSG documentation. "
+                        "Please use a different version, sorry for the inconvenience.")
+    ENDIF(DOXYGEN_VERSION STREQUAL "1.7.3")
+ENDIF(DOXYGEN_EXECUTABLE)
 
 IF(NOT OSG_DOXY_INPUTS)
     # add a pass for doxygen to run
@@ -758,9 +827,73 @@ ELSEIF(OSG_DOXY_DOC_TYPE STREQUAL "Trac")
 
 ENDIF(OSG_DOXY_DOC_TYPE STREQUAL "User")
 
+IF(NOT OSG_GENERATE_SEPARATE_LIB_DOC)
+    SET(OSG_OpenSG_DOC_DIRECTORY "${CMAKE_BINARY_DIR}/Doc/html/Full")
+ELSE()
+    SET(OSG_OpenSG_DOC_DIRECTORY "${CMAKE_BINARY_DIR}/Doc/html/Glue")
+    FILE(RELATIVE_PATH OSG_DOXY_BASELIB_DOC_HTML_INDEX ${OSG_OpenSG_DOC_DIRECTORY} "${CMAKE_BINARY_DIR}/Doc/html")
+
+    SET(OSG_DOXY_DOC_TREE_WIDTH "250")
+
+    #Index html
+    SET(OSG_DOXY_DOC_TREE_TEMPLATE_DIR "${CMAKE_SOURCE_DIR}/Doc/SeparateDocTreeTemplate")
+    SET(OSG_DOXY_DOC_TREE_INDEX_HTML_IN "${OSG_DOXY_DOC_TREE_TEMPLATE_DIR}/index.html.in")
+    SET(OSG_DOXY_DOC_TREE_INDEX_HTML "${OSG_OpenSG_DOC_DIRECTORY}/index.html")
+
+    #Configure the html index
+    CONFIGURE_FILE("${OSG_DOXY_DOC_TREE_INDEX_HTML_IN}"
+        "${OSG_DOXY_DOC_TREE_INDEX_HTML}")
+
+    #Configure the tree script
+    SET(OSG_DOXY_DOC_TREE_SCRIPT_IN "${OSG_DOXY_DOC_TREE_TEMPLATE_DIR}/tree/OpenSGDocTree.js.in")
+    SET(OSG_DOXY_DOC_TREE_SCRIPT_DIR "${OSG_OpenSG_DOC_DIRECTORY}/tree")
+    SET(OSG_DOXY_DOC_TREE_SCRIPT "${OSG_DOXY_DOC_TREE_SCRIPT_DIR}/OpenSGDocTree.js")
+    FILE(MAKE_DIRECTORY "${OSG_DOXY_DOC_TREE_SCRIPT_DIR}")
+
+    CONFIGURE_FILE("${OSG_DOXY_DOC_TREE_SCRIPT_IN}"
+        "${OSG_DOXY_DOC_TREE_SCRIPT}")
+
+    #Configuration used by the tree
+    FILE(APPEND "${OSG_DOXY_DOC_TREE_SCRIPT}"
+        "   CoreNode = insFld(foldersTree, gFld(\"Core\", \"\"))
+")
+    FILE(APPEND "${OSG_DOXY_DOC_TREE_SCRIPT}"
+        "   ContribNode = insFld(foldersTree, gFld(\"Contrib\", \"\"))
+")
+
+    ADD_CUSTOM_COMMAND(TARGET Doc POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${OSG_DOXY_DOC_TREE_TEMPLATE_DIR}/scripts" ${OSG_OpenSG_DOC_DIRECTORY}
+        )
+ENDIF()
+
+FILE(MAKE_DIRECTORY ${OSG_OpenSG_DOC_DIRECTORY})
+
+SET(OSG_DOC_BASIC_INPUT "${CMAKE_BINARY_DIR}/Doc/Include/OSGFullDoc.include")
+SET(OSG_DOC_GENERAL_INPUT "${CMAKE_BINARY_DIR}/Doc/Include/OSGGeneralDoc.include")
+
+IF(NOT OSG_GENERATE_SEPARATE_LIB_DOC)
+  SET(OSG_DOC_SECTION "all_in_one")
+ELSE()
+  SET(OSG_DOC_SECTION "separate")
+ENDIF()
+
 # write doxygen config file
 CONFIGURE_FILE("${OSG_DOXY_CONFIGURATION_FILE_IN}"
                "${OSG_DOXY_CONFIGURATION_FILE}")
+
+SET(OSG_DOC_BASIC_INPUT "${CMAKE_BINARY_DIR}/Doc/Include/OSGDummy.include")
+
+# find/process documentation include files
+FILE(GLOB OSG_DOC_INCLUDES "${CMAKE_SOURCE_DIR}/Doc/Include/*.include")
+
+FOREACH(_OSG_DOC_INCLUDE_FULL ${OSG_DOC_INCLUDES})
+
+  GET_FILENAME_COMPONENT(_OSG_DOC_INCLUDE ${_OSG_DOC_INCLUDE_FULL} NAME)
+
+  CONFIGURE_FILE("${_OSG_DOC_INCLUDE_FULL}"
+                 "${CMAKE_BINARY_DIR}/Doc/Include/${_OSG_DOC_INCLUDE}")
+
+ENDFOREACH()
 
 IF(OSG_DOXY_INPUTS)
     FILE(APPEND ${OSG_DOXY_CONFIGURATION_FILE}
@@ -979,10 +1112,12 @@ IF(OSG_DOXY_STDOUT_LOG)
 ENDIF(OSG_DOXY_STDOUT_LOG)
 
 IF(DOXYGEN_EXECUTABLE)
-  ADD_CUSTOM_TARGET(Doc
-                    VERBATIM
-                    COMMAND ${DOXYGEN_EXECUTABLE} ${OSG_DOXY_CONFIGURATION_FILE} ${OSG_DOC_PIPES})
-ENDIF(DOXYGEN_EXECUTABLE)
+    IF(NOT OSG_GENERATE_SEPARATE_LIB_DOC)
+        ADD_CUSTOM_TARGET(Doc
+            VERBATIM
+            COMMAND ${DOXYGEN_EXECUTABLE} ${OSG_DOXY_CONFIGURATION_FILE} ${OSG_DOC_PIPES})
+    ENDIF()
+ENDIF()
 
 ##################
 # osg2-config
@@ -1067,7 +1202,19 @@ INSTALL(FILES "${CMAKE_BINARY_DIR}/OpenSGExtDep.cmake"
 INSTALL(DIRECTORY "${CMAKE_SOURCE_DIR}/Tools/fcd2code"
         DESTINATION bin
         COMPONENT development_tools
-        PATTERN *.pyc EXCLUDE)
+        PATTERN "*.pyc" EXCLUDE
+        PATTERN ".svn"  EXCLUDE)
+
+##################
+# Documentation
+##################
+IF(DOXYGEN_EXECUTABLE)
+    IF(OSG_INSTALL_DOXYDOC)
+        INSTALL(DIRECTORY "${OSG_DOXY_HTML_DIR}"
+                DESTINATION share/OpenSG/documentation
+                COMPONENT documentation)
+    ENDIF()
+ENDIF()
 
 ##################
 # Images/Icons

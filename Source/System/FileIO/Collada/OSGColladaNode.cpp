@@ -42,7 +42,7 @@
 
 #include "OSGColladaNode.h"
 
-#ifdef OSG_WITH_COLLADA
+#if defined(OSG_WITH_COLLADA) || defined(OSG_DO_DOC)
 
 #include "OSGColladaLog.h"
 #include "OSGColladaGlobal.h"
@@ -51,6 +51,7 @@
 #include "OSGColladaInstanceLight.h"
 #include "OSGColladaInstanceController.h"
 #include "OSGColladaVisualScene.h"
+#include "OSGColladaAnimation.h"
 #include "OSGTransform.h"
 #include "OSGNameAttachment.h"
 #include "OSGFieldAnimation.h"
@@ -99,24 +100,10 @@ ColladaNode::read(void)
     domNodeRef                node     = getDOMElementAs<domNode>();
     const daeElementRefArray &contents = node->getContents();
 
-	// here we check if there is a transform animation on this 
-	// field.
-	ColladaGlobal::AnimMapIt amIt = getGlobal()->editAnimationMap().find(node);
-	ColladaGlobal::AnimMapIt amEnd = getGlobal()->editAnimationMap().end();
-	if(amIt != amEnd)
-	{
-		_animation = amIt->second;
-	} 
-	else
-	{
-		_animation = NULL;
-	}
-
     // handle "transform" child elements in the order
     // they occur in the document
 	for(UInt32 i = 0; i < contents.getCount(); ++i)
 	{
-
 		switch(contents[i]->getElementType())
 		{
 		case COLLADA_TYPE::LOOKAT:
@@ -215,14 +202,14 @@ ColladaNode::createInstance(ColladaInstanceElement *colInstElem)
 
     NodeUnrecPtr retVal = NULL;
 
-   // if(getInstStore().empty() == true)
-   // {
-   //     retVal = _topN;
-   // }
-   // else
-   // {
+    if(_topN->getParent() != NULL)
+    {
         retVal = cloneTree(_topN);
-   // }
+    }
+    else
+    {
+        retVal = cloneTree(_topN);
+     }
 
     editInstStore().push_back(retVal);
 
@@ -371,26 +358,30 @@ ColladaNode::handleRotate(domRotate *rotate)
 
     domNodeRef        node   = getDOMElementAs<domNode>();
 
-    Quaternion q;
-    q.setValueAsAxisDeg(rotate->getValue()[0],
-                        rotate->getValue()[1],
-                        rotate->getValue()[2],
-                        rotate->getValue()[3] );
+    Vec3f axis(rotate->getValue()[0], rotate->getValue()[1], rotate->getValue()[2]);
+    Real32 angle(rotate->getValue()[3]);
 
     if(getGlobal()->getOptions()->getFlattenNodeXForms())
     {
         RotationTransformationElementUnrecPtr RotationElement = RotationTransformationElement::create();
-        RotationElement->setRotation(q);
+        RotationElement->setAxis(axis);
+        RotationElement->setAngle(angle);
         setName(RotationElement, rotate->getSid());
 
         appendStackedXForm(RotationElement, node);
+
+	    if(getGlobal()->editAnimationMap()[rotate] != NULL) 
+	    {
+            SNOTICE << "Found Rotation Animation" << std::endl;
+		    getGlobal()->editAnimationMap()[rotate]->getAnimation()->setAnimatedField(RotationElement,std::string("Angle"));
+	    }
     }
     else
     {
         TransformUnrecPtr xform = Transform::create();
         NodeUnrecPtr      xformN = makeNodeFor(xform);
         
-        xform->editMatrix().setRotate(q);
+        xform->editMatrix().setRotate(Quaternion(axis, osgDegree2Rad(angle)));
 
         if(getGlobal()->getOptions()->getCreateNameAttachments() == true && 
            node->getName()                                       != NULL   )
@@ -427,6 +418,12 @@ ColladaNode::handleScale(domScale *scale)
         setName(ScaleElement, scale->getSid());
 
         appendStackedXForm(ScaleElement, node);
+
+		 if(getGlobal()->editAnimationMap()[scale] != NULL) 
+	    {
+            SNOTICE << "Found Scale Animation" << std::endl;
+		    getGlobal()->editAnimationMap()[scale]->getAnimation()->setAnimatedField(ScaleElement,std::string("Scale"));
+	    }
     }
     else
     {
@@ -522,6 +519,12 @@ ColladaNode::handleTranslate(domTranslate *translate)
         setName(TranslateElement, translate->getSid());
 
         appendStackedXForm(TranslateElement, node);
+
+        if(getGlobal()->editAnimationMap()[translate] != NULL) 
+        {
+            SNOTICE << "Found Translation Animation" << std::endl;
+            getGlobal()->editAnimationMap()[translate]->getAnimation()->setAnimatedField(TranslateElement,std::string("Translation")) ;
+        }
     }
     else
     {
@@ -696,14 +699,14 @@ ColladaNode::appendXForm(Node *xformN)
 
     _bottomN = xformN;
 
-	if(_animation != NULL) 
+	/*if(_animation != NULL) 
 	{
-		_animation->setAnimatedField(xformN->getCore(),std::string("matrix"));
-	}
+		_animation->getAnimation()->setAnimatedField(xformN->getCore(),std::string("matrix"));
+	}*/
 }
 
 /*! Add a transform node to the OpenSG tree representing
-    this <node>. Also finalizes transform animations.
+    this &lt;node&gt;.
  */
 void
 ColladaNode::appendStackedXForm(TransformationElement *transformElement, domNodeRef node)
@@ -743,16 +746,10 @@ ColladaNode::appendStackedXForm(TransformationElement *transformElement, domNode
     {
         _topN = _bottomN;
     }
-
-	if(_animation != NULL) 
-	{
-        //TODO: Implement animations for stacked transforms
-		//_animation->setAnimatedField(xformN->getCore(),std::string("matrix"));
-	}
 }
 
 /*! Add a child node to the OpenSG tree representing
-    this <node>.
+    this &lt;node&gt;.
  */
 void
 ColladaNode::appendChild(Node *childN)

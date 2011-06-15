@@ -149,7 +149,7 @@ void ShaderVariableBase::classDescInserter(TypeObject &oType)
         "",
         ParentsFieldId, ParentsFieldMask,
         true,
-        (Field::MFDefaultFlags | Field::FStdAccess),
+        (Field::FClusterLocal),
         static_cast     <FieldEditMethodSig>(&ShaderVariable::invalidEditField),
         static_cast     <FieldGetMethodSig >(&ShaderVariable::invalidGetField));
 
@@ -171,37 +171,38 @@ ShaderVariableBase::TypeObject ShaderVariableBase::_type(
     "<?xml version=\"1.0\"?>\n"
     "\n"
     "<FieldContainer\n"
-    "   name=\"ShaderVariable\"\n"
-    "   parent=\"FieldContainer\"\n"
-    "   library=\"System\"\n"
-    "   pointerfieldtypes=\"both\"\n"
-    "   structure=\"abstract\"\n"
-    "   systemcomponent=\"true\"\n"
-    "   parentsystemcomponent=\"true\"\n"
-    "   decoratable=\"false\"\n"
-    "   useLocalIncludes=\"false\"\n"
-    "   childFields=\"multi\"\n"
-    "   docGroupBase=\"GrpSystemShader\"\n"
-    "   >\n"
-    "  <Field\n"
-    "\t name=\"name\"\n"
-    "\t type=\"std::string\"\n"
-    "\t cardinality=\"single\"\n"
-    "\t visibility=\"external\"\n"
-    "\t access=\"protected\"\n"
-    "\t >\n"
-    "\tparameter name\n"
-    "  </Field>\n"
-    "  \n"
-    "  <Field\n"
-    "\t name=\"parents\"\n"
-    "\t type=\"FieldContainer\"\n"
+    "     name=\"ShaderVariable\"\n"
+    "     parent=\"FieldContainer\"\n"
+    "     library=\"System\"\n"
+    "     pointerfieldtypes=\"both\"\n"
+    "     structure=\"abstract\"\n"
+    "     systemcomponent=\"true\"\n"
+    "     parentsystemcomponent=\"true\"\n"
+    "     decoratable=\"false\"\n"
+    "     useLocalIncludes=\"false\"\n"
+    "     childFields=\"multi\"\n"
+    "     docGroupBase=\"GrpSystemShader\"\n"
+    "     >\n"
+    "    <Field\n"
+    "         name=\"name\"\n"
+    "         type=\"std::string\"\n"
+    "         cardinality=\"single\"\n"
+    "         visibility=\"external\"\n"
+    "         access=\"protected\"\n"
+    "         >\n"
+    "        parameter name\n"
+    "    </Field>\n"
+    "\n"
+    "    <Field\n"
+    "         name=\"parents\"\n"
+    "         type=\"FieldContainer\"\n"
     "\t cardinality=\"multi\"\n"
     "\t visibility=\"internal\"\n"
     "\t access=\"none\"\n"
-    "     category=\"parentpointer\"\n"
+    "         category=\"parentpointer\"\n"
+    "         fieldFlags=\"FClusterLocal\"\n"
     "\t >\n"
-    "  </Field> \n"
+    "    </Field>\n"
     "</FieldContainer>\n",
     ""
     );
@@ -284,10 +285,12 @@ void ShaderVariableBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (NameFieldMask & whichField))
     {
+        editSField(NameFieldMask);
         _sfName.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ParentsFieldMask & whichField))
     {
+        editMField(ParentsFieldMask, _mfParents);
         _mfParents.copyFromBin(pMem);
     }
 }
@@ -367,8 +370,15 @@ bool ShaderVariableBase::unlinkParent(
                 return true;
             }
 
-            FWARNING(("ShaderVariableBase::unlinkParent: "
-                      "Child <-> Parent link inconsistent.\n"));
+            SWARNING << "Child (["          << this
+                     << "] id ["            << this->getId()
+                     << "] type ["          << this->getType().getCName()
+                     << "] parentFieldId [" << parentFieldId
+                     << "]) - Parent (["    << pParent
+                     << "] id ["            << pParent->getId()
+                     << "] type ["          << pParent->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }

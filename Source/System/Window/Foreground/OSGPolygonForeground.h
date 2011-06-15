@@ -49,6 +49,9 @@ OSG_BEGIN_NAMESPACE
 
 /*! \brief PolygonForeground class. See \ref 
            PageSystemPolygonForeground for a description.
+    \ingroup GrpWindowForegroundObj
+    \ingroup GrpLibOSGWindow
+    \includebasedoc
 */
 
 class OSG_WINDOW_DLLMAPPING PolygonForeground : public PolygonForegroundBase
@@ -82,7 +85,7 @@ class OSG_WINDOW_DLLMAPPING PolygonForeground : public PolygonForegroundBase
     /*! \name                    draw                                      */
     /*! \{                                                                 */
 
-    virtual void draw(DrawEnv *, Viewport *);
+    virtual void draw(DrawEnv *);
 
     /*! \}                                                                 */
      /*=========================  PROTECTED  ===============================*/

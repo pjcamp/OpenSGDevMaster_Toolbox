@@ -48,9 +48,12 @@ OSG_BEGIN_NAMESPACE
 
 
 /*! \brief Perspective Camera class. See 
-  \ref PageSystemWindowCameraPerspective 
-  for a description.
-*/
+  \ref PageSystemWindowCameraPerspective for a description.
+
+  \ingroup GrpSystemWindowCamera
+  \ingroup GrpLibOSGSystem
+  \includebasedoc
+ */
 
 class OSG_SYSTEM_DLLMAPPING PerspectiveCamera : public PerspectiveCameraBase
 {
@@ -84,9 +87,9 @@ class OSG_SYSTEM_DLLMAPPING PerspectiveCamera : public PerspectiveCameraBase
     /*! \{                                                                 */
 
 
-    virtual void getProjection(      Matrixr    &result, 
-                                     UInt32      width,
-                                     UInt32      height);
+    virtual void getProjection(      Matrix    &result, 
+                                     UInt32     width,
+                                     UInt32     height);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

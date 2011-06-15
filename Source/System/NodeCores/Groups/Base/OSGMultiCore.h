@@ -47,8 +47,11 @@
 OSG_BEGIN_NAMESPACE
 
 /*! \brief MultiCore class. See \ref
-           PageSystemMultiCore for a description.
-*/
+    PageSystemMultiCore for a description.
+    \ingroup GrpSystemNodeCoreGroupsCores
+    \ingroup GrpLibOSGSystem
+    \includebasedoc
+ */
 
 class OSG_SYSTEM_DLLMAPPING MultiCore : public MultiCoreBase
 {
@@ -110,7 +113,7 @@ class OSG_SYSTEM_DLLMAPPING MultiCore : public MultiCoreBase
     /*! \name                   Transformation                             */
     /*! \{                                                                 */
 
-    virtual void accumulateMatrix(Matrixr &result);
+    virtual void accumulateMatrix(Matrix &result);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

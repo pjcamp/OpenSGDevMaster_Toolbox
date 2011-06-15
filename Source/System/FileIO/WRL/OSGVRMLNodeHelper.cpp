@@ -47,6 +47,7 @@
 #include "OSGVRMLNodeHelper.h"
 #include "OSGSingletonHolder.ins"
 
+#include "OSGFieldDescFactory.h"
 
 #include "OSGScanParseSkel.h"
 #include "OSGSceneFileHandler.h"
@@ -171,20 +172,9 @@ VRMLNodeHelper *VRMLNodeHelperFactoryBase::createHelper(
 }
 
 
-/*! \defgroup GrpSystemFileIOVRML VRML-specific File Input/Output
-    \ingroup GrpSystemFileIO
-
-    See \ref PageSystemFileIO for details.
-*/
-
 //---------------------------------------------------------------------------
 //  Class
 //---------------------------------------------------------------------------
-
-/*! \class OSG::VRMLNodeDesc
-    \ingroup GrpSystemFileIOVRML
-    General VRML Node description
-*/
 
 UInt32 VRMLNodeHelper::_uiIndent = 0;
 
@@ -321,13 +311,12 @@ FieldContainerTransitPtr VRMLNodeHelper::beginNode(
 
             pAtt = dynamic_cast<VRMLGenericAtt *>(pAttClone);
 
-            pAtt->setVrmlNodeTypename(szTypename);
-
             OSG_ASSERT(pAttClone == pAtt);
 
             if(pAtt != NULL)
             {
-                pAtt->setInternal(true);
+                pAtt->setVrmlNodeTypename(szTypename);
+                pAtt->setInternal        (true);
             }
 
             if(pCore != NULL)
@@ -789,47 +778,6 @@ void VRMLNodeHelper::getField(const Char8                * szFieldname,
 #endif
 }
 
-// HACK Should be somewhere else and automatic
-
-#define OSG_CREATE_DESC(TYPE) new TYPE::Description(        \
-        TYPE::getClassType(),                               \
-        szFieldName,                                        \
-        "",                                                 \
-        0,                                                  \
-        0,                                                  \
-        false,                                              \
-        OSG::Field::SFDefaultFlags,                         \
-        static_cast<OSG::FieldIndexEditMethodSig>(          \
-            &VRMLGenericAtt::editDynamicField),             \
-        static_cast<OSG::FieldIndexGetMethodSig >(          \
-            &VRMLGenericAtt::getDynamicField ))
-
-#define OSG_CREATE_DESC_ELSE(TYPE)                          \
-    else if(uiFieldTypeId == TYPE::getClassType().getId())  \
-    {                                                       \
-        returnValue = OSG_CREATE_DESC(TYPE);                \
-    }
-
-#define OSG_CREATE_PTRDESC(TYPE) new TYPE::Description(     \
-        TYPE::getClassType(),                               \
-        szFieldName,                                        \
-        "",                                                 \
-        0,                                                  \
-        0,                                                  \
-        false,                                              \
-        (OSG::Field::SFDefaultFlags | Field::FStdAccess),   \
-        static_cast<OSG::FieldIndexEditMethodSig>(          \
-            &VRMLGenericAtt::editDynamicField),             \
-        static_cast<OSG::FieldIndexGetMethodSig >(          \
-            &VRMLGenericAtt::getDynamicField ))
-
-#define OSG_CREATE_PTRDESC_ELSE(TYPE)                       \
-    else if(uiFieldTypeId == TYPE::getClassType().getId())  \
-    {                                                       \
-        returnValue = OSG_CREATE_PTRDESC(TYPE);             \
-    }
-
-
 
 FieldDescriptionBase *VRMLNodeHelper::getFieldDescription(
     const Char8  *szFieldName,
@@ -837,36 +785,14 @@ FieldDescriptionBase *VRMLNodeHelper::getFieldDescription(
 {
     FieldDescriptionBase *returnValue = NULL;
 
-
-    if(uiFieldTypeId == SFBool::getClassType().getId())
-    {
-        returnValue = OSG_CREATE_DESC(SFBool);
-    }
-    OSG_CREATE_DESC_ELSE(SFInt32)
-    OSG_CREATE_DESC_ELSE(MFInt32)
-    OSG_CREATE_DESC_ELSE(SFString)
-    OSG_CREATE_DESC_ELSE(MFString)
-    OSG_CREATE_DESC_ELSE(SFReal32)
-    OSG_CREATE_DESC_ELSE(MFReal32)
-    OSG_CREATE_DESC_ELSE(SFTime)
-    OSG_CREATE_DESC_ELSE(MFTime)
-
-    OSG_CREATE_DESC_ELSE(SFVec2s)
-    OSG_CREATE_DESC_ELSE(MFVec2f)
-    OSG_CREATE_DESC_ELSE(SFVec2f)
-    OSG_CREATE_DESC_ELSE(MFPnt3f)
-    OSG_CREATE_DESC_ELSE(SFPnt3f)
-    OSG_CREATE_DESC_ELSE(MFVec3f)
-    OSG_CREATE_DESC_ELSE(SFVec3f)
-    OSG_CREATE_DESC_ELSE(MFColor3f)
-    OSG_CREATE_DESC_ELSE(SFColor3f)
-    OSG_CREATE_DESC_ELSE(MFQuaternion)
-    OSG_CREATE_DESC_ELSE(SFQuaternion)
-
-    OSG_CREATE_PTRDESC_ELSE(SFUnrecFieldContainerPtr)
-    OSG_CREATE_PTRDESC_ELSE(MFUnrecFieldContainerPtr)
-
-    OSG_CREATE_PTRDESC_ELSE(SFUnrecImagePtr)
+    returnValue = FieldDescFactory::the()->createIdx(
+        uiFieldTypeId,
+        szFieldName,
+        static_cast<OSG::FieldIndexEditMethodSig>(
+            &VRMLGenericAtt::editDynamicField),
+        static_cast<OSG::FieldIndexGetMethodSig >(
+            &VRMLGenericAtt::getDynamicField));
+    
 
     if(returnValue == NULL)
     {
@@ -941,11 +867,6 @@ void VRMLNodeHelper::setContainerFieldValue(
 //---------------------------------------------------------------------------
 //  Class
 //---------------------------------------------------------------------------
-
-/*! \class OSG::VRMLDefaultHelper
-    \ingroup GrpSystemFileIOVRML
-    VRML Group description
-*/
 
 VRMLNodeHelper *VRMLDefaultHelper::create(void)
 {
@@ -1035,11 +956,6 @@ OSG_INST_GENERICVRMLHELPER(ComponentTransform);
 //---------------------------------------------------------------------------
 //  Class
 //---------------------------------------------------------------------------
-
-/*! \class OSG::VRMLMaterialDesc
-    \ingroup GrpSystemFileIOVRML
-    VRML Material description
-*/
 
 VRMLNodeHelper *VRMLMaterialHelper::create(void)
 {
@@ -1408,11 +1324,6 @@ VRMLNodeHelperFactoryBase::RegisterHelper VRMLMaterialHelper::_regHelper(
 //  Class
 //---------------------------------------------------------------------------
 
-/*! \class OSG::VRMLShapeDesc
-    \ingroup GrpSystemFileIOVRML
-    VRML Shape description
-*/
-
 VRMLNodeHelper *VRMLShapeHelper::create(void)
 {
     return new VRMLShapeHelper();
@@ -1668,11 +1579,6 @@ VRMLNodeHelperFactoryBase::RegisterHelper VRMLShapeHelper::_regHelper(
 //---------------------------------------------------------------------------
 //  Class
 //---------------------------------------------------------------------------
-
-/*! \class OSG::VRMLAppearanceDesc
-    \ingroup GrpSystemFileIOVRML
-    VRML Appearance description
-*/
 
 VRMLNodeHelper *VRMLAppearanceHelper::create(void)
 {
@@ -1982,11 +1888,6 @@ VRMLNodeHelperFactoryBase::RegisterHelper VRMLAppearanceHelper::_regHelper(
 //---------------------------------------------------------------------------
 //  Class
 //---------------------------------------------------------------------------
-
-/*! \class OSG::VRMLIndexedGeometryHelper
-    \ingroup GrpSystemFileIOVRML
-    VRML Geometry description
-*/
 
 VRMLNodeHelper *VRMLIndexedGeometryHelper::create(void)
 {
@@ -2570,11 +2471,6 @@ VRMLNodeHelperFactoryBase::RegisterHelper
 //  Class
 //---------------------------------------------------------------------------
 
-/*! \class OSG::VRMLGeometryPartHelper
-    \ingroup GrpSystemFileIOVRML
-    VRML Geometry Part Set description
-*/
-
 VRMLNodeHelper *VRMLGeometryPartHelper::create(void)
 {
     return new VRMLGeometryPartHelper();
@@ -2803,11 +2699,6 @@ VRMLNodeHelperFactoryBase::RegisterHelper
 //---------------------------------------------------------------------------
 //  Class
 //---------------------------------------------------------------------------
-
-/*! \class OSG::VRMLGeometryObjectDesc
-    \ingroup GrpSystemFileIOVRML
-    VRML Geometry Object Set description
-*/
 
 VRMLNodeHelper *VRMLGeometryObjectHelper::create(void)
 {
@@ -3334,11 +3225,6 @@ VRMLNodeHelperFactoryBase::RegisterHelper
 //  Class
 //---------------------------------------------------------------------------
 
-/*! \class OSG::VRMLTextureHelper
-    \ingroup GrpSystemFileIOVRML
-    VRML Texture description
-*/
-
 /*-------------------------------------------------------------------------*/
 /*                            Constructors                                 */
 
@@ -3574,11 +3460,6 @@ void VRMLTextureHelper::dump(const Char8 *)
 //---------------------------------------------------------------------------
 //  Class
 //---------------------------------------------------------------------------
-
-/*! \class OSG::VRMLImageTextureHelper
-    \ingroup GrpSystemFileIOVRML
-    VRML Texture description
-*/
 
 VRMLNodeHelper *VRMLImageTextureHelper::create(void)
 {
@@ -3818,11 +3699,6 @@ VRMLNodeHelperFactoryBase::RegisterHelper VRMLImageTextureHelper::_regHelper(
 //  Class
 //---------------------------------------------------------------------------
 
-/*! \class OSG::VRMLPixelTextureHelper
-    \ingroup GrpSystemFileIOVRML
-    VRML Texture description
-*/
-
 VRMLNodeHelper *VRMLPixelTextureHelper::create(void)
 {
     return new VRMLPixelTextureHelper();
@@ -4016,11 +3892,6 @@ VRMLNodeHelperFactoryBase::RegisterHelper VRMLPixelTextureHelper::_regHelper(
 //  Class
 //---------------------------------------------------------------------------
 
-/*! \class OSG::VRMLInlineHelper
-    \ingroup GrpSystemFileIOVRML
-    VRML Group description
-*/
-
 VRMLNodeHelper *VRMLInlineHelper::create(void)
 {
     return new VRMLInlineHelper();
@@ -4097,11 +3968,6 @@ VRMLNodeHelperFactoryBase::RegisterHelper VRMLInlineHelper::_regHelper(
 //---------------------------------------------------------------------------
 //  Class
 //---------------------------------------------------------------------------
-
-/*! \class OSG::VRMLSwitchHelper
-    \ingroup GrpSystemFileIOVRML
-    VRML Swich description
-*/
 
 VRMLNodeHelper *VRMLSwitchHelper::create(void)
 {

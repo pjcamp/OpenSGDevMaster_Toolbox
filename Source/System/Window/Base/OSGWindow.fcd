@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 
 <FieldContainer
-	name="Window"
-	parent="HardwareContext"
-	library="System"
-	pointerfieldtypes="both"
-	structure="abstract"
-	systemcomponent="true"
-	parentsystemcomponent="true"
->
-\ingroup GrpSystemWindow
+   name="Window"
+   parent="HardwareContext"
+   library="System"
+   pointerfieldtypes="both"
+   structure="abstract"
+   systemcomponent="true"
+   parentsystemcomponent="true"
+   docGroupBase="GrpSystemWindow"
+   >
 
 Window is the base class for all window management classes.  See \ref
 PageSystemWindowWindow for a description.
@@ -133,7 +133,7 @@ init(void), activate(void), deactivate(void) and swap(void).
 	   name="renderOptions"
 	   type="RenderOptionsPtr"
 	   cardinality="single"
-	   visibility="internal"
+	   visibility="external"
 	   access="public"
        defaultValue="NULL"
 	>
@@ -144,7 +144,7 @@ init(void), activate(void), deactivate(void) and swap(void).
 	   cardinality="single"
 	   visibility="internal"
 	   access="public"
-       defaultValue="(Window::SequentialPartitionDraw | Window::StdDrawer | Window::KeepContextActive)"
+       defaultValue="(Window::SequentialPartitionDraw | Window::StdDrawer | Window::ActiveContext)"
        >
     </Field>
     <Field

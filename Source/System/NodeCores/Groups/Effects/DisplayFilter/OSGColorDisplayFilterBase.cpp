@@ -265,6 +265,7 @@ ColorDisplayFilterBase::TypeObject ColorDisplayFilterBase::_type(
     "   parentsystemcomponent=\"true\"\n"
     "   decoratable=\"false\"\n"
     "   useLocalIncludes=\"false\"\n"
+    "   docGroupBase=\"GrpEffectsGroupsDisplayFilter\"\n"
     "   >   \n"
     "  <Field\n"
     "\t name=\"gamma\"\n"
@@ -318,7 +319,7 @@ ColorDisplayFilterBase::TypeObject ColorDisplayFilterBase::_type(
     "\t cardinality=\"multi\"\n"
     "\t visibility=\"external\"\n"
     "\t access=\"public\"\n"
-    "\t>\n"
+    "\t >\n"
     "\tShading table\n"
     "  </Field>\n"
     "  <Field\n"
@@ -330,18 +331,18 @@ ColorDisplayFilterBase::TypeObject ColorDisplayFilterBase::_type(
     "     access=\"protected\"\n"
     "     fieldFlags=\"FClusterLocal\"\n"
     "     >\n"
-    "    </Field>\n"
-    "    <Field\n"
-    "\t   name=\"filterShader\"\n"
-    "\t   type=\"SimpleSHLChunk\"\n"
-    "\t   cardinality=\"single\"\n"
-    "\t   visibility=\"external\"\n"
-    "\t   defaultValue=\"NULL\"\n"
-    "\t   access=\"protected\"\n"
-    "       category=\"pointer\"\n"
-    "       fieldFlags=\"FClusterLocal\"\n"
-    "\t   >\n"
-    "\t</Field>\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"filterShader\"\n"
+    "\t type=\"SimpleSHLChunk\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"NULL\"\n"
+    "\t access=\"protected\"\n"
+    "     category=\"pointer\"\n"
+    "     fieldFlags=\"FClusterLocal\"\n"
+    "\t >\n"
+    "  </Field>\n"
     "</FieldContainer>\n",
     ""
     );
@@ -562,34 +563,42 @@ void ColorDisplayFilterBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (GammaFieldMask & whichField))
     {
+        editSField(GammaFieldMask);
         _sfGamma.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (MatrixFieldMask & whichField))
     {
+        editSField(MatrixFieldMask);
         _sfMatrix.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ColorTableWidthFieldMask & whichField))
     {
+        editSField(ColorTableWidthFieldMask);
         _sfColorTableWidth.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ColorTableHeightFieldMask & whichField))
     {
+        editSField(ColorTableHeightFieldMask);
         _sfColorTableHeight.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ColorTableDepthFieldMask & whichField))
     {
+        editSField(ColorTableDepthFieldMask);
         _sfColorTableDepth.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ColorTableFieldMask & whichField))
     {
+        editMField(ColorTableFieldMask, _mfColorTable);
         _mfColorTable.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (TableImageFieldMask & whichField))
     {
+        editSField(TableImageFieldMask);
         _sfTableImage.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (FilterShaderFieldMask & whichField))
     {
+        editSField(FilterShaderFieldMask);
         _sfFilterShader.copyFromBin(pMem);
     }
 }

@@ -82,23 +82,23 @@ OSG_BEGIN_NAMESPACE
  *                        Field Documentation                              *
 \***************************************************************************/
 
-/*! \var Vec3r           ComponentTransformBase::_sfCenter
+/*! \var Vec3f           ComponentTransformBase::_sfCenter
     
 */
 
-/*! \var Quaternionr     ComponentTransformBase::_sfRotation
+/*! \var Quaternion      ComponentTransformBase::_sfRotation
     
 */
 
-/*! \var Vec3r           ComponentTransformBase::_sfScale
+/*! \var Vec3f           ComponentTransformBase::_sfScale
     
 */
 
-/*! \var Quaternionr     ComponentTransformBase::_sfScaleOrientation
+/*! \var Quaternion      ComponentTransformBase::_sfScaleOrientation
     
 */
 
-/*! \var Vec3r           ComponentTransformBase::_sfTranslation
+/*! \var Vec3f           ComponentTransformBase::_sfTranslation
     
 */
 
@@ -130,8 +130,8 @@ void ComponentTransformBase::classDescInserter(TypeObject &oType)
     FieldDescriptionBase *pDesc = NULL;
 
 
-    pDesc = new SFVec3r::Description(
-        SFVec3r::getClassType(),
+    pDesc = new SFVec3f::Description(
+        SFVec3f::getClassType(),
         "center",
         "",
         CenterFieldId, CenterFieldMask,
@@ -142,8 +142,8 @@ void ComponentTransformBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new SFQuaternionr::Description(
-        SFQuaternionr::getClassType(),
+    pDesc = new SFQuaternion::Description(
+        SFQuaternion::getClassType(),
         "rotation",
         "",
         RotationFieldId, RotationFieldMask,
@@ -154,8 +154,8 @@ void ComponentTransformBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new SFVec3r::Description(
-        SFVec3r::getClassType(),
+    pDesc = new SFVec3f::Description(
+        SFVec3f::getClassType(),
         "scale",
         "",
         ScaleFieldId, ScaleFieldMask,
@@ -166,8 +166,8 @@ void ComponentTransformBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new SFQuaternionr::Description(
-        SFQuaternionr::getClassType(),
+    pDesc = new SFQuaternion::Description(
+        SFQuaternion::getClassType(),
         "scaleOrientation",
         "",
         ScaleOrientationFieldId, ScaleOrientationFieldMask,
@@ -178,8 +178,8 @@ void ComponentTransformBase::classDescInserter(TypeObject &oType)
 
     oType.addInitialDesc(pDesc);
 
-    pDesc = new SFVec3r::Description(
-        SFVec3r::getClassType(),
+    pDesc = new SFVec3f::Description(
+        SFVec3f::getClassType(),
         "translation",
         "",
         TranslationFieldId, TranslationFieldMask,
@@ -206,50 +206,51 @@ ComponentTransformBase::TypeObject ComponentTransformBase::_type(
     "<?xml version=\"1.0\" ?>\n"
     "\n"
     "<FieldContainer\n"
-    "\tname=\"ComponentTransform\"\n"
-    "\tparent=\"Transform\"\n"
-    "\tlibrary=\"Group\"\n"
-    "\tstructure=\"concrete\"\n"
-    "\tpointerfieldtypes=\"both\"\n"
-    "\tsystemcomponent=\"true\"\n"
-    "\tparentsystemcomponent=\"true\"\n"
-    "    isNodeCore=\"true\"\n"
-    ">\n"
-    "\t<Field\n"
-    "\t\tname=\"center\"\n"
-    "\t\ttype=\"Vec3r\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"rotation\"\n"
-    "\t\ttype=\"Quaternionr\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"scale\"\n"
-    "\t\ttype=\"Vec3r\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"scaleOrientation\"\n"
-    "\t\ttype=\"Quaternionr\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"translation\"\n"
-    "\t\ttype=\"Vec3r\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t>\n"
-    "\t</Field>\n"
+    "   name=\"ComponentTransform\"\n"
+    "   parent=\"Transform\"\n"
+    "   library=\"Group\"\n"
+    "   structure=\"concrete\"\n"
+    "   pointerfieldtypes=\"both\"\n"
+    "   systemcomponent=\"true\"\n"
+    "   parentsystemcomponent=\"true\"\n"
+    "   isNodeCore=\"true\"\n"
+    "   docGroupBase=\"GrpGroupMisc\"\n"
+    "   >\n"
+    "  <Field\n"
+    "\t name=\"center\"\n"
+    "\t type=\"Vec3f\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"rotation\"\n"
+    "\t type=\"Quaternion\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"scale\"\n"
+    "\t type=\"Vec3f\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"scaleOrientation\"\n"
+    "\t type=\"Quaternion\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"translation\"\n"
+    "\t type=\"Vec3f\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t >\n"
+    "  </Field>\n"
     "</FieldContainer>\n",
     ""
     );
@@ -274,66 +275,66 @@ UInt32 ComponentTransformBase::getContainerSize(void) const
 /*------------------------- decorator get ------------------------------*/
 
 
-SFVec3r *ComponentTransformBase::editSFCenter(void)
+SFVec3f *ComponentTransformBase::editSFCenter(void)
 {
     editSField(CenterFieldMask);
 
     return &_sfCenter;
 }
 
-const SFVec3r *ComponentTransformBase::getSFCenter(void) const
+const SFVec3f *ComponentTransformBase::getSFCenter(void) const
 {
     return &_sfCenter;
 }
 
 
-SFQuaternionr *ComponentTransformBase::editSFRotation(void)
+SFQuaternion *ComponentTransformBase::editSFRotation(void)
 {
     editSField(RotationFieldMask);
 
     return &_sfRotation;
 }
 
-const SFQuaternionr *ComponentTransformBase::getSFRotation(void) const
+const SFQuaternion *ComponentTransformBase::getSFRotation(void) const
 {
     return &_sfRotation;
 }
 
 
-SFVec3r *ComponentTransformBase::editSFScale(void)
+SFVec3f *ComponentTransformBase::editSFScale(void)
 {
     editSField(ScaleFieldMask);
 
     return &_sfScale;
 }
 
-const SFVec3r *ComponentTransformBase::getSFScale(void) const
+const SFVec3f *ComponentTransformBase::getSFScale(void) const
 {
     return &_sfScale;
 }
 
 
-SFQuaternionr *ComponentTransformBase::editSFScaleOrientation(void)
+SFQuaternion *ComponentTransformBase::editSFScaleOrientation(void)
 {
     editSField(ScaleOrientationFieldMask);
 
     return &_sfScaleOrientation;
 }
 
-const SFQuaternionr *ComponentTransformBase::getSFScaleOrientation(void) const
+const SFQuaternion *ComponentTransformBase::getSFScaleOrientation(void) const
 {
     return &_sfScaleOrientation;
 }
 
 
-SFVec3r *ComponentTransformBase::editSFTranslation(void)
+SFVec3f *ComponentTransformBase::editSFTranslation(void)
 {
     editSField(TranslationFieldMask);
 
     return &_sfTranslation;
 }
 
-const SFVec3r *ComponentTransformBase::getSFTranslation(void) const
+const SFVec3f *ComponentTransformBase::getSFTranslation(void) const
 {
     return &_sfTranslation;
 }
@@ -407,22 +408,27 @@ void ComponentTransformBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (CenterFieldMask & whichField))
     {
+        editSField(CenterFieldMask);
         _sfCenter.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (RotationFieldMask & whichField))
     {
+        editSField(RotationFieldMask);
         _sfRotation.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ScaleFieldMask & whichField))
     {
+        editSField(ScaleFieldMask);
         _sfScale.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ScaleOrientationFieldMask & whichField))
     {
+        editSField(ScaleOrientationFieldMask);
         _sfScaleOrientation.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (TranslationFieldMask & whichField))
     {
+        editSField(TranslationFieldMask);
         _sfTranslation.copyFromBin(pMem);
     }
 }
@@ -578,8 +584,8 @@ ComponentTransformBase::~ComponentTransformBase(void)
 
 GetFieldHandlePtr ComponentTransformBase::getHandleCenter          (void) const
 {
-    SFVec3r::GetHandlePtr returnValue(
-        new  SFVec3r::GetHandle(
+    SFVec3f::GetHandlePtr returnValue(
+        new  SFVec3f::GetHandle(
              &_sfCenter,
              this->getType().getFieldDesc(CenterFieldId),
              const_cast<ComponentTransformBase *>(this)));
@@ -589,8 +595,8 @@ GetFieldHandlePtr ComponentTransformBase::getHandleCenter          (void) const
 
 EditFieldHandlePtr ComponentTransformBase::editHandleCenter         (void)
 {
-    SFVec3r::EditHandlePtr returnValue(
-        new  SFVec3r::EditHandle(
+    SFVec3f::EditHandlePtr returnValue(
+        new  SFVec3f::EditHandle(
              &_sfCenter,
              this->getType().getFieldDesc(CenterFieldId),
              this));
@@ -603,8 +609,8 @@ EditFieldHandlePtr ComponentTransformBase::editHandleCenter         (void)
 
 GetFieldHandlePtr ComponentTransformBase::getHandleRotation        (void) const
 {
-    SFQuaternionr::GetHandlePtr returnValue(
-        new  SFQuaternionr::GetHandle(
+    SFQuaternion::GetHandlePtr returnValue(
+        new  SFQuaternion::GetHandle(
              &_sfRotation,
              this->getType().getFieldDesc(RotationFieldId),
              const_cast<ComponentTransformBase *>(this)));
@@ -614,8 +620,8 @@ GetFieldHandlePtr ComponentTransformBase::getHandleRotation        (void) const
 
 EditFieldHandlePtr ComponentTransformBase::editHandleRotation       (void)
 {
-    SFQuaternionr::EditHandlePtr returnValue(
-        new  SFQuaternionr::EditHandle(
+    SFQuaternion::EditHandlePtr returnValue(
+        new  SFQuaternion::EditHandle(
              &_sfRotation,
              this->getType().getFieldDesc(RotationFieldId),
              this));
@@ -628,8 +634,8 @@ EditFieldHandlePtr ComponentTransformBase::editHandleRotation       (void)
 
 GetFieldHandlePtr ComponentTransformBase::getHandleScale           (void) const
 {
-    SFVec3r::GetHandlePtr returnValue(
-        new  SFVec3r::GetHandle(
+    SFVec3f::GetHandlePtr returnValue(
+        new  SFVec3f::GetHandle(
              &_sfScale,
              this->getType().getFieldDesc(ScaleFieldId),
              const_cast<ComponentTransformBase *>(this)));
@@ -639,8 +645,8 @@ GetFieldHandlePtr ComponentTransformBase::getHandleScale           (void) const
 
 EditFieldHandlePtr ComponentTransformBase::editHandleScale          (void)
 {
-    SFVec3r::EditHandlePtr returnValue(
-        new  SFVec3r::EditHandle(
+    SFVec3f::EditHandlePtr returnValue(
+        new  SFVec3f::EditHandle(
              &_sfScale,
              this->getType().getFieldDesc(ScaleFieldId),
              this));
@@ -653,8 +659,8 @@ EditFieldHandlePtr ComponentTransformBase::editHandleScale          (void)
 
 GetFieldHandlePtr ComponentTransformBase::getHandleScaleOrientation (void) const
 {
-    SFQuaternionr::GetHandlePtr returnValue(
-        new  SFQuaternionr::GetHandle(
+    SFQuaternion::GetHandlePtr returnValue(
+        new  SFQuaternion::GetHandle(
              &_sfScaleOrientation,
              this->getType().getFieldDesc(ScaleOrientationFieldId),
              const_cast<ComponentTransformBase *>(this)));
@@ -664,8 +670,8 @@ GetFieldHandlePtr ComponentTransformBase::getHandleScaleOrientation (void) const
 
 EditFieldHandlePtr ComponentTransformBase::editHandleScaleOrientation(void)
 {
-    SFQuaternionr::EditHandlePtr returnValue(
-        new  SFQuaternionr::EditHandle(
+    SFQuaternion::EditHandlePtr returnValue(
+        new  SFQuaternion::EditHandle(
              &_sfScaleOrientation,
              this->getType().getFieldDesc(ScaleOrientationFieldId),
              this));
@@ -678,8 +684,8 @@ EditFieldHandlePtr ComponentTransformBase::editHandleScaleOrientation(void)
 
 GetFieldHandlePtr ComponentTransformBase::getHandleTranslation     (void) const
 {
-    SFVec3r::GetHandlePtr returnValue(
-        new  SFVec3r::GetHandle(
+    SFVec3f::GetHandlePtr returnValue(
+        new  SFVec3f::GetHandle(
              &_sfTranslation,
              this->getType().getFieldDesc(TranslationFieldId),
              const_cast<ComponentTransformBase *>(this)));
@@ -689,8 +695,8 @@ GetFieldHandlePtr ComponentTransformBase::getHandleTranslation     (void) const
 
 EditFieldHandlePtr ComponentTransformBase::editHandleTranslation    (void)
 {
-    SFVec3r::EditHandlePtr returnValue(
-        new  SFVec3r::EditHandle(
+    SFVec3f::EditHandlePtr returnValue(
+        new  SFVec3f::EditHandle(
              &_sfTranslation,
              this->getType().getFieldDesc(TranslationFieldId),
              this));

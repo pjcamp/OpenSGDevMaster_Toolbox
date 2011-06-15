@@ -42,15 +42,18 @@
 #pragma once
 #endif
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(OSG_DO_DOC)
 
 #include "OSGCoreGLWindowBase.h"
 
 OSG_BEGIN_NAMESPACE
 
 /*! \brief CoreGLWindow class. See \ref
-           PageWindowCoreGLCoreGLWindow for a description.
-*/
+           PageWindowCoreGL for a description.
+    \ingroup GrpWindowCoreGLObj
+    \ingroup GrpLibOSGWindowCoreGL
+    \includebasedoc
+ */
 
 class OSG_WINDOWCOREGL_DLLMAPPING CoreGLWindow : public CoreGLWindowBase
 {
@@ -84,10 +87,9 @@ class OSG_WINDOWCOREGL_DLLMAPPING CoreGLWindow : public CoreGLWindowBase
     /*! \name                Window functions                              */
     /*! \{                                                                 */
     
-    virtual void init      (GLInitFunctor oFunc = GLInitFunctor());
-    virtual void activate  (void                                 );
-    virtual void deactivate(void                                 );
-    virtual bool swap      (void                                 );
+    virtual void init     (GLInitFunctor oFunc = GLInitFunctor());
+    virtual void terminate(void                                 );
+
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
@@ -125,6 +127,8 @@ class OSG_WINDOWCOREGL_DLLMAPPING CoreGLWindow : public CoreGLWindowBase
     virtual void doActivate  (void);
     virtual void doDeactivate(void);
     virtual bool doSwap      (void);
+
+    virtual bool hasContext  (void);
 
     /*! \}                                                                 */
     /*==========================  PRIVATE  ================================*/

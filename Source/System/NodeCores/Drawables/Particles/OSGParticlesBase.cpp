@@ -76,8 +76,6 @@ OSG_BEGIN_NAMESPACE
 \***************************************************************************/
 
 /*! \class OSG::Particles
-    \ingroup GrpSystemNodeCoresDrawablesParticles
-
     See \ref PageSystemParticles for details.
  */
 
@@ -365,167 +363,165 @@ ParticlesBase::TypeObject ParticlesBase::_type(
     "<?xml version=\"1.0\"?>\n"
     "\n"
     "<FieldContainer\n"
-    "\tname=\"Particles\"\n"
-    "\tparent=\"MaterialDrawable\"\n"
-    "\tlibrary=\"Drawable\"\n"
-    "\tpointerfieldtypes=\"both\"\n"
-    "\tstructure=\"concrete\"\n"
-    "\tsystemcomponent=\"true\"\n"
-    "\tparentsystemcomponent=\"true\"\n"
-    ">\n"
-    "\\ingroup GrpSystemNodeCoresDrawablesParticles\n"
+    "   name=\"Particles\"\n"
+    "   parent=\"MaterialDrawable\"\n"
+    "   library=\"Drawable\"\n"
+    "   pointerfieldtypes=\"both\"\n"
+    "   structure=\"concrete\"\n"
+    "   systemcomponent=\"true\"\n"
+    "   parentsystemcomponent=\"true\"\n"
+    "   docGroupBase=\"GrpDrawablesParticles\"\n"
     "\n"
-    "See \\ref PageSystemParticles for details.\n"
-    "\t<Field\n"
-    "\t\tname=\"mode\"\n"
-    "\t\ttype=\"UInt32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"2\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
+    "   >\n"
+    "  See \\ref PageSystemParticles for details.\n"
+    "  <Field\n"
+    "\t name=\"mode\"\n"
+    "\t type=\"UInt32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"2\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
     "\tThe particle mode, see OSG::Particles::modeE for options.\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"positions\"\n"
-    "\t\ttype=\"GeoVectorProperty\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "        category=\"childpointer\"\n"
-    "        childParentType=\"FieldContainer\"\n"
-    "        linkParentField=\"Parents\"\n"
-    "\t>\n"
-    "        The positions of the particles. This is the primary defining\n"
-    "        information for a particle.\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"sizes\"\n"
-    "\t\ttype=\"Vec3f\"\n"
-    "\t\tcardinality=\"multi\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "        The particle sizes. If not set (1,1,1) will be used, if only one entry\n"
-    "        is set, it will be used for all particles. If the number of sizes if\n"
-    "        equal to the number of positions every particle will get its own size.\n"
-    "        Most modes only use the X coordinate of the vector. Particles with \n"
-    "        size[0] == 0 are ignored.\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"secPositions\"\n"
-    "\t\ttype=\"GeoVectorProperty\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "        category=\"childpointer\"\n"
-    "        childParentType=\"FieldContainer\"\n"
-    "        linkParentField=\"Parents\"\n"
-    "\t>\n"
-    "        The secondary position of the particle. This information is only used\n"
-    "        by a few rendering modes, e.g. the streak mode. Usually it represents\n"
-    "        the particle's last position.\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"colors\"\n"
-    "\t\ttype=\"GeoVectorProperty\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "        category=\"childpointer\"\n"
-    "        childParentType=\"FieldContainer\"\n"
-    "        linkParentField=\"Parents\"\n"
-    "\t>\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"positions\"\n"
+    "\t type=\"GeoVectorProperty\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "     category=\"childpointer\"\n"
+    "     childParentType=\"FieldContainer\"\n"
+    "     linkParentField=\"Parents\"\n"
+    "\t >\n"
+    "    The positions of the particles. This is the primary defining\n"
+    "    information for a particle.\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"sizes\"\n"
+    "\t type=\"Vec3f\"\n"
+    "\t cardinality=\"multi\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "    The particle sizes. If not set (1,1,1) will be used, if only one entry\n"
+    "    is set, it will be used for all particles. If the number of sizes if\n"
+    "    equal to the number of positions every particle will get its own size.\n"
+    "    Most modes only use the X coordinate of the vector. Particles with \n"
+    "    size[0] == 0 are ignored.\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"secPositions\"\n"
+    "\t type=\"GeoVectorProperty\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "     category=\"childpointer\"\n"
+    "     childParentType=\"FieldContainer\"\n"
+    "     linkParentField=\"Parents\"\n"
+    "\t >\n"
+    "    The secondary position of the particle. This information is only used\n"
+    "    by a few rendering modes, e.g. the streak mode. Usually it represents\n"
+    "    the particle's last position.\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"colors\"\n"
+    "\t type=\"GeoVectorProperty\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "     category=\"childpointer\"\n"
+    "     childParentType=\"FieldContainer\"\n"
+    "     linkParentField=\"Parents\"\n"
+    "\t >\n"
     "\tThe particle colors (optional).\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"normals\"\n"
-    "\t\ttype=\"GeoVectorProperty\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "        category=\"childpointer\"\n"
-    "        childParentType=\"FieldContainer\"\n"
-    "        linkParentField=\"Parents\"\n"
-    "\t>\n"
-    "        Most particles will be automatically aligned to the view\n"
-    "        direction. If normals are set they will be used to define the\n"
-    "        direction the particles are facing.\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"indices\"\n"
-    "\t\ttype=\"Int32\"\n"
-    "\t\tcardinality=\"multi\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "        Indices for the particles. Useful to select subsets of all particles for \n"
-    "        rendering.\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"textureZs\"\n"
-    "\t\ttype=\"Real32\"\n"
-    "\t\tcardinality=\"multi\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "        The texture z coordinate of the particles. Useful in conjunction with 3D \n"
-    "        textures to use different texture images on different particles.\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"drawOrder\"\n"
-    "\t\ttype=\"UInt32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"0\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "        Define an optional sorting on the particles, see OSG::Particles::DrawOrderE\n"
-    "        for variants. Default is unordered.\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"dynamic\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"true\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "        Hint to tell the system whether particles are expected to change position or\n"
-    "        not. Is used to speed up sorting.\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"pump\"\n"
-    "\t\ttype=\"UInt32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"internal\"\n"
-    "\t\taccess=\"protected\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"bsp\"\n"
-    "\t\ttype=\"ParticleBSPTree\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\ttypeHeader=\"OSGParticleBSP.h\"\n"
-    "                fieldHeader=\"OSGParticleBSP.h\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"numParticles\"\n"
-    "\t\ttype=\"Int32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "                defaultValue=\"-1\"\n"
-    "\t>\n"
-    "        Optional number of particles to use. If set to -1, all the particles in \n"
-    "        pos, or indices if set, will be used.\n"
-    "\t</Field>\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"normals\"\n"
+    "\t type=\"GeoVectorProperty\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "     category=\"childpointer\"\n"
+    "     childParentType=\"FieldContainer\"\n"
+    "     linkParentField=\"Parents\"\n"
+    "\t >\n"
+    "    Most particles will be automatically aligned to the view\n"
+    "    direction. If normals are set they will be used to define the\n"
+    "    direction the particles are facing.\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"indices\"\n"
+    "\t type=\"Int32\"\n"
+    "\t cardinality=\"multi\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "    Indices for the particles. Useful to select subsets of all particles for \n"
+    "    rendering.\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"textureZs\"\n"
+    "\t type=\"Real32\"\n"
+    "\t cardinality=\"multi\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "    The texture z coordinate of the particles. Useful in conjunction with 3D \n"
+    "    textures to use different texture images on different particles.\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"drawOrder\"\n"
+    "\t type=\"UInt32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"0\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "    Define an optional sorting on the particles, see OSG::Particles::DrawOrderE\n"
+    "    for variants. Default is unordered.\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"dynamic\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"true\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "    Hint to tell the system whether particles are expected to change position or\n"
+    "    not. Is used to speed up sorting.\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"pump\"\n"
+    "\t type=\"UInt32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"internal\"\n"
+    "\t access=\"protected\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"bsp\"\n"
+    "\t type=\"ParticleBSPTree\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t typeHeader=\"OSGParticleBSP.h\"\n"
+    "     fieldHeader=\"OSGParticleBSP.h\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"numParticles\"\n"
+    "\t type=\"Int32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "     defaultValue=\"-1\"\n"
+    "\t >\n"
+    "    Optional number of particles to use. If set to -1, all the particles in \n"
+    "    pos, or indices if set, will be used.\n"
+    "  </Field>\n"
     "</FieldContainer>\n",
-    "\\ingroup GrpSystemNodeCoresDrawablesParticles\n"
-    "\n"
     "See \\ref PageSystemParticles for details.\n"
     );
 
@@ -850,54 +846,67 @@ void ParticlesBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (ModeFieldMask & whichField))
     {
+        editSField(ModeFieldMask);
         _sfMode.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (PositionsFieldMask & whichField))
     {
+        editSField(PositionsFieldMask);
         _sfPositions.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (SizesFieldMask & whichField))
     {
+        editMField(SizesFieldMask, _mfSizes);
         _mfSizes.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (SecPositionsFieldMask & whichField))
     {
+        editSField(SecPositionsFieldMask);
         _sfSecPositions.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ColorsFieldMask & whichField))
     {
+        editSField(ColorsFieldMask);
         _sfColors.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (NormalsFieldMask & whichField))
     {
+        editSField(NormalsFieldMask);
         _sfNormals.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (IndicesFieldMask & whichField))
     {
+        editMField(IndicesFieldMask, _mfIndices);
         _mfIndices.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (TextureZsFieldMask & whichField))
     {
+        editMField(TextureZsFieldMask, _mfTextureZs);
         _mfTextureZs.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DrawOrderFieldMask & whichField))
     {
+        editSField(DrawOrderFieldMask);
         _sfDrawOrder.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DynamicFieldMask & whichField))
     {
+        editSField(DynamicFieldMask);
         _sfDynamic.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (PumpFieldMask & whichField))
     {
+        editSField(PumpFieldMask);
         _sfPump.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (BspFieldMask & whichField))
     {
+        editSField(BspFieldMask);
         _sfBsp.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (NumParticlesFieldMask & whichField))
     {
+        editSField(NumParticlesFieldMask);
         _sfNumParticles.copyFromBin(pMem);
     }
 }
@@ -1096,7 +1105,7 @@ bool ParticlesBase::unlinkChild(
 
         if(pTypedChild != NULL)
         {
-            if(pTypedChild == _sfPositions.getValue())
+            if(_sfPositions.getValue() == pTypedChild)
             {
                 editSField(PositionsFieldMask);
 
@@ -1105,8 +1114,15 @@ bool ParticlesBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("ParticlesBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }
@@ -1121,7 +1137,7 @@ bool ParticlesBase::unlinkChild(
 
         if(pTypedChild != NULL)
         {
-            if(pTypedChild == _sfSecPositions.getValue())
+            if(_sfSecPositions.getValue() == pTypedChild)
             {
                 editSField(SecPositionsFieldMask);
 
@@ -1130,8 +1146,15 @@ bool ParticlesBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("ParticlesBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }
@@ -1146,7 +1169,7 @@ bool ParticlesBase::unlinkChild(
 
         if(pTypedChild != NULL)
         {
-            if(pTypedChild == _sfColors.getValue())
+            if(_sfColors.getValue() == pTypedChild)
             {
                 editSField(ColorsFieldMask);
 
@@ -1155,8 +1178,15 @@ bool ParticlesBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("ParticlesBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }
@@ -1171,7 +1201,7 @@ bool ParticlesBase::unlinkChild(
 
         if(pTypedChild != NULL)
         {
-            if(pTypedChild == _sfNormals.getValue())
+            if(_sfNormals.getValue() == pTypedChild)
             {
                 editSField(NormalsFieldMask);
 
@@ -1180,8 +1210,15 @@ bool ParticlesBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("ParticlesBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }

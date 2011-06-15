@@ -1,0 +1,13 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! 
+
+   \if separate
+     \page PageText Text Documentation
+   \else
+     \page PageText Text
+   \endif
+
+ */

@@ -209,64 +209,65 @@ DisplayFilterGroupBase::TypeObject DisplayFilterGroupBase::_type(
     "<?xml version=\"1.0\"?>\n"
     "\n"
     "<FieldContainer\n"
-    "\tname=\"DisplayFilterGroup\"\n"
-    "\tparent=\"AttachmentContainer\"\n"
-    "\tlibrary=\"EffectGroups\"\n"
-    "\tpointerfieldtypes=\"both\"\n"
-    "\tstructure=\"concrete\"\n"
-    "\tsystemcomponent=\"true\"\n"
-    "\tparentsystemcomponent=\"true\"\n"
-    "\tdecoratable=\"false\"\n"
-    "\tuseLocalIncludes=\"false\"\n"
-    ">\n"
-    "\t<Field\n"
-    "\t   name=\"resolutionFilter\"\n"
-    "\t   type=\"ResolutionDisplayFilter\"\n"
-    "\t   cardinality=\"single\"\n"
-    "\t   visibility=\"external\"\n"
-    "\t   access=\"public\"\n"
-    "       category=\"pointer\"\n"
-    "       defaultValue=\"NULL\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t   name=\"colorFilter\"\n"
-    "\t   type=\"ColorDisplayFilter\"\n"
-    "\t   cardinality=\"single\"\n"
-    "\t   visibility=\"external\"\n"
-    "\t   access=\"public\"\n"
-    "       category=\"pointer\"\n"
-    "       defaultValue=\"NULL\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t   name=\"distortionFilter\"\n"
-    "\t   type=\"DistortionDisplayFilter\"\n"
-    "\t   cardinality=\"single\"\n"
-    "\t   visibility=\"external\"\n"
-    "\t   access=\"public\"\n"
-    "       category=\"pointer\"\n"
-    "       defaultValue=\"NULL\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t   name=\"drawerId\"\n"
-    "\t   type=\"Int32\"\n"
-    "\t   cardinality=\"single\"\n"
-    "\t   visibility=\"external\"\n"
-    "\t   access=\"public\"\n"
-    "       defaultValue=\"-1\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t   name=\"drawableId\"\n"
-    "\t   type=\"Int32\"\n"
-    "\t   cardinality=\"single\"\n"
-    "\t   visibility=\"external\"\n"
-    "\t   access=\"public\"\n"
-    "       defaultValue=\"-1\"\n"
-    "\t>\n"
-    "\t</Field>\n"
+    "   name=\"DisplayFilterGroup\"\n"
+    "   parent=\"AttachmentContainer\"\n"
+    "   library=\"EffectGroups\"\n"
+    "   pointerfieldtypes=\"both\"\n"
+    "   structure=\"concrete\"\n"
+    "   systemcomponent=\"true\"\n"
+    "   parentsystemcomponent=\"true\"\n"
+    "   decoratable=\"false\"\n"
+    "   useLocalIncludes=\"false\"\n"
+    "   docGroupBase=\"GrpEffectsGroupsDisplayFilter\"\n"
+    "   >\n"
+    "  <Field\n"
+    "\t name=\"resolutionFilter\"\n"
+    "\t type=\"ResolutionDisplayFilter\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "     category=\"pointer\"\n"
+    "     defaultValue=\"NULL\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"colorFilter\"\n"
+    "\t type=\"ColorDisplayFilter\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "     category=\"pointer\"\n"
+    "     defaultValue=\"NULL\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"distortionFilter\"\n"
+    "\t type=\"DistortionDisplayFilter\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "     category=\"pointer\"\n"
+    "     defaultValue=\"NULL\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"drawerId\"\n"
+    "\t type=\"Int32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "     defaultValue=\"-1\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"drawableId\"\n"
+    "\t type=\"Int32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "     defaultValue=\"-1\"\n"
+    "\t >\n"
+    "  </Field>\n"
     "</FieldContainer>\n",
     ""
     );
@@ -424,22 +425,27 @@ void DisplayFilterGroupBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (ResolutionFilterFieldMask & whichField))
     {
+        editSField(ResolutionFilterFieldMask);
         _sfResolutionFilter.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ColorFilterFieldMask & whichField))
     {
+        editSField(ColorFilterFieldMask);
         _sfColorFilter.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DistortionFilterFieldMask & whichField))
     {
+        editSField(DistortionFilterFieldMask);
         _sfDistortionFilter.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DrawerIdFieldMask & whichField))
     {
+        editSField(DrawerIdFieldMask);
         _sfDrawerId.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DrawableIdFieldMask & whichField))
     {
+        editSField(DrawableIdFieldMask);
         _sfDrawableId.copyFromBin(pMem);
     }
 }

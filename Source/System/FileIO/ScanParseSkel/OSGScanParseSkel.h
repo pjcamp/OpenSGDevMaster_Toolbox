@@ -64,14 +64,17 @@ int OSGScanParseSkel_parse(void*);
 
 OSG_BEGIN_NAMESPACE
 
-//! Parser / Scanner Skeleton for VRML97 syntax based file formats
-//! \ingroup GrpSystemDrawablesGeometrymetryLoaderLib
+/*! Parser / Scanner Skeleton for VRML97 syntax based file formats
+    \ingroup GrpSystemFileIOScanParse
+    \ingroup GrpLibOSGSystem
+ */
 
 class OSG_SYSTEM_DLLMAPPING ScanParseSkel
 {
   friend int ::OSGScanParseSkel_parse(void*);
 
     /*==========================  PUBLIC  =================================*/
+
   public:
 
     enum BuildInFieldType
@@ -179,7 +182,8 @@ class OSG_SYSTEM_DLLMAPPING ScanParseSkel
     /*! \name                     Prototypes                               */
     /*! \{                                                                 */
 
-    virtual bool verifyHeader             (const Char8 *szHeader);
+    virtual bool verifyHeader             (const Char8 *szHeader   );
+    virtual bool checkHeader              (      void              );
 
     virtual void beginProto               (const Char8 *szProtoname);
     virtual void endProtoInterface        (void);
@@ -367,6 +371,7 @@ class OSG_SYSTEM_DLLMAPPING ScanParseSkel
     
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
+
   protected:
 
     /*---------------------------------------------------------------------*/
@@ -385,6 +390,7 @@ class OSG_SYSTEM_DLLMAPPING ScanParseSkel
 
     /*! \}                                                                 */
     /*==========================  PRIVATE  ================================*/
+
   private:
 
     /*!\brief prohibit default function (move to 'public' if needed) */

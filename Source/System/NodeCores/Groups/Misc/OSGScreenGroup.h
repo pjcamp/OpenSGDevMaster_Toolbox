@@ -42,8 +42,8 @@
 #pragma once
 #endif
 
-#include <OSGConfig.h>
-#include <OSGScreenGroupBase.h>
+#include "OSGConfig.h"
+#include "OSGScreenGroupBase.h"
 
 OSG_BEGIN_NAMESPACE
 
@@ -51,7 +51,10 @@ class RenderAction;
 
 /*! \brief ScreenGroup class. See \ref 
            PageSystemScreenGroup for a description.
-*/
+    \ingroup GrpGroupMiscObj
+    \ingroup GrpLibOSGGroup
+    \includebasedoc
+ */
 
 class OSG_GROUP_DLLMAPPING ScreenGroup : public ScreenGroupBase
 {
@@ -159,7 +162,7 @@ typedef ScreenGroup *ScreenGroupP;
 
 OSG_END_NAMESPACE
 
-#include <OSGScreenGroupBase.inl>
-#include <OSGScreenGroup.inl>
+#include "OSGScreenGroupBase.inl"
+#include "OSGScreenGroup.inl"
 
 #endif /* _OSGSCREENGROUP_H_ */

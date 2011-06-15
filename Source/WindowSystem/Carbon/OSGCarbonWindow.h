@@ -42,7 +42,7 @@
 #pragma once
 #endif
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(OSG_DO_DOC)
 
 #include "OSGCarbonWindowBase.h"
 #include <AGL/agl.h>
@@ -53,8 +53,11 @@
 OSG_BEGIN_NAMESPACE
 
 /*! \brief CarbonWindow class. See \ref
-           PageWindowCarbonCarbonWindow for a description.
-*/
+           PageWindowCarbon for a description.
+    \ingroup GrpWindowCarbonObj
+    \ingroup GrpLibOSGWindowCarbon
+    \includebasedoc
+ */
 
 class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
 {
@@ -67,7 +70,6 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
     typedef CarbonWindowBase Inherited;
     typedef CarbonWindow     Self;
 
-    typedef std::map<UInt32, CarbonWindowUnrecPtr> CarbonWindowToProducerMap;    
     /*---------------------------------------------------------------------*/
     /*! \name                      Sync                                    */
     /*! \{                                                                 */
@@ -89,11 +91,8 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
     /*! \name                Window functions                              */
     /*! \{                                                                 */
     
-    virtual void init      (GLInitFunctor oFunc = GLInitFunctor());
-
-    virtual void activate  (void                                 );
-    virtual void deactivate(void                                 );
-    virtual bool swap      (void                                 );
+    virtual void init     (GLInitFunctor oFunc = GLInitFunctor());
+    virtual void terminate(void                                 );
 
     /*! \}                                                                 */
 	virtual void setShowCursor(bool show);
@@ -104,7 +103,7 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
 
 	virtual std::vector<BoostPath, std::allocator<BoostPath> > openFileDialog(const std::string&, const std::vector<WindowEventProducer::FileDialogFilter, std::allocator<WindowEventProducer::FileDialogFilter> >&, const BoostPath&, bool);
 	virtual BoostPath saveFileDialog(const std::string&, const std::vector<WindowEventProducer::FileDialogFilter, std::allocator<WindowEventProducer::FileDialogFilter> >&, const std::string&, const BoostPath&, bool);
-	virtual KeyEvent::KeyState getKeyState(KeyEvent::Key) const;
+	virtual KeyEventDetails::KeyState getKeyState(KeyEventDetails::Key) const;
 	
 	//Store state of modifier keys
 	UInt32 _modifierKeyState;
@@ -225,13 +224,17 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
 
            void onCreate       (const CarbonWindow *source = NULL);
 
-           void onDestroy      (      UInt32  uiContainerId);
+           void onDestroy      (      UInt32        uiContainerId);
+
+           void onDestroyAspect(      UInt32        uiContainerId,
+                                      UInt32        uiAspect     );
 
     /*! \}                                                                 */
 
     virtual void doActivate  (void);
     virtual void doDeactivate(void);
     virtual bool doSwap      (void);
+    virtual bool hasContext  (void);
 
     /*! \}                                                                 */
 	virtual void setCursor(void);
@@ -241,23 +244,20 @@ class OSG_WINDOWCARBON_DLLMAPPING CarbonWindow : public CarbonWindowBase
 	OSStatus handleKeyEvent(EventHandlerCallRef nextHandler, EventRef event, void *userData);
     void disposeWindow(void);
 	
-	static KeyEvent::Key determineKey(::UInt32 key);
+	static KeyEventDetails::Key determineKey(::UInt32 key);
 	static UInt32 determineKeyModifiers(::UInt32 keyModifiers);
 
-    static CGKeyCode getKeyCode(KeyEvent::Key TheKey);
+    static CGKeyCode getKeyCode(KeyEventDetails::Key TheKey);
 
-	static CarbonWindowToProducerMap _CarbonWindowToProducerMap;
-	
-	
     static pascal OSStatus eventHandler(EventHandlerCallRef nextHandler, EventRef event, void *userData);
     
 	OSStatus internalEventHandler(EventHandlerCallRef nextHandler, EventRef event, void *userData);
 	
-	UInt32 _WindowId;
 	EventHandlerUPP _EventHandlerUPP;
     WindowRef _WindowRef;
 	AGLContext _Context;
-	static UInt32 getUndefinedWindowId(void);
+    bool _IsFullscreen;
+    bool _IsWindowOpen;
 
     /*==========================  PRIVATE  ================================*/
 

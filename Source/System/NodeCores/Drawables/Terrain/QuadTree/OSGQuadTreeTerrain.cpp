@@ -73,19 +73,6 @@
 
 OSG_USING_NAMESPACE
 
-// min global res., the higher the more vertices
-static const Real32 MinGlobalRes  = 10.0f; 
-static const UInt32 
-    NW = 0, 
-    W = 1, 
-    SW = 2, 
-    S = 3, 
-    SE = 4, 
-    E = 5, 
-    NE = 6, 
-    N = 7, 
-    C = 8;
-
 // switch to fill Geometry with TRIANGLE_FANS instead of TRIANGLES
 //#define WITH_TRIANGLE_FANS
 
@@ -100,6 +87,9 @@ static const UInt32
 /***************************************************************************\
  *                           Class variables                               *
 \***************************************************************************/
+
+const Real32           QuadTreeTerrain::_minGlobalRes = 10.f;
+SimpleSHLChunkMTRecPtr QuadTreeTerrain::_shlChunk;
 
 /***************************************************************************\
  *                           Class methods                                 *
@@ -123,6 +113,15 @@ void QuadTreeTerrain::initMethod(InitPhase ePhase)
     }
 }
 
+void QuadTreeTerrain::exitMethod(InitPhase ePhase)
+{
+    if(ePhase == TypeObject::SystemPre)
+    {
+        _shlChunk = NULL;
+    }
+
+    Inherited::exitMethod(ePhase);
+}
 
 /***************************************************************************\
  *                           Instance methods                              *
@@ -291,9 +290,6 @@ static std::string _fp_program =
 "    gl_FragColor = vec4 (color, 1.0);\n"
 "\n"
 "}\n";
-
-// SHLChunk initialized in QuadTreeTerrain::changed
-static SimpleSHLChunkMTRecPtr s_shlChunk;
 
 SimpleSHLChunkTransitPtr QuadTreeTerrain::createSHLChunk () const
 {
@@ -475,7 +471,7 @@ void QuadTreeTerrain::addMaterialChunks(void) const
 
    SimpleSHLVariableChunkUnrecPtr shlp = SimpleSHLVariableChunk::create();
 
-//   shlp->setSHLChunk(s_shlChunk);
+//   shlp->setSHLChunk(_shlChunk);
    shlp->addUniformVariable("texSampler",  0);
    shlp->addUniformVariable("nmapSampler", 1);
    // the following spares a second set of texture coordinates
@@ -553,7 +549,7 @@ void QuadTreeTerrain::addMaterialChunks(void) const
 
    if(oldSHL == NULL) 
    {
-       mat->addChunk(s_shlChunk);
+       mat->addChunk(_shlChunk);
    }
 
    StateChunk *oldSHLP = mat->find(SimpleSHLVariableChunk::getClassType());
@@ -730,7 +726,7 @@ Real32 QuadTreeTerrain::calcD2Value (Int32 centerX,
     Int32 sw = s - rx;
     Int32 se = s + rx;
     Int32 ne = n + rx;
-  
+
     // shortcut
     const GeoPnt3fProperty::StoredFieldType &v = 
         dynamic_cast<GeoPnt3fProperty *>(getHeightVertices())->getField(); 
@@ -759,7 +755,7 @@ Real32 QuadTreeTerrain::calcD2Value (Int32 centerX,
 
 void QuadTreeTerrain::propagateD2Errors() 
 {
-    const Real32 D2K = MinGlobalRes / (2.0f * (MinGlobalRes - 1.0f));
+    const Real32 D2K = _minGlobalRes / (2.0f * (_minGlobalRes - 1.0f));
     
     // find the highest level
     //--- init vars -----------------------------------------------------------
@@ -878,7 +874,7 @@ Real32 QuadTreeTerrain::calcSubDiv(Int32 nodeIndex, Int32 width)
    
    //--- calc subdiv value ---------------------------------------------------
    return 
-       eyeDist / ((width * getVertexSpacing()) * MinGlobalRes *
+       eyeDist / ((width * getVertexSpacing()) * _minGlobalRes *
                   osgMax(getDetail() * getHeightError(nodeIndex), 1.0f));
 }
 
@@ -1868,9 +1864,9 @@ void QuadTreeTerrain::changed(ConstFieldMaskArg whichField,
 {
     // create single SHL chunk, parameters are changed in separate SHL 
     // parameter chunks
-    if(s_shlChunk == NULL) 
+    if(_shlChunk == NULL)
     {
-        s_shlChunk = createSHLChunk();
+        _shlChunk = createSHLChunk();
     }
 
     // changed HeightData
@@ -1883,8 +1879,18 @@ void QuadTreeTerrain::changed(ConstFieldMaskArg whichField,
             getHeightData()->reformat(Image::OSG_L_PF);
         }
         {
+            if((getHeightData()->getWidth() != getHeightData()->getHeight()) ||
+               (osgIsPower2(getHeightData()->getWidth() - 1) == false)        )
+            {
+                SWARNING << "QuadTreeTerrain: SFHeightData must be "
+                         << "of size 2^n+1 x 2^n+1 - size is "
+                         << getHeightData()->getWidth() << " x "
+                         << getHeightData()->getHeight()
+                         << std::endl;
+            }
+
             setWidth(getHeightData()->getWidth());
-            assert(getHeightData()->getHeight() == getWidth());
+            OSG_ASSERT(getHeightData()->getHeight() == getWidth());
             setLevel(UInt32(osgLog ((getWidth() - 1.0f)) / osgLog(2.0f)));
             
             SLOG << "found data width=" 

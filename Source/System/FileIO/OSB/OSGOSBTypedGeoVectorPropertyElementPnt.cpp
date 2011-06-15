@@ -47,11 +47,6 @@ OSG_USING_NAMESPACE
 /* OSBTypedGeoVectorPropertyElement                                       */
 /*-------------------------------------------------------------------------*/
 
-/*! \class OSBTypedGeoVectorPropertyElement
-    A specialization of this template is registered for each specialization of
-    TypedGeoVectorProperty.
- */
-
 /*-------------------------------------------------------------------------*/
 /*                                                                         */
 
@@ -162,7 +157,6 @@ static OSBElementRegistrationHelper<
     OSBTypedGeoVectorPropertyElement<GeoPnt4NsProperty> >
         _regPnt4Ns("GeoPnt4NsProperty");
 
-#ifndef OSG_EMBEDDED
 static OSBElementRegistrationHelper<
     OSBTypedGeoVectorPropertyElement<GeoPnt1fProperty> >
         _regPnt1f("GeoPnt1fProperty");
@@ -175,24 +169,7 @@ static OSBElementRegistrationHelper<
 static OSBElementRegistrationHelper<
     OSBTypedGeoVectorPropertyElement<GeoPnt4fProperty> >
         _regPnt4f("GeoPnt4fProperty");
-#endif
 
-#ifdef OSG_EMBEDDED
-static OSBElementRegistrationHelper<
-    OSBTypedGeoVectorPropertyElement<GeoPnt1fxProperty> >
-        _regPnt1fx("GeoPnt1fxProperty");
-static OSBElementRegistrationHelper<
-    OSBTypedGeoVectorPropertyElement<GeoPnt2fxProperty> >
-        _regPnt2fx("GeoPnt2fxProperty");
-static OSBElementRegistrationHelper<
-    OSBTypedGeoVectorPropertyElement<GeoPnt3fxProperty> >
-        _regPnt3fx("GeoPnt3fxProperty");
-static OSBElementRegistrationHelper<
-    OSBTypedGeoVectorPropertyElement<GeoPnt4fxProperty> >
-        _regPnt4fx("GeoPnt4fxProperty");
-#endif
-
-#ifndef OSG_EMBEDDED
 static OSBElementRegistrationHelper<
     OSBTypedGeoVectorPropertyElement<GeoPnt1dProperty> >
         _regPnt1d("GeoPnt1dProperty");
@@ -205,6 +182,5 @@ static OSBElementRegistrationHelper<
 static OSBElementRegistrationHelper<
     OSBTypedGeoVectorPropertyElement<GeoPnt4dProperty> >
         _regPnt4d("GeoPnt4dProperty");
-#endif
 
 } // namespace

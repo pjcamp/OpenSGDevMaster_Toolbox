@@ -56,21 +56,28 @@
 #include "OSGFlyEngine.h"
 #include "OSGNoneEngine.h"
 #include "OSGTrackballEngine.h"
+#include "OSGNavballEngine.h"
 #include "OSGWalkEngine.h"
 
 OSG_BEGIN_NAMESPACE
 
+typedef NavballEngine   NavballNavigator;
 typedef TrackballEngine TrackballNavigator;
 typedef FlyEngine       FlyNavigator;
 typedef WalkEngine      WalkNavigator;
 
 /*! \brief General Navigator for wrapping simple navigators. See \ref 
-    PageSystemWindowNavigatorsNavigator for a description.
-*/
+           PageSystemWindowNavigatorsNavigator for a description.
+    \ingroup GrpUtilNavigation
+    \ingroup GrpLibOSGUtil
+ */
+
 class OSG_UTIL_DLLMAPPING Navigator : public NavigatorBase
 {
     /*==========================  PUBLIC  =================================*/
+
   public:
+
     /*---------------------------------------------------------------------*/
     /*! \name                   Constructors                               */
     /*! \{                                                                 */
@@ -144,6 +151,7 @@ class OSG_UTIL_DLLMAPPING Navigator : public NavigatorBase
           Int16   getLastY(void);
     Viewport     *getViewport(void);
 
+    NavballEngine&   getNavballEngine  (void);
     TrackballEngine& getTrackballEngine(void);
     FlyEngine&       getFlyEngine      (void);
     WalkEngine&      getWalkEngine     (void);
@@ -152,6 +160,7 @@ class OSG_UTIL_DLLMAPPING Navigator : public NavigatorBase
 
     /*! \}                                                                 */
     /*==========================  PRIVATE  ================================*/
+
   private:
 
     /*---------------------------------------------------------------------*/
@@ -163,6 +172,7 @@ class OSG_UTIL_DLLMAPPING Navigator : public NavigatorBase
     TrackballEngineRefPtr _trackballEngine;
     FlyEngineRefPtr       _flyEngine;
     WalkEngineRefPtr      _walkEngine;
+    NavballEngineRefPtr   _navballEngine;
     NoneEngineRefPtr      _noneEngine;
     NavigatorEngineRefPtr _userEngine;
 
@@ -184,6 +194,7 @@ class OSG_UTIL_DLLMAPPING Navigator : public NavigatorBase
     /*! \}                                                                 */
 
  public:
+
     bool calcFromTo(Int16 x, Int16 y, Real32& fromX, Real32& fromY,
                     Real32& toX, Real32& toY);
 };

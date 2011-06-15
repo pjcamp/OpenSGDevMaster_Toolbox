@@ -42,7 +42,7 @@
 
 #include "OSGColladaImage.h"
 
-#ifdef OSG_WITH_COLLADA
+#if defined(OSG_WITH_COLLADA) || defined(OSG_DO_DOC)
 
 #include "OSGColladaLog.h"
 #include "OSGImageFileHandler.h"
@@ -72,7 +72,7 @@ ColladaImage::read(void)
     if(initFrom != NULL)
     {
         daeURI      imageURI  = initFrom->getValue();
-        std::string imagePath = fixImageFilepath(imageURI.path());
+        std::string imagePath = cdom::uriToNativePath(imageURI.str());
         
         OSG_COLLADA_LOG(("ColladaImage::read: URI [%s] path [%s]\n",
                          imageURI.getURI(), imagePath.c_str()));

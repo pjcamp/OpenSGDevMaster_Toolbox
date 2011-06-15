@@ -690,46 +690,57 @@ void ShaderExecutableChunkBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (VertexShaderFieldMask & whichField))
     {
+        editMField(VertexShaderFieldMask, _mfVertexShader);
         _mfVertexShader.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (GeometryShaderFieldMask & whichField))
     {
+        editMField(GeometryShaderFieldMask, _mfGeometryShader);
         _mfGeometryShader.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (FragmentShaderFieldMask & whichField))
     {
+        editMField(FragmentShaderFieldMask, _mfFragmentShader);
         _mfFragmentShader.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (VariablesFieldMask & whichField))
     {
+        editSField(VariablesFieldMask);
         _sfVariables.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (VariableLocationsFieldMask & whichField))
     {
+        editMField(VariableLocationsFieldMask, _mfVariableLocations);
         _mfVariableLocations.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ProceduralVariableLocationsFieldMask & whichField))
     {
+        editMField(ProceduralVariableLocationsFieldMask, _mfProceduralVariableLocations);
         _mfProceduralVariableLocations.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (GeometryVerticesOutFieldMask & whichField))
     {
+        editSField(GeometryVerticesOutFieldMask);
         _sfGeometryVerticesOut.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (GeometryInputTypeFieldMask & whichField))
     {
+        editSField(GeometryInputTypeFieldMask);
         _sfGeometryInputType.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (GeometryOutputTypeFieldMask & whichField))
     {
+        editSField(GeometryOutputTypeFieldMask);
         _sfGeometryOutputType.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (GLIdFieldMask & whichField))
     {
+        editSField(GLIdFieldMask);
         _sfGLId.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (PointSizeFieldMask & whichField))
     {
+        editSField(PointSizeFieldMask);
         _sfPointSize.copyFromBin(pMem);
     }
 }
@@ -912,7 +923,7 @@ bool ShaderExecutableChunkBase::unlinkChild(
 
         if(pTypedChild != NULL)
         {
-            if(pTypedChild == _sfVariables.getValue())
+            if(_sfVariables.getValue() == pTypedChild)
             {
                 editSField(VariablesFieldMask);
 
@@ -921,8 +932,15 @@ bool ShaderExecutableChunkBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("ShaderExecutableChunkBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }

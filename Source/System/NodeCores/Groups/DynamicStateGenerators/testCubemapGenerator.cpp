@@ -21,7 +21,6 @@
 #include "OSGSimpleMaterial.h"
 #include "OSGCubeMapGenerator.h"
 #include "OSGImageFileHandler.h"
-#include "OSGHDRStage.h"
 #include "OSGVisitSubTree.h"
 
 OSG::RenderAction *rentravact = NULL;
@@ -57,8 +56,6 @@ int lasty  = 0;
 
 OSG::Quaternion oldq;
 OSG::Vec3f      oldv;
-
-void createHDRCore(OSG::Node *pNode);
 
 void display(void)
 {
@@ -262,12 +259,6 @@ void key(unsigned char key, int x, int y)
         }
         break;
 
-        case 'g':
-            hdrroot->setCore(OSG::Group::create());
-            break;
-        case 'h':
-            createHDRCore(hdrroot);
-            break;
         case 'd':
             OSG::ActionDataSlotPool::the()->dumpState();
             OSG::StageIdPool       ::the()->dumpState();
@@ -346,10 +337,10 @@ OSG::NodeTransitPtr setupAnim(void)
 
         OSG::SimpleMaterialUnrecPtr pMat = OSG::SimpleMaterial::create();
         
-        pMat->setDiffuse(OSG::Color3r(aDiffuse[i][0],
+        pMat->setDiffuse(OSG::Color3f(aDiffuse[i][0],
                                       aDiffuse[i][1],
                                       aDiffuse[i][2]));
-        pMat->setAmbient(OSG::Color3r(aDiffuse[i][0],
+        pMat->setAmbient(OSG::Color3f(aDiffuse[i][0],
                                       aDiffuse[i][1],
                                       aDiffuse[i][2]));
 
@@ -367,21 +358,6 @@ OSG::NodeTransitPtr setupAnim(void)
 
 
     return returnValue;
-}
-
-void createHDRCore(OSG::Node *pNode)
-{
-    OSG::HDRStageUnrecPtr pHDR = OSG::HDRStage::create();
-
-//    pHDR->setUpdateMode(HDRStage::PerVisit);
-    pHDR->setEffectAmount(0.0);
-
-    pNode->setCore(pHDR);
-
-    fprintf(stderr, "Create hdrroot %p %d %d \n",
-            pNode,
-            pNode->getRefCount(),
-            pNode->getWeakRefCount());
 }
 
 int doMain (int argc, char **argv)
@@ -456,11 +432,11 @@ int doMain (int argc, char **argv)
             dlight->getWeakRefCount());
 
     hdrroot = OSG::Node::create();
-
+    
     hdrroot->editVolume().setInfinite();
     hdrroot->editVolume().setStatic  ();
 
-    createHDRCore(hdrroot);
+    hdrroot->setCore(OSG::Group::create());
 
     // root
     root         = OSG::Node:: create();
@@ -516,6 +492,15 @@ int doMain (int argc, char **argv)
                                512           );
     pCubeGen->setTexUnit      (3);
 
+    // Cubemap Background
+    OSG::SolidBackgroundUnrecPtr cubeBkgnd = OSG::SolidBackground::create();
+    {
+        cubeBkgnd->setColor(OSG::Color3f(0.5f, 0.3f, 0.3f));
+    }
+
+    pCubeGen->setBackground(cubeBkgnd);
+
+
     OSG::NodeUnrecPtr pAnimRoot = setupAnim();
 
             scene_trans = OSG::Transform::create();
@@ -549,22 +534,9 @@ int doMain (int argc, char **argv)
     }
 
     // Background
-    OSG::SkyBackgroundUnrecPtr bkgnd = OSG::SkyBackground::create();
+    OSG::SolidBackgroundUnrecPtr bkgnd = OSG::SolidBackground::create();
     {
-        OSG::ImageUnrecPtr pBackImg = 
-            OSG::ImageFileHandler::the()->read("grace_cross.chdr");
-
-        OSG::TextureObjChunkUnrecPtr pBackTex = OSG::TextureObjChunk::create();
-
-        pBackTex->setImage(pBackImg);
-        pBackTex->setInternalFormat(GL_RGB32F_ARB);
-
-        bkgnd->setBackTexture  (pBackTex);
-        bkgnd->setFrontTexture (pBackTex);
-        bkgnd->setLeftTexture  (pBackTex);
-        bkgnd->setRightTexture (pBackTex);
-        bkgnd->setTopTexture   (pBackTex);
-        bkgnd->setBottomTexture(pBackTex);
+        bkgnd->setColor(OSG::Color3f(0.3f, 0.3f, 0.3f));
     }
 
     // Viewport

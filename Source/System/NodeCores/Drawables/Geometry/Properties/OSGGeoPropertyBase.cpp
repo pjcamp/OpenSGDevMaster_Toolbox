@@ -201,6 +201,7 @@ GeoPropertyBase::TypeObject GeoPropertyBase::_type(
     "   systemcomponent=\"true\"\n"
     "   parentsystemcomponent=\"true\"\n"
     "   decoratable=\"false\"\n"
+    "   docGroupBase=\"GrpDrawablesGeometry\"\n"
     "   >\n"
     "  <Field\n"
     "     name=\"useVBO\"\n"
@@ -381,18 +382,22 @@ void GeoPropertyBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (UseVBOFieldMask & whichField))
     {
+        editSField(UseVBOFieldMask);
         _sfUseVBO.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (UsageFieldMask & whichField))
     {
+        editSField(UsageFieldMask);
         _sfUsage.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (GLIdFieldMask & whichField))
     {
+        editSField(GLIdFieldMask);
         _sfGLId.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (VboUsageFieldMask & whichField))
     {
+        editSField(VboUsageFieldMask);
         _sfVboUsage.copyFromBin(pMem);
     }
 }

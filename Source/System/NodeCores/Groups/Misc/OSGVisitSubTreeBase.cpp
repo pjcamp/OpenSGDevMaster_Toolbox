@@ -96,6 +96,11 @@ OSG_BEGIN_NAMESPACE
     This travmask will be used to update the action mask on traversal (and)
 */
 
+/*! \var UInt32          VisitSubTreeBase::_sfTravMaskMode
+    This defines how the travmask will be used to update the action mask on 
+    traversal
+*/
+
 
 /***************************************************************************\
  *                      FieldType/FieldTrait Instantiation                 *
@@ -141,6 +146,19 @@ void VisitSubTreeBase::classDescInserter(TypeObject &oType)
         static_cast<FieldGetMethodSig >(&VisitSubTree::getHandleSubTreeTravMask));
 
     oType.addInitialDesc(pDesc);
+
+    pDesc = new SFUInt32::Description(
+        SFUInt32::getClassType(),
+        "travMaskMode",
+        "This defines how the travmask will be used to update the action mask on \n"
+        "traversal\n",
+        TravMaskModeFieldId, TravMaskModeFieldMask,
+        false,
+        (Field::SFDefaultFlags | Field::FStdAccess),
+        static_cast<FieldEditMethodSig>(&VisitSubTree::editHandleTravMaskMode),
+        static_cast<FieldGetMethodSig >(&VisitSubTree::getHandleTravMaskMode));
+
+    oType.addInitialDesc(pDesc);
 }
 
 
@@ -168,6 +186,7 @@ VisitSubTreeBase::TypeObject VisitSubTreeBase::_type(
     "   decoratable=\"false\"\n"
     "   useLocalIncludes=\"false\"\n"
     "   isNodeCore=\"true\"\n"
+    "   docGroupBase=\"GrpGroupMisc\"\n"
     "   >\n"
     "  VisitSubTree provides a way to point the renderer to another section of the\n"
     "  scene graph for rendering. This is useful for multi-pass algorithms using\n"
@@ -196,6 +215,17 @@ VisitSubTreeBase::TypeObject VisitSubTreeBase::_type(
     "     access=\"public\"\n"
     "     >\n"
     "    This travmask will be used to update the action mask on traversal (and)\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "     name=\"travMaskMode\"\n"
+    "     type=\"UInt32\"\n"
+    "     cardinality=\"single\"\n"
+    "     visibility=\"external\"\n"
+    "     defaultValue=\"VisitSubTree::AndTravMask\"\n"
+    "     access=\"public\"\n"
+    "     >\n"
+    "    This defines how the travmask will be used to update the action mask on \n"
+    "    traversal\n"
     "  </Field>\n"
     "</FieldContainer>\n",
     "VisitSubTree provides a way to point the renderer to another section of the\n"
@@ -243,6 +273,19 @@ const SFUInt32 *VisitSubTreeBase::getSFSubTreeTravMask(void) const
 }
 
 
+SFUInt32 *VisitSubTreeBase::editSFTravMaskMode(void)
+{
+    editSField(TravMaskModeFieldMask);
+
+    return &_sfTravMaskMode;
+}
+
+const SFUInt32 *VisitSubTreeBase::getSFTravMaskMode(void) const
+{
+    return &_sfTravMaskMode;
+}
+
+
 
 
 
@@ -261,6 +304,10 @@ UInt32 VisitSubTreeBase::getBinSize(ConstFieldMaskArg whichField)
     {
         returnValue += _sfSubTreeTravMask.getBinSize();
     }
+    if(FieldBits::NoField != (TravMaskModeFieldMask & whichField))
+    {
+        returnValue += _sfTravMaskMode.getBinSize();
+    }
 
     return returnValue;
 }
@@ -278,6 +325,10 @@ void VisitSubTreeBase::copyToBin(BinaryDataHandler &pMem,
     {
         _sfSubTreeTravMask.copyToBin(pMem);
     }
+    if(FieldBits::NoField != (TravMaskModeFieldMask & whichField))
+    {
+        _sfTravMaskMode.copyToBin(pMem);
+    }
 }
 
 void VisitSubTreeBase::copyFromBin(BinaryDataHandler &pMem,
@@ -287,11 +338,18 @@ void VisitSubTreeBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (SubTreeRootFieldMask & whichField))
     {
+        editSField(SubTreeRootFieldMask);
         _sfSubTreeRoot.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (SubTreeTravMaskFieldMask & whichField))
     {
+        editSField(SubTreeTravMaskFieldMask);
         _sfSubTreeTravMask.copyFromBin(pMem);
+    }
+    if(FieldBits::NoField != (TravMaskModeFieldMask & whichField))
+    {
+        editSField(TravMaskModeFieldMask);
+        _sfTravMaskMode.copyFromBin(pMem);
     }
 }
 
@@ -367,7 +425,6 @@ VisitSubTree *VisitSubTreeBase::createEmpty(void)
     return returnValue;
 }
 
-
 FieldContainerTransitPtr VisitSubTreeBase::shallowCopyLocal(
     BitVector bFlags) const
 {
@@ -413,20 +470,21 @@ FieldContainerTransitPtr VisitSubTreeBase::shallowCopy(void) const
 
 
 
-
 /*------------------------- constructors ----------------------------------*/
 
 VisitSubTreeBase::VisitSubTreeBase(void) :
     Inherited(),
     _sfSubTreeRoot            (NULL),
-    _sfSubTreeTravMask        (UInt32(TypeTraits<UInt32>::getMax()))
+    _sfSubTreeTravMask        (UInt32(TypeTraits<UInt32>::getMax())),
+    _sfTravMaskMode           (UInt32(VisitSubTree::AndTravMask))
 {
 }
 
 VisitSubTreeBase::VisitSubTreeBase(const VisitSubTreeBase &source) :
     Inherited(source),
     _sfSubTreeRoot            (NULL),
-    _sfSubTreeTravMask        (source._sfSubTreeTravMask        )
+    _sfSubTreeTravMask        (source._sfSubTreeTravMask        ),
+    _sfTravMaskMode           (source._sfTravMaskMode           )
 {
 }
 
@@ -501,6 +559,32 @@ EditFieldHandlePtr VisitSubTreeBase::editHandleSubTreeTravMask(void)
 
     return returnValue;
 }
+
+GetFieldHandlePtr VisitSubTreeBase::getHandleTravMaskMode    (void) const
+{
+    SFUInt32::GetHandlePtr returnValue(
+        new  SFUInt32::GetHandle(
+             &_sfTravMaskMode,
+             this->getType().getFieldDesc(TravMaskModeFieldId),
+             const_cast<VisitSubTreeBase *>(this)));
+
+    return returnValue;
+}
+
+EditFieldHandlePtr VisitSubTreeBase::editHandleTravMaskMode   (void)
+{
+    SFUInt32::EditHandlePtr returnValue(
+        new  SFUInt32::EditHandle(
+             &_sfTravMaskMode,
+             this->getType().getFieldDesc(TravMaskModeFieldId),
+             this));
+
+
+    editSField(TravMaskModeFieldMask);
+
+    return returnValue;
+}
+
 
 
 #ifdef OSG_MT_CPTR_ASPECT

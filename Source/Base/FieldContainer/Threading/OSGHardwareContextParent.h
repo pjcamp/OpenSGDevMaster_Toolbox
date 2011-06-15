@@ -50,6 +50,10 @@
 
 OSG_BEGIN_NAMESPACE
 
+/*! \ingroup GrpBaseHardwareContext
+    \nohierarchy
+*/
+
 struct HardwareContextDataSlotDesc
 {
     typedef AttachmentContainer        ParentT;
@@ -63,6 +67,9 @@ struct HardwareContextDataSlotDesc
         fprintf(stderr, "%p", pVal);
     }
 };
+
+/*! \ingroup GrpBaseHardwareContext
+ */
 
 typedef DataSlotMixin< 
             ContainerMixinHead < 

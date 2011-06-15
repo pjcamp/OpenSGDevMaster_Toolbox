@@ -111,7 +111,7 @@ struct OSG_BASE_DLLMAPPING ContainerChangeEntry
         pList                = pListParent;
     }
 
-    void commitChanges(void);
+    void commitChanges(UInt32 AdditionalChangeOrigin = 0);
     void release      (void);
 };
 
@@ -164,8 +164,8 @@ class OSG_BASE_DLLMAPPING ChangeList : public MemoryObject
     /*! \name                      Set                                     */
     /*! \{                                                                 */
 
-    void commitChanges        (void);
-    void commitChangesAndClear(void);
+    void commitChanges        (UInt32 AdditionalChangeOrigin = 0);
+    void commitChangesAndClear(UInt32 AdditionalChangeOrigin = 0);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -205,8 +205,8 @@ class OSG_BASE_DLLMAPPING ChangeList : public MemoryObject
     /*! \name                   your_operators                             */
     /*! \{                                                                 */
 
-    UInt32 getNumCreated  (void) const;
-    UInt32 getNumDestroyed(void) const;
+    UInt32 getNumCreated(void) const;
+    UInt32 getNumChanged(void) const;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -244,7 +244,7 @@ class OSG_BASE_DLLMAPPING ChangeList : public MemoryObject
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/
 
-    typedef void (ContainerChangeEntry::*CommitFunction)(void);
+    typedef void (ContainerChangeEntry::*CommitFunction)(UInt32);
 
   protected:
 
@@ -344,7 +344,7 @@ class OSG_BASE_DLLMAPPING ChangeList : public MemoryObject
 
 
     template<CommitFunction func>
-    void doCommitChanges(void);
+    void doCommitChanges(UInt32 AdditionalChangeOrigin = 0);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -387,11 +387,11 @@ class OSG_BASE_DLLMAPPING ChangeList : public MemoryObject
 /*! \brief Convenience function for committing changes
     \ingroup GrpBaseFieldContainerFuncs
  */
-void commitChanges        (void);
+void commitChanges        (UInt32 AdditionalChangeOrigin = 0);
 /*! \brief Convenience function for committing changes
     \ingroup GrpBaseFieldContainerFuncs
  */
-void commitChangesAndClear(void);
+void commitChangesAndClear(UInt32 AdditionalChangeOrigin = 0);
 /*! \brief Convenience function for committing changes
     \ingroup GrpBaseFieldContainerFuncs
  */

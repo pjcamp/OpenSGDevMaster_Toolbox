@@ -48,6 +48,10 @@
 
 OSG_BEGIN_NAMESPACE
 
+/*! \ingroup GrpFileIOOSB
+    \nohierarchy
+ */
+
 class OSG_FILEIO_DLLMAPPING OSBCommonElement : public OSBElementBase
 {
    /*==========================  PUBLIC  =================================*/
@@ -143,11 +147,12 @@ class OSG_FILEIO_DLLMAPPING OSBCommonElement : public OSBElementBase
     /*! \name Prewriting Helper Methods                                    */
     /*! \{                                                                 */
 
-    void preWritePtrSingleField    (const UInt32                    fieldId);
-    void preWritePtrMultiField     (const UInt32                    fieldId);
-    void preWriteMapField          (const UInt32                    fieldId);
-    void preWriteFieldContainer    (      FieldContainer * const fc,
-                                    const std::string       &excludeFields);
+    void preWritePtrSingleField    (const UInt32          fieldId      );
+    void preWritePtrMultiField     (const UInt32          fieldId      );
+    void preWriteAttachmentMapField(const UInt32          fieldId      );
+    void preWriteMapField          (const UInt32          fieldId      );
+    void preWriteFieldContainer    (      FieldContainer *fc,
+                                    const std::string    &excludeFields);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -165,10 +170,11 @@ class OSG_FILEIO_DLLMAPPING OSBCommonElement : public OSBElementBase
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
-    /*! \name Misc Helper Methods                                          */
+    /*! \name Map Helper Methods                                           */
     /*! \{                                                                 */
 
-    void handleMapElementPreWrite(FieldContainer *refedFC);
+    void handleAttachmentMapElementPreWrite(FieldContainer *refedFC);
+    void handleMapElementPreWrite          (FieldContainer *refedFC);
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/

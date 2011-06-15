@@ -251,7 +251,6 @@ RotateManipulator *RotateManipulatorBase::createEmpty(void)
     return returnValue;
 }
 
-
 FieldContainerTransitPtr RotateManipulatorBase::shallowCopyLocal(
     BitVector bFlags) const
 {
@@ -297,7 +296,6 @@ FieldContainerTransitPtr RotateManipulatorBase::shallowCopy(void) const
 
 
 
-
 /*------------------------- constructors ----------------------------------*/
 
 RotateManipulatorBase::RotateManipulatorBase(void) :
@@ -316,6 +314,7 @@ RotateManipulatorBase::RotateManipulatorBase(const RotateManipulatorBase &source
 RotateManipulatorBase::~RotateManipulatorBase(void)
 {
 }
+
 
 
 

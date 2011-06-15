@@ -13,13 +13,13 @@
    docGroupBase="GrpSystemShader"
    >
   <Field
-	 name="osgVarType"
-	 type="UInt32"
-	 cardinality="single"
-	 visibility="external"
-	 access="protected"
+     name="osgVarType"
+     type="UInt32"
+     cardinality="single"
+     visibility="external"
+     access="protected"
      defaultValue="0"
-	 >
-	parameter value
+     >
+    parameter value
   </Field>
 </FieldContainer>

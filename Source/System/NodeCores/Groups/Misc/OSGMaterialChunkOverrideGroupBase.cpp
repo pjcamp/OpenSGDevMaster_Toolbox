@@ -155,6 +155,7 @@ MaterialChunkOverrideGroupBase::TypeObject MaterialChunkOverrideGroupBase::_type
     "   parentsystemcomponent=\"true\"\n"
     "   isNodeCore=\"true\"\n"
     "   authors=\"Johannes Brunen\"\n"
+    "   docGroupBase=\"GrpGroupMisc\"\n"
     "   >\n"
     "  MaterialChunkOverrideGroup is a ChunkOverrideGroup  node that takes a\n"
     "  material  instead of individual chunks. If the material can't be finalized\n"
@@ -246,6 +247,7 @@ void MaterialChunkOverrideGroupBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (MaterialFieldMask & whichField))
     {
+        editSField(MaterialFieldMask);
         _sfMaterial.copyFromBin(pMem);
     }
 }

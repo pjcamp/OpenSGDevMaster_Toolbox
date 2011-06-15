@@ -78,8 +78,6 @@ OSG_BEGIN_NAMESPACE
 \***************************************************************************/
 
 /*! \class OSG::Window
-    \ingroup GrpSystemWindow
-
     Window is the base class for all window management classes.  See \ref
     PageSystemWindowWindow for a description.
 
@@ -308,7 +306,7 @@ void WindowBase::classDescInserter(TypeObject &oType)
         "renderOptions",
         "",
         RenderOptionsFieldId, RenderOptionsFieldMask,
-        true,
+        false,
         (Field::SFDefaultFlags | Field::FStdAccess),
         static_cast<FieldEditMethodSig>(&Window::editHandleRenderOptions),
         static_cast<FieldGetMethodSig >(&Window::getHandleRenderOptions));
@@ -367,15 +365,15 @@ WindowBase::TypeObject WindowBase::_type(
     "<?xml version=\"1.0\"?>\n"
     "\n"
     "<FieldContainer\n"
-    "\tname=\"Window\"\n"
-    "\tparent=\"HardwareContext\"\n"
-    "\tlibrary=\"System\"\n"
-    "\tpointerfieldtypes=\"both\"\n"
-    "\tstructure=\"abstract\"\n"
-    "\tsystemcomponent=\"true\"\n"
-    "\tparentsystemcomponent=\"true\"\n"
-    ">\n"
-    "\\ingroup GrpSystemWindow\n"
+    "   name=\"Window\"\n"
+    "   parent=\"HardwareContext\"\n"
+    "   library=\"System\"\n"
+    "   pointerfieldtypes=\"both\"\n"
+    "   structure=\"abstract\"\n"
+    "   systemcomponent=\"true\"\n"
+    "   parentsystemcomponent=\"true\"\n"
+    "   docGroupBase=\"GrpSystemWindow\"\n"
+    "   >\n"
     "\n"
     "Window is the base class for all window management classes.  See \\ref\n"
     "PageSystemWindowWindow for a description.\n"
@@ -510,7 +508,7 @@ WindowBase::TypeObject WindowBase::_type(
     "\t   cardinality=\"single\"\n"
     "\t   visibility=\"internal\"\n"
     "\t   access=\"public\"\n"
-    "       defaultValue=\"(Window::SequentialPartitionDraw | Window::StdDrawer | Window::KeepContextActive)\"\n"
+    "       defaultValue=\"(Window::SequentialPartitionDraw | Window::StdDrawer | Window::ActiveContext)\"\n"
     "       >\n"
     "    </Field>\n"
     "    <Field\n"
@@ -537,8 +535,6 @@ WindowBase::TypeObject WindowBase::_type(
     "    </Field>\n"
     "    \n"
     "</FieldContainer>\n",
-    "\\ingroup GrpSystemWindow\n"
-    "\n"
     "Window is the base class for all window management classes.  See \\ref\n"
     "PageSystemWindowWindow for a description.\n"
     "\n"
@@ -980,58 +976,72 @@ void WindowBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (WidthFieldMask & whichField))
     {
+        editSField(WidthFieldMask);
         _sfWidth.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (HeightFieldMask & whichField))
     {
+        editSField(HeightFieldMask);
         _sfHeight.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (PortFieldMask & whichField))
     {
+        editMField(PortFieldMask, _mfPort);
         _mfPort.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (GlObjectEventCounterFieldMask & whichField))
     {
+        editSField(GlObjectEventCounterFieldMask);
         _sfGlObjectEventCounter.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (GlObjectLastRefreshFieldMask & whichField))
     {
+        editMField(GlObjectLastRefreshFieldMask, _mfGlObjectLastRefresh);
         _mfGlObjectLastRefresh.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (GlObjectLastReinitializeFieldMask & whichField))
     {
+        editMField(GlObjectLastReinitializeFieldMask, _mfGlObjectLastReinitialize);
         _mfGlObjectLastReinitialize.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DrawerIdFieldMask & whichField))
     {
+        editSField(DrawerIdFieldMask);
         _sfDrawerId.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (RequestMajorFieldMask & whichField))
     {
+        editSField(RequestMajorFieldMask);
         _sfRequestMajor.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (RequestMinorFieldMask & whichField))
     {
+        editSField(RequestMinorFieldMask);
         _sfRequestMinor.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ContextFlagsFieldMask & whichField))
     {
+        editSField(ContextFlagsFieldMask);
         _sfContextFlags.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (RenderOptionsFieldMask & whichField))
     {
+        editSField(RenderOptionsFieldMask);
         _sfRenderOptions.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DrawModeFieldMask & whichField))
     {
+        editSField(DrawModeFieldMask);
         _sfDrawMode.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (RendererInfoFieldMask & whichField))
     {
+        editSField(RendererInfoFieldMask);
         _sfRendererInfo.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DrawTasksFieldMask & whichField))
     {
+        editMField(DrawTasksFieldMask, _mfDrawTasks);
         _mfDrawTasks.copyFromBin(pMem);
     }
 }
@@ -1056,7 +1066,7 @@ WindowBase::WindowBase(void) :
     _sfRequestMinor           (Int32(0)),
     _sfContextFlags           (Int32(0)),
     _sfRenderOptions          (NULL),
-    _sfDrawMode               (UInt32((Window::SequentialPartitionDraw | Window::StdDrawer | Window::KeepContextActive))),
+    _sfDrawMode               (UInt32((Window::SequentialPartitionDraw | Window::StdDrawer | Window::ActiveContext))),
     _sfRendererInfo           (std::string("unknown")),
     _mfDrawTasks              ()
 {
@@ -1115,8 +1125,15 @@ bool WindowBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("WindowBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }

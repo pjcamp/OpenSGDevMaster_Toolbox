@@ -311,7 +311,7 @@ CgFXMaterialBase::TypeObject CgFXMaterialBase::_type(
     CgFXMaterial::exitMethod,
     reinterpret_cast<InitalInsertDescFunc>(&CgFXMaterial::classDescInserter),
     false,
-    TreatTechniquesAsVariantsFieldMask,
+    TreatTechniquesAsVariantsFieldMask | EffectStringFieldMask | EffectFileFieldMask,
     "<?xml version=\"1.0\"?>\n"
     "\n"
     "<FieldContainer\n"
@@ -827,46 +827,57 @@ void CgFXMaterialBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (TreatTechniquesAsVariantsFieldMask & whichField))
     {
+        editSField(TreatTechniquesAsVariantsFieldMask);
         _sfTreatTechniquesAsVariants.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ParameterValueSourceFieldMask & whichField))
     {
+        editSField(ParameterValueSourceFieldMask);
         _sfParameterValueSource.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (EffectFileFieldMask & whichField))
     {
+        editSField(EffectFileFieldMask);
         _sfEffectFile.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (EffectStringFieldMask & whichField))
     {
+        editSField(EffectStringFieldMask);
         _sfEffectString.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (CompilerOptionsFieldMask & whichField))
     {
+        editMField(CompilerOptionsFieldMask, _mfCompilerOptions);
         _mfCompilerOptions.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (VariablesFieldMask & whichField))
     {
+        editSField(VariablesFieldMask);
         _sfVariables.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (SelectedTechniqueFieldMask & whichField))
     {
+        editSField(SelectedTechniqueFieldMask);
         _sfSelectedTechnique.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (StateVariablesFieldMask & whichField))
     {
+        editSField(StateVariablesFieldMask);
         _sfStateVariables.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (TechniquesFieldMask & whichField))
     {
+        editMField(TechniquesFieldMask, _mfTechniques);
         _mfTechniques.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (TexturesFieldMask & whichField))
     {
+        editMField(TexturesFieldMask, _mfTextures);
         _mfTextures.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (GLIdFieldMask & whichField))
     {
+        editSField(GLIdFieldMask);
         _sfGLId.copyFromBin(pMem);
     }
 }
@@ -943,7 +954,6 @@ CgFXMaterial *CgFXMaterialBase::createEmpty(void)
     return returnValue;
 }
 
-
 FieldContainerTransitPtr CgFXMaterialBase::shallowCopyLocal(
     BitVector bFlags) const
 {
@@ -986,7 +996,6 @@ FieldContainerTransitPtr CgFXMaterialBase::shallowCopy(void) const
 
     return returnValue;
 }
-
 
 
 
@@ -1049,7 +1058,7 @@ bool CgFXMaterialBase::unlinkChild(
 
         if(pTypedChild != NULL)
         {
-            if(pTypedChild == _sfVariables.getValue())
+            if(_sfVariables.getValue() == pTypedChild)
             {
                 editSField(VariablesFieldMask);
 
@@ -1058,8 +1067,15 @@ bool CgFXMaterialBase::unlinkChild(
                 return true;
             }
 
-            FWARNING(("CgFXMaterialBase::unlinkParent: Child <-> "
-                      "Parent link inconsistent.\n"));
+            SWARNING << "Parent (["        << this
+                     << "] id ["           << this->getId()
+                     << "] type ["         << this->getType().getCName()
+                     << "] childFieldId [" << childFieldId
+                     << "]) - Child (["    << pChild
+                     << "] id ["           << pChild->getId()
+                     << "] type ["         << pChild->getType().getCName()
+                     << "]): link inconsistent!"
+                     << std::endl;
 
             return false;
         }
@@ -1408,6 +1424,7 @@ EditFieldHandlePtr CgFXMaterialBase::editHandleGLId           (void)
 
     return returnValue;
 }
+
 
 
 #ifdef OSG_MT_CPTR_ASPECT

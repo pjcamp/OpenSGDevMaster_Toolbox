@@ -75,7 +75,7 @@
 
 #include "OSGOSGSceneFileType.h"
 
-OSG_USING_NAMESPACE
+OSG_BEGIN_NAMESPACE
 
 /***************************************************************************\
  *                            Description                                  *
@@ -203,7 +203,8 @@ RenderPartition::~RenderPartition(void)
 
 /*------------------------------ access -----------------------------------*/
 
-OSG_BEGIN_NAMESPACE
+/*! \nohierarchy
+ */
 
 struct ResetSecond
 {
@@ -212,8 +213,6 @@ struct ResetSecond
         oPair.second = NULL;
     }
 };
-
-OSG_END_NAMESPACE
 
 void RenderPartition::reset(Mode eMode)
 {
@@ -485,6 +484,8 @@ void RenderPartition::doExecution   (void)
         mapIt  = _mTransMatTrees.begin();
         mapEnd = _mTransMatTrees.end  ();
 
+        _oDrawEnv.deactivateState();
+
         if(!_bZWriteTrans)
             glDepthMask(false);
 
@@ -516,6 +517,12 @@ void RenderPartition::doExecution   (void)
         glMatrixMode (GL_PROJECTION);
         glPopMatrix();
         glMatrixMode(GL_MODELVIEW);
+    }
+
+    //Draw the foregrounds
+    for(UInt16 i=0; i < _vpForegrounds.size(); ++i)
+    {
+        _vpForegrounds[i]->draw(&_oDrawEnv);
     }
 
     // We always push/pop so stages with callback can modify the values
@@ -657,7 +664,7 @@ bool RenderPartition::pushShaderState(State *pState)
 
         if(pShader == NULL)
         {
-            pShader = ShaderExecutableChunk::create();
+            pShader = ShaderExecutableChunk::createLocal();
 
             typedef StateOverride::ProgramChunkStore ProgChunkStore;
 
@@ -694,7 +701,7 @@ bool RenderPartition::pushShaderState(State *pState)
 
         if(pShaderVar == NULL)
         {
-            pShaderVar = ShaderExecutableVarChunk::create();
+            pShaderVar = ShaderExecutableVarChunk::createLocal();
 
             typedef StateOverride::ProgramVarChunkStore ProgVarChunkStore;
 
@@ -1242,12 +1249,12 @@ void RenderPartition::initVPMatricesFromCamera(void)
     _oDrawEnv.initVPMatricesFromCamera();
 }
 
-void RenderPartition::setVPCameraMatrices(const Matrixr &mFullprojection,
-                                          const Matrixr &mProjection,
-                                          const Matrixr &mProjectionTrans,
-                                          const Matrixr &mViewing,
-                                          const Matrixr &mToWorld,
-                                          const Matrixr &mWorldToScreen  )
+void RenderPartition::setVPCameraMatrices(const Matrix &mFullprojection,
+                                          const Matrix &mProjection,
+                                          const Matrix &mProjectionTrans,
+                                          const Matrix &mViewing,
+                                          const Matrix &mToWorld,
+                                          const Matrix &mWorldToScreen  )
 {
     _oDrawEnv.setVPCameraMatrices(mFullprojection,
                                   mProjection,
@@ -1322,3 +1329,5 @@ const Matrix &RenderPartition::topMatrix(void)
 
 /*-------------------------------------------------------------------------*/
 /*                              cvs id's                                   */
+
+OSG_END_NAMESPACE

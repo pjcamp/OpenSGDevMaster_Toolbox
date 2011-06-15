@@ -51,9 +51,7 @@
 #include "OSGRenderAction.h"
 #include "OSGSceneFileHandler.h"
 #include "OSGVolumeDraw.h"
-#ifndef OSG_EMBEDDED
 #include "OSGIntersectAction.h"
-#endif
 
 #include "OSGVisitSubTree.h"
 
@@ -152,7 +150,7 @@ void VisitSubTree::adjustVolume(Volume &volume)
         //The transform of the parent of the subTreeRoot needs to be removed from the volume transform
         if(getSubTreeRoot()->getParent() != NULL)
         {
-            Matrixr InvParentMat(getSubTreeRoot()->getParent()->getToWorld());
+            Matrix InvParentMat(getSubTreeRoot()->getParent()->getToWorld());
             InvParentMat.invert();
             volume.transform(InvParentMat);
         }
@@ -171,6 +169,20 @@ ActionBase::ResultE VisitSubTree::renderEnter(Action *action)
       
     a->pushTravMask();
 
+    switch(_sfTravMaskMode.getValue())
+    {
+        case VisitSubTree::AndTravMask:
+            a->andTravMask(_sfSubTreeTravMask.getValue());
+            break;
+        case VisitSubTree::OrTravMask:
+            a->orTravMask(_sfSubTreeTravMask.getValue());
+            break;
+        case VisitSubTree::ReplaceTravMask:
+            a->setTravMask(_sfSubTreeTravMask.getValue());
+            break;
+        default:
+            break;
+    }
     a->setTravMask(_sfSubTreeTravMask.getValue());
 
     if(this->getSubTreeRoot() != NULL && a->isVisible(this->getSubTreeRoot()))
@@ -191,7 +203,6 @@ ActionBase::ResultE VisitSubTree::renderLeave(Action *action)
 /*-------------------------------------------------------------------------*/
 /*                             Intersect                                   */
 
-#ifndef OSG_EMBEDDED
 ActionBase::ResultE VisitSubTree::intersect(Action *action)
 {
           IntersectAction *ia = dynamic_cast<IntersectAction *>(action);
@@ -206,7 +217,6 @@ ActionBase::ResultE VisitSubTree::intersect(Action *action)
 
     return ActionBase::Continue;
 }
-#endif
 
 
 /*-------------------------------------------------------------------------*/
@@ -229,11 +239,9 @@ void VisitSubTree::initMethod(InitPhase ePhase)
             VisitSubTree::getClassType(),
             reinterpret_cast<Action::Callback>(&VisitSubTree::renderLeave));
 
-#ifndef OSG_EMBEDDED
         IntersectAction::registerEnterDefault(
             getClassType(),
             reinterpret_cast<Action::Callback>(&VisitSubTree::intersect));
-#endif
     }
 }
 

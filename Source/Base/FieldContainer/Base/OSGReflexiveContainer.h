@@ -82,6 +82,9 @@ class ReflexiveContainer
 
     typedef const Field *(ReflexiveContainer::*FieldGetMethod )(void) const;
 
+    typedef std::pair<std::string, const TypeBase*> EventDescPair;
+    typedef std::vector<EventDescPair> EventDescVector;
+
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
     /*! \name                      Constants                               */
@@ -178,13 +181,13 @@ class ReflexiveContainer
 
 
     OSG_BASE_DLLMAPPING
-    virtual UInt32              getNumEvents(      void            ) const;
+    virtual UInt32            getNumEvents(      void            ) const;
 
     OSG_BASE_DLLMAPPING 
-    virtual GetEventHandlePtr  getEvent    (      UInt32 eventId  ) const;
+    virtual GetEventHandlePtr getEvent    (      UInt32 eventId  ) const;
     
     OSG_BASE_DLLMAPPING 
-    virtual GetEventHandlePtr  getEvent    (const Char8 *eventName) const;
+    virtual GetEventHandlePtr getEvent    (const Char8 *eventName) const;
 
     OSG_BASE_DLLMAPPING 
     bool isEventProducer(void) const;
@@ -269,6 +272,38 @@ class ReflexiveContainer
     virtual EventDescription const *
                            getEventDescription(const Char8 *eventName) const;
 
+
+    /*! \}                                                                 */
+    /*---------------------------------------------------------------------*/
+    /*! \name                Get Connectable Events                        */
+    /*! \{                                                                 */
+
+    OSG_BASE_DLLMAPPING 
+    bool isEventConnectable(void) const;
+
+    OSG_BASE_DLLMAPPING 
+    virtual bool
+    isConnectableEvent(EventDescription const * eventDesc) const;
+
+    OSG_BASE_DLLMAPPING 
+    virtual EventDescVector getConnectableEvents(void) const;
+
+    OSG_BASE_DLLMAPPING 
+    virtual boost::signals2::connection 
+        connectToEvent(EventDescription const * eventDesc,
+                       ReflexiveContainer* const eventProducer) const;
+
+    OSG_BASE_DLLMAPPING 
+    virtual bool
+        isConnected(EventDescription const * eventDesc) const;
+
+    OSG_BASE_DLLMAPPING 
+    virtual bool
+        disconnectFromEvent(EventDescription const * eventDesc) const;
+
+    OSG_BASE_DLLMAPPING 
+    bool validateConnectable(EventDescription const * eventDesc,
+                             ReflexiveContainer* const eventProducer) const;
 
     /*! \}                                                                 */
     /*---------------------------------------------------------------------*/
@@ -444,6 +479,7 @@ class ReflexiveContainer
     void   setId(UInt32 uiContainerId);
 
     /*! \}                                                                 */
+
     /*==========================  PRIVATE  ================================*/
 
   private:

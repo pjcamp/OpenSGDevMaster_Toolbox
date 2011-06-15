@@ -1,0 +1,13 @@
+#include "OSGConfig.h"
+
+using namespace OSG;
+
+/*! 
+
+   \if separate
+     \page PageWindowX Window X Documentation
+   \else
+     \page PageWindowX Window X
+   \endif
+
+ */

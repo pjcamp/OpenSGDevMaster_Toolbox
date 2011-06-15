@@ -42,13 +42,17 @@
 #pragma once
 #endif
 
+#if defined(WIN32) || defined(OSG_DO_DOC)
+
 #include "OSGWIN32WindowBase.h"
 
 OSG_BEGIN_NAMESPACE
 
-/*! \brief WIN32Window class. See \ref
-           PageWindowWIN32WIN32Window for a description.
-*/
+/*! \brief Win32 Window class. See \ref PageWindowWIN32 for a description. 
+    \ingroup GrpWindowWIN32Obj
+    \ingroup GrpLibOSGWindowWIN32
+    \includebasedoc
+ */
 
 class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
 {
@@ -90,9 +94,7 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
     /*! \name                      Redefined                               */
     /*! \{                                                                 */
 
-    virtual void activate  (void);
-    virtual void deactivate(void);
-    virtual bool swap      (void);
+    void setContext(const HGLRC &val);
 
     /*! \}                                                                 */
 
@@ -204,7 +206,7 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
 
   protected:
 
-    typedef std::map<HWND, WIN32Window*> WIN32HWNDToProducerMap;
+    typedef std::map<HWND, WIN32Window* > WIN32HWNDToProducerMap;
     
 
     // Variables should all be in WIN32WindowBase.
@@ -254,6 +256,8 @@ class OSG_WINDOWWIN32_DLLMAPPING WIN32Window : public WIN32WindowBase
     virtual void doDeactivate(void);
     virtual bool doSwap      (void);
 
+    virtual bool hasContext  (void);
+
     /*! \}                                                                 */
     
 	virtual void setCursor(void);
@@ -290,5 +294,7 @@ OSG_END_NAMESPACE
 
 #include "OSGWIN32WindowBase.inl"
 #include "OSGWIN32Window.inl"
+
+#endif /* defined(WIN32) || defined(OSG_DO_DOC) */
 
 #endif /* _OSGWIN32WINDOW_H_ */

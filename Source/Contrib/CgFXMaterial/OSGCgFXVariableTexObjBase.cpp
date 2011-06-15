@@ -282,6 +282,7 @@ void CgFXVariableTexObjBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (ValueFieldMask & whichField))
     {
+        editSField(ValueFieldMask);
         _sfValue.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (FilePathFieldMask & whichField))

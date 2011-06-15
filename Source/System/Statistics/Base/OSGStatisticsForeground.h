@@ -47,7 +47,11 @@
 OSG_BEGIN_NAMESPACE
 
 /*! \brief Statistics Foregrounds base class.
-*/
+    \ingroup GrpSystemStatisticsObj
+    \ingroup GrpLibOSGSystem
+    \includebasedoc
+ */
+
 class OSG_SYSTEM_DLLMAPPING StatisticsForeground :
     public StatisticsForegroundBase
 {
@@ -78,7 +82,7 @@ class OSG_SYSTEM_DLLMAPPING StatisticsForeground :
     /*! \name                   draw                                       */
     /*! \{                                                                 */
 
-    virtual void draw(DrawEnv *pEnv, Viewport *pPort) = 0;
+    virtual void draw(DrawEnv *pEnv) = 0;
 
     /*! \}                                                                 */
     /*=========================  PROTECTED  ===============================*/

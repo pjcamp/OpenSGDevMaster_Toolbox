@@ -115,6 +115,10 @@ void CSMNativeWindow::resolveLinks(void)
 {
 }
 
+void CSMNativeWindow::terminateGLContext(void)
+{
+}
+
 bool CSMNativeWindow::init(void)
 {
     FFATAL(("No native window available !! Terminating\n"));

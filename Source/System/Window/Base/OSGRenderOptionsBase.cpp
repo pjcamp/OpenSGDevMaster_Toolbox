@@ -623,300 +623,302 @@ RenderOptionsBase::TypeObject RenderOptionsBase::_type(
     "<?xml version=\"1.0\"?>\n"
     "\n"
     "<FieldContainer\n"
-    "\tname=\"RenderOptions\"\n"
-    "\tparent=\"Attachment\"\n"
-    "\tlibrary=\"System\"\n"
-    "\tpointerfieldtypes=\"both\"\n"
-    "\tstructure=\"concrete\"\n"
-    "\tsystemcomponent=\"true\"\n"
-    "\tparentsystemcomponent=\"true\"\n"
+    "   name=\"RenderOptions\"\n"
+    "   parent=\"Attachment\"\n"
+    "   library=\"System\"\n"
+    "   pointerfieldtypes=\"both\"\n"
+    "   structure=\"concrete\"\n"
+    "   systemcomponent=\"true\"\n"
+    "   parentsystemcomponent=\"true\"\n"
     "\tdecoratable=\"false\"\n"
-    "\tuseLocalIncludes=\"false\"\n"
-    ">\n"
-    "\t<Field\n"
-    "\t   name=\"renderProperties\"\n"
-    "\t   type=\"MaterialMapKey\"\n"
-    "\t   cardinality=\"single\"\n"
-    "\t   visibility=\"external\"\n"
-    "\t   defaultValue=\"0x0000\"\n"
-    "\t   access=\"public\"\n"
-    "           fieldHeader=\"OSGMaterialMapFields.h\"\n"
-    "           typeHeader=\"OSGMaterialMapFields.h\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t   name=\"useGLFinish\"\n"
-    "\t   type=\"bool\"\n"
-    "\t   cardinality=\"single\"\n"
-    "\t   visibility=\"external\"\n"
-    "\t   defaultValue=\"false\"\n"
-    "\t   access=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
+    "   useLocalIncludes=\"false\"\n"
+    "   docGroupBase=\"GrpSystemWindow\"\n"
+    "   >\n"
     "\n"
-    "\t<Field\n"
-    "\t\tname=\"statistic\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"false\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"polygonMode\"\n"
-    "\t\ttype=\"GLenum\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"GL_FILL\"\n"
-    "\t\tdefaultHeader=\"&quot;OSGGL.h&quot;\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"twoSidedLighting\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"false\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"specTexLighting\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"false\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"sortTrans\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"true\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"zWriteTrans\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"true\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"localLights\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"true\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"correctTwoSidedLighting\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"true\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"occlusionCulling\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"false\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"occlusionCullingMode\"\n"
-    "\t\ttype=\"Int32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"1\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
+    "  <Field\n"
+    "\t name=\"renderProperties\"\n"
+    "\t type=\"MaterialMapKey\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"0x0000\"\n"
+    "\t access=\"public\"\n"
+    "     fieldHeader=\"OSGMaterialMapFields.h\"\n"
+    "     typeHeader=\"OSGMaterialMapFields.h\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"useGLFinish\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"false\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  \n"
+    "  <Field\n"
+    "\t name=\"statistic\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"false\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"polygonMode\"\n"
+    "\t type=\"GLenum\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"GL_FILL\"\n"
+    "\t defaultHeader=\"&quot;OSGGL.h&quot;\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"twoSidedLighting\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"false\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"specTexLighting\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"false\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"sortTrans\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"true\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"zWriteTrans\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"true\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"localLights\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"true\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"correctTwoSidedLighting\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"true\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"occlusionCulling\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"false\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"occlusionCullingMode\"\n"
+    "\t type=\"Int32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"1\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
     "\tOcclusionStopAndWait (1) or OcclusionMultiFrame (2)\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"occlusionCullingPixels\"\n"
-    "\t\ttype=\"UInt32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"0\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"occlusionCullingPixels\"\n"
+    "\t type=\"UInt32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"0\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
     "\tculls objects with this number of visible pixels default is zero.\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"antialiasing\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"false\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"antialiasingDistance\"\n"
-    "\t\ttype=\"Real32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"0.2\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"antialiasingScale\"\n"
-    "\t\ttype=\"Real32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"2.0\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"antialiasingTrigger\"\n"
-    "\t\ttype=\"UInt32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"0\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"frustumCulling\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"false\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"backfaceCulling\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"false\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"smallFeatureCulling\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"smallFeaturePixels\"\n"
-    "\t\ttype=\"Real32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"smallFeatureThreshold\"\n"
-    "\t\ttype=\"UInt32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"firstFrame\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"true\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "    <Field\n"
-    "\t\tname=\"depthOnlyPass\"\n"
-    "\t\ttype=\"bool\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"false\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"lightModelAmbient\"\n"
-    "\t\ttype=\"Color4f\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"0.2f,0.2f,0.2f,1.0f\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"fogColor\"\n"
-    "\t\ttype=\"Color4f\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"0,0,0,0\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"fogRange\"\n"
-    "\t\ttype=\"Vec2f\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"0,1\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"fogDensity\"\n"
-    "\t\ttype=\"Real32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"1\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"fogMode\"\n"
-    "\t\ttype=\"Int32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"0\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"multiSample\"\n"
-    "\t\ttype=\"UInt32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"1\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"antialiasing\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"false\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"antialiasingDistance\"\n"
+    "\t type=\"Real32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"0.2\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"antialiasingScale\"\n"
+    "\t type=\"Real32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"2.0\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"antialiasingTrigger\"\n"
+    "\t type=\"UInt32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"0\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"frustumCulling\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"false\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"backfaceCulling\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"false\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"smallFeatureCulling\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"smallFeaturePixels\"\n"
+    "\t type=\"Real32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"smallFeatureThreshold\"\n"
+    "\t type=\"UInt32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"firstFrame\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"true\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"depthOnlyPass\"\n"
+    "\t type=\"bool\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"false\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"lightModelAmbient\"\n"
+    "\t type=\"Color4f\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"0.2f,0.2f,0.2f,1.0f\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"fogColor\"\n"
+    "\t type=\"Color4f\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"0,0,0,0\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"fogRange\"\n"
+    "\t type=\"Vec2f\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"0,1\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"fogDensity\"\n"
+    "\t type=\"Real32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"1\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"fogMode\"\n"
+    "\t type=\"Int32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"0\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"multiSample\"\n"
+    "\t type=\"UInt32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"1\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
     "\tnumber of multi-sample-buffer used for FSAA\n"
-    "\t</Field>\n"
-    "\t<Field\n"
-    "\t\tname=\"multiSampleFilterMode\"\n"
-    "\t\ttype=\"UInt32\"\n"
-    "\t\tcardinality=\"single\"\n"
-    "\t\tvisibility=\"external\"\n"
-    "\t\tdefaultValue=\"0\"\n"
-    "\t\taccess=\"public\"\n"
-    "\t>\n"
+    "  </Field>\n"
+    "  <Field\n"
+    "\t name=\"multiSampleFilterMode\"\n"
+    "\t type=\"UInt32\"\n"
+    "\t cardinality=\"single\"\n"
+    "\t visibility=\"external\"\n"
+    "\t defaultValue=\"0\"\n"
+    "\t access=\"public\"\n"
+    "\t >\n"
     "\tdefindes the filter-method for multi-sample buffer, must be GL_FALSE/0 (off), GL_DONT_CARE, GL_FASTEST or GL_NICEST\n"
-    "\t</Field>\n"
+    "  </Field>\n"
     "</FieldContainer>\n",
     ""
     );
@@ -1620,126 +1622,157 @@ void RenderOptionsBase::copyFromBin(BinaryDataHandler &pMem,
 
     if(FieldBits::NoField != (RenderPropertiesFieldMask & whichField))
     {
+        editSField(RenderPropertiesFieldMask);
         _sfRenderProperties.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (UseGLFinishFieldMask & whichField))
     {
+        editSField(UseGLFinishFieldMask);
         _sfUseGLFinish.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (StatisticFieldMask & whichField))
     {
+        editSField(StatisticFieldMask);
         _sfStatistic.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (PolygonModeFieldMask & whichField))
     {
+        editSField(PolygonModeFieldMask);
         _sfPolygonMode.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (TwoSidedLightingFieldMask & whichField))
     {
+        editSField(TwoSidedLightingFieldMask);
         _sfTwoSidedLighting.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (SpecTexLightingFieldMask & whichField))
     {
+        editSField(SpecTexLightingFieldMask);
         _sfSpecTexLighting.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (SortTransFieldMask & whichField))
     {
+        editSField(SortTransFieldMask);
         _sfSortTrans.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (ZWriteTransFieldMask & whichField))
     {
+        editSField(ZWriteTransFieldMask);
         _sfZWriteTrans.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (LocalLightsFieldMask & whichField))
     {
+        editSField(LocalLightsFieldMask);
         _sfLocalLights.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (CorrectTwoSidedLightingFieldMask & whichField))
     {
+        editSField(CorrectTwoSidedLightingFieldMask);
         _sfCorrectTwoSidedLighting.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (OcclusionCullingFieldMask & whichField))
     {
+        editSField(OcclusionCullingFieldMask);
         _sfOcclusionCulling.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (OcclusionCullingModeFieldMask & whichField))
     {
+        editSField(OcclusionCullingModeFieldMask);
         _sfOcclusionCullingMode.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (OcclusionCullingPixelsFieldMask & whichField))
     {
+        editSField(OcclusionCullingPixelsFieldMask);
         _sfOcclusionCullingPixels.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (AntialiasingFieldMask & whichField))
     {
+        editSField(AntialiasingFieldMask);
         _sfAntialiasing.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (AntialiasingDistanceFieldMask & whichField))
     {
+        editSField(AntialiasingDistanceFieldMask);
         _sfAntialiasingDistance.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (AntialiasingScaleFieldMask & whichField))
     {
+        editSField(AntialiasingScaleFieldMask);
         _sfAntialiasingScale.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (AntialiasingTriggerFieldMask & whichField))
     {
+        editSField(AntialiasingTriggerFieldMask);
         _sfAntialiasingTrigger.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (FrustumCullingFieldMask & whichField))
     {
+        editSField(FrustumCullingFieldMask);
         _sfFrustumCulling.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (BackfaceCullingFieldMask & whichField))
     {
+        editSField(BackfaceCullingFieldMask);
         _sfBackfaceCulling.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (SmallFeatureCullingFieldMask & whichField))
     {
+        editSField(SmallFeatureCullingFieldMask);
         _sfSmallFeatureCulling.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (SmallFeaturePixelsFieldMask & whichField))
     {
+        editSField(SmallFeaturePixelsFieldMask);
         _sfSmallFeaturePixels.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (SmallFeatureThresholdFieldMask & whichField))
     {
+        editSField(SmallFeatureThresholdFieldMask);
         _sfSmallFeatureThreshold.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (FirstFrameFieldMask & whichField))
     {
+        editSField(FirstFrameFieldMask);
         _sfFirstFrame.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (DepthOnlyPassFieldMask & whichField))
     {
+        editSField(DepthOnlyPassFieldMask);
         _sfDepthOnlyPass.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (LightModelAmbientFieldMask & whichField))
     {
+        editSField(LightModelAmbientFieldMask);
         _sfLightModelAmbient.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (FogColorFieldMask & whichField))
     {
+        editSField(FogColorFieldMask);
         _sfFogColor.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (FogRangeFieldMask & whichField))
     {
+        editSField(FogRangeFieldMask);
         _sfFogRange.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (FogDensityFieldMask & whichField))
     {
+        editSField(FogDensityFieldMask);
         _sfFogDensity.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (FogModeFieldMask & whichField))
     {
+        editSField(FogModeFieldMask);
         _sfFogMode.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (MultiSampleFieldMask & whichField))
     {
+        editSField(MultiSampleFieldMask);
         _sfMultiSample.copyFromBin(pMem);
     }
     if(FieldBits::NoField != (MultiSampleFilterModeFieldMask & whichField))
     {
+        editSField(MultiSampleFilterModeFieldMask);
         _sfMultiSampleFilterMode.copyFromBin(pMem);
     }
 }
